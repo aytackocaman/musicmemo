@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../services/auth_service.dart';
 import '../services/supabase_service.dart';
 
 /// Auth state that tracks the current user
 class AuthState {
-  final User? user;
+  final supabase.User? user;
   final bool isLoading;
   final String? error;
 
@@ -20,7 +20,7 @@ class AuthState {
   bool get isGuest => user != null && user!.isAnonymous;
 
   AuthState copyWith({
-    User? user,
+    supabase.User? user,
     bool? isLoading,
     String? error,
   }) {
@@ -34,7 +34,7 @@ class AuthState {
 
 /// Auth state notifier that manages authentication
 class AuthNotifier extends StateNotifier<AuthState> {
-  StreamSubscription<AuthState>? _authSubscription;
+  StreamSubscription<supabase.AuthState>? _authSubscription;
 
   AuthNotifier() : super(const AuthState(isLoading: true)) {
     _init();
@@ -178,6 +178,6 @@ final isGuestProvider = Provider<bool>((ref) {
 });
 
 /// Convenience provider for current user
-final currentUserProvider = Provider<User?>((ref) {
+final currentUserProvider = Provider<supabase.User?>((ref) {
   return ref.watch(authProvider).user;
 });

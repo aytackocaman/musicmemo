@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
+import 'game/single_player_game_screen.dart';
 
 /// Grid size option for the game
 class GridOption {
@@ -114,26 +115,34 @@ class GridScreen extends ConsumerWidget {
     final category = ref.read(selectedCategoryProvider);
 
     if (gameMode == null || category == null) {
-      // Should not happen, but handle gracefully
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select game mode and category')),
       );
       return;
     }
 
-    // TODO: For local multiplayer, navigate to player setup screen first
-    // TODO: Navigate to game screen and start the game
-    // For now, show a placeholder message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Starting ${gameMode.name} game with $category category on ${gridOption.id} grid',
+    // Navigate based on game mode
+    if (gameMode == GameMode.singlePlayer) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SinglePlayerGameScreen(
+            category: category,
+            gridSize: gridOption.id,
+          ),
         ),
-      ),
-    );
-
-    // Pop back to home for now until game screen is implemented
-    Navigator.popUntil(context, (route) => route.isFirst);
+      );
+    } else if (gameMode == GameMode.localMultiplayer) {
+      // TODO: Navigate to player setup screen first
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Local multiplayer coming soon!')),
+      );
+    } else {
+      // Online multiplayer
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Online multiplayer coming soon!')),
+      );
+    }
   }
 }
 

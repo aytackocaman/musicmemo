@@ -72,11 +72,11 @@
 
 ## Phase 3: Game Core
 
-### 3.1 Card System
-- [ ] Create Card model (id, soundId, state)
-- [ ] Build GameCard widget with flip animation
-- [ ] Implement card states (face down, flipped, matched)
-- [ ] Add card grid layout (responsive to grid size)
+### 3.1 Card System ✅
+- [x] Create Card model (id, soundId, state) - in game_provider.dart
+- [x] Build GameCard widget with flip animation
+- [x] Implement card states (face down, flipped, matched)
+- [x] Add card grid layout (responsive to grid size)
 
 ### 3.2 Sound System
 - [ ] Set up audioplayers package
@@ -85,20 +85,20 @@
 - [ ] Implement sound preloading
 - [ ] Handle sound categories
 
-### 3.3 Game Logic
-- [ ] Card shuffle algorithm
-- [ ] Match detection (compare sound IDs)
-- [ ] Turn management
-- [ ] Score calculation
-- [ ] Move counter
-- [ ] Timer implementation
-- [ ] Win condition detection
+### 3.3 Game Logic ✅
+- [x] Card shuffle algorithm (game_utils.dart)
+- [x] Match detection (compare sound IDs)
+- [x] Turn management
+- [x] Score calculation
+- [x] Move counter
+- [x] Timer implementation
+- [x] Win condition detection
 
-### 3.4 Single Player Game Screen
-- [ ] Implement game board
-- [ ] Add stats display (score, moves, time)
-- [ ] Handle game completion
-- [ ] Show Win Screen with results
+### 3.4 Single Player Game Screen ✅
+- [x] Implement game board
+- [x] Add stats display (score, moves, time)
+- [x] Handle game completion
+- [x] Show Win Screen with results
 
 ---
 
@@ -175,9 +175,10 @@ Start with these tasks in order:
 2. ~~**Complete auth flow**~~ ✅ Done
 3. ~~**Add Riverpod**~~ ✅ Done
 4. ~~**Build navigation screens**~~ ✅ Done (Mode, Category, Grid screens)
-5. **Implement Card widget** - Core game component ← **START HERE**
-6. **Add sound system** - Essential for gameplay
-7. **Single player game** - First playable version
+5. ~~**Implement Card widget**~~ ✅ Done (GameCard with flip animation)
+6. ~~**Single player game**~~ ✅ Done (Game screen + Win screen)
+7. **Add sound system** - Essential for actual gameplay ← **START HERE**
+8. **Local multiplayer** - Player setup + turn-based game
 
 ---
 
