@@ -7,10 +7,12 @@ class GameCardWidget extends StatefulWidget {
   final CardState state;
   final VoidCallback? onTap;
   final double size;
+  final int cardNumber;
 
   const GameCardWidget({
     super.key,
     required this.state,
+    required this.cardNumber,
     this.onTap,
     this.size = 64,
   });
@@ -100,10 +102,13 @@ class _GameCardWidgetState extends State<GameCardWidget>
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
-        child: Icon(
-          Icons.music_note,
-          size: widget.size * 0.4,
-          color: AppColors.white.withValues(alpha: 0.3),
+        child: Text(
+          '${widget.cardNumber}',
+          style: TextStyle(
+            fontSize: widget.size * 0.4,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white.withValues(alpha: 0.5),
+          ),
         ),
       ),
     );

@@ -22,33 +22,59 @@ class GameBoard extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Calculate card size based on available space
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
 
-        // Account for gaps (8px between cards)
-        final totalGapWidth = (cols - 1) * 8.0;
-        final totalGapHeight = (rows - 1) * 8.0;
+        // Gap between cards
+        const gap = 8.0;
+        final totalGapWidth = (cols - 1) * gap;
+        final totalGapHeight = (rows - 1) * gap;
 
-        final cardWidth = (availableWidth - totalGapWidth) / cols;
-        final cardHeight = (availableHeight - totalGapHeight) / rows;
+        // Calculate max card size that fits width
+        final maxCardWidthByWidth = (availableWidth - totalGapWidth) / cols;
 
-        // Use the smaller dimension to maintain aspect ratio (1:1.25)
-        final maxCardWidth = cardHeight / 1.25;
-        final finalCardSize = cardWidth < maxCardWidth ? cardWidth : maxCardWidth;
+        // Calculate max card size that fits height (cards are 1:1.25 ratio)
+        final maxCardWidthByHeight = (availableHeight - totalGapHeight) / rows / 1.25;
+
+        // Use the smaller to ensure cards fit
+        final cardSize = maxCardWidthByWidth < maxCardWidthByHeight
+            ? maxCardWidthByWidth
+            : maxCardWidthByHeight;
+
+        // Calculate total grid dimensions
+        final gridWidth = (cardSize * cols) + totalGapWidth;
+        final gridHeight = (cardSize * 1.25 * rows) + totalGapHeight;
 
         return Center(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
-            children: cards.map((card) {
-              return GameCardWidget(
-                state: card.state,
-                size: finalCardSize,
-                onTap: () => onCardTap(card.id),
-              );
-            }).toList(),
+          child: SizedBox(
+            width: gridWidth,
+            height: gridHeight,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(rows, (rowIndex) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: rowIndex < rows - 1 ? gap : 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(cols, (colIndex) {
+                      final cardIndex = rowIndex * cols + colIndex;
+                      if (cardIndex >= cards.length) return const SizedBox();
+
+                      final card = cards[cardIndex];
+                      return Padding(
+                        padding: EdgeInsets.only(right: colIndex < cols - 1 ? gap : 0),
+                        child: GameCardWidget(
+                          state: card.state,
+                          size: cardSize,
+                          cardNumber: cardIndex + 1,
+                          onTap: () => onCardTap(card.id),
+                        ),
+                      );
+                    }),
+                  ),
+                );
+              }),
+            ),
           ),
         );
       },
