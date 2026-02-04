@@ -1,0 +1,38 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner/GeneratedPluginRegistrant.*
+
+# Android
+android/.gradle/
+android/local.properties
+android/*.iml
+
+# IDE
+.idea/
+*.swp
+.vscode/
+
+# macOS
+.DS_Store
+*.pem
+
+# Misc
+*.log
+*.lock
+!pubspec.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
