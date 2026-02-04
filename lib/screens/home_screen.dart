@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../widgets/game_button.dart';
+import 'mode_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -57,7 +58,12 @@ class HomeScreen extends StatelessWidget {
                         label: 'Play Game',
                         icon: Icons.play_arrow,
                         onPressed: () {
-                          // TODO: Navigate to game screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ModeScreen(),
+                            ),
+                          );
                         },
                       ),
                       const SizedBox(height: AppSpacing.lg),

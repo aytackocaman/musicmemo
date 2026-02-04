@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/theme.dart';
 import 'services/supabase_service.dart';
 import 'screens/splash_screen.dart';
@@ -13,7 +14,11 @@ void main() async {
   // Initialize Supabase
   await SupabaseService.initialize();
 
-  runApp(const MusicMemoApp());
+  runApp(
+    const ProviderScope(
+      child: MusicMemoApp(),
+    ),
+  );
 }
 
 class MusicMemoApp extends StatelessWidget {

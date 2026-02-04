@@ -45,23 +45,24 @@
 
 ## Phase 2: Core App Structure
 
-### 2.1 State Management
-- [ ] Add Riverpod dependency
-- [ ] Set up providers for:
-  - Auth state
-  - User profile
-  - Game state
-  - Subscription status
+### 2.1 State Management ✅
+- [x] Add Riverpod dependency (flutter_riverpod: ^2.6.1)
+- [x] Set up providers for:
+  - Auth state (authProvider, isAuthenticatedProvider, isGuestProvider)
+  - User profile (userProfileProvider, userProfileNotifierProvider)
+  - Game state (gameProvider, selectedGameModeProvider, playerSetupProvider)
+  - Subscription status (subscriptionProvider, isPremiumProvider)
+  - Daily limits (dailyGameCountsProvider, canPlayGameModeProvider)
 
 ### 2.2 Navigation
-- [ ] Implement navigation flow between screens
+- [x] Implement navigation flow between screens (Home → Mode → Category → Grid)
 - [ ] Add route guards (auth required, subscription required)
 - [ ] Handle deep linking
 
 ### 2.3 Remaining Screens (from Pencil designs)
-- [ ] Mode Selection Screen
-- [ ] Category Selection Screen (with search)
-- [ ] Grid Size Selection Screen
+- [x] Mode Selection Screen
+- [x] Category Selection Screen (with search)
+- [x] Grid Size Selection Screen
 - [ ] Player Setup Screen (local multiplayer)
 - [ ] Statistics Screen
 - [ ] Subscription Screen
@@ -172,9 +173,9 @@ Start with these tasks in order:
 
 1. ~~**Run Supabase migrations**~~ ✅ Done
 2. ~~**Complete auth flow**~~ ✅ Done
-3. **Add Riverpod** - State management foundation ← **START HERE**
-4. **Build Category Screen** - Need content before games
-5. **Implement Card widget** - Core game component
+3. ~~**Add Riverpod**~~ ✅ Done
+4. ~~**Build navigation screens**~~ ✅ Done (Mode, Category, Grid screens)
+5. **Implement Card widget** - Core game component ← **START HERE**
 6. **Add sound system** - Essential for gameplay
 7. **Single player game** - First playable version
 
