@@ -30,14 +30,16 @@
   - `increment_game_count()` - tracks daily plays
 - [x] Fix security warnings (function search paths)
 
-### 1.2 Authentication
-- [ ] Implement email/password sign up
-- [ ] Implement email/password sign in
-- [ ] Add password reset flow
-- [ ] Implement guest mode (anonymous auth)
-- [ ] Add Google Sign-In integration
-- [ ] Handle auth state persistence
-- [ ] Add "link account" for guest users
+### 1.2 Authentication ✅
+- [x] Implement email/password sign up
+- [x] Implement email/password sign in
+- [x] Add password reset flow
+- [x] Implement guest mode (anonymous auth)
+- [x] Handle auth state persistence (via Supabase)
+- [x] Add "link account" for guest users
+- [ ] Add Google Sign-In integration (future)
+
+**Note:** Enable "Allow anonymous sign-ins" in Supabase Dashboard → Authentication → Providers
 
 ---
 
@@ -169,8 +171,8 @@
 Start with these tasks in order:
 
 1. ~~**Run Supabase migrations**~~ ✅ Done
-2. **Complete auth flow** - Email/password + guest mode ← **START HERE**
-3. **Add Riverpod** - State management foundation
+2. ~~**Complete auth flow**~~ ✅ Done
+3. **Add Riverpod** - State management foundation ← **START HERE**
 4. **Build Category Screen** - Need content before games
 5. **Implement Card widget** - Core game component
 6. **Add sound system** - Essential for gameplay

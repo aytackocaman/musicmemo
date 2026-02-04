@@ -29,6 +29,7 @@ class AuthService {
   static SupabaseClient get _client => SupabaseService.client;
 
   /// Sign up with email and password
+  /// Note: Database trigger automatically creates profile, user_stats, and subscription
   static Future<AuthResult> signUp({
     required String email,
     required String password,
@@ -42,8 +43,6 @@ class AuthService {
       );
 
       if (response.user != null) {
-        // Create profile record
-        await _createProfile(response.user!, displayName);
         return AuthResult.success(response.user!);
       }
 
@@ -80,6 +79,64 @@ class AuthService {
     }
   }
 
+  /// Sign in anonymously (guest mode)
+  static Future<AuthResult> signInAsGuest() async {
+    try {
+      final response = await _client.auth.signInAnonymously();
+
+      if (response.user != null) {
+        return AuthResult.success(response.user!);
+      }
+
+      return AuthResult.failure('Guest sign in failed. Please try again.');
+    } on AuthException catch (e) {
+      return AuthResult.failure(_parseAuthError(e.message));
+    } catch (e) {
+      return AuthResult.failure('An unexpected error occurred.');
+    }
+  }
+
+  /// Check if current user is anonymous (guest)
+  static bool get isGuest {
+    final user = _client.auth.currentUser;
+    return user != null && user.isAnonymous;
+  }
+
+  /// Link anonymous account to email/password
+  /// Call this when a guest user wants to create a full account
+  static Future<AuthResult> linkAccountWithEmail({
+    required String email,
+    required String password,
+    String? displayName,
+  }) async {
+    try {
+      final response = await _client.auth.updateUser(
+        UserAttributes(
+          email: email,
+          password: password,
+          data: displayName != null ? {'display_name': displayName} : null,
+        ),
+      );
+
+      if (response.user != null) {
+        // Update profile with display name if provided
+        if (displayName != null) {
+          await _client.from('profiles').update({
+            'display_name': displayName,
+            'updated_at': DateTime.now().toIso8601String(),
+          }).eq('id', response.user!.id);
+        }
+        return AuthResult.success(response.user!);
+      }
+
+      return AuthResult.failure('Account linking failed. Please try again.');
+    } on AuthException catch (e) {
+      return AuthResult.failure(_parseAuthError(e.message));
+    } catch (e) {
+      return AuthResult.failure('An unexpected error occurred.');
+    }
+  }
+
   /// Sign out current user
   static Future<void> signOut() async {
     await _client.auth.signOut();
@@ -103,34 +160,6 @@ class AuthService {
   /// Listen to auth state changes
   static Stream<AuthState> get authStateChanges =>
       _client.auth.onAuthStateChange;
-
-  /// Create user profile after sign up
-  static Future<void> _createProfile(User user, String? displayName) async {
-    try {
-      await _client.from('profiles').upsert({
-        'id': user.id,
-        'display_name': displayName ?? user.email?.split('@').first,
-        'avatar_url': null,
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      });
-
-      // Also create initial stats record
-      await _client.from('user_stats').upsert({
-        'user_id': user.id,
-        'total_games': 0,
-        'total_wins': 0,
-        'total_score': 0,
-        'high_score': 0,
-        'current_streak': 0,
-        'best_streak': 0,
-      });
-    } catch (e) {
-      // Profile creation failed, but auth succeeded
-      // Log error but don't fail the sign up
-      print('Profile creation error: $e');
-    }
-  }
 
   /// Update last login timestamp
   static Future<void> _updateLastLogin(String userId) async {
