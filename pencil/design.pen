@@ -378,6 +378,45 @@
                 },
                 {
                   "type": "frame",
+                  "id": "pUmrR",
+                  "name": "statsBtn",
+                  "width": "fill_container",
+                  "height": 64,
+                  "fill": "$surface",
+                  "cornerRadius": 32,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "gap": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "cFXqA",
+                      "name": "statsIcon",
+                      "width": 28,
+                      "height": 28,
+                      "iconFontName": "bar_chart",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "fill": "$text-primary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "s65h9",
+                      "name": "statsText",
+                      "fill": "$text-primary",
+                      "content": "Statistics",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 20,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "NBwvZ",
                   "name": "settingsBtn",
                   "width": "fill_container",
@@ -480,7 +519,7 @@
               "id": "x4YqV",
               "name": "modeTitle",
               "fill": "$text-primary",
-              "content": "Select Mode",
+              "content": "Select Game Mode",
               "fontFamily": "Plus Jakarta Sans",
               "fontSize": 28,
               "fontWeight": "700"
@@ -506,7 +545,7 @@
                 {
                   "type": "frame",
                   "id": "HasCs",
-                  "name": "onlineBtn",
+                  "name": "singlePlayerBtn",
                   "width": "fill_container",
                   "height": 80,
                   "fill": "$primary",
@@ -520,8 +559,8 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "N3lGD",
-                      "name": "onlineIcon",
+                      "id": "ohKE4",
+                      "name": "spIcon",
                       "width": 48,
                       "height": 48,
                       "fill": "#FFFFFF33",
@@ -532,11 +571,11 @@
                       "children": [
                         {
                           "type": "icon_font",
-                          "id": "yFYcI",
-                          "name": "onlineIconInner",
+                          "id": "7ZCQk",
+                          "name": "spIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "globe",
+                          "iconFontName": "user",
                           "iconFontFamily": "lucide",
                           "fill": "#FFFFFF"
                         }
@@ -544,27 +583,27 @@
                     },
                     {
                       "type": "frame",
-                      "id": "L4SBY",
-                      "name": "onlineText",
+                      "id": "OFlRs",
+                      "name": "spText",
                       "layout": "vertical",
                       "gap": 4,
                       "children": [
                         {
                           "type": "text",
-                          "id": "bFZN4",
-                          "name": "onlineTitle",
+                          "id": "1O6jc",
+                          "name": "spTitle",
                           "fill": "#FFFFFF",
-                          "content": "Online Mode",
+                          "content": "Single Player",
                           "fontFamily": "Plus Jakarta Sans",
                           "fontSize": 18,
                           "fontWeight": "600"
                         },
                         {
                           "type": "text",
-                          "id": "iWEKq",
-                          "name": "onlineDescText",
+                          "id": "a47AS",
+                          "name": "spDesc",
                           "fill": "#FFFFFFCC",
-                          "content": "Play with sounds from the cloud",
+                          "content": "Play solo against the clock",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -576,7 +615,7 @@
                 {
                   "type": "frame",
                   "id": "HwkTq",
-                  "name": "localBtn",
+                  "name": "localMpBtn",
                   "width": "fill_container",
                   "height": 80,
                   "fill": "$surface",
@@ -643,6 +682,167 @@
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "m9p7x",
+                      "name": "lmpIcon",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#8B5CF626",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "8IRGC",
+                          "name": "lmpIconInner",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "users",
+                          "iconFontFamily": "lucide",
+                          "fill": "$primary"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "3ALSS",
+                      "name": "lmpText",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "t67kz",
+                          "name": "lmpTitle",
+                          "fill": "$text-primary",
+                          "content": "Two Player Local",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 18,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "QJ0FL",
+                          "name": "lmpDesc",
+                          "fill": "$text-muted",
+                          "content": "Play with a friend on this device",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sEjNq",
+                  "name": "onlineBtn",
+                  "width": "fill_container",
+                  "height": 80,
+                  "fill": "$surface",
+                  "cornerRadius": 20,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "gap": 16,
+                  "padding": [
+                    0,
+                    24
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "QfOx4",
+                      "name": "onlineIcon",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#14B8A626",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "nFqwG",
+                          "name": "onlineIconInner",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "globe",
+                          "iconFontFamily": "lucide",
+                          "fill": "$success"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ot7uU",
+                      "name": "onlineText",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "BR34g",
+                          "name": "onlineTitle",
+                          "fill": "$text-primary",
+                          "content": "Two Player Online",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 18,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "rdZl2",
+                          "name": "onlineDescRow",
+                          "gap": 8,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gyOjU",
+                              "name": "onlineDesc",
+                              "fill": "$text-muted",
+                              "content": "Play with anyone worldwide",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "i8E2q",
+                      "name": "premiumBadge",
+                      "fill": "#FBBF2426",
+                      "cornerRadius": 8,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GRvp8",
+                          "name": "premiumText",
+                          "fill": "#FBBF24",
+                          "content": "PREMIUM",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
                         }
                       ]
                     }
@@ -2484,6 +2684,3116 @@
                       "fontWeight": "600"
                     }
                   ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "TvCpx",
+      "x": 3520,
+      "y": 0,
+      "name": "Player Setup Screen",
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "W4JZv",
+          "name": "setupContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "FH3rZ",
+              "name": "setupHeader",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jE7ZW",
+                  "name": "backBtnSetup",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$surface",
+                  "cornerRadius": 22,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "fbe0M",
+                      "name": "backIconSetup",
+                      "width": 24,
+                      "height": 24,
+                      "iconFontName": "arrow-left",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "So80E",
+              "name": "setupTitle",
+              "fill": "$text-primary",
+              "content": "Player Setup",
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": 28,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "W23tM",
+              "name": "setupDesc",
+              "fill": "$text-muted",
+              "content": "Choose your colors and enter names",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "E9Phj",
+              "name": "player1Card",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 20,
+              "stroke": {
+                "align": "inside",
+                "thickness": 2,
+                "fill": "$primary"
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zZntR",
+                  "name": "p1Label",
+                  "fill": "$primary",
+                  "content": "Player 1",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "MKKwS",
+                  "name": "p1NameInput",
+                  "width": "fill_container",
+                  "height": 48,
+                  "fill": "$background",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "1uA7Y",
+                      "name": "p1NamePlaceholder",
+                      "fill": "$text-muted",
+                      "content": "Enter name...",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Zs33Z",
+                  "name": "p1ColorLabel",
+                  "fill": "$text-primary",
+                  "content": "Select Color",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "UeCAx",
+                  "name": "p1Colors",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "AoPWd",
+                      "name": "p1c1",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "$primary",
+                      "cornerRadius": 22,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 3,
+                        "fill": "#FFFFFF"
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UdMh2",
+                      "name": "p1c2",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#EF4444",
+                      "cornerRadius": 22
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IzqYh",
+                      "name": "p1c3",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#F59E0B",
+                      "cornerRadius": 22
+                    },
+                    {
+                      "type": "frame",
+                      "id": "eDsie",
+                      "name": "p1c4",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#10B981",
+                      "cornerRadius": 22
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mWB8x",
+                      "name": "p1c5",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#3B82F6",
+                      "cornerRadius": 22
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "jMxge",
+              "name": "player2Card",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 20,
+              "stroke": {
+                "align": "inside",
+                "thickness": 2,
+                "fill": "$success"
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bniaM",
+                  "name": "p2Label",
+                  "fill": "$success",
+                  "content": "Player 2",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "rAakr",
+                  "name": "p2NameInput",
+                  "width": "fill_container",
+                  "height": 48,
+                  "fill": "$background",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "YlOwi",
+                      "name": "p2NamePlaceholder",
+                      "fill": "$text-muted",
+                      "content": "Enter name...",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "56eJI",
+                  "name": "p2ColorLabel",
+                  "fill": "$text-primary",
+                  "content": "Select Color",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "upUPg",
+                  "name": "p2Colors",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "OwZTw",
+                      "name": "p2c1",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "$success",
+                      "cornerRadius": 22,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 3,
+                        "fill": "#FFFFFF"
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "0qvHN",
+                      "name": "p2c2",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#EC4899",
+                      "cornerRadius": 22
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cEY17",
+                      "name": "p2c3",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#8B5CF6",
+                      "cornerRadius": 22
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AgblN",
+                      "name": "p2c4",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#06B6D4",
+                      "cornerRadius": 22
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ENNuN",
+                      "name": "p2c5",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#84CC16",
+                      "cornerRadius": 22
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yKN6F",
+              "name": "startBtn",
+              "width": "fill_container",
+              "height": 56,
+              "fill": "$primary",
+              "cornerRadius": 28,
+              "gap": 12,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "z45xg",
+                  "name": "startIcon",
+                  "width": 24,
+                  "height": 24,
+                  "iconFontName": "play",
+                  "iconFontFamily": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "yMQej",
+                  "name": "startText",
+                  "fill": "#FFFFFF",
+                  "content": "Start Game",
+                  "fontFamily": "Plus Jakarta Sans",
+                  "fontSize": 18,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "yr0u9",
+      "x": 3960,
+      "y": 0,
+      "name": "Local MP Game Screen",
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "eqOKx",
+          "name": "lmpContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "ozrTy",
+              "name": "lmpHeader",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "0W1Vm",
+                  "name": "backBtnLmp",
+                  "width": 40,
+                  "height": 40,
+                  "fill": "$surface",
+                  "cornerRadius": 20,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "qoy5B",
+                      "name": "backIconLmp",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "arrow-left",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "XY7J7",
+                  "name": "lmpTitle",
+                  "fill": "$text-primary",
+                  "content": "Musical Instruments",
+                  "fontFamily": "Plus Jakarta Sans",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "Le2qP",
+                  "name": "pauseBtnLmp",
+                  "width": 40,
+                  "height": 40,
+                  "fill": "$surface",
+                  "cornerRadius": 20,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "SHZ4D",
+                      "name": "pauseIconLmp",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "pause",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "XLj6M",
+              "name": "playersRow",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "6ZRvQ",
+                  "name": "p1ScoreCard",
+                  "width": "fill_container",
+                  "fill": "$primary",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "71zV2",
+                      "name": "p1TurnIndicator",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "MyoJH",
+                          "name": "p1TurnDot",
+                          "width": 8,
+                          "height": 8,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 4
+                        },
+                        {
+                          "type": "text",
+                          "id": "cBzD5",
+                          "name": "p1TurnText",
+                          "fill": "#FFFFFF",
+                          "content": "YOUR TURN",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "TZH3l",
+                      "name": "p1Name",
+                      "fill": "#FFFFFF",
+                      "content": "Alex",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 18,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "f1m1U",
+                      "name": "p1Score",
+                      "fill": "#FFFFFF",
+                      "content": "3",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 32,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "MnfbT",
+                      "name": "p1ScoreLabel",
+                      "fill": "#FFFFFFCC",
+                      "content": "pairs",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eu4zR",
+                  "name": "p2ScoreCard",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 2,
+                    "fill": "$success"
+                  },
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "E66K9",
+                      "name": "p2Waiting",
+                      "fill": "$text-muted",
+                      "content": "WAITING",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cSx2N",
+                      "name": "p2Name",
+                      "fill": "$success",
+                      "content": "Sam",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 18,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Xt22U",
+                      "name": "p2Score",
+                      "fill": "$text-primary",
+                      "content": "2",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 32,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wAp93",
+                      "name": "p2ScoreLabel",
+                      "fill": "$text-muted",
+                      "content": "pairs",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bknnd",
+              "name": "lmpCardGrid",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jvBwy",
+                  "name": "lmpRow1",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NhaH0",
+                      "name": "lc1",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "elq5P",
+                          "name": "lc1i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dyfNJ",
+                      "name": "lc2",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "CEuoK",
+                          "name": "lc2i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hlRKT",
+                      "name": "lc3",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "DYlhz",
+                          "name": "lc3i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hIw4Q",
+                      "name": "lc4",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "DnBJn",
+                          "name": "lc4i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ES6DU",
+                      "name": "lc5",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "CykDF",
+                          "name": "lc5i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "97mvs",
+                  "name": "lmpRow2",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pJM0c",
+                      "name": "lc6",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "6kpoL",
+                          "name": "lc6i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "TKe1j",
+                      "name": "lc7",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$background",
+                      "cornerRadius": 12,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 2,
+                        "fill": "$primary"
+                      },
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "tA0fT",
+                          "name": "lc7i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "volume-2",
+                          "iconFontFamily": "lucide",
+                          "fill": "$primary"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lH3bJ",
+                      "name": "lc8",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "uuHWz",
+                          "name": "lc8i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "A9T14",
+                      "name": "lc9",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "6k7hh",
+                          "name": "lc9i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "9fdYq",
+                      "name": "lc10",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "61knE",
+                          "name": "lc10i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "x1ach",
+                  "name": "lmpRow3",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "MDQyJ",
+                      "name": "lc11",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "KYOXc",
+                          "name": "lc11i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "njGIW",
+                      "name": "lc12",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "CZiNX",
+                          "name": "lc12i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LRXlg",
+                      "name": "lc13",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "tgwvr",
+                          "name": "lc13i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GeJmA",
+                      "name": "lc14",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "tHMVx",
+                          "name": "lc14i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PbQWy",
+                      "name": "lc15",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "1rxfO",
+                          "name": "lc15i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "6I1To",
+                  "name": "lmpRow4",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "tHCOk",
+                      "name": "lc16",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "5xIRx",
+                          "name": "lc16i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "5x95A",
+                      "name": "lc17",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "NlqBl",
+                          "name": "lc17i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "FDAdz",
+                      "name": "lc18",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "wpCr6",
+                          "name": "lc18i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YQdtj",
+                      "name": "lc19",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "oZN2j",
+                          "name": "lc19i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jxGdZ",
+                      "name": "lc20",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "43fzw",
+                          "name": "lc20i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "KQObH",
+      "x": 4400,
+      "y": 0,
+      "name": "Online Game Screen",
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "rmdaH",
+          "name": "onlineContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "MoezB",
+              "name": "onlineHeader",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bGiBF",
+                  "name": "backBtnOnline",
+                  "width": 40,
+                  "height": 40,
+                  "fill": "$surface",
+                  "cornerRadius": 20,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "rWdjL",
+                      "name": "backIconOnline",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "arrow-left",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "nf7VL",
+                  "name": "onlineGameTitle",
+                  "fill": "$text-primary",
+                  "content": "Musical Instruments",
+                  "fontFamily": "Plus Jakarta Sans",
+                  "fontSize": 16,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "4BGNm",
+                  "name": "connectionStatus",
+                  "fill": "#10B98126",
+                  "cornerRadius": 12,
+                  "gap": 6,
+                  "padding": [
+                    6,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "2McoJ",
+                      "name": "connDot",
+                      "width": 8,
+                      "height": 8,
+                      "fill": "#10B981",
+                      "cornerRadius": 4
+                    },
+                    {
+                      "type": "text",
+                      "id": "V5Taq",
+                      "name": "connText",
+                      "fill": "#10B981",
+                      "content": "Live",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Xpm1K",
+              "name": "onlinePlayersRow",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "06Fj2",
+                  "name": "youCard",
+                  "width": "fill_container",
+                  "fill": "$primary",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "cDF7e",
+                      "name": "youLabel",
+                      "fill": "#FFFFFFCC",
+                      "content": "YOU",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ixj7E",
+                      "name": "youName",
+                      "fill": "#FFFFFF",
+                      "content": "Player123",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RC1Yl",
+                      "name": "youScore",
+                      "fill": "#FFFFFF",
+                      "content": "4",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 28,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "wjVfB",
+                  "name": "vsText",
+                  "fill": "$text-muted",
+                  "content": "VS",
+                  "fontFamily": "Plus Jakarta Sans",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "qLHyJ",
+                  "name": "oppCard",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 2,
+                    "fill": "$accent"
+                  },
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5H7qd",
+                      "name": "oppTurn",
+                      "fill": "$accent",
+                      "content": "THEIR TURN",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "u6mVX",
+                      "name": "oppName",
+                      "fill": "$accent",
+                      "content": "GameMaster",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ccbvx",
+                      "name": "oppScore",
+                      "fill": "$text-primary",
+                      "content": "3",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 28,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "IUaxp",
+              "name": "onlineCardGrid",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "9CL9s",
+                  "name": "oRow1",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "13JTe",
+                      "name": "oc1",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "Kmx8R",
+                          "name": "oc1i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kVIT3",
+                      "name": "oc2",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "7SS3K",
+                          "name": "oc2i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KlpQT",
+                      "name": "oc3",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "DqXTE",
+                          "name": "oc3i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VHtV2",
+                      "name": "oc4",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "vhUfp",
+                          "name": "oc4i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZbKML",
+                      "name": "oc5",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "WG6hL",
+                          "name": "oc5i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "g2pvX",
+                  "name": "oRow2",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "GIiIk",
+                      "name": "oc6",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "r5D3z",
+                          "name": "oc6i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zmGEa",
+                      "name": "oc7",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "wOTzd",
+                          "name": "oc7i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YT7X3",
+                      "name": "oc8",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "Y2DvP",
+                          "name": "oc8i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "NL4jB",
+                      "name": "oc9",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "GB7jk",
+                          "name": "oc9i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Pd4ox",
+                      "name": "oc10",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "MPhXV",
+                          "name": "oc10i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "AZRXQ",
+                  "name": "oRow3",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "rBGrS",
+                      "name": "oc11",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "0D3gI",
+                          "name": "oc11i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IqxWD",
+                      "name": "oc12",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "It0HA",
+                          "name": "oc12i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u8xAU",
+                      "name": "oc13",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "4cDIC",
+                          "name": "oc13i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XipSb",
+                      "name": "oc14",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "eQdyR",
+                          "name": "oc14i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YidzT",
+                      "name": "oc15",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "nSgVF",
+                          "name": "oc15i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XsbsY",
+                  "name": "oRow4",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "yFRfs",
+                      "name": "oc16",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "enwzq",
+                          "name": "oc16i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kiI91",
+                      "name": "oc17",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "7ZSSs",
+                          "name": "oc17i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Bse5D",
+                      "name": "oc18",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "3unLw",
+                          "name": "oc18i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wi8Da",
+                      "name": "oc19",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "LvPYX",
+                          "name": "oc19i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "eTJwe",
+                      "name": "oc20",
+                      "width": 64,
+                      "height": 80,
+                      "fill": "$primary",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "FtTyL",
+                          "name": "oc20i",
+                          "width": 28,
+                          "height": 28,
+                          "iconFontName": "music",
+                          "iconFontFamily": "lucide",
+                          "fill": "#FFFFFF4D"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "iYYwi",
+      "x": 4840,
+      "y": 0,
+      "name": "Statistics Screen",
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "BrV07",
+          "name": "statsContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "XQDKD",
+              "name": "statsHeader",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "BJYL1",
+                  "name": "backBtnStats",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$surface",
+                  "cornerRadius": 22,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "9UGgq",
+                      "name": "backIconStats",
+                      "width": 24,
+                      "height": 24,
+                      "iconFontName": "arrow-left",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "X56QF",
+              "name": "statsTitle",
+              "fill": "$text-primary",
+              "content": "Statistics",
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": 28,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "14TEH",
+              "name": "overallCard",
+              "width": "fill_container",
+              "fill": "$primary",
+              "cornerRadius": 20,
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GVjas",
+                  "name": "overallLabel",
+                  "fill": "#FFFFFFCC",
+                  "content": "Overall Stats",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "jmcjr",
+                  "name": "overallRow",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "DXyva",
+                      "name": "gamesPlayed",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "yrooW",
+                          "name": "gamesVal",
+                          "fill": "#FFFFFF",
+                          "content": "156",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 28,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "L2bf9",
+                          "name": "gamesLbl",
+                          "fill": "#FFFFFFCC",
+                          "content": "Games",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "g3erT",
+                      "name": "winsPlayed",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "pmEXo",
+                          "name": "winsVal",
+                          "fill": "#FFFFFF",
+                          "content": "98",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 28,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "8Dgyl",
+                          "name": "winsLbl",
+                          "fill": "#FFFFFFCC",
+                          "content": "Wins",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "co6OP",
+                      "name": "winRate",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fOUor",
+                          "name": "winRateVal",
+                          "fill": "#FFFFFF",
+                          "content": "63%",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 28,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "dapIU",
+                          "name": "winRateLbl",
+                          "fill": "#FFFFFFCC",
+                          "content": "Win Rate",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gX2qS",
+                      "name": "highScore",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WdTgP",
+                          "name": "highScoreVal",
+                          "fill": "#FFFFFF",
+                          "content": "1,240",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 28,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "v9nJX",
+                          "name": "highScoreLbl",
+                          "fill": "#FFFFFFCC",
+                          "content": "High Score",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "yukuV",
+              "name": "modeStatsLabel",
+              "fill": "$text-primary",
+              "content": "By Game Mode",
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": 18,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "5G6oo",
+              "name": "modeCards",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "7Zod6",
+                  "name": "spCard",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "gap": 16,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ZmkK5",
+                      "name": "spCardIcon",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#8B5CF626",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "98uo4",
+                          "name": "spCardIconInner",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "user",
+                          "iconFontFamily": "lucide",
+                          "fill": "$primary"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "c7eAl",
+                      "name": "spCardText",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FVayx",
+                          "name": "spCardTitle",
+                          "fill": "$text-primary",
+                          "content": "Single Player",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "eowC1",
+                          "name": "spCardStats",
+                          "fill": "$text-muted",
+                          "content": "89 games • 72% win rate",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yS2Vd",
+                  "name": "lmpCard",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "gap": 16,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "K6Z8b",
+                      "name": "lmpCardIcon",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#14B8A626",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "mnMd7",
+                          "name": "lmpCardIconInner",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "users",
+                          "iconFontFamily": "lucide",
+                          "fill": "$success"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "2fCXQ",
+                      "name": "lmpCardText",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "IdbBc",
+                          "name": "lmpCardTitle",
+                          "fill": "$text-primary",
+                          "content": "Two Player Local",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "2TwLf",
+                          "name": "lmpCardStats",
+                          "fill": "$text-muted",
+                          "content": "45 games • 58% win rate",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "J0AnZ",
+                  "name": "onlineCard",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "gap": 16,
+                  "padding": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FXmD2",
+                      "name": "onlineCardIcon",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#F472B626",
+                      "cornerRadius": 12,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "u5jfT",
+                          "name": "onlineCardIconInner",
+                          "width": 24,
+                          "height": 24,
+                          "iconFontName": "globe",
+                          "iconFontFamily": "lucide",
+                          "fill": "$accent"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Aqc7P",
+                      "name": "onlineCardText",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "2SHFd",
+                          "name": "onlineCardTitle",
+                          "fill": "$text-primary",
+                          "content": "Two Player Online",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "9zcak",
+                          "name": "onlineCardStats",
+                          "fill": "$text-muted",
+                          "content": "22 games • 54% win rate",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "emkfu",
+      "x": 5280,
+      "y": 0,
+      "name": "Subscription Screen",
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "ELYsL",
+          "name": "subContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": 32,
+          "children": [
+            {
+              "type": "frame",
+              "id": "sc2Po",
+              "name": "subHeader",
+              "width": "fill_container",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qvpp2",
+                  "name": "backBtnSub",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$surface",
+                  "cornerRadius": 22,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "SjTlH",
+                      "name": "backIconSub",
+                      "width": 24,
+                      "height": 24,
+                      "iconFontName": "arrow-left",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "gu3rn",
+              "name": "subTitle",
+              "fill": "$text-primary",
+              "content": "Subscription",
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": 28,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "0DmGV",
+              "name": "currentPlan",
+              "width": "fill_container",
+              "fill": "$surface",
+              "cornerRadius": 20,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "$border"
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rkXfi",
+                  "name": "currentLabel",
+                  "fill": "$text-muted",
+                  "content": "Current Plan",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "SKGqm",
+                  "name": "currentRow",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "4QGW6",
+                      "name": "currentName",
+                      "fill": "$text-primary",
+                      "content": "Free",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 24,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "OnN2K",
+                      "name": "freeBadge",
+                      "fill": "#10B98126",
+                      "cornerRadius": 12,
+                      "padding": [
+                        6,
+                        12
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "41AOy",
+                          "name": "freeBadgeText",
+                          "fill": "#10B981",
+                          "content": "Active",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kA5cl",
+                  "name": "limitsRow",
+                  "width": "fill_container",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "GOhRM",
+                      "name": "spLimit",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Peuft",
+                          "name": "spLimitVal",
+                          "fill": "$text-primary",
+                          "content": "3/5",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 18,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wcyM9",
+                          "name": "spLimitLbl",
+                          "fill": "$text-muted",
+                          "content": "Single player today",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "TjMdm",
+                      "name": "lmpLimit",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "XV1yf",
+                          "name": "lmpLimitVal",
+                          "fill": "$text-primary",
+                          "content": "1/3",
+                          "fontFamily": "Plus Jakarta Sans",
+                          "fontSize": 18,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "HvrYs",
+                          "name": "lmpLimitLbl",
+                          "fill": "$text-muted",
+                          "content": "Local multiplayer today",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "v1wvn",
+              "name": "upgradeLabel",
+              "fill": "$text-primary",
+              "content": "Upgrade to Premium",
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": 18,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "XdWYQ",
+              "name": "plansRow",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Avdib",
+                  "name": "monthlyPlan",
+                  "width": "fill_container",
+                  "fill": "$surface",
+                  "cornerRadius": 20,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$border"
+                  },
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 20,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LEHdh",
+                      "name": "monthlyName",
+                      "fill": "$text-primary",
+                      "content": "Monthly",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CbYZ2",
+                      "name": "monthlyPrice",
+                      "fill": "$primary",
+                      "content": "$4.99",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 28,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "n8X0A",
+                      "name": "monthlyPer",
+                      "fill": "$text-muted",
+                      "content": "/month",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "RzU3p",
+                  "name": "yearlyPlan",
+                  "width": "fill_container",
+                  "fill": "$primary",
+                  "cornerRadius": 20,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 20,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "1eq5N",
+                      "name": "saveBadge",
+                      "fill": "#FBBF24",
+                      "cornerRadius": 8,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xqNsl",
+                          "name": "saveBadgeText",
+                          "fill": "#18181B",
+                          "content": "SAVE 40%",
+                          "fontFamily": "Inter",
+                          "fontSize": 10,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "xnqRf",
+                      "name": "yearlyName",
+                      "fill": "#FFFFFF",
+                      "content": "Yearly",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "nP9xT",
+                      "name": "yearlyPrice",
+                      "fill": "#FFFFFF",
+                      "content": "$35.99",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 28,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pmQO8",
+                      "name": "yearlyPer",
+                      "fill": "#FFFFFFCC",
+                      "content": "/year",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lQlED",
+              "name": "benefitsList",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "j40E7",
+                  "name": "benefit1",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "p8TYm",
+                      "name": "benefit1Check",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "D2Lhj",
+                      "name": "benefit1Text",
+                      "fill": "$text-primary",
+                      "content": "Unlimited single player games",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "A2eWa",
+                  "name": "benefit2",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "cVlTY",
+                      "name": "benefit2Check",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "nV97t",
+                      "name": "benefit2Text",
+                      "fill": "$text-primary",
+                      "content": "Unlimited local multiplayer games",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "liuDQ",
+                  "name": "benefit3",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "215wm",
+                      "name": "benefit3Check",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "$success"
+                    },
+                    {
+                      "type": "text",
+                      "id": "kaz1R",
+                      "name": "benefit3Text",
+                      "fill": "$text-primary",
+                      "content": "Access to online multiplayer",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "v7A9Q",
+      "x": 5720,
+      "y": 0,
+      "name": "Paywall Screen",
+      "width": 390,
+      "height": 844,
+      "fill": "$primary",
+      "children": [
+        {
+          "type": "frame",
+          "id": "uMZ5W",
+          "name": "paywallContent",
+          "width": 390,
+          "height": 844,
+          "layout": "vertical",
+          "gap": 32,
+          "padding": [
+            54,
+            32,
+            32,
+            32
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "tQEmR",
+              "name": "headerRow",
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "j0nAF",
+                  "name": "closeBtn",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "#FFFFFF26",
+                  "cornerRadius": 22,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "3HNc7",
+                      "name": "closeIcon",
+                      "width": 24,
+                      "height": 24,
+                      "iconFontName": "x",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Q89Mq",
+              "name": "lockFrame",
+              "width": 100,
+              "height": 100,
+              "fill": "#FFFFFF26",
+              "cornerRadius": 50,
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "s6Dln",
+                  "name": "lockIconInner",
+                  "width": 48,
+                  "height": 48,
+                  "iconFontName": "lock",
+                  "iconFontFamily": "lucide",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "fpEZ3",
+              "name": "titleFrame",
+              "layout": "vertical",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xllp4",
+                  "name": "paywallTitle",
+                  "fill": "#FFFFFF",
+                  "content": "You've Reached Your Limit!",
+                  "textAlign": "center",
+                  "fontFamily": "Plus Jakarta Sans",
+                  "fontSize": 28,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "uCQx1",
+                  "name": "paywallSubtitle",
+                  "fill": "#FFFFFFCC",
+                  "content": "Upgrade to Premium to keep playing",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "VaFcc",
+              "name": "benefitsFrame",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "eJSmR",
+                  "name": "b1",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "cCLBD",
+                      "name": "b1Icon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    },
+                    {
+                      "type": "text",
+                      "id": "5jpJ3",
+                      "name": "b1Text",
+                      "fill": "#FFFFFF",
+                      "content": "Unlimited single player games",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "8F8zc",
+                  "name": "b2",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "bVtza",
+                      "name": "b2Icon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    },
+                    {
+                      "type": "text",
+                      "id": "N5yUo",
+                      "name": "b2Text",
+                      "fill": "#FFFFFF",
+                      "content": "Unlimited local multiplayer",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "EuqO3",
+                  "name": "b3",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "qZBeS",
+                      "name": "b3Icon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    },
+                    {
+                      "type": "text",
+                      "id": "2JErB",
+                      "name": "b3Text",
+                      "fill": "#FFFFFF",
+                      "content": "Online multiplayer access",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XdbRq",
+                  "name": "b4",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "lba2P",
+                      "name": "b4Icon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "check",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    },
+                    {
+                      "type": "text",
+                      "id": "08GaQ",
+                      "name": "b4Text",
+                      "fill": "#FFFFFF",
+                      "content": "Ad-free experience",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kb6zB",
+              "name": "ctaFrame",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "TGd4B",
+                  "name": "yearlyBtn",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 28,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "1iEhr",
+                      "name": "yearlyBtnText",
+                      "fill": "$primary",
+                      "content": "Get Yearly - $35.99/year",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 16,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "qIn3I",
+                      "name": "yearlySave",
+                      "fill": "$success",
+                      "content": "Save 40%",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yLLLb",
+                  "name": "monthlyBtn",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#FFFFFF26",
+                  "cornerRadius": 26,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 2,
+                    "fill": "#FFFFFF"
+                  },
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "P6poQ",
+                      "name": "monthlyBtnText",
+                      "fill": "#FFFFFF",
+                      "content": "Get Monthly - $4.99/month",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "etBuz",
+                  "name": "restoreText",
+                  "fill": "#FFFFFFAA",
+                  "content": "Restore Purchase",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "OlDTX",
+                  "name": "termsText",
+                  "fill": "#FFFFFF80",
+                  "content": "Cancel anytime. Terms & Privacy apply.",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             }
