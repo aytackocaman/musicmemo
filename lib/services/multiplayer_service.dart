@@ -91,6 +91,7 @@ class MultiplayerService {
 
   static RealtimeChannel? _sessionChannel;
   static StreamController<OnlineSession>? _sessionController;
+  static Timer? _pollingTimer;
 
   /// Generate a random 6-character invite code
   static String _generateInviteCode() {
@@ -211,11 +212,26 @@ class MultiplayerService {
     }
   }
 
-  /// Subscribe to session updates
+  static String? _currentSessionId;
+
+  /// Subscribe to session updates with polling fallback
   static Stream<OnlineSession> subscribeToSession(String sessionId) {
+    debugPrint('subscribeToSession called for: $sessionId (current: $_currentSessionId)');
+
+    // Only recreate if different session or no existing subscription
+    if (_currentSessionId == sessionId && _sessionController != null && !_sessionController!.isClosed) {
+      debugPrint('Reusing existing subscription');
+      return _sessionController!.stream;
+    }
+
+    _currentSessionId = sessionId;
     _sessionController?.close();
+    _pollingTimer?.cancel();
     _sessionController = StreamController<OnlineSession>.broadcast();
 
+    String? lastUpdatedAt;
+
+    // Set up Realtime subscription
     _sessionChannel = _client
         .channel('online_session_$sessionId')
         .onPostgresChanges(
@@ -228,18 +244,55 @@ class MultiplayerService {
             value: sessionId,
           ),
           callback: (payload) {
-            debugPrint('Session update received: ${payload.newRecord}');
+            debugPrint('Realtime: Session update received');
             final session = OnlineSession.fromJson(payload.newRecord);
             _sessionController?.add(session);
           },
         )
-        .subscribe();
+        .subscribe((status, error) {
+          debugPrint('Realtime subscription status: $status, error: $error');
+        });
 
+    // Polling every 1 second to detect game state changes
+    debugPrint('Starting polling timer for session: $sessionId');
+    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (_sessionController == null || _sessionController!.isClosed) {
+        debugPrint('Polling: Controller closed, cancelling timer');
+        timer.cancel();
+        return;
+      }
+      try {
+        final response = await _client
+            .from('online_sessions')
+            .select()
+            .eq('id', sessionId)
+            .single();
+
+        // Check if updated_at has changed (indicates any update to the session)
+        final updatedAt = response['updated_at'] as String?;
+        if (updatedAt != null && updatedAt != lastUpdatedAt) {
+          debugPrint('Polling: Session updated (was: $lastUpdatedAt, now: $updatedAt)');
+          lastUpdatedAt = updatedAt;
+          final session = OnlineSession.fromJson(response);
+          if (_sessionController != null && !_sessionController!.isClosed) {
+            _sessionController!.add(session);
+          }
+        }
+      } catch (e) {
+        debugPrint('Polling error: $e');
+      }
+    });
+
+    debugPrint('Subscription created for: $sessionId');
     return _sessionController!.stream;
   }
 
   /// Unsubscribe from session updates
   static Future<void> unsubscribeFromSession() async {
+    debugPrint('unsubscribeFromSession called (session: $_currentSessionId)');
+    _currentSessionId = null;
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
     await _sessionChannel?.unsubscribe();
     _sessionChannel = null;
     await _sessionController?.close();
@@ -262,6 +315,10 @@ class MultiplayerService {
         'state': c.state.name,
       }).toList();
 
+      final flippedCards = cards.where((c) => c.state == CardState.flipped).map((c) => c.id).toList();
+      final matchedCards = cards.where((c) => c.state == CardState.matched).map((c) => c.id).toList();
+      debugPrint('Updating game state: turn=$currentTurn, flipped=$flippedCards, matched=$matchedCards');
+
       final updates = <String, dynamic>{
         'game_state': {'cards': cardData},
         'player1_score': player1Score,
@@ -279,6 +336,7 @@ class MultiplayerService {
           .update(updates)
           .eq('id', sessionId);
 
+      debugPrint('Game state updated successfully');
       return true;
     } catch (e) {
       debugPrint('Error updating game state: $e');

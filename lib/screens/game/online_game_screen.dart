@@ -47,7 +47,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     });
   }
 
-  void _initializeGame() {
+  void _initializeGame() async {
     // Subscribe to session updates
     _sessionSubscription =
         MultiplayerService.subscribeToSession(widget.session.id).listen(
@@ -56,63 +56,50 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       },
     );
 
-    // If I'm player 1 (host), initialize the game cards
-    if (_amIPlayer1) {
-      _initializeAsHost();
-    } else {
-      // Player 2 waits for host to initialize
-      _waitForGameStart();
-    }
+    // Both players load cards from the session (cards were already created by host in OnlineModeScreen)
+    await _loadGameFromSession();
 
     // Start timer
     _startTimer();
   }
 
-  void _initializeAsHost() async {
-    final cards = GameUtils.generateCards(
-      gridSize: widget.session.gridSize ?? '4x5',
-      category: widget.session.category ?? 'animals',
-    );
-
-    setState(() {
-      _cards = cards;
-      _isInitialized = true;
-    });
-
-    // Send initial game state to server
-    await MultiplayerService.initializeGame(
-      sessionId: widget.session.id,
-      cards: cards,
-      firstTurn: widget.session.player1Id!,
-    );
-  }
-
-  void _waitForGameStart() async {
-    // Fetch current session state
+  Future<void> _loadGameFromSession() async {
+    // Fetch current session state - cards were already set by host when starting game
     final session = await MultiplayerService.getSession(widget.session.id);
     if (session != null && session.gameState != null) {
-      _handleSessionUpdate(session);
+      setState(() {
+        _currentSession = session;
+        _cards = MultiplayerService.parseCardsFromGameState(session.gameState);
+        _isInitialized = true;
+      });
     }
   }
 
   void _handleSessionUpdate(OnlineSession updatedSession) {
     if (!mounted) return;
 
+    final isNowMyTurn = updatedSession.currentTurn == _myUserId;
+    debugPrint('Session update received: turn=${updatedSession.currentTurn}, isMyTurn=$isNowMyTurn');
+
+    // Always update session and cards from server
     setState(() {
       _currentSession = updatedSession;
 
-      // Parse cards from game state
       if (updatedSession.gameState != null) {
-        _cards = MultiplayerService.parseCardsFromGameState(
-          updatedSession.gameState,
-        );
+        final serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+        debugPrint('Server cards: ${serverCards.map((c) => "${c.id}:${c.state.name}").join(", ")}');
+        _cards = serverCards;
         _isInitialized = true;
+      }
+
+      // Reset processing when it becomes my turn
+      if (isNowMyTurn) {
+        _isProcessing = false;
       }
     });
 
     // Check for game complete
-    if (_cards.isNotEmpty &&
-        _cards.every((c) => c.state == CardState.matched)) {
+    if (_cards.isNotEmpty && _cards.every((c) => c.state == CardState.matched)) {
       _handleGameComplete();
     }
   }
@@ -130,22 +117,36 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   bool get _isMyTurn => _currentSession.currentTurn == _myUserId;
 
   void _handleCardTap(String cardId) async {
-    if (!_isMyTurn || _isProcessing) return;
+    debugPrint('Card tap: $cardId, isMyTurn=$_isMyTurn, isProcessing=$_isProcessing');
+    if (!_isMyTurn || _isProcessing) {
+      debugPrint('Ignoring tap - not my turn or processing');
+      return;
+    }
 
     // Count currently flipped cards
     final flippedCards =
         _cards.where((c) => c.state == CardState.flipped).length;
 
     // Don't allow more than 2 flipped cards
-    if (flippedCards >= 2) return;
+    if (flippedCards >= 2) {
+      debugPrint('Ignoring tap - already 2 cards flipped');
+      return;
+    }
 
     // Find the card
     final cardIndex = _cards.indexWhere((c) => c.id == cardId);
-    if (cardIndex == -1) return;
+    if (cardIndex == -1) {
+      debugPrint('Card not found: $cardId');
+      return;
+    }
 
     final card = _cards[cardIndex];
-    if (card.state != CardState.faceDown) return;
+    if (card.state != CardState.faceDown) {
+      debugPrint('Card not face down: ${card.state}');
+      return;
+    }
 
+    debugPrint('Flipping card $cardId');
     setState(() {
       _isProcessing = true;
       _cards[cardIndex] = card.copyWith(state: CardState.flipped);
@@ -223,15 +224,19 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       }
     } else {
       // First card flipped - just sync state
+      debugPrint('First card flipped, syncing state');
       await _syncGameState();
     }
 
+    debugPrint('Done processing, setting _isProcessing = false');
     setState(() {
       _isProcessing = false;
     });
   }
 
   Future<void> _syncGameState() async {
+    final flippedCount = _cards.where((c) => c.state == CardState.flipped).length;
+    debugPrint('Syncing game state: flipped=$flippedCount, turn=${_currentSession.currentTurn}');
     await MultiplayerService.updateGameState(
       sessionId: widget.session.id,
       cards: _cards,
@@ -239,6 +244,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       player2Score: _currentSession.player2Score,
       currentTurn: _currentSession.currentTurn!,
     );
+    debugPrint('Game state synced');
   }
 
   void _handleGameComplete() {
@@ -318,6 +324,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
                   cards: _cards,
                   gridSize: widget.session.gridSize ?? '4x5',
                   onCardTap: _handleCardTap,
+                  enabled: _isMyTurn && !_isProcessing,
                 ),
               ),
             ],

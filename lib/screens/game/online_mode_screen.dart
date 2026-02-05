@@ -56,6 +56,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   String? _opponentName;
   OnlineSession? _currentSession;
   String? _errorMessage;
+  bool _navigatingToGame = false;  // Track if we're navigating to game
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
 
@@ -73,10 +74,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     _nameController.dispose();
     _codeController.dispose();
     _sessionSubscription?.cancel();
-    if (_sessionId != null && _isWaitingForOpponent) {
-      MultiplayerService.deleteSession(_sessionId!);
+    // Only cleanup if NOT navigating to game (user backed out)
+    if (!_navigatingToGame) {
+      if (_sessionId != null && _isWaitingForOpponent) {
+        MultiplayerService.deleteSession(_sessionId!);
+      }
+      MultiplayerService.unsubscribeFromSession();
     }
-    MultiplayerService.unsubscribeFromSession();
     super.dispose();
   }
 
@@ -215,6 +219,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   void _navigateToGame(OnlineSession session) {
+    _navigatingToGame = true;  // Don't cleanup subscription in dispose
     _sessionSubscription?.cancel();
     Navigator.pushReplacement(
       context,

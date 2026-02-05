@@ -6,12 +6,14 @@ class GameBoard extends StatelessWidget {
   final List<GameCard> cards;
   final String gridSize;
   final Function(String cardId) onCardTap;
+  final bool enabled;
 
   const GameBoard({
     super.key,
     required this.cards,
     required this.gridSize,
     required this.onCardTap,
+    this.enabled = true,
   });
 
   @override
@@ -64,10 +66,11 @@ class GameBoard extends StatelessWidget {
                       return Padding(
                         padding: EdgeInsets.only(right: colIndex < cols - 1 ? gap : 0),
                         child: GameCardWidget(
+                          key: ValueKey('${card.id}_${card.state.name}'),
                           state: card.state,
                           size: cardSize,
                           cardNumber: cardIndex + 1,
-                          onTap: () => onCardTap(card.id),
+                          onTap: enabled ? () => onCardTap(card.id) : null,
                         ),
                       );
                     }),
