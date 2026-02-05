@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import 'category_screen.dart';
+import 'game/online_mode_screen.dart';
 
 class ModeScreen extends ConsumerWidget {
   const ModeScreen({super.key});
@@ -83,11 +84,11 @@ class ModeScreen extends ConsumerWidget {
                 onTap: () {
                   ref.read(selectedGameModeProvider.notifier).state =
                       GameMode.onlineMultiplayer;
-                  // TODO: Check subscription, show paywall if needed
+                  // Go directly to online lobby (create/join)
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CategoryScreen(),
+                      builder: (context) => const OnlineModeScreen(),
                     ),
                   );
                 },

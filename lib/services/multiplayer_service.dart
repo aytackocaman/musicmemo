@@ -135,25 +135,41 @@ class MultiplayerService {
     required String playerName,
   }) async {
     final user = _client.auth.currentUser;
-    if (user == null) return null;
+    if (user == null) {
+      debugPrint('No user logged in');
+      return null;
+    }
 
     try {
-      // Find the session
-      final session = await _client
+      final code = inviteCode.toUpperCase().trim();
+      debugPrint('Looking for session with code: $code');
+
+      // Find the session - use a direct query without RLS restrictions for waiting sessions
+      final sessions = await _client
           .from('online_sessions')
           .select()
-          .eq('invite_code', inviteCode.toUpperCase())
-          .eq('status', 'waiting')
-          .maybeSingle();
+          .eq('invite_code', code)
+          .eq('status', 'waiting');
 
-      if (session == null) {
-        debugPrint('Session not found or already started');
+      debugPrint('Found ${sessions.length} sessions');
+
+      if (sessions.isEmpty) {
+        debugPrint('No waiting session found with code: $code');
         return null;
       }
+
+      final session = sessions.first;
+      debugPrint('Session found: ${session['id']}');
 
       // Check if trying to join own session
       if (session['player1_id'] == user.id) {
         debugPrint('Cannot join your own session');
+        return null;
+      }
+
+      // Check if session already has player 2
+      if (session['player2_id'] != null) {
+        debugPrint('Session already has a second player');
         return null;
       }
 
@@ -170,6 +186,7 @@ class MultiplayerService {
           .select()
           .single();
 
+      debugPrint('Successfully joined session');
       return OnlineSession.fromJson(response);
     } catch (e) {
       debugPrint('Error joining session: $e');
