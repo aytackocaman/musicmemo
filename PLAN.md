@@ -78,7 +78,9 @@
 - [x] Implement card states (face down, flipped, matched)
 - [x] Add card grid layout (responsive to grid size)
 
-### 3.2 Sound System
+### 3.2 Sound System (Deferred)
+> **Note:** Sound system will be added after all game modes are working
+
 - [ ] Set up audioplayers package
 - [ ] Create AudioService for sound playback
 - [ ] Add sound asset management
@@ -179,9 +181,10 @@ Start with these tasks in order:
 5. ~~**Implement Card widget**~~ ✅ Done (GameCard with flip animation)
 6. ~~**Single player game**~~ ✅ Done (Game screen + Win screen)
 7. ~~**Local multiplayer**~~ ✅ Done (Player setup + turn-based game + win screen)
-8. **Add sound system** - Essential for actual gameplay ← **START HERE**
+8. **Online multiplayer** - Supabase Realtime + matchmaking ← **START HERE**
 9. **Statistics screen** - Show game history and stats
 10. **Free tier limits** - Implement daily game counting
+11. **Add sound system** - Add after core gameplay is complete
 
 ---
 
