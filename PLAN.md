@@ -114,14 +114,15 @@
 - [x] Winner determination (or tie)
 - [x] Multiplayer win screen
 
-### 4.2 Online Multiplayer
-- [ ] Supabase Realtime setup
-- [ ] Online session management
-- [ ] Matchmaking system
-- [ ] Real-time game state sync
-- [ ] Connection status handling
-- [ ] Reconnection logic
-- [ ] Opponent disconnect handling
+### 4.2 Online Multiplayer ✅
+- [x] Supabase Realtime setup
+- [x] Online session management (create/join with invite codes)
+- [x] Invite code matchmaking (6-character codes)
+- [x] Real-time game state sync
+- [x] Connection status handling (LIVE indicator)
+- [x] Turn-based gameplay over network
+- [ ] Reconnection logic (future improvement)
+- [ ] Opponent disconnect handling (future improvement)
 
 ---
 
@@ -181,8 +182,8 @@ Start with these tasks in order:
 5. ~~**Implement Card widget**~~ ✅ Done (GameCard with flip animation)
 6. ~~**Single player game**~~ ✅ Done (Game screen + Win screen)
 7. ~~**Local multiplayer**~~ ✅ Done (Player setup + turn-based game + win screen)
-8. **Online multiplayer** - Supabase Realtime + matchmaking ← **START HERE**
-9. **Statistics screen** - Show game history and stats
+8. ~~**Online multiplayer**~~ ✅ Done (Supabase Realtime + invite codes)
+9. **Statistics screen** - Show game history and stats ← **START HERE**
 10. **Free tier limits** - Implement daily game counting
 11. **Add sound system** - Add after core gameplay is complete
 
