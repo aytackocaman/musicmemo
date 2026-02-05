@@ -12,8 +12,8 @@ class ModeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -54,7 +54,7 @@ class ModeScreen extends ConsumerWidget {
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.md),
 
               _ModeButton(
                 icon: Icons.people,
@@ -72,7 +72,7 @@ class ModeScreen extends ConsumerWidget {
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.md),
 
               _ModeButton(
                 icon: Icons.public,
@@ -158,8 +158,7 @@ class _ModeButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 80,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(20),
@@ -174,19 +173,19 @@ class _ModeButton extends StatelessWidget {
           children: [
             // Icon
             Container(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: iconBgColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                size: 24,
+                size: 22,
                 color: isPrimary ? AppColors.white : AppColors.purple,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
 
             // Text
             Expanded(
@@ -196,14 +195,15 @@ class _ModeButton extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.bodyLarge.copyWith(
+                    style: AppTypography.body.copyWith(
                       color: textColor,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppTypography.bodySmall.copyWith(
+                    style: AppTypography.labelSmall.copyWith(
                       color: subtitleColor,
                     ),
                   ),
@@ -212,7 +212,7 @@ class _ModeButton extends StatelessWidget {
             ),
 
             // Badge (if present)
-            ?badge,
+            if (badge != null) badge!
           ],
         ),
       ),

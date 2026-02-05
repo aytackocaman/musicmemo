@@ -33,27 +33,33 @@ class _SinglePlayerGameScreenState
     super.initState();
     // Delay initialization until after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeGame();
+      if (mounted) {
+        _initializeGame();
+      }
     });
   }
 
   void _initializeGame() {
-    // Generate cards
-    final cards = GameUtils.generateCards(
-      gridSize: widget.gridSize,
-      category: widget.category,
-    );
+    try {
+      // Generate cards
+      final cards = GameUtils.generateCards(
+        gridSize: widget.gridSize,
+        category: widget.category,
+      );
 
-    // Start the game
-    ref.read(gameProvider.notifier).startGame(
-          mode: GameMode.singlePlayer,
-          category: widget.category,
-          gridSize: widget.gridSize,
-          cards: cards,
-        );
+      // Start the game
+      ref.read(gameProvider.notifier).startGame(
+            mode: GameMode.singlePlayer,
+            category: widget.category,
+            gridSize: widget.gridSize,
+            cards: cards,
+          );
 
-    // Start timer
-    _startTimer();
+      // Start timer
+      _startTimer();
+    } catch (e) {
+      debugPrint('Error initializing game: $e');
+    }
   }
 
   void _startTimer() {

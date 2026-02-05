@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import 'game/single_player_game_screen.dart';
+import 'game/local_player_setup_screen.dart';
 
 /// Grid size option for the game
 class GridOption {
@@ -133,9 +134,14 @@ class GridScreen extends ConsumerWidget {
         ),
       );
     } else if (gameMode == GameMode.localMultiplayer) {
-      // TODO: Navigate to player setup screen first
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Local multiplayer coming soon!')),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocalPlayerSetupScreen(
+            category: category,
+            gridSize: gridOption.id,
+          ),
+        ),
       );
     } else {
       // Online multiplayer
