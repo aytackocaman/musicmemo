@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
+import '../../utils/game_utils.dart';
 import 'online_game_screen.dart';
 
 /// Categories available for selection
@@ -36,7 +37,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   bool _isCreateMode = false;
   bool _isJoinMode = false;
   bool _isWaitingForOpponent = false;
+  bool _isOpponentJoined = false;  // Host: opponent joined, ready to start
+  bool _isWaitingForHostToStart = false;  // Joiner: waiting for host
   bool _isLoading = false;
+  bool _isStartingGame = false;
 
   // Form controllers
   final _nameController = TextEditingController(text: 'Player');
@@ -49,6 +53,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   // Session data
   String? _inviteCode;
   String? _sessionId;
+  String? _opponentName;
+  OnlineSession? _currentSession;
   String? _errorMessage;
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
@@ -140,7 +146,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     _sessionSubscription =
         MultiplayerService.subscribeToSession(session.id).listen(
       (updatedSession) {
-        if (updatedSession.hasOpponent && updatedSession.isPlaying) {
+        _currentSession = updatedSession;
+
+        if (updatedSession.isReady && updatedSession.hasOpponent) {
+          // Opponent joined - show "Start Game" button to host
+          setState(() {
+            _isOpponentJoined = true;
+            _opponentName = updatedSession.player2Name;
+          });
+        } else if (updatedSession.isPlaying) {
+          // Game started - navigate to game
           _navigateToGame(updatedSession);
         }
       },
@@ -178,7 +193,25 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       return;
     }
 
-    _navigateToGame(session);
+    // Store session and show waiting for host screen
+    _currentSession = session;
+    _sessionId = session.id;
+
+    setState(() {
+      _isWaitingForHostToStart = true;
+    });
+
+    // Subscribe to session updates to know when host starts the game
+    _sessionSubscription =
+        MultiplayerService.subscribeToSession(session.id).listen(
+      (updatedSession) {
+        _currentSession = updatedSession;
+        if (updatedSession.isPlaying) {
+          // Host started the game - navigate
+          _navigateToGame(updatedSession);
+        }
+      },
+    );
   }
 
   void _navigateToGame(OnlineSession session) {
@@ -220,18 +253,51 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     }
   }
 
+  Future<void> _hostStartGame() async {
+    if (_currentSession == null || _sessionId == null) return;
+
+    setState(() => _isStartingGame = true);
+
+    // Generate cards
+    final cards = GameUtils.generateCards(
+      gridSize: _selectedGrid,
+      category: _selectedCategory,
+    );
+
+    // Start the game
+    final success = await MultiplayerService.startGame(
+      sessionId: _sessionId!,
+      cards: cards,
+      hostId: SupabaseService.currentUser?.id ?? '',
+    );
+
+    if (!success) {
+      setState(() {
+        _isStartingGame = false;
+        _errorMessage = 'Failed to start game. Please try again.';
+      });
+      return;
+    }
+
+    // Navigation will happen via the subscription when status changes to 'playing'
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: _isWaitingForOpponent
-            ? _buildWaitingScreen()
-            : _isCreateMode
-                ? _buildCreateScreen()
-                : _isJoinMode
-                    ? _buildJoinScreen()
-                    : _buildMainScreen(),
+        child: _isWaitingForHostToStart
+            ? _buildWaitingForHostScreen()
+            : _isOpponentJoined
+                ? _buildOpponentJoinedScreen()
+                : _isWaitingForOpponent
+                    ? _buildWaitingScreen()
+                    : _isCreateMode
+                        ? _buildCreateScreen()
+                        : _isJoinMode
+                            ? _buildJoinScreen()
+                            : _buildMainScreen(),
       ),
     );
   }
@@ -521,6 +587,299 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 ),
               ),
               child: Text('Cancel', style: AppTypography.buttonSecondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Screen shown to HOST when opponent joins - shows "Start Game" button
+  Widget _buildOpponentJoinedScreen() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: _cancelWaiting,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: const Icon(Icons.close, size: 24, color: AppColors.textPrimary),
+              ),
+            ),
+          ),
+          const Spacer(),
+
+          // Success icon
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: AppColors.teal.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.person_add,
+                size: 50,
+                color: AppColors.teal,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          Text(
+            'Opponent Joined!',
+            style: AppTypography.headline3,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+
+          // Opponent info card
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.teal.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.teal.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.person, color: AppColors.teal),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _opponentName ?? 'Player 2',
+                      style: AppTypography.bodyLarge,
+                    ),
+                    Text(
+                      'Ready to play',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.teal,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Game settings summary
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    Text(_selectedCategory, style: AppTypography.bodySmall),
+                    Text('Category', style: AppTypography.labelSmall),
+                  ],
+                ),
+                Container(width: 1, height: 30, color: AppColors.elevated),
+                Column(
+                  children: [
+                    Text(_selectedGrid, style: AppTypography.bodySmall),
+                    Text('Grid', style: AppTypography.labelSmall),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const Spacer(),
+
+          // Start Game button
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isStartingGame ? null : _hostStartGame,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.teal,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: _isStartingGame
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text('Start Game', style: AppTypography.button),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              onPressed: _cancelWaiting,
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.elevated),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: Text('Cancel', style: AppTypography.buttonSecondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Screen shown to JOINER while waiting for host to start the game
+  Widget _buildWaitingForHostScreen() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () {
+                _sessionSubscription?.cancel();
+                MultiplayerService.unsubscribeFromSession();
+                Navigator.pop(context);
+              },
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: const Icon(Icons.close, size: 24, color: AppColors.textPrimary),
+              ),
+            ),
+          ),
+          const Spacer(),
+
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: AppColors.teal.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.teal),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          Text(
+            'Joined Successfully!',
+            style: AppTypography.headline3,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Waiting for host to start the game...',
+            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+
+          // Game info
+          if (_currentSession != null)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.person, color: AppColors.purple, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Host: ${_currentSession!.player1Name ?? "Player 1"}',
+                        style: AppTypography.body,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            _currentSession!.category ?? 'Unknown',
+                            style: AppTypography.bodySmall,
+                          ),
+                          Text('Category', style: AppTypography.labelSmall),
+                        ],
+                      ),
+                      Container(width: 1, height: 30, color: AppColors.elevated),
+                      Column(
+                        children: [
+                          Text(
+                            _currentSession!.gridSize ?? '4x5',
+                            style: AppTypography.bodySmall,
+                          ),
+                          Text('Grid', style: AppTypography.labelSmall),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+          const Spacer(),
+
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              onPressed: () {
+                _sessionSubscription?.cancel();
+                MultiplayerService.unsubscribeFromSession();
+                Navigator.pop(context);
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.elevated),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: Text('Leave', style: AppTypography.buttonSecondary),
             ),
           ),
         ],

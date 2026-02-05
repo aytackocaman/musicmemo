@@ -59,6 +59,7 @@ class OnlineSession {
   }
 
   bool get isWaiting => status == 'waiting';
+  bool get isReady => status == 'ready';  // Player 2 joined, waiting for host to start
   bool get isPlaying => status == 'playing';
   bool get isFinished => status == 'finished';
   bool get hasOpponent => player2Id != null;
@@ -173,20 +174,20 @@ class MultiplayerService {
         return null;
       }
 
-      // Update session with player 2
+      // Update session with player 2 - set status to 'ready' (waiting for host to start)
       final response = await _client
           .from('online_sessions')
           .update({
             'player2_id': user.id,
             'player2_name': playerName,
-            'status': 'playing',
+            'status': 'ready',  // Host needs to approve to start
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', session['id'])
           .select()
           .single();
 
-      debugPrint('Successfully joined session');
+      debugPrint('Successfully joined session - waiting for host to start');
       return OnlineSession.fromJson(response);
     } catch (e) {
       debugPrint('Error joining session: $e');
@@ -281,6 +282,34 @@ class MultiplayerService {
       return true;
     } catch (e) {
       debugPrint('Error updating game state: $e');
+      return false;
+    }
+  }
+
+  /// Host starts the game after player 2 has joined
+  static Future<bool> startGame({
+    required String sessionId,
+    required List<GameCard> cards,
+    required String hostId,
+  }) async {
+    try {
+      final cardData = cards.map((c) => {
+        'id': c.id,
+        'soundId': c.soundId,
+        'state': c.state.name,
+      }).toList();
+
+      await _client.from('online_sessions').update({
+        'game_state': {'cards': cardData},
+        'current_turn': hostId,  // Host goes first
+        'status': 'playing',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+
+      debugPrint('Game started by host');
+      return true;
+    } catch (e) {
+      debugPrint('Error starting game: $e');
       return false;
     }
   }
