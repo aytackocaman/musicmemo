@@ -63,7 +63,7 @@
 - [x] Mode Selection Screen
 - [x] Category Selection Screen (with search)
 - [x] Grid Size Selection Screen
-- [ ] Player Setup Screen (local multiplayer)
+- [x] Player Setup Screen (local multiplayer)
 - [ ] Statistics Screen
 - [ ] Subscription Screen
 - [ ] Paywall Screen
@@ -104,12 +104,13 @@
 
 ## Phase 4: Multiplayer
 
-### 4.1 Local Two-Player Mode
-- [ ] Player setup (names, colors)
-- [ ] Turn indicator
-- [ ] Dual score tracking
-- [ ] Turn switching logic
-- [ ] Winner determination
+### 4.1 Local Two-Player Mode ✅
+- [x] Player setup screen (names, colors)
+- [x] Turn indicator with "YOUR TURN" badge
+- [x] Dual score tracking (pairs per player)
+- [x] Turn switching logic (switch on no-match, keep turn on match)
+- [x] Winner determination (or tie)
+- [x] Multiplayer win screen
 
 ### 4.2 Online Multiplayer
 - [ ] Supabase Realtime setup
@@ -177,8 +178,10 @@ Start with these tasks in order:
 4. ~~**Build navigation screens**~~ ✅ Done (Mode, Category, Grid screens)
 5. ~~**Implement Card widget**~~ ✅ Done (GameCard with flip animation)
 6. ~~**Single player game**~~ ✅ Done (Game screen + Win screen)
-7. **Add sound system** - Essential for actual gameplay ← **START HERE**
-8. **Local multiplayer** - Player setup + turn-based game
+7. ~~**Local multiplayer**~~ ✅ Done (Player setup + turn-based game + win screen)
+8. **Add sound system** - Essential for actual gameplay ← **START HERE**
+9. **Statistics screen** - Show game history and stats
+10. **Free tier limits** - Implement daily game counting
 
 ---
 

@@ -59,11 +59,11 @@ A turn-based mobile card matching game where players flip cards to hear sounds a
 |-------|------------|
 | Framework | Flutter |
 | Language | Dart |
-| Sound | `audioplayers` package |
-| State Management | TBD (Riverpod recommended) |
+| Sound | `audioplayers` package (planned) |
+| State Management | Riverpod (flutter_riverpod: ^2.6.1) |
 | Local Storage | SharedPreferences |
 | Backend | Supabase (Auth + PostgreSQL) |
-| Authentication | Google Sign-In via Supabase |
+| Authentication | Email/Password + Guest Mode (Google Sign-In planned) |
 
 ## Design System
 
@@ -131,7 +131,7 @@ Home → Mode (Single Player) → [Paywall if limit reached] → Category → Gr
 
 **Two Player Local Flow:**
 ```
-Home → Mode (Local) → [Paywall if limit reached] → Player Setup → Category → Grid → Game → Win
+Home → Mode (Local) → [Paywall if limit reached] → Category → Grid → Player Setup → Game → Win
 ```
 
 **Two Player Online Flow:**
@@ -300,15 +300,17 @@ google_sign_in: ^6.2.2
 4. Get project URL and anon key from Settings > API
 5. Configure Google OAuth credentials
 
-## Game Logic (To Implement)
+## Game Logic (Implementation Status)
 
-- [ ] Card flip animation
+- [x] Card flip animation (3D transform with AnimationController)
 - [ ] Sound playback on flip
-- [ ] Match detection (compare sound IDs)
-- [ ] Score calculation
-- [ ] Timer
-- [ ] Move counter
-- [ ] Level progression (more cards = harder)
+- [x] Match detection (compare sound IDs)
+- [x] Score calculation (single player + multiplayer)
+- [x] Timer
+- [x] Move counter
+- [x] Grid size selection (4x5, 5x6, 6x7)
+- [x] Win condition detection
+- [x] Local multiplayer turn management
 - [ ] Local high score storage
 
 ## File Structure (Planned)
