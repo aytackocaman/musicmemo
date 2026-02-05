@@ -4,6 +4,7 @@ import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import 'game/single_player_game_screen.dart';
 import 'game/local_player_setup_screen.dart';
+import 'game/online_lobby_screen.dart';
 
 /// Grid size option for the game
 class GridOption {
@@ -145,8 +146,14 @@ class GridScreen extends ConsumerWidget {
       );
     } else {
       // Online multiplayer
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Online multiplayer coming soon!')),
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OnlineLobbyScreen(
+            category: category,
+            gridSize: gridOption.id,
+          ),
+        ),
       );
     }
   }
