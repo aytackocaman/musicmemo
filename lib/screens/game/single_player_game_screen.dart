@@ -27,6 +27,7 @@ class _SinglePlayerGameScreenState
   Timer? _timer;
   int _seconds = 0;
   bool _isPaused = false;
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -79,55 +80,89 @@ class _SinglePlayerGameScreenState
     });
   }
 
-  void _handleCardTap(String cardId) {
-    if (_isPaused) return;
+  void _handleCardTap(String cardId) async {
+    // IMMEDIATELY block if paused or already processing
+    if (_isPaused || _isProcessing) return;
+
+    // IMMEDIATELY set processing to block rapid clicks
+    setState(() {
+      _isProcessing = true;
+    });
 
     final gameState = ref.read(gameProvider);
-    if (gameState == null) return;
+    if (gameState == null) {
+      setState(() => _isProcessing = false);
+      return;
+    }
 
     // Count currently flipped cards
     final flippedCards =
         gameState.cards.where((c) => c.state == CardState.flipped).length;
 
     // Don't allow more than 2 flipped cards
-    if (flippedCards >= 2) return;
+    if (flippedCards >= 2) {
+      setState(() => _isProcessing = false);
+      return;
+    }
 
     ref.read(gameProvider.notifier).flipCard(cardId);
 
     // Check if we need to handle match/no-match after second card
     final newState = ref.read(gameProvider);
-    if (newState == null) return;
+    if (newState == null) {
+      setState(() => _isProcessing = false);
+      return;
+    }
 
     final newFlippedCards =
         newState.cards.where((c) => c.state == CardState.flipped).length;
 
-    if (newFlippedCards == 2) {
-      // Check for match after a short delay
-      Future.delayed(const Duration(milliseconds: 800), () {
-        if (!mounted) return;
+    if (newFlippedCards == 1) {
+      // First card - brief delay then allow second flip
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() {
+        _isProcessing = false;
+      });
+    } else if (newFlippedCards == 2) {
+      // Second card - KEEP LOCKED, wait for player to see both cards
+      await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) return;
 
-        final currentState = ref.read(gameProvider);
-        if (currentState == null) return;
+      final currentState = ref.read(gameProvider);
+      if (currentState == null) {
+        setState(() => _isProcessing = false);
+        return;
+      }
 
-        final flipped = currentState.cards
-            .where((c) => c.state == CardState.flipped)
-            .toList();
+      final flipped = currentState.cards
+          .where((c) => c.state == CardState.flipped)
+          .toList();
 
-        if (flipped.length == 2) {
-          if (flipped[0].soundId == flipped[1].soundId) {
-            // Match! Cards will be marked as matched by the notifier
-            // Already handled in flipCard
-          } else {
-            // No match - flip back
-            ref.read(gameProvider.notifier).flipCardsBack();
-          }
+      if (flipped.length == 2) {
+        if (flipped[0].soundId == flipped[1].soundId) {
+          // Match! Cards will be marked as matched by the notifier
+          // Wait 0.8 seconds before allowing next flip after match
+          await Future.delayed(const Duration(milliseconds: 800));
+          if (!mounted) return;
+        } else {
+          // No match - flip back
+          ref.read(gameProvider.notifier).flipCardsBack();
         }
+      }
 
-        // Check for win
-        final latestState = ref.read(gameProvider);
-        if (latestState != null && latestState.allMatched) {
-          _handleWin();
-        }
+      setState(() {
+        _isProcessing = false;
+      });
+
+      // Check for win
+      final latestState = ref.read(gameProvider);
+      if (latestState != null && latestState.allMatched) {
+        _handleWin();
+      }
+    } else {
+      setState(() {
+        _isProcessing = false;
       });
     }
   }
@@ -191,6 +226,7 @@ class _SinglePlayerGameScreenState
                   cards: gameState.cards,
                   gridSize: widget.gridSize,
                   onCardTap: _handleCardTap,
+                  enabled: !_isProcessing && !_isPaused,
                 ),
               ),
 

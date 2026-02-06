@@ -78,8 +78,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   void _handleSessionUpdate(OnlineSession updatedSession) {
     if (!mounted) return;
 
+    final wasMyTurn = _currentSession.currentTurn == _myUserId;
     final isNowMyTurn = updatedSession.currentTurn == _myUserId;
-    debugPrint('Session update received: turn=${updatedSession.currentTurn}, isMyTurn=$isNowMyTurn');
+    final turnChanged = wasMyTurn != isNowMyTurn;
+    debugPrint('Session update received: turn=${updatedSession.currentTurn}, isMyTurn=$isNowMyTurn, turnChanged=$turnChanged');
 
     // Always update session and cards from server
     setState(() {
@@ -92,8 +94,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
         _isInitialized = true;
       }
 
-      // Reset processing when it becomes my turn
-      if (isNowMyTurn) {
+      // Only reset processing when turn CHANGES to this player (from opponent's turn)
+      // Don't reset on updates while it's still the same player's turn (e.g., their own flip syncs)
+      if (isNowMyTurn && turnChanged) {
+        debugPrint('Turn changed to me, resetting _isProcessing');
         _isProcessing = false;
       }
     });
@@ -117,19 +121,25 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   bool get _isMyTurn => _currentSession.currentTurn == _myUserId;
 
   void _handleCardTap(String cardId) async {
-    debugPrint('Card tap: $cardId, isMyTurn=$_isMyTurn, isProcessing=$_isProcessing');
+    // IMMEDIATELY block if not my turn or already processing
     if (!_isMyTurn || _isProcessing) {
       debugPrint('Ignoring tap - not my turn or processing');
       return;
     }
 
+    // IMMEDIATELY set processing to block rapid clicks
+    setState(() {
+      _isProcessing = true;
+    });
+
     // Count currently flipped cards
     final flippedCards =
-        _cards.where((c) => c.state == CardState.flipped).length;
+        _cards.where((c) => c.state == CardState.flipped).toList();
 
     // Don't allow more than 2 flipped cards
-    if (flippedCards >= 2) {
+    if (flippedCards.length >= 2) {
       debugPrint('Ignoring tap - already 2 cards flipped');
+      setState(() => _isProcessing = false);
       return;
     }
 
@@ -137,47 +147,66 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     final cardIndex = _cards.indexWhere((c) => c.id == cardId);
     if (cardIndex == -1) {
       debugPrint('Card not found: $cardId');
+      setState(() => _isProcessing = false);
       return;
     }
 
     final card = _cards[cardIndex];
     if (card.state != CardState.faceDown) {
       debugPrint('Card not face down: ${card.state}');
+      setState(() => _isProcessing = false);
       return;
     }
 
-    debugPrint('Flipping card $cardId');
+    // Flip the card
     setState(() {
-      _isProcessing = true;
       _cards[cardIndex] = card.copyWith(state: CardState.flipped);
     });
 
-    // Check if this is the second card
+    debugPrint('Flipping card $cardId');
+
+    // Sync the flipped card to server
+    await _syncGameState();
+
+    // Check if this is the first or second card
     final newFlippedCards =
         _cards.where((c) => c.state == CardState.flipped).toList();
 
-    if (newFlippedCards.length == 2) {
-      // Check for match
+    if (newFlippedCards.length == 1) {
+      // First card flipped - brief delay then allow second card
+      debugPrint('First card flipped, short delay before allowing second flip');
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() {
+        _isProcessing = false;
+      });
+    } else if (newFlippedCards.length == 2) {
+      // Second card flipped - KEEP LOCKED until resolution
       final isMatch =
           newFlippedCards[0].soundId == newFlippedCards[1].soundId;
 
-      // Update server with current state
-      await _syncGameState();
+      // Capture flipped card IDs before any async operation
+      final flippedCardIds = newFlippedCards.map((c) => c.id).toSet();
 
-      // Wait for animation
-      await Future.delayed(const Duration(milliseconds: 800));
+      debugPrint('Two cards flipped, isMatch=$isMatch, cards: $flippedCardIds');
+
+      // Wait for player to see both cards
+      await Future.delayed(const Duration(milliseconds: 1200));
 
       if (!mounted) return;
 
       if (isMatch) {
-        // Match found!
-        setState(() {
-          for (var flippedCard in newFlippedCards) {
-            final idx = _cards.indexWhere((c) => c.id == flippedCard.id);
-            if (idx != -1) {
-              _cards[idx] = _cards[idx].copyWith(state: CardState.matched);
-            }
+        // Match found! Create updated cards list with matched state
+        // Use current _cards but update the specific flipped cards to matched
+        final updatedCards = _cards.map((card) {
+          if (flippedCardIds.contains(card.id)) {
+            return card.copyWith(state: CardState.matched);
           }
+          return card;
+        }).toList();
+
+        setState(() {
+          _cards = updatedCards;
         });
 
         // Update scores - current player gets a point
@@ -189,49 +218,56 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
             : _currentSession.player2Score;
 
         // Check if game is complete
-        final allMatched = _cards.every((c) => c.state == CardState.matched);
+        final allMatched = updatedCards.every((c) => c.state == CardState.matched);
 
         await MultiplayerService.updateGameState(
           sessionId: widget.session.id,
-          cards: _cards,
+          cards: updatedCards,  // Use local copy, not _cards
           player1Score: newPlayer1Score,
           player2Score: newPlayer2Score,
           currentTurn: _myUserId, // Keep turn on match
           status: allMatched ? 'finished' : null,
         );
-      } else {
-        // No match - flip cards back
+
+        // Wait 0.8 seconds before allowing next flip after match
+        await Future.delayed(const Duration(milliseconds: 800));
+        if (!mounted) return;
         setState(() {
-          for (var flippedCard in newFlippedCards) {
-            final idx = _cards.indexWhere((c) => c.id == flippedCard.id);
-            if (idx != -1) {
-              _cards[idx] = _cards[idx].copyWith(state: CardState.faceDown);
-            }
+          _isProcessing = false;
+        });
+      } else {
+        // No match - flip cards back and switch turn
+        // Create updated cards list with faceDown state for the flipped cards
+        final updatedCards = _cards.map((card) {
+          if (flippedCardIds.contains(card.id)) {
+            return card.copyWith(state: CardState.faceDown);
           }
+          return card;
+        }).toList();
+
+        setState(() {
+          _cards = updatedCards;
         });
 
         // Switch turn to opponent
         final opponentId =
             _amIPlayer1 ? widget.session.player2Id : widget.session.player1Id;
 
+        debugPrint('No match - flipping cards back and switching turn to $opponentId');
+
         await MultiplayerService.updateGameState(
           sessionId: widget.session.id,
-          cards: _cards,
+          cards: updatedCards,  // Use local copy, not _cards
           player1Score: _currentSession.player1Score,
           player2Score: _currentSession.player2Score,
           currentTurn: opponentId!,
         );
-      }
-    } else {
-      // First card flipped - just sync state
-      debugPrint('First card flipped, syncing state');
-      await _syncGameState();
-    }
 
-    debugPrint('Done processing, setting _isProcessing = false');
-    setState(() {
-      _isProcessing = false;
-    });
+        // Keep processing=true - turn switched, player can't act anymore
+        // The _isProcessing will be reset when session update comes with new turn
+        debugPrint('Turn switched to opponent, keeping processing=true');
+      }
+    }
   }
 
   Future<void> _syncGameState() async {
