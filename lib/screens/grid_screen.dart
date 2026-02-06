@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
+import '../providers/user_provider.dart';
+import '../services/database_service.dart';
 import 'game/single_player_game_screen.dart';
 import 'game/local_player_setup_screen.dart';
 import 'game/online_lobby_screen.dart';
@@ -121,6 +123,14 @@ class GridScreen extends ConsumerWidget {
         const SnackBar(content: Text('Please select game mode and category')),
       );
       return;
+    }
+
+    // Increment daily game count for free tier tracking
+    if (gameMode == GameMode.singlePlayer ||
+        gameMode == GameMode.localMultiplayer) {
+      DatabaseService.incrementGameCount(gameMode.value);
+      // Refresh the cached counts so mode screen shows updated values
+      ref.invalidate(dailyGameCountsProvider);
     }
 
     // Navigate based on game mode

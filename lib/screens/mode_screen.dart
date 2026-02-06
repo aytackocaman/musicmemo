@@ -2,14 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
+import '../providers/user_provider.dart';
+import '../services/database_service.dart';
 import 'category_screen.dart';
 import 'game/online_mode_screen.dart';
+import 'paywall_screen.dart';
 
 class ModeScreen extends ConsumerWidget {
   const ModeScreen({super.key});
 
+  void _showPaywall(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PaywallScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final subscriptionAsync = ref.watch(subscriptionProvider);
+    final countsAsync = ref.watch(dailyGameCountsProvider);
+
+    final isPremium = subscriptionAsync.when(
+      data: (sub) => sub.canAccessPremiumFeatures,
+      loading: () => false,
+      error: (_, __) => false,
+    );
+
+    final counts = countsAsync.when(
+      data: (c) => c,
+      loading: () => DailyGameCounts.zero(),
+      error: (_, __) => DailyGameCounts.zero(),
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -38,13 +63,19 @@ class ModeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.xl),
 
-              // Mode options
+              // Single Player
               _ModeButton(
                 icon: Icons.person,
                 title: 'Single Player',
-                subtitle: 'Play solo and beat your high score',
+                subtitle: isPremium
+                    ? 'Play solo and beat your high score'
+                    : '${counts.singlePlayerRemaining} of ${DailyGameCounts.singlePlayerLimit} free games left today',
                 isPrimary: true,
                 onTap: () {
+                  if (!isPremium && !counts.canPlaySinglePlayer) {
+                    _showPaywall(context);
+                    return;
+                  }
                   ref.read(selectedGameModeProvider.notifier).state =
                       GameMode.singlePlayer;
                   Navigator.push(
@@ -57,12 +88,19 @@ class ModeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.md),
 
+              // Local Multiplayer
               _ModeButton(
                 icon: Icons.people,
                 title: 'Local Multiplayer',
-                subtitle: 'Play with a friend on this device',
+                subtitle: isPremium
+                    ? 'Play with a friend on this device'
+                    : '${counts.localMultiplayerRemaining} of ${DailyGameCounts.localMultiplayerLimit} free games left today',
                 iconBackgroundColor: const Color(0x268B5CF6),
                 onTap: () {
+                  if (!isPremium && !counts.canPlayLocalMultiplayer) {
+                    _showPaywall(context);
+                    return;
+                  }
                   ref.read(selectedGameModeProvider.notifier).state =
                       GameMode.localMultiplayer;
                   Navigator.push(
@@ -75,16 +113,22 @@ class ModeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.md),
 
+              // Online Multiplayer
               _ModeButton(
                 icon: Icons.public,
                 title: 'Online Multiplayer',
-                subtitle: 'Challenge players worldwide',
+                subtitle: isPremium
+                    ? 'Challenge players worldwide'
+                    : 'Premium only',
                 iconBackgroundColor: const Color(0x2614B8A6),
-                badge: _PremiumBadge(),
+                badge: isPremium ? null : _PremiumBadge(),
                 onTap: () {
+                  if (!isPremium) {
+                    _showPaywall(context);
+                    return;
+                  }
                   ref.read(selectedGameModeProvider.notifier).state =
                       GameMode.onlineMultiplayer;
-                  // Go directly to online lobby (create/join)
                   Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -4,6 +4,7 @@ import '../services/database_service.dart';
 import '../widgets/game_button.dart';
 import 'mode_screen.dart';
 import 'statistics_screen.dart';
+import 'subscription_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -100,11 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       GameButton(
-                        label: 'Settings',
-                        icon: Icons.settings,
+                        label: 'Subscription',
+                        icon: Icons.workspace_premium,
                         variant: GameButtonVariant.secondary,
                         onPressed: () {
-                          // TODO: Navigate to settings
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SubscriptionScreen(),
+                            ),
+                          );
                         },
                       ),
                       const SizedBox(height: AppSpacing.lg),

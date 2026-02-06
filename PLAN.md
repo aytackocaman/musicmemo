@@ -65,8 +65,8 @@
 - [x] Grid Size Selection Screen
 - [x] Player Setup Screen (local multiplayer)
 - [x] Statistics Screen
-- [ ] Subscription Screen
-- [ ] Paywall Screen
+- [x] Subscription Screen
+- [x] Paywall Screen
 
 ---
 
@@ -130,14 +130,17 @@
 
 ## Phase 5: Monetization
 
-### 5.1 Free Tier Limits
-- [ ] Track daily game counts per mode
-- [ ] Check limits before game start
-- [ ] Show paywall when limit reached
-- [ ] Reset counts daily (server-side)
+### 5.1 Free Tier Limits ✅
+- [x] Track daily game counts per mode (incrementGameCount called in grid_screen)
+- [x] Check limits before game start (mode_screen checks canPlay before navigation)
+- [x] Show paywall when limit reached (PaywallScreen with upgrade CTAs)
+- [x] Show remaining games count in mode selection subtitles
+- [x] Subscription screen with current plan info and daily limits
+- [ ] Reset counts daily (server-side — handled by date-based query)
 
 ### 5.2 Subscription System
 - [ ] Integrate RevenueCat or in-app purchases
+- [ ] Wire purchase buttons in PaywallScreen and SubscriptionScreen
 - [ ] Handle subscription status
 - [ ] Sync with Supabase
 - [ ] Restore purchases
@@ -186,9 +189,9 @@ Start with these tasks in order:
 7. ~~**Local multiplayer**~~ ✅ Done (Player setup + turn-based game + win screen)
 8. ~~**Online multiplayer**~~ ✅ Done (Supabase Realtime + invite codes + race condition fixes)
 9. ~~**Statistics screen**~~ ✅ Done (Overall stats, per-mode breakdown, game saving)
-10. **Free tier limits** - Implement daily game counting + paywall ← **START HERE**
-11. **Add sound system** - Integrate audioplayers package
-12. **Subscription system** - RevenueCat integration
+10. ~~**Free tier limits**~~ ✅ Done (Paywall screen, subscription screen, limit checks, game counting)
+11. **Add sound system** - Integrate audioplayers package ← **START HERE**
+12. **Subscription system** - RevenueCat integration (wire purchase buttons)
 
 ---
 
