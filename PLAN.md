@@ -64,7 +64,7 @@
 - [x] Category Selection Screen (with search)
 - [x] Grid Size Selection Screen
 - [x] Player Setup Screen (local multiplayer)
-- [ ] Statistics Screen
+- [x] Statistics Screen
 - [ ] Subscription Screen
 - [ ] Paywall Screen
 
@@ -118,9 +118,11 @@
 - [x] Supabase Realtime setup
 - [x] Online session management (create/join with invite codes)
 - [x] Invite code matchmaking (6-character codes)
-- [x] Real-time game state sync
+- [x] Real-time game state sync (with polling fallback)
 - [x] Connection status handling (LIVE indicator)
 - [x] Turn-based gameplay over network
+- [x] Race condition fixes (turn change detection, card state sync)
+- [x] Rapid click prevention (all game modes)
 - [ ] Reconnection logic (future improvement)
 - [ ] Opponent disconnect handling (future improvement)
 
@@ -146,8 +148,8 @@
 ## Phase 6: Polish & Launch
 
 ### 6.1 Data & Progress
-- [ ] Save game history to Supabase
-- [ ] Calculate and display statistics
+- [x] Save game history to Supabase (single player win screen)
+- [x] Calculate and display statistics (Statistics Screen)
 - [ ] Implement leaderboards (optional)
 
 ### 6.2 UX Improvements
@@ -182,10 +184,11 @@ Start with these tasks in order:
 5. ~~**Implement Card widget**~~ ✅ Done (GameCard with flip animation)
 6. ~~**Single player game**~~ ✅ Done (Game screen + Win screen)
 7. ~~**Local multiplayer**~~ ✅ Done (Player setup + turn-based game + win screen)
-8. ~~**Online multiplayer**~~ ✅ Done (Supabase Realtime + invite codes)
-9. **Statistics screen** - Show game history and stats ← **START HERE**
-10. **Free tier limits** - Implement daily game counting
-11. **Add sound system** - Add after core gameplay is complete
+8. ~~**Online multiplayer**~~ ✅ Done (Supabase Realtime + invite codes + race condition fixes)
+9. ~~**Statistics screen**~~ ✅ Done (Overall stats, per-mode breakdown, game saving)
+10. **Free tier limits** - Implement daily game counting + paywall ← **START HERE**
+11. **Add sound system** - Integrate audioplayers package
+12. **Subscription system** - RevenueCat integration
 
 ---
 
