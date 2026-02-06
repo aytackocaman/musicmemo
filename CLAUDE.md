@@ -1,5 +1,12 @@
 # Music Memo - Project Context
 
+## Working Style
+- Explain technical decisions in plain language
+- Check in before making architectural choices
+- Build incrementally so I can review each step
+- Push back if something is overcomplicating the project
+- Be honest about limitations and trade-offs
+
 ## Project Overview
 
 A turn-based mobile card matching game where players flip cards to hear sounds and match pairs by memory. Built with Flutter for cross-platform support.
@@ -367,14 +374,17 @@ lib/
 ## Commands
 
 ```bash
-# Run on Chrome (web)
-flutter run -d chrome
+# Run on Chrome (web) — development (lower free tier limits for testing)
+flutter run -d chrome --dart-define-from-file=env/development.json
 
-# Run on iOS Simulator
-flutter run -d ios
+# Run on iOS Simulator — development
+flutter run -d ios --dart-define-from-file=env/development.json
 
-# Build for iOS
-flutter build ios
+# Run on Chrome (web) — production limits
+flutter run -d chrome --dart-define-from-file=env/production.json
+
+# Build for iOS — production
+flutter build ios --dart-define-from-file=env/production.json
 ```
 
 ## Notes for Claude

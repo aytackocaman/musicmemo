@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/game_config.dart';
 import 'supabase_service.dart';
 
 /// User profile model
@@ -88,9 +89,9 @@ class DailyGameCounts {
     );
   }
 
-  // Free tier limits
-  static const int singlePlayerLimit = 5;
-  static const int localMultiplayerLimit = 3;
+  // Free tier limits (from env/development.json or env/production.json)
+  static const int singlePlayerLimit = GameConfig.singlePlayerDailyLimit;
+  static const int localMultiplayerLimit = GameConfig.localMultiplayerDailyLimit;
 
   bool get canPlaySinglePlayer => singlePlayerCount < singlePlayerLimit;
   bool get canPlayLocalMultiplayer =>
@@ -230,6 +231,14 @@ class GameHistoryEntry {
 class DatabaseService {
   static SupabaseClient get _client => SupabaseService.client;
 
+  /// The "game day" runs from 3 AM to 3 AM local time.
+  /// If the current time is before 3 AM, the game day is still "yesterday."
+  static String getGameDay() {
+    final now = DateTime.now();
+    final gameDay = now.hour < 3 ? now.subtract(const Duration(days: 1)) : now;
+    return gameDay.toIso8601String().split('T')[0];
+  }
+
   /// Get current user's profile
   static Future<UserProfile?> getProfile() async {
     final user = _client.auth.currentUser;
@@ -297,7 +306,7 @@ class DatabaseService {
     if (user == null) return DailyGameCounts.zero();
 
     try {
-      final today = DateTime.now().toIso8601String().split('T')[0];
+      final today = getGameDay();
       final response = await _client
           .from('daily_game_counts')
           .select()
@@ -341,17 +350,40 @@ class DatabaseService {
     }
   }
 
-  /// Increment game count after starting a game
+  /// Increment game count after starting a game.
+  /// Uses a direct select-then-upsert with [getGameDay] so the date aligns
+  /// with the 3 AM reset boundary instead of the server's UTC midnight.
   static Future<void> incrementGameCount(String gameMode) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
     try {
-      // Call the database function
-      await _client.rpc('increment_game_count', params: {
-        'p_user_id': user.id,
-        'p_game_mode': gameMode,
-      });
+      final today = getGameDay();
+
+      // Fetch existing row for this game day
+      final existing = await _client
+          .from('daily_game_counts')
+          .select()
+          .eq('user_id', user.id)
+          .eq('date', today)
+          .maybeSingle();
+
+      final currentSp =
+          (existing?['single_player_count'] as int?) ?? 0;
+      final currentLm =
+          (existing?['local_multiplayer_count'] as int?) ?? 0;
+
+      await _client.from('daily_game_counts').upsert(
+        {
+          'user_id': user.id,
+          'date': today,
+          'single_player_count':
+              gameMode == 'single_player' ? currentSp + 1 : currentSp,
+          'local_multiplayer_count':
+              gameMode == 'local_multiplayer' ? currentLm + 1 : currentLm,
+        },
+        onConflict: 'user_id,date',
+      );
     } catch (e) {
       print('Error incrementing game count: $e');
     }

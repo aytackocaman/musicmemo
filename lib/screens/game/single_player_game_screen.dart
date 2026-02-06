@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/user_provider.dart';
+import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
+import '../home_screen.dart';
 import 'win_screen.dart';
 
 class SinglePlayerGameScreen extends ConsumerStatefulWidget {
@@ -153,23 +156,40 @@ class _SinglePlayerGameScreenState
     }
   }
 
-  void _handleWin() {
+  Future<void> _handleWin() async {
     _timer?.cancel();
 
     final gameState = ref.read(gameProvider);
     if (gameState == null) return;
 
-    // Navigate to win screen
+    // Save game and fetch fresh counts BEFORE navigating so the
+    // win screen renders with all data on the first frame.
+    await DatabaseService.saveGame(
+      category: widget.category,
+      score: gameState.finalScore,
+      moves: gameState.moves,
+      timeSeconds: _seconds,
+      won: true,
+      gridSize: widget.gridSize,
+      gameMode: 'single_player',
+    );
+
+    final counts = await DatabaseService.getDailyGameCounts();
+    ref.invalidate(dailyGameCountsProvider);
+
+    if (!mounted) return;
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => WinScreen(
-          score: gameState.score,
+          score: gameState.finalScore,
           moves: gameState.moves,
           timeSeconds: _seconds,
           totalPairs: gameState.totalPairs,
           category: widget.category,
           gridSize: widget.gridSize,
+          counts: counts,
         ),
       ),
     );
@@ -191,7 +211,9 @@ class _SinglePlayerGameScreenState
       );
     }
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
@@ -222,6 +244,7 @@ class _SinglePlayerGameScreenState
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -229,9 +252,9 @@ class _SinglePlayerGameScreenState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Back button
+        // Home button
         GestureDetector(
-          onTap: () => _showExitConfirmation(),
+          onTap: () => _showHomeConfirmation(),
           child: Container(
             width: 40,
             height: 40,
@@ -240,7 +263,7 @@ class _SinglePlayerGameScreenState
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Icon(
-              Icons.arrow_back,
+              Icons.home,
               size: 20,
               color: AppColors.textPrimary,
             ),
@@ -376,23 +399,28 @@ class _SinglePlayerGameScreenState
         .join(' ');
   }
 
-  void _showExitConfirmation() {
+  void _showHomeConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Exit Game?'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Go Home?'),
         content: const Text('Your progress will be lost.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Exit game
+              Navigator.pop(dialogContext); // Close dialog
+              _timer?.cancel();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                (route) => false,
+              );
             },
-            child: const Text('Exit'),
+            child: const Text('Go Home'),
           ),
         ],
       ),
