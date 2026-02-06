@@ -101,6 +101,131 @@ class DailyGameCounts {
       localMultiplayerLimit - localMultiplayerCount;
 }
 
+/// User statistics model
+class UserStats {
+  final int totalGames;
+  final int totalWins;
+  final int totalScore;
+  final int highScore;
+  final int currentStreak;
+  final int bestStreak;
+  final int spGames;
+  final int spWins;
+  final int? spBestTime;
+  final int? spBestMoves;
+  final int localMpGames;
+  final int localMpWins;
+  final int onlineGames;
+  final int onlineWins;
+  final int onlineRating;
+  final String? favoriteCategory;
+
+  UserStats({
+    required this.totalGames,
+    required this.totalWins,
+    required this.totalScore,
+    required this.highScore,
+    required this.currentStreak,
+    required this.bestStreak,
+    required this.spGames,
+    required this.spWins,
+    this.spBestTime,
+    this.spBestMoves,
+    required this.localMpGames,
+    required this.localMpWins,
+    required this.onlineGames,
+    required this.onlineWins,
+    required this.onlineRating,
+    this.favoriteCategory,
+  });
+
+  double get winRate => totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+  double get spWinRate => spGames > 0 ? (spWins / spGames) * 100 : 0;
+  double get localMpWinRate => localMpGames > 0 ? (localMpWins / localMpGames) * 100 : 0;
+  double get onlineWinRate => onlineGames > 0 ? (onlineWins / onlineGames) * 100 : 0;
+
+  factory UserStats.fromJson(Map<String, dynamic> json) {
+    return UserStats(
+      totalGames: json['total_games'] as int? ?? 0,
+      totalWins: json['total_wins'] as int? ?? 0,
+      totalScore: json['total_score'] as int? ?? 0,
+      highScore: json['high_score'] as int? ?? 0,
+      currentStreak: json['current_streak'] as int? ?? 0,
+      bestStreak: json['best_streak'] as int? ?? 0,
+      spGames: json['sp_games'] as int? ?? 0,
+      spWins: json['sp_wins'] as int? ?? 0,
+      spBestTime: json['sp_best_time'] as int?,
+      spBestMoves: json['sp_best_moves'] as int?,
+      localMpGames: json['local_mp_games'] as int? ?? 0,
+      localMpWins: json['local_mp_wins'] as int? ?? 0,
+      onlineGames: json['online_games'] as int? ?? 0,
+      onlineWins: json['online_wins'] as int? ?? 0,
+      onlineRating: json['online_rating'] as int? ?? 1000,
+      favoriteCategory: json['favorite_category'] as String?,
+    );
+  }
+
+  factory UserStats.empty() {
+    return UserStats(
+      totalGames: 0,
+      totalWins: 0,
+      totalScore: 0,
+      highScore: 0,
+      currentStreak: 0,
+      bestStreak: 0,
+      spGames: 0,
+      spWins: 0,
+      localMpGames: 0,
+      localMpWins: 0,
+      onlineGames: 0,
+      onlineWins: 0,
+      onlineRating: 1000,
+    );
+  }
+}
+
+/// Game history entry model
+class GameHistoryEntry {
+  final String id;
+  final String gameMode;
+  final String category;
+  final int score;
+  final int? opponentScore;
+  final int moves;
+  final int timeSeconds;
+  final bool won;
+  final String gridSize;
+  final DateTime playedAt;
+
+  GameHistoryEntry({
+    required this.id,
+    required this.gameMode,
+    required this.category,
+    required this.score,
+    this.opponentScore,
+    required this.moves,
+    required this.timeSeconds,
+    required this.won,
+    required this.gridSize,
+    required this.playedAt,
+  });
+
+  factory GameHistoryEntry.fromJson(Map<String, dynamic> json) {
+    return GameHistoryEntry(
+      id: json['id'] as String,
+      gameMode: json['game_mode'] as String,
+      category: json['category'] as String,
+      score: json['score'] as int,
+      opponentScore: json['opponent_score'] as int?,
+      moves: json['moves'] as int,
+      timeSeconds: json['time_seconds'] as int,
+      won: json['won'] as bool,
+      gridSize: json['grid_size'] as String,
+      playedAt: DateTime.parse(json['played_at'] as String),
+    );
+  }
+}
+
 /// Handles all database operations with Supabase
 class DatabaseService {
   static SupabaseClient get _client => SupabaseService.client;
@@ -340,6 +465,48 @@ class DatabaseService {
       });
     } catch (e) {
       print('Error updating category stats: $e');
+    }
+  }
+
+  /// Get user statistics
+  static Future<UserStats> getUserStats() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return UserStats.empty();
+
+    try {
+      final response = await _client
+          .from('user_stats')
+          .select()
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+      if (response == null) return UserStats.empty();
+      return UserStats.fromJson(response);
+    } catch (e) {
+      print('Error fetching user stats: $e');
+      return UserStats.empty();
+    }
+  }
+
+  /// Get recent game history
+  static Future<List<GameHistoryEntry>> getGameHistory({int limit = 20}) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+
+    try {
+      final response = await _client
+          .from('games')
+          .select()
+          .eq('user_id', user.id)
+          .order('played_at', ascending: false)
+          .limit(limit);
+
+      return (response as List)
+          .map((json) => GameHistoryEntry.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching game history: $e');
+      return [];
     }
   }
 }

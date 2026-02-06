@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
+import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
 import '../home_screen.dart';
 import 'single_player_game_screen.dart';
 
-class WinScreen extends StatelessWidget {
+class WinScreen extends StatefulWidget {
   final int score;
   final int moves;
   final int timeSeconds;
@@ -23,11 +24,34 @@ class WinScreen extends StatelessWidget {
   });
 
   @override
+  State<WinScreen> createState() => _WinScreenState();
+}
+
+class _WinScreenState extends State<WinScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _saveGameResult();
+  }
+
+  Future<void> _saveGameResult() async {
+    await DatabaseService.saveGame(
+      category: widget.category,
+      score: widget.score,
+      moves: widget.moves,
+      timeSeconds: widget.timeSeconds,
+      won: true,
+      gridSize: widget.gridSize,
+      gameMode: 'single_player',
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final stars = GameUtils.calculateStars(
-      moves: moves,
-      timeSeconds: timeSeconds,
-      totalPairs: totalPairs,
+      moves: widget.moves,
+      timeSeconds: widget.timeSeconds,
+      totalPairs: widget.totalPairs,
     );
 
     return Scaffold(
@@ -89,9 +113,9 @@ class WinScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStat('$score', 'Score'),
-                    _buildStat('$moves', 'Moves'),
-                    _buildStat(GameUtils.formatTime(timeSeconds), 'Time'),
+                    _buildStat('${widget.score}', 'Score'),
+                    _buildStat('${widget.moves}', 'Moves'),
+                    _buildStat(GameUtils.formatTime(widget.timeSeconds), 'Time'),
                   ],
                 ),
               ),
@@ -203,8 +227,8 @@ class WinScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => SinglePlayerGameScreen(
-          category: category,
-          gridSize: gridSize,
+          category: widget.category,
+          gridSize: widget.gridSize,
         ),
       ),
     );
@@ -215,8 +239,8 @@ class WinScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => SinglePlayerGameScreen(
-          category: category,
-          gridSize: gridSize,
+          category: widget.category,
+          gridSize: widget.gridSize,
         ),
       ),
     );

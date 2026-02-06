@@ -1,10 +1,42 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../services/database_service.dart';
 import '../widgets/game_button.dart';
 import 'mode_screen.dart';
+import 'statistics_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _highScore = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHighScore();
+  }
+
+  Future<void> _loadHighScore() async {
+    final stats = await DatabaseService.getUserStats();
+    if (mounted) {
+      setState(() {
+        _highScore = stats.highScore;
+      });
+    }
+  }
+
+  String _formatHighScore(int score) {
+    if (score >= 1000) {
+      final formatted = (score / 1000).toStringAsFixed(score % 1000 == 0 ? 0 : 1);
+      return '${formatted}k';
+    }
+    return score.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +109,16 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       GameButton(
-                        label: 'Leaderboard',
-                        icon: Icons.emoji_events,
+                        label: 'Statistics',
+                        icon: Icons.bar_chart,
                         variant: GameButtonVariant.secondary,
                         onPressed: () {
-                          // TODO: Navigate to leaderboard
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const StatisticsScreen(),
+                            ),
+                          ).then((_) => _loadHighScore()); // Refresh on return
                         },
                       ),
                     ],
@@ -98,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '2,450',
+                      _formatHighScore(_highScore),
                       style: AppTypography.headline3.copyWith(
                         color: AppColors.teal,
                       ),
