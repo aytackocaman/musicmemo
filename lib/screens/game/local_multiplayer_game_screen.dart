@@ -118,58 +118,39 @@ class _LocalMultiplayerGameScreenState
         newState.cards.where((c) => c.state == CardState.flipped).length;
 
     if (newFlippedCards == 1) {
-      // First card - brief delay then allow second flip
+      // First card flipped - brief delay then allow second flip
       await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
     } else if (newFlippedCards == 2) {
-      // Second card - KEEP LOCKED, wait for player to see both cards
+      // Second card, NO match (cards still in flipped state)
+      // Show both cards for 1200ms, then flip back and switch turns
       await Future.delayed(const Duration(milliseconds: 1200));
       if (!mounted) return;
 
-      final currentState = ref.read(gameProvider);
-      if (currentState == null) {
-        setState(() => _isProcessing = false);
-        return;
-      }
+      ref.read(gameProvider.notifier).flipCardsBack();
 
-      final flipped = currentState.cards
-          .where((c) => c.state == CardState.flipped)
-          .toList();
-
-      if (flipped.length == 2) {
-        if (flipped[0].soundId == flipped[1].soundId) {
-          // Match found - player gets another turn
-          // Wait 0.8 seconds before allowing next flip after match
-          await Future.delayed(const Duration(milliseconds: 800));
-          if (!mounted) return;
-          setState(() {
-            _isProcessing = false;
-          });
-        } else {
-          // No match - flip back and switch turns
-          ref.read(gameProvider.notifier).flipCardsBack();
-          setState(() {
-            _isProcessing = false;
-          });
-        }
-      } else {
-        setState(() {
-          _isProcessing = false;
-        });
-      }
-
-      // Check for game complete
-      final latestState = ref.read(gameProvider);
-      if (latestState != null && latestState.allMatched) {
-        _handleGameComplete();
-      }
-    } else {
       setState(() {
         _isProcessing = false;
       });
+    } else {
+      // Second card, MATCH found (provider already set cards to matched, 0 flipped)
+      // Player keeps their turn on a match
+      // Brief delay for visual feedback
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+
+      setState(() {
+        _isProcessing = false;
+      });
+
+      // Check for game complete (allMatched or decisive win)
+      final latestState = ref.read(gameProvider);
+      if (latestState != null && latestState.isComplete) {
+        _handleGameComplete();
+      }
     }
   }
 

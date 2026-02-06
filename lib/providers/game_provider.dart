@@ -234,7 +234,21 @@ class GameNotifier extends StateNotifier<GameState?> {
       );
     }
 
-    final isComplete = updatedCards.every((c) => c.state == CardState.matched);
+    final allMatched = updatedCards.every((c) => c.state == CardState.matched);
+
+    // Early win: a player has matched more than half the pairs
+    bool decisiveWin = false;
+    if (!allMatched && state!.mode != GameMode.singlePlayer && updatedPlayers != null) {
+      final totalPairs = updatedCards.length ~/ 2;
+      for (final player in updatedPlayers) {
+        if (player.score > totalPairs / 2) {
+          decisiveWin = true;
+          break;
+        }
+      }
+    }
+
+    final isComplete = allMatched || decisiveWin;
 
     state = state!.copyWith(
       cards: updatedCards,
@@ -285,7 +299,7 @@ class GameNotifier extends StateNotifier<GameState?> {
       score: state!.score,
       moves: state!.moves,
       timeSeconds: state!.timeSeconds,
-      won: state!.allMatched,
+      won: state!.isComplete,
       gridSize: state!.gridSize,
       gameMode: state!.mode.value,
     );

@@ -118,38 +118,28 @@ class _SinglePlayerGameScreenState
         newState.cards.where((c) => c.state == CardState.flipped).length;
 
     if (newFlippedCards == 1) {
-      // First card - brief delay then allow second flip
+      // First card flipped - brief delay then allow second flip
       await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
     } else if (newFlippedCards == 2) {
-      // Second card - KEEP LOCKED, wait for player to see both cards
+      // Second card, NO match (cards still in flipped state)
+      // Show both cards for 1200ms, then flip back
       await Future.delayed(const Duration(milliseconds: 1200));
       if (!mounted) return;
 
-      final currentState = ref.read(gameProvider);
-      if (currentState == null) {
-        setState(() => _isProcessing = false);
-        return;
-      }
+      ref.read(gameProvider.notifier).flipCardsBack();
 
-      final flipped = currentState.cards
-          .where((c) => c.state == CardState.flipped)
-          .toList();
-
-      if (flipped.length == 2) {
-        if (flipped[0].soundId == flipped[1].soundId) {
-          // Match! Cards will be marked as matched by the notifier
-          // Wait 0.8 seconds before allowing next flip after match
-          await Future.delayed(const Duration(milliseconds: 800));
-          if (!mounted) return;
-        } else {
-          // No match - flip back
-          ref.read(gameProvider.notifier).flipCardsBack();
-        }
-      }
+      setState(() {
+        _isProcessing = false;
+      });
+    } else {
+      // Second card, MATCH found (provider already set cards to matched, 0 flipped)
+      // Brief delay for visual feedback
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
 
       setState(() {
         _isProcessing = false;
@@ -157,13 +147,9 @@ class _SinglePlayerGameScreenState
 
       // Check for win
       final latestState = ref.read(gameProvider);
-      if (latestState != null && latestState.allMatched) {
+      if (latestState != null && latestState.isComplete) {
         _handleWin();
       }
-    } else {
-      setState(() {
-        _isProcessing = false;
-      });
     }
   }
 
