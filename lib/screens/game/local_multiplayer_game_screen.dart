@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/dev_config.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/user_provider.dart';
+import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
+import '../category_screen.dart';
+import '../home_screen.dart';
+import '../paywall_screen.dart';
 import 'local_player_setup_screen.dart';
 
 class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
@@ -154,13 +160,28 @@ class _LocalMultiplayerGameScreenState
     }
   }
 
-  void _handleGameComplete() {
+  Future<void> _handleGameComplete() async {
     _timer?.cancel();
 
     final gameState = ref.read(gameProvider);
     if (gameState == null) return;
 
-    // Navigate to win screen
+    // Save game and fetch fresh counts BEFORE navigating
+    await DatabaseService.saveGame(
+      category: widget.category,
+      score: gameState.players.isNotEmpty ? gameState.players[0].score : 0,
+      moves: gameState.moves,
+      timeSeconds: _seconds,
+      won: true,
+      gridSize: widget.gridSize,
+      gameMode: 'local_multiplayer',
+    );
+
+    final counts = await DatabaseService.getDailyGameCounts();
+    ref.invalidate(dailyGameCountsProvider);
+
+    if (!mounted) return;
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -170,6 +191,7 @@ class _LocalMultiplayerGameScreenState
           timeSeconds: _seconds,
           category: widget.category,
           gridSize: widget.gridSize,
+          counts: counts,
         ),
       ),
     );
@@ -191,38 +213,41 @@ class _LocalMultiplayerGameScreenState
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            children: [
-              // Header with back/pause
-              _buildHeader(),
-              const SizedBox(height: 12),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              children: [
+                // Header with home/pause
+                _buildHeader(),
+                const SizedBox(height: 12),
 
-              // Player scores and turn indicator
-              _buildPlayerScores(gameState),
-              const SizedBox(height: 16),
+                // Player scores and turn indicator
+                _buildPlayerScores(gameState),
+                const SizedBox(height: 16),
 
-              // Stats row (time and moves)
-              _buildStatsRow(gameState),
-              const SizedBox(height: 16),
+                // Stats row (time and moves)
+                _buildStatsRow(gameState),
+                const SizedBox(height: 16),
 
-              // Game board
-              Expanded(
-                child: GameBoard(
-                  cards: gameState.cards,
-                  gridSize: widget.gridSize,
-                  onCardTap: _handleCardTap,
-                  enabled: !_isProcessing && !_isPaused,
+                // Game board
+                Expanded(
+                  child: GameBoard(
+                    cards: gameState.cards,
+                    gridSize: widget.gridSize,
+                    onCardTap: _handleCardTap,
+                    enabled: !_isProcessing && !_isPaused,
+                  ),
                 ),
-              ),
 
-              // Pause overlay
-              if (_isPaused) _buildPauseOverlay(),
-            ],
+                // Pause overlay
+                if (_isPaused) _buildPauseOverlay(),
+              ],
+            ),
           ),
         ),
       ),
@@ -233,9 +258,9 @@ class _LocalMultiplayerGameScreenState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Back button
+        // Home button
         GestureDetector(
-          onTap: () => _showExitConfirmation(),
+          onTap: () => _showHomeConfirmation(),
           child: Container(
             width: 40,
             height: 40,
@@ -244,7 +269,7 @@ class _LocalMultiplayerGameScreenState
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Icon(
-              Icons.arrow_back,
+              Icons.home,
               size: 20,
               color: AppColors.textPrimary,
             ),
@@ -417,23 +442,28 @@ class _LocalMultiplayerGameScreenState
         .join(' ');
   }
 
-  void _showExitConfirmation() {
+  void _showHomeConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Exit Game?'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Go Home?'),
         content: const Text('Your progress will be lost.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Exit game
+              Navigator.pop(dialogContext); // Close dialog
+              _timer?.cancel();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                (route) => false,
+              );
             },
-            child: const Text('Exit'),
+            child: const Text('Go Home'),
           ),
         ],
       ),
@@ -536,12 +566,13 @@ class _PlayerScoreCard extends StatelessWidget {
 }
 
 /// Multiplayer Win Screen
-class _MultiplayerWinScreen extends StatelessWidget {
+class _MultiplayerWinScreen extends ConsumerWidget {
   final List<Player> players;
   final int moves;
   final int timeSeconds;
   final String category;
   final String gridSize;
+  final DailyGameCounts counts;
 
   const _MultiplayerWinScreen({
     required this.players,
@@ -549,10 +580,20 @@ class _MultiplayerWinScreen extends StatelessWidget {
     required this.timeSeconds,
     required this.category,
     required this.gridSize,
+    required this.counts,
   });
 
+  bool _isPremium(WidgetRef ref) {
+    if (DevConfig.bypassPaywall) return true;
+    return ref.read(subscriptionProvider).when(
+          data: (sub) => sub.canAccessPremiumFeatures,
+          loading: () => false,
+          error: (_, _) => false,
+        );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Determine winner
     final player1 = players.isNotEmpty ? players[0] : null;
     final player2 = players.length > 1 ? players[1] : null;
@@ -563,171 +604,214 @@ class _MultiplayerWinScreen extends StatelessWidget {
     final isTie = player1Score == player2Score;
     final winner = player1Score > player2Score ? player1 : player2;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            children: [
-              const Spacer(),
+    final isPremium = _isPremium(ref);
+    final hasGamesLeft = isPremium || counts.canPlayLocalMultiplayer;
 
-              // Trophy or tie icon
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: isTie
-                      ? AppColors.surface
-                      : winner != null
-                          ? hexToColor(winner.color).withValues(alpha: 0.2)
-                          : AppColors.surface,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isTie ? Icons.handshake : Icons.emoji_events,
-                  size: 50,
-                  color: isTie
-                      ? AppColors.textSecondary
-                      : winner != null
-                          ? hexToColor(winner.color)
-                          : AppColors.purple,
-                ),
-              ),
-              const SizedBox(height: 24),
+    return PopScope(
+      canPop: hasGamesLeft,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              children: [
+                const Spacer(),
 
-              // Result text
-              Text(
-                isTie ? "It's a Tie!" : '${winner?.name ?? "Player"} Wins!',
-                style: AppTypography.headline2,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-
-              Text(
-                isTie
-                    ? 'Great match, both players!'
-                    : 'Congratulations!',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Scores comparison
-              Row(
-                children: [
-                  Expanded(
-                    child: _ScoreColumn(
-                      name: player1?.name ?? 'Player 1',
-                      color: player1 != null
-                          ? hexToColor(player1.color)
-                          : AppColors.purple,
-                      score: player1Score,
-                      isWinner: !isTie && player1Score > player2Score,
-                    ),
+                // Trophy or tie icon
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: isTie
+                        ? AppColors.surface
+                        : winner != null
+                            ? hexToColor(winner.color).withValues(alpha: 0.2)
+                            : AppColors.surface,
+                    shape: BoxShape.circle,
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Text(
-                      'VS',
-                      style: AppTypography.bodyLarge.copyWith(
-                        color: AppColors.textTertiary,
+                  child: Icon(
+                    isTie ? Icons.handshake : Icons.emoji_events,
+                    size: 50,
+                    color: isTie
+                        ? AppColors.textSecondary
+                        : winner != null
+                            ? hexToColor(winner.color)
+                            : AppColors.purple,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Result text
+                Text(
+                  isTie ? "It's a Tie!" : '${winner?.name ?? "Player"} Wins!',
+                  style: AppTypography.headline2,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                Text(
+                  isTie
+                      ? 'Great match, both players!'
+                      : 'Congratulations!',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Scores comparison
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ScoreColumn(
+                        name: player1?.name ?? 'Player 1',
+                        color: player1 != null
+                            ? hexToColor(player1.color)
+                            : AppColors.purple,
+                        score: player1Score,
+                        isWinner: !isTie && player1Score > player2Score,
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: _ScoreColumn(
-                      name: player2?.name ?? 'Player 2',
-                      color: player2 != null
-                          ? hexToColor(player2.color)
-                          : AppColors.teal,
-                      score: player2Score,
-                      isWinner: !isTie && player2Score > player1Score,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        'VS',
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Game stats
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _StatItem(
-                      value: '$moves',
-                      label: 'Moves',
-                    ),
-                    _StatItem(
-                      value: GameUtils.formatTime(timeSeconds),
-                      label: 'Time',
+                    Expanded(
+                      child: _ScoreColumn(
+                        name: player2?.name ?? 'Player 2',
+                        color: player2 != null
+                            ? hexToColor(player2.color)
+                            : AppColors.teal,
+                        score: player2Score,
+                        isWinner: !isTie && player2Score > player1Score,
+                      ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 24),
 
-              const Spacer(),
+                // Game stats
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _StatItem(
+                        value: '$moves',
+                        label: 'Moves',
+                      ),
+                      _StatItem(
+                        value: GameUtils.formatTime(timeSeconds),
+                        label: 'Time',
+                      ),
+                    ],
+                  ),
+                ),
 
-              // Action buttons
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Play again with same players
-                    Navigator.pushReplacement(
+                // Remaining free games banner (only for non-premium users)
+                if (!isPremium) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.purple.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      counts.canPlayLocalMultiplayer
+                          ? '${counts.localMultiplayerRemaining} free game${counts.localMultiplayerRemaining == 1 ? '' : 's'} left today'
+                          : 'No free games left. Resets at 3:00 AM',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+
+                const Spacer(),
+
+                // Action buttons — vary based on whether free games remain
+                if (hasGamesLeft) ...[
+                  _ActionButton(
+                    label: 'Play Again',
+                    isPrimary: true,
+                    onTap: () {
+                      DatabaseService.incrementGameCount('local_multiplayer');
+                      ref.invalidate(dailyGameCountsProvider);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LocalMultiplayerGameScreen(
+                            category: category,
+                            gridSize: gridSize,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _ActionButton(
+                    label: 'Change Category',
+                    onTap: () {
+                      ref.read(selectedGameModeProvider.notifier).state =
+                          GameMode.localMultiplayer;
+                      ref.invalidate(dailyGameCountsProvider);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CategoryScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ] else ...[
+                  _ActionButton(
+                    label: 'Upgrade to Premium',
+                    isPrimary: true,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PaywallScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                _ActionButton(
+                  label: 'Home',
+                  isOutlined: true,
+                  onTap: () {
+                    ref.invalidate(dailyGameCountsProvider);
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LocalMultiplayerGameScreen(
-                          category: category,
-                          gridSize: gridSize,
-                        ),
-                      ),
+                          builder: (context) => const HomeScreen()),
+                      (route) => false,
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.purple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button),
-                    ),
-                  ),
-                  child: Text(
-                    'Play Again',
-                    style: AppTypography.button,
-                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.elevated),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button),
-                    ),
-                  ),
-                  child: Text(
-                    'Back to Home',
-                    style: AppTypography.buttonSecondary,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -819,6 +903,55 @@ class _StatItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  final bool isPrimary;
+  final bool isOutlined;
+
+  const _ActionButton({
+    required this.label,
+    required this.onTap,
+    this.isPrimary = false,
+    this.isOutlined = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isPrimary) {
+      return SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.purple,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.button),
+            ),
+          ),
+          child: Text(label, style: AppTypography.button),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.elevated),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.button),
+          ),
+        ),
+        child: Text(label, style: AppTypography.buttonSecondary),
+      ),
     );
   }
 }
