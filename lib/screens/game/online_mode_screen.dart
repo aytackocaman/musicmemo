@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,8 @@ const List<Map<String, dynamic>> _categories = [
 ];
 
 /// Grid options
-const List<Map<String, dynamic>> _gridOptions = [
+final List<Map<String, dynamic>> _gridOptions = [
+  if (kDebugMode) {'id': '2x3', 'label': '2x3', 'pairs': 3, 'difficulty': 'Test'},
   {'id': '4x5', 'label': '4x5', 'pairs': 10, 'difficulty': 'Easy'},
   {'id': '5x6', 'label': '5x6', 'pairs': 15, 'difficulty': 'Medium'},
   {'id': '6x7', 'label': '6x7', 'pairs': 21, 'difficulty': 'Hard'},
@@ -36,11 +38,14 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   // Screen states
   bool _isCreateMode = false;
   bool _isJoinMode = false;
+  bool _isFindOpponentMode = false;
+  bool _isSearchingForOpponent = false;
   bool _isWaitingForOpponent = false;
   bool _isOpponentJoined = false;  // Host: opponent joined, ready to start
   bool _isWaitingForHostToStart = false;  // Joiner: waiting for host
   bool _isLoading = false;
   bool _isStartingGame = false;
+  bool _isPublicSession = false; // Track if current session is public
 
   // Form controllers
   final _nameController = TextEditingController(text: 'Player');
@@ -103,15 +108,131 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   void _goBack() {
     if (_isWaitingForOpponent) {
       _cancelWaiting();
-    } else if (_isCreateMode || _isJoinMode) {
+    } else if (_isCreateMode || _isJoinMode || _isFindOpponentMode) {
       setState(() {
         _isCreateMode = false;
         _isJoinMode = false;
+        _isFindOpponentMode = false;
+        _isSearchingForOpponent = false;
         _errorMessage = null;
       });
     } else {
       Navigator.pop(context);
     }
+  }
+
+  void _showFindOpponent() {
+    setState(() {
+      _isFindOpponentMode = true;
+      _isCreateMode = false;
+      _isJoinMode = false;
+      _errorMessage = null;
+    });
+    // Immediately search for an available public session
+    _searchForOpponent();
+  }
+
+  Future<void> _searchForOpponent() async {
+    if (_nameController.text.trim().isEmpty) {
+      setState(() => _errorMessage = 'Please enter your name');
+      return;
+    }
+
+    setState(() {
+      _isSearchingForOpponent = true;
+      _errorMessage = null;
+    });
+
+    // Look for an existing public session
+    final publicSession = await MultiplayerService.findPublicSession();
+
+    if (publicSession != null) {
+      // Found one — join it
+      final joined = await MultiplayerService.joinSessionById(
+        sessionId: publicSession.id,
+        playerName: _nameController.text.trim(),
+      );
+
+      if (joined != null) {
+        // Successfully joined — wait for host to auto-start
+        _currentSession = joined;
+        _sessionId = joined.id;
+
+        setState(() {
+          _isSearchingForOpponent = false;
+          _isFindOpponentMode = false;
+          _isWaitingForHostToStart = true;
+        });
+
+        _sessionSubscription =
+            MultiplayerService.subscribeToSession(joined.id).listen(
+          (updatedSession) {
+            _currentSession = updatedSession;
+            if (updatedSession.isPlaying) {
+              _navigateToGame(updatedSession);
+            }
+          },
+        );
+        return;
+      }
+    }
+
+    // No public session found — show category/grid picker so user can create one
+    setState(() {
+      _isSearchingForOpponent = false;
+    });
+  }
+
+  Future<void> _createPublicGame() async {
+    if (_nameController.text.trim().isEmpty) {
+      setState(() => _errorMessage = 'Please enter your name');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final session = await MultiplayerService.createSession(
+      category: _selectedCategory,
+      gridSize: _selectedGrid,
+      playerName: _nameController.text.trim(),
+      isPublic: true,
+    );
+
+    if (session == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to create game. Please try again.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+      _isFindOpponentMode = false;
+      _isWaitingForOpponent = true;
+      _isPublicSession = true;
+      _inviteCode = session.inviteCode;
+      _sessionId = session.id;
+    });
+
+    // Subscribe — auto-start when someone joins
+    _sessionSubscription =
+        MultiplayerService.subscribeToSession(session.id).listen(
+      (updatedSession) {
+        _currentSession = updatedSession;
+
+        if (updatedSession.isReady && updatedSession.hasOpponent) {
+          // Someone joined our public session — auto-start the game
+          _opponentName = updatedSession.player2Name;
+          _hostStartGame();
+        } else if (updatedSession.isPlaying) {
+          _navigateToGame(updatedSession);
+        }
+      },
+    );
   }
 
   Future<void> _createGame() async {
@@ -241,6 +362,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
     setState(() {
       _isWaitingForOpponent = false;
+      _isPublicSession = false;
       _inviteCode = null;
       _sessionId = null;
     });
@@ -298,11 +420,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 ? _buildOpponentJoinedScreen()
                 : _isWaitingForOpponent
                     ? _buildWaitingScreen()
-                    : _isCreateMode
-                        ? _buildCreateScreen()
-                        : _isJoinMode
-                            ? _buildJoinScreen()
-                            : _buildMainScreen(),
+                    : _isFindOpponentMode
+                        ? _buildFindOpponentScreen()
+                        : _isCreateMode
+                            ? _buildCreateScreen()
+                            : _isJoinMode
+                                ? _buildJoinScreen()
+                                : _buildMainScreen(),
       ),
     );
   }
@@ -324,11 +448,21 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const SizedBox(height: AppSpacing.xxl),
 
+          // Find Opponent option
+          _buildOptionCard(
+            icon: Icons.person_search,
+            iconColor: AppColors.pink,
+            title: 'Find Opponent',
+            subtitle: 'Get matched with a random player',
+            onTap: _showFindOpponent,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
           // Create Game option
           _buildOptionCard(
             icon: Icons.add_circle_outline,
             iconColor: AppColors.purple,
-            title: 'Create Game',
+            title: 'Create Private Game',
             subtitle: 'Start a new game and invite a friend',
             onTap: _showCreateOptions,
           ),
@@ -338,10 +472,120 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildOptionCard(
             icon: Icons.login,
             iconColor: AppColors.teal,
-            title: 'Join Game',
+            title: 'Join Private Game',
             subtitle: 'Enter a code to join your friend',
             onTap: _showJoinOptions,
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFindOpponentScreen() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBackButton(),
+          const SizedBox(height: AppSpacing.xl),
+
+          Text('Find Opponent', style: AppTypography.headline3),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            _isSearchingForOpponent
+                ? 'Searching for available players...'
+                : 'No players found. Create a game and wait for someone to join!',
+            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          if (_isSearchingForOpponent)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.pink),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Looking for opponents...',
+                      style: AppTypography.body
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            if (_errorMessage != null) _buildErrorMessage(),
+
+            // Name input
+            _buildSectionTitle('Your Name'),
+            const SizedBox(height: 8),
+            _buildTextField(_nameController, 'Enter your name'),
+            const SizedBox(height: AppSpacing.xl),
+
+            // Category selection
+            _buildSectionTitle('Category'),
+            const SizedBox(height: 8),
+            _buildCategorySelector(),
+            const SizedBox(height: AppSpacing.xl),
+
+            // Grid selection
+            _buildSectionTitle('Grid Size'),
+            const SizedBox(height: 8),
+            _buildGridSelector(),
+            const SizedBox(height: AppSpacing.xxl),
+
+            // Create public game button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _createPublicGame,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.pink,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text('Create & Wait for Opponent',
+                        style: AppTypography.button),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Retry search button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton(
+                onPressed: _searchForOpponent,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.elevated),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                  ),
+                ),
+                child:
+                    Text('Search Again', style: AppTypography.buttonSecondary),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -545,38 +789,69 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Share this code with a friend',
+            _isPublicSession
+                ? 'Someone will join your game soon'
+                : 'Share this code with a friend',
             style: AppTypography.body.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
 
-          GestureDetector(
-            onTap: _copyInviteCode,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.elevated),
+          if (!_isPublicSession) ...[
+            GestureDetector(
+              onTap: _copyInviteCode,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.elevated),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _inviteCode ?? '',
+                      style: AppTypography.headline2.copyWith(
+                        letterSpacing: 8,
+                        color: AppColors.purple,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Icon(Icons.copy, color: AppColors.textSecondary),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            ),
+            const SizedBox(height: 12),
+            Text('Tap to copy', style: AppTypography.labelSmall),
+          ] else ...[
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.pink.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
                 children: [
+                  const Icon(Icons.public, size: 32, color: AppColors.pink),
+                  const SizedBox(height: 8),
                   Text(
-                    _inviteCode ?? '',
-                    style: AppTypography.headline2.copyWith(
-                      letterSpacing: 8,
-                      color: AppColors.purple,
+                    'Public Game',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: AppColors.pink,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  const Icon(Icons.copy, color: AppColors.textSecondary),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Anyone can find and join this game',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text('Tap to copy', style: AppTypography.labelSmall),
+          ],
 
           const Spacer(),
 

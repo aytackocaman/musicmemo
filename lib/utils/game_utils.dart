@@ -56,22 +56,43 @@ class GameUtils {
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  /// Calculate star rating based on performance
+  /// Get par time in seconds for a given grid size
+  static int getParTime(String gridSize) {
+    switch (gridSize) {
+      case '4x5':
+        return 60;
+      case '5x6':
+        return 120;
+      case '6x7':
+        return 180;
+      default:
+        return 120;
+    }
+  }
+
+  /// Calculate time multiplier for final score
+  /// Ranges from 1.0 (at or above par) to 2.0 (instant finish)
+  static double calculateTimeMultiplier({
+    required int timeSeconds,
+    required String gridSize,
+  }) {
+    final parTime = getParTime(gridSize);
+    final multiplier = 2.0 - (timeSeconds / parTime);
+    return multiplier.clamp(1.0, 2.0);
+  }
+
+  /// Calculate star rating based on score performance
   /// Returns 1-3 stars
   static int calculateStars({
-    required int moves,
-    required int timeSeconds,
+    required int score,
     required int totalPairs,
   }) {
-    // Perfect: moves == totalPairs (each move finds a pair)
-    // Good: moves <= totalPairs * 1.5
-    // OK: moves <= totalPairs * 2
-    final moveRatio = moves / totalPairs;
+    final scorePerPair = totalPairs > 0 ? score / totalPairs : 0;
 
-    if (moveRatio <= 1.2 && timeSeconds < totalPairs * 10) {
-      return 3; // Excellent
-    } else if (moveRatio <= 1.8 && timeSeconds < totalPairs * 20) {
-      return 2; // Good
+    if (scorePerPair >= 250) {
+      return 3; // Strong streaks + decent speed
+    } else if (scorePerPair >= 150) {
+      return 2; // Some streaks
     } else {
       return 1; // Completed
     }

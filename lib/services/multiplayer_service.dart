@@ -21,6 +21,7 @@ class OnlineSession {
   final int player2Score;
   final Map<String, dynamic>? gameState;
   final DateTime createdAt;
+  final bool isPublic;
 
   OnlineSession({
     required this.id,
@@ -37,6 +38,7 @@ class OnlineSession {
     this.player2Score = 0,
     this.gameState,
     required this.createdAt,
+    this.isPublic = false,
   });
 
   factory OnlineSession.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class OnlineSession {
       player2Score: json['player2_score'] as int? ?? 0,
       gameState: json['game_state'] as Map<String, dynamic>?,
       createdAt: DateTime.parse(json['created_at'] as String),
+      isPublic: json['is_public'] as bool? ?? false,
     );
   }
 
@@ -105,6 +108,7 @@ class MultiplayerService {
     required String category,
     required String gridSize,
     required String playerName,
+    bool isPublic = false,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
@@ -122,11 +126,41 @@ class MultiplayerService {
         'current_turn': user.id,
         'player1_score': 0,
         'player2_score': 0,
+        'is_public': isPublic,
       }).select().single();
 
       return OnlineSession.fromJson(response);
     } catch (e) {
       debugPrint('Error creating session: $e');
+      return null;
+    }
+  }
+
+  /// Find an available public session to join (oldest first, ignore stale >10 min)
+  static Future<OnlineSession?> findPublicSession() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return null;
+
+    try {
+      final tenMinutesAgo = DateTime.now()
+          .subtract(const Duration(minutes: 10))
+          .toUtc()
+          .toIso8601String();
+
+      final sessions = await _client
+          .from('online_sessions')
+          .select()
+          .eq('is_public', true)
+          .eq('status', 'waiting')
+          .gte('created_at', tenMinutesAgo)
+          .neq('player1_id', user.id) // don't match with yourself
+          .order('created_at', ascending: true)
+          .limit(1);
+
+      if (sessions.isEmpty) return null;
+      return OnlineSession.fromJson(sessions.first);
+    } catch (e) {
+      debugPrint('Error finding public session: $e');
       return null;
     }
   }
@@ -146,12 +180,17 @@ class MultiplayerService {
       final code = inviteCode.toUpperCase().trim();
       debugPrint('Looking for session with code: $code');
 
-      // Find the session - use a direct query without RLS restrictions for waiting sessions
+      // Find the session — ignore stale sessions older than 10 minutes
+      final tenMinutesAgo = DateTime.now()
+          .subtract(const Duration(minutes: 10))
+          .toUtc()
+          .toIso8601String();
       final sessions = await _client
           .from('online_sessions')
           .select()
           .eq('invite_code', code)
-          .eq('status', 'waiting');
+          .eq('status', 'waiting')
+          .gte('created_at', tenMinutesAgo);
 
       debugPrint('Found ${sessions.length} sessions');
 
@@ -192,6 +231,36 @@ class MultiplayerService {
       return OnlineSession.fromJson(response);
     } catch (e) {
       debugPrint('Error joining session: $e');
+      return null;
+    }
+  }
+
+  /// Join a session by its ID (used for public matchmaking)
+  static Future<OnlineSession?> joinSessionById({
+    required String sessionId,
+    required String playerName,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return null;
+
+    try {
+      final response = await _client
+          .from('online_sessions')
+          .update({
+            'player2_id': user.id,
+            'player2_name': playerName,
+            'status': 'ready',
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', sessionId)
+          .eq('status', 'waiting') // only join if still waiting
+          .select()
+          .single();
+
+      debugPrint('Successfully joined public session');
+      return OnlineSession.fromJson(response);
+    } catch (e) {
+      debugPrint('Error joining session by ID: $e');
       return null;
     }
   }
@@ -255,7 +324,7 @@ class MultiplayerService {
 
     // Polling every 1 second to detect game state changes
     debugPrint('Starting polling timer for session: $sessionId');
-    _pollingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    _pollingTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) async {
       if (_sessionController == null || _sessionController!.isClosed) {
         debugPrint('Polling: Controller closed, cancelling timer');
         timer.cancel();
@@ -351,6 +420,13 @@ class MultiplayerService {
     required String hostId,
   }) async {
     try {
+      // Fetch session to get both player IDs for random first turn
+      final session = await getSession(sessionId);
+      final player2Id = session?.player2Id;
+      final firstTurn = (player2Id != null && Random().nextBool())
+          ? player2Id
+          : hostId;
+
       final cardData = cards.map((c) => {
         'id': c.id,
         'soundId': c.soundId,
@@ -359,12 +435,12 @@ class MultiplayerService {
 
       await _client.from('online_sessions').update({
         'game_state': {'cards': cardData},
-        'current_turn': hostId,  // Host goes first
+        'current_turn': firstTurn,
         'status': 'playing',
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', sessionId);
 
-      debugPrint('Game started by host');
+      debugPrint('Game started, first turn: ${firstTurn == hostId ? "host" : "guest"}');
       return true;
     } catch (e) {
       debugPrint('Error starting game: $e');

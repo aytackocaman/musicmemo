@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
+import '../../services/database_service.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
+import '../home_screen.dart';
+import 'online_mode_screen.dart';
 
 class OnlineGameScreen extends ConsumerStatefulWidget {
   final OnlineSession session;
@@ -24,9 +27,11 @@ class OnlineGameScreen extends ConsumerStatefulWidget {
 
 class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   Timer? _timer;
+  Timer? _opponentTimeout;
   int _seconds = 0;
   bool _isInitialized = false;
   bool _isProcessing = false;
+  bool _gameEnded = false;
 
   late String _myUserId;
   late bool _amIPlayer1;
@@ -76,12 +81,44 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   }
 
   void _handleSessionUpdate(OnlineSession updatedSession) {
-    if (!mounted) return;
+    if (!mounted || _gameEnded) return;
+
+    // Session finished — check if it's a normal game end or opponent left
+    if (updatedSession.status == 'finished') {
+      final totalPairs = _cards.isEmpty ? 0 : _cards.length ~/ 2;
+      final p1 = updatedSession.player1Score;
+      final p2 = updatedSession.player2Score;
+      final allMatched = _cards.isNotEmpty &&
+          (_cards.every((c) => c.state == CardState.matched) ||
+              (updatedSession.gameState != null &&
+                  MultiplayerService.parseCardsFromGameState(updatedSession.gameState)
+                      .every((c) => c.state == CardState.matched)));
+      final decisiveWin = totalPairs > 0 &&
+          (p1 > totalPairs / 2 || p2 > totalPairs / 2);
+
+      if (allMatched || decisiveWin) {
+        // Normal game end — update session and go to win screen
+        setState(() {
+          _currentSession = updatedSession;
+          if (updatedSession.gameState != null) {
+            _cards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+          }
+        });
+        _handleGameComplete();
+      } else {
+        // Opponent left mid-game
+        _handleOpponentLeft();
+      }
+      return;
+    }
 
     final wasMyTurn = _currentSession.currentTurn == _myUserId;
     final isNowMyTurn = updatedSession.currentTurn == _myUserId;
     final turnChanged = wasMyTurn != isNowMyTurn;
     debugPrint('Session update received: turn=${updatedSession.currentTurn}, isMyTurn=$isNowMyTurn, turnChanged=$turnChanged');
+
+    // Reset opponent timeout on every session update
+    _resetOpponentTimeout(isNowMyTurn);
 
     // Always update session and cards from server
     setState(() {
@@ -102,10 +139,91 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       }
     });
 
-    // Check for game complete
-    if (_cards.isNotEmpty && _cards.every((c) => c.state == CardState.matched)) {
-      _handleGameComplete();
+    // Check for game complete (all matched or decisive win)
+    if (_cards.isNotEmpty) {
+      final totalPairs = _cards.length ~/ 2;
+      final allMatched = _cards.every((c) => c.state == CardState.matched);
+      final decisiveWin = updatedSession.player1Score > totalPairs / 2 ||
+          updatedSession.player2Score > totalPairs / 2;
+      if (allMatched || decisiveWin) {
+        _handleGameComplete();
+      }
     }
+  }
+
+  void _resetOpponentTimeout(bool isMyTurn) {
+    _opponentTimeout?.cancel();
+    if (!isMyTurn) {
+      // Start 60-second timeout when it's opponent's turn
+      _opponentTimeout = Timer(const Duration(seconds: 60), () {
+        if (mounted && !_gameEnded) {
+          _handleOpponentTimeout();
+        }
+      });
+    }
+  }
+
+  void _handleOpponentLeft() {
+    if (_gameEnded) return;
+    _gameEnded = true;
+    _timer?.cancel();
+    _opponentTimeout?.cancel();
+    _sessionSubscription?.cancel();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Opponent Left'),
+        content: const Text('Your opponent has left the game. You win!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleOpponentTimeout() {
+    if (_gameEnded) return;
+    _gameEnded = true;
+    _timer?.cancel();
+    _opponentTimeout?.cancel();
+    _sessionSubscription?.cancel();
+
+    MultiplayerService.endSession(widget.session.id);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Opponent Timed Out'),
+        content: const Text(
+            'Your opponent hasn\'t made a move in 60 seconds. The game has been ended.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _startTimer() {
@@ -217,8 +335,12 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
             ? _currentSession.player2Score + 1
             : _currentSession.player2Score;
 
-        // Check if game is complete
+        // Check if game is complete (all matched or decisive win)
         final allMatched = updatedCards.every((c) => c.state == CardState.matched);
+        final totalPairs = updatedCards.length ~/ 2;
+        final decisiveWin = newPlayer1Score > totalPairs / 2 ||
+            newPlayer2Score > totalPairs / 2;
+        final gameOver = allMatched || decisiveWin;
 
         await MultiplayerService.updateGameState(
           sessionId: widget.session.id,
@@ -226,7 +348,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
           player1Score: newPlayer1Score,
           player2Score: newPlayer2Score,
           currentTurn: _myUserId, // Keep turn on match
-          status: allMatched ? 'finished' : null,
+          status: gameOver ? 'finished' : null,
         );
 
         // Wait 0.8 seconds before allowing next flip after match
@@ -283,11 +405,36 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     debugPrint('Game state synced');
   }
 
-  void _handleGameComplete() {
+  Future<void> _handleGameComplete() async {
+    if (_gameEnded) return;
+    _gameEnded = true;
     _timer?.cancel();
+    _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
 
-    // Navigate to win screen
+    final myScore = _amIPlayer1
+        ? _currentSession.player1Score
+        : _currentSession.player2Score;
+    final opponentScore = _amIPlayer1
+        ? _currentSession.player2Score
+        : _currentSession.player1Score;
+    final won = myScore > opponentScore;
+
+    // Save game result before navigating
+    await DatabaseService.saveGame(
+      category: _currentSession.category ?? 'unknown',
+      score: myScore,
+      moves: myScore + opponentScore, // total pairs found = total moves in multiplayer context
+      timeSeconds: _seconds,
+      won: won,
+      gridSize: _currentSession.gridSize ?? '4x5',
+      gameMode: 'online_multiplayer',
+    );
+
+    if (!mounted) return;
+
+    final totalPairs = _cards.isEmpty ? 0 : _cards.length ~/ 2;
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -295,6 +442,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
           session: _currentSession,
           myUserId: _myUserId,
           timeSeconds: _seconds,
+          totalPairs: totalPairs,
         ),
       ),
     );
@@ -303,6 +451,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
     MultiplayerService.unsubscribeFromSession();
     super.dispose();
@@ -331,39 +480,42 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            children: [
-              // Header
-              _buildHeader(),
-              const SizedBox(height: 12),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              children: [
+                // Header
+                _buildHeader(),
+                const SizedBox(height: 12),
 
-              // Player scores and turn indicator
-              _buildPlayerScores(),
-              const SizedBox(height: 12),
+                // Player scores and turn indicator
+                _buildPlayerScores(),
+                const SizedBox(height: 12),
 
-              // Connection status
-              _buildConnectionStatus(),
-              const SizedBox(height: 12),
+                // Connection status
+                _buildConnectionStatus(),
+                const SizedBox(height: 12),
 
-              // Stats row
-              _buildStatsRow(),
-              const SizedBox(height: 16),
+                // Stats row
+                _buildStatsRow(),
+                const SizedBox(height: 16),
 
-              // Game board
-              Expanded(
-                child: GameBoard(
-                  cards: _cards,
-                  gridSize: widget.session.gridSize ?? '4x5',
-                  onCardTap: _handleCardTap,
-                  enabled: _isMyTurn && !_isProcessing,
+                // Game board
+                Expanded(
+                  child: GameBoard(
+                    cards: _cards,
+                    gridSize: widget.session.gridSize ?? '4x5',
+                    onCardTap: _handleCardTap,
+                    enabled: _isMyTurn && !_isProcessing,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -374,7 +526,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Back button
+        // Home button
         GestureDetector(
           onTap: () => _showExitConfirmation(),
           child: Container(
@@ -385,7 +537,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Icon(
-              Icons.arrow_back,
+              Icons.home,
               size: 20,
               color: AppColors.textPrimary,
             ),
@@ -553,22 +705,28 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   void _showExitConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Leave Game?'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Go Home?'),
         content: const Text(
-            'You will forfeit this game if you leave. Are you sure?'),
+            'You will forfeit this game if you leave.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Stay'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
+              Navigator.pop(dialogContext); // Close dialog
+              _timer?.cancel();
+              _sessionSubscription?.cancel();
               MultiplayerService.endSession(widget.session.id);
-              Navigator.pop(context); // Exit game
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+                (route) => false,
+              );
             },
-            child: const Text('Leave'),
+            child: const Text('Go Home'),
           ),
         ],
       ),
@@ -664,11 +822,13 @@ class _OnlineWinScreen extends StatelessWidget {
   final OnlineSession session;
   final String myUserId;
   final int timeSeconds;
+  final int totalPairs;
 
   const _OnlineWinScreen({
     required this.session,
     required this.myUserId,
     required this.timeSeconds,
+    required this.totalPairs,
   });
 
   @override
@@ -679,181 +839,292 @@ class _OnlineWinScreen extends StatelessWidget {
         amIPlayer1 ? session.player2Score : session.player1Score;
     final opponentName =
         amIPlayer1 ? session.player2Name : session.player1Name;
+    final category = session.category ?? 'unknown';
 
     final iWon = myScore > opponentScore;
     final isTie = myScore == opponentScore;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            children: [
-              const Spacer(),
+    final accentColor = isTie
+        ? AppColors.purple
+        : iWon
+            ? AppColors.teal
+            : AppColors.pink;
 
-              // Result icon
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: isTie
-                      ? AppColors.surface
-                      : iWon
-                          ? AppColors.teal.withValues(alpha: 0.2)
-                          : AppColors.pink.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: accentColor,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Result icon
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isTie
+                        ? Icons.handshake
+                        : iWon
+                            ? Icons.emoji_events
+                            : Icons.sentiment_dissatisfied,
+                    size: 64,
+                    color: AppColors.white,
+                  ),
                 ),
-                child: Icon(
+                const SizedBox(height: 24),
+
+                // Result text
+                Text(
                   isTie
-                      ? Icons.handshake
+                      ? "It's a Tie!"
                       : iWon
-                          ? Icons.emoji_events
-                          : Icons.sentiment_dissatisfied,
-                  size: 50,
-                  color: isTie
-                      ? AppColors.textSecondary
+                          ? 'You Win!'
+                          : 'You Lost',
+                  style: AppTypography.headline2.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                Text(
+                  isTie
+                      ? 'Great match!'
                       : iWon
-                          ? AppColors.teal
-                          : AppColors.pink,
+                          ? 'Congratulations!'
+                          : 'Better luck next time!',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.white.withValues(alpha: 0.8),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
-              // Result text
-              Text(
-                isTie
-                    ? "It's a Tie!"
-                    : iWon
-                        ? 'You Win!'
-                        : 'You Lost',
-                style: AppTypography.headline2,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-
-              Text(
-                isTie
-                    ? 'Great match!'
-                    : iWon
-                        ? 'Congratulations!'
-                        : 'Better luck next time!',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Scores comparison
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            'You',
-                            style: AppTypography.bodySmall,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$myScore',
-                            style: AppTypography.metric.copyWith(
-                              color: AppColors.purple,
+                // Scores comparison card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              'You',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.white.withValues(alpha: 0.8),
+                              ),
                             ),
-                          ),
-                          Text(
-                            'pairs',
-                            style: AppTypography.labelSmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      'VS',
-                      style: AppTypography.bodyLarge.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            opponentName ?? 'Opponent',
-                            style: AppTypography.bodySmall,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$opponentScore',
-                            style: AppTypography.metric.copyWith(
-                              color: AppColors.teal,
+                            const SizedBox(height: 4),
+                            Text(
+                              '$myScore',
+                              style: AppTypography.metric.copyWith(
+                                color: AppColors.white,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'pairs',
-                            style: AppTypography.labelSmall,
-                          ),
-                        ],
+                            Text(
+                              'pairs',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.white.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'VS',
+                          style: AppTypography.bodyLarge.copyWith(
+                            color: AppColors.white.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              opponentName ?? 'Opponent',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.white.withValues(alpha: 0.8),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '$opponentScore',
+                              style: AppTypography.metric.copyWith(
+                                color: AppColors.white,
+                              ),
+                            ),
+                            Text(
+                              'pairs',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.white.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Time
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
+                // Game info row (category, grid, time)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildInfoItem(
+                        icon: Icons.category,
+                        value: _formatCategoryName(category),
+                      ),
+                      _buildInfoItem(
+                        icon: Icons.grid_view,
+                        value: '${session.gridSize ?? '4x5'} ($totalPairs pairs)',
+                      ),
+                      _buildInfoItem(
+                        icon: Icons.timer,
+                        value: GameUtils.formatTime(timeSeconds),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.timer, size: 20, color: AppColors.textSecondary),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Game time: ${GameUtils.formatTime(timeSeconds)}',
-                      style: AppTypography.body,
-                    ),
-                  ],
-                ),
-              ),
+                const SizedBox(height: 32),
 
-              const Spacer(),
-
-              // Back to home
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                // Find New Opponent
+                _buildButton(
+                  context: context,
+                  label: 'Find New Opponent',
+                  icon: Icons.person_search,
+                  onTap: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const OnlineModeScreen()),
+                      (route) => false,
+                    );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.purple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button),
-                    ),
-                  ),
-                  child: Text(
-                    'Back to Home',
-                    style: AppTypography.button,
-                  ),
+                  isPrimary: true,
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+
+                // Home button
+                _buildButton(
+                  context: context,
+                  label: 'Home',
+                  icon: Icons.home,
+                  onTap: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      (route) => false,
+                    );
+                  },
+                  isOutlined: true,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String value,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: AppColors.white.withValues(alpha: 0.7)),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            value,
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.white.withValues(alpha: 0.9),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButton({
+    required BuildContext context,
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isPrimary = false,
+    bool isOutlined = false,
+  }) {
+    final backgroundColor = isPrimary
+        ? AppColors.white
+        : isOutlined
+            ? Colors.transparent
+            : AppColors.white.withValues(alpha: 0.1);
+    final foregroundColor = isPrimary
+        ? AppColors.purple
+        : AppColors.white;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(28),
+          border: isOutlined
+              ? Border.all(
+                  color: AppColors.white.withValues(alpha: 0.3), width: 1)
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 24, color: foregroundColor),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: AppTypography.bodyLarge.copyWith(
+                color: foregroundColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatCategoryName(String category) {
+    return category
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
   }
 }

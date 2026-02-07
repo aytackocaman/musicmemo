@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database_service.dart';
+import '../utils/game_utils.dart';
 
 /// Card state in the game
 enum CardState {
@@ -86,6 +88,8 @@ class GameState {
   final bool isPlaying;
   final bool isComplete;
   final String? firstFlippedCardId;
+  final int consecutiveMatches;
+  final int rawScore;
 
   const GameState({
     required this.mode,
@@ -99,6 +103,8 @@ class GameState {
     this.isPlaying = false,
     this.isComplete = false,
     this.firstFlippedCardId,
+    this.consecutiveMatches = 0,
+    this.rawScore = 0,
   });
 
   Player? get currentPlayer =>
@@ -113,11 +119,20 @@ class GameState {
 
   int get score {
     if (mode == GameMode.singlePlayer) {
-      // Score based on moves and time - lower is better
-      // Base score minus penalties
-      return (totalPairs * 100) - (moves * 2) - (timeSeconds ~/ 2);
+      return rawScore;
     }
     return currentPlayer?.score ?? 0;
+  }
+
+  int get finalScore {
+    if (mode == GameMode.singlePlayer) {
+      final multiplier = GameUtils.calculateTimeMultiplier(
+        timeSeconds: timeSeconds,
+        gridSize: gridSize,
+      );
+      return (rawScore * multiplier).round();
+    }
+    return score;
   }
 
   GameState copyWith({
@@ -133,6 +148,8 @@ class GameState {
     bool? isComplete,
     String? firstFlippedCardId,
     bool clearFirstFlipped = false,
+    int? consecutiveMatches,
+    int? rawScore,
   }) {
     return GameState(
       mode: mode ?? this.mode,
@@ -147,6 +164,8 @@ class GameState {
       isComplete: isComplete ?? this.isComplete,
       firstFlippedCardId:
           clearFirstFlipped ? null : (firstFlippedCardId ?? this.firstFlippedCardId),
+      consecutiveMatches: consecutiveMatches ?? this.consecutiveMatches,
+      rawScore: rawScore ?? this.rawScore,
     );
   }
 }
@@ -224,6 +243,15 @@ class GameNotifier extends StateNotifier<GameState?> {
     updatedCards[firstIndex] = updatedCards[firstIndex].copyWith(state: CardState.matched);
     updatedCards[secondIndex] = updatedCards[secondIndex].copyWith(state: CardState.matched);
 
+    // Streak-based scoring for single player
+    int? newConsecutiveMatches;
+    int? newRawScore;
+    if (state!.mode == GameMode.singlePlayer) {
+      newConsecutiveMatches = state!.consecutiveMatches + 1;
+      final matchPoints = 100 + max(0, newConsecutiveMatches - 1) * 50;
+      newRawScore = state!.rawScore + matchPoints;
+    }
+
     // Update player score in multiplayer
     List<Player>? updatedPlayers;
     if (state!.mode != GameMode.singlePlayer && state!.players.isNotEmpty) {
@@ -256,6 +284,8 @@ class GameNotifier extends StateNotifier<GameState?> {
       isComplete: isComplete,
       isPlaying: !isComplete,
       clearFirstFlipped: true,
+      consecutiveMatches: newConsecutiveMatches,
+      rawScore: newRawScore,
     );
   }
 
@@ -280,6 +310,7 @@ class GameNotifier extends StateNotifier<GameState?> {
       cards: updatedCards,
       currentPlayerIndex: nextPlayerIndex,
       clearFirstFlipped: true,
+      consecutiveMatches: 0,
     );
   }
 
@@ -293,10 +324,10 @@ class GameNotifier extends StateNotifier<GameState?> {
   Future<void> endGame() async {
     if (state == null) return;
 
-    // Save game to database
+    // Save game to database (use finalScore for time-multiplied result)
     await DatabaseService.saveGame(
       category: state!.category,
-      score: state!.score,
+      score: state!.finalScore,
       moves: state!.moves,
       timeSeconds: state!.timeSeconds,
       won: state!.isComplete,

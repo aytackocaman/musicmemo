@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../config/dev_config.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
@@ -8,9 +10,14 @@ import 'category_screen.dart';
 import 'game/online_mode_screen.dart';
 import 'paywall_screen.dart';
 
-class ModeScreen extends ConsumerWidget {
+class ModeScreen extends ConsumerStatefulWidget {
   const ModeScreen({super.key});
 
+  @override
+  ConsumerState<ModeScreen> createState() => _ModeScreenState();
+}
+
+class _ModeScreenState extends ConsumerState<ModeScreen> {
   void _showPaywall(BuildContext context) {
     Navigator.push(
       context,
@@ -19,20 +26,21 @@ class ModeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final subscriptionAsync = ref.watch(subscriptionProvider);
     final countsAsync = ref.watch(dailyGameCountsProvider);
 
-    final isPremium = subscriptionAsync.when(
-      data: (sub) => sub.canAccessPremiumFeatures,
-      loading: () => false,
-      error: (_, __) => false,
-    );
+    final isPremium = DevConfig.bypassPaywall ||
+        subscriptionAsync.when(
+          data: (sub) => sub.canAccessPremiumFeatures,
+          loading: () => false,
+          error: (_, _) => false,
+        );
 
     final counts = countsAsync.when(
       data: (c) => c,
       loading: () => DailyGameCounts.zero(),
-      error: (_, __) => DailyGameCounts.zero(),
+      error: (_, _) => DailyGameCounts.zero(),
     );
 
     return Scaffold(
@@ -44,7 +52,16 @@ class ModeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back button
-              _BackButton(onPressed: () => Navigator.pop(context)),
+              Row(
+                children: [
+                  _BackButton(onPressed: () => Navigator.pop(context)),
+                  const Spacer(),
+                  if (kDebugMode) _DebugPaywallToggle(
+                    isPremium: isPremium,
+                    onToggle: () => setState(() => DevConfig.togglePaywall()),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.xl),
 
               // Title
@@ -279,6 +296,48 @@ class _PremiumBadge extends StatelessWidget {
         style: AppTypography.labelSmall.copyWith(
           color: const Color(0xFFFBBF24),
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _DebugPaywallToggle extends StatelessWidget {
+  final bool isPremium;
+  final VoidCallback onToggle;
+
+  const _DebugPaywallToggle({
+    required this.isPremium,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onToggle,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isPremium ? const Color(0xFF14B8A6) : const Color(0xFFEF4444),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.bug_report,
+              size: 14,
+              color: AppColors.white,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              isPremium ? 'Premium ON' : 'Premium OFF',
+              style: AppTypography.labelSmall.copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

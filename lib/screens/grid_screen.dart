@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
@@ -33,6 +34,24 @@ class GridOption {
 }
 
 final List<GridOption> _gridOptions = [
+  if (kDebugMode) const GridOption(
+    id: '2x1',
+    label: '2 x 1',
+    description: '2 cards, 1 pair',
+    rows: 2,
+    cols: 1,
+    badgeColor: Color(0xFFEF4444),
+    badgeText: 'Debug',
+  ),
+  if (kDebugMode) const GridOption(
+    id: '2x3',
+    label: '2 x 3',
+    description: '6 cards, 3 pairs',
+    rows: 2,
+    cols: 3,
+    badgeColor: Color(0xFFEF4444),
+    badgeText: 'Debug',
+  ),
   const GridOption(
     id: '4x5',
     label: '4 x 5',
