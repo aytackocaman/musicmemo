@@ -5,30 +5,41 @@ import '../providers/game_provider.dart';
 class GameUtils {
   static final _random = Random();
 
-  /// Generate a shuffled list of cards for the game
-  /// Each card has a pair with the same soundId
+  /// Generate a shuffled list of cards for the game.
+  ///
+  /// [soundIds] — a list of sound identifiers (one per pair). If provided,
+  /// exactly [totalPairs] IDs are picked at random from this list.
+  /// If null, mock IDs like "category_sound_0" are used (legacy behaviour).
   static List<GameCard> generateCards({
     required String gridSize,
     required String category,
+    List<String>? soundIds,
   }) {
     final dimensions = parseGridSize(gridSize);
     final totalCards = dimensions.$1 * dimensions.$2;
     final totalPairs = totalCards ~/ 2;
 
-    // Generate sound IDs for pairs
-    final soundIds = List.generate(totalPairs, (index) => '${category}_sound_$index');
+    // Pick sound IDs for pairs
+    List<String> pairSoundIds;
+    if (soundIds != null && soundIds.length >= totalPairs) {
+      // Shuffle and pick the required number of sounds
+      final shuffled = List<String>.from(soundIds)..shuffle(_random);
+      pairSoundIds = shuffled.sublist(0, totalPairs);
+    } else {
+      // Fallback: generate mock IDs
+      pairSoundIds = List.generate(totalPairs, (index) => '${category}_sound_$index');
+    }
 
     // Create pairs of cards
     final cards = <GameCard>[];
     for (int i = 0; i < totalPairs; i++) {
-      // Create two cards with the same soundId
       cards.add(GameCard(
         id: 'card_${i * 2}',
-        soundId: soundIds[i],
+        soundId: pairSoundIds[i],
       ));
       cards.add(GameCard(
         id: 'card_${i * 2 + 1}',
-        soundId: soundIds[i],
+        soundId: pairSoundIds[i],
       ));
     }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
+import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
@@ -37,6 +38,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   late bool _amIPlayer1;
   late OnlineSession _currentSession;
   List<GameCard> _cards = [];
+  Map<String, String> _soundPaths = {};
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
 
@@ -64,6 +66,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     // Both players load cards from the session (cards were already created by host in OnlineModeScreen)
     await _loadGameFromSession();
 
+    // Preload sounds for the category (fall back to piano if empty)
+    await _preloadSounds();
+
     // Start timer
     _startTimer();
   }
@@ -78,6 +83,22 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
         _isInitialized = true;
       });
     }
+  }
+
+  Future<void> _preloadSounds() async {
+    final category = _currentSession.category ?? 'piano';
+    var sounds = await DatabaseService.getSoundsForCategory(category);
+    // Fall back to piano if the selected category has no sounds
+    if (sounds.isEmpty && category != 'piano') {
+      sounds = await DatabaseService.getSoundsForCategory('piano');
+    }
+    if (sounds.isEmpty) return;
+
+    final actualCategoryId = sounds.first.categoryId;
+    _soundPaths = await AudioService.preloadCategory(
+      categoryId: actualCategoryId,
+      sounds: sounds,
+    );
   }
 
   void _handleSessionUpdate(OnlineSession updatedSession) {
@@ -121,11 +142,30 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     _resetOpponentTimeout(isNowMyTurn);
 
     // Always update session and cards from server
+    // Detect newly flipped cards from opponent to play their sounds
+    List<GameCard>? serverCards;
+    if (updatedSession.gameState != null) {
+      serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+      // Play sound for opponent's newly flipped card
+      if (!_isMyTurn) {
+        for (final sc in serverCards) {
+          final existing = _cards.where((c) => c.id == sc.id).firstOrNull;
+          if (existing != null &&
+              existing.state == CardState.faceDown &&
+              sc.state == CardState.flipped) {
+            final path = _soundPaths[sc.soundId];
+            if (path != null) {
+              AudioService.play(path);
+            }
+          }
+        }
+      }
+    }
+
     setState(() {
       _currentSession = updatedSession;
 
-      if (updatedSession.gameState != null) {
-        final serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+      if (serverCards != null) {
         debugPrint('Server cards: ${serverCards.map((c) => "${c.id}:${c.state.name}").join(", ")}');
         _cards = serverCards;
         _isInitialized = true;
@@ -280,6 +320,12 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     setState(() {
       _cards[cardIndex] = card.copyWith(state: CardState.flipped);
     });
+
+    // Play the sound for the flipped card
+    final soundPath = _soundPaths[card.soundId];
+    if (soundPath != null) {
+      AudioService.play(soundPath);
+    }
 
     debugPrint('Flipping card $cardId');
 

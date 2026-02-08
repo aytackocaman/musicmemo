@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../services/database_service.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/game_utils.dart';
@@ -11,6 +12,7 @@ import 'online_game_screen.dart';
 
 /// Categories available for selection
 const List<Map<String, dynamic>> _categories = [
+  {'id': 'piano', 'name': 'Piano', 'icon': Icons.piano},
   {'id': 'animals', 'name': 'Animals', 'icon': Icons.pets},
   {'id': 'instruments', 'name': 'Instruments', 'icon': Icons.music_note},
   {'id': 'nature', 'name': 'Nature', 'icon': Icons.eco},
@@ -52,7 +54,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   final _codeController = TextEditingController();
 
   // Selections
-  String _selectedCategory = 'animals';
+  String _selectedCategory = 'piano';
   String _selectedGrid = '4x5';
 
   // Session data
@@ -385,10 +387,18 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
     setState(() => _isStartingGame = true);
 
-    // Generate cards
+    // Fetch real sound IDs from the database (fall back to piano if empty)
+    var sounds = await DatabaseService.getSoundsForCategory(_selectedCategory);
+    if (sounds.isEmpty && _selectedCategory != 'piano') {
+      sounds = await DatabaseService.getSoundsForCategory('piano');
+    }
+    final soundIds = sounds.map((s) => s.id).toList();
+
+    // Generate cards with real sound IDs
     final cards = GameUtils.generateCards(
       gridSize: _selectedGrid,
       category: _selectedCategory,
+      soundIds: soundIds.isNotEmpty ? soundIds : null,
     );
 
     // Start the game

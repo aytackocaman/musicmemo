@@ -5,6 +5,7 @@ import '../../config/dev_config.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
@@ -16,11 +17,15 @@ import 'local_player_setup_screen.dart';
 class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final String category;
   final String gridSize;
+  final List<String>? soundIds;
+  final Map<String, String> soundPaths;
 
   const LocalMultiplayerGameScreen({
     super.key,
     required this.category,
     required this.gridSize,
+    this.soundIds,
+    this.soundPaths = const {},
   });
 
   @override
@@ -50,10 +55,11 @@ class _LocalMultiplayerGameScreenState
     final playerSetup = ref.read(playerSetupProvider);
     final players = playerSetup.toPlayers();
 
-    // Generate cards
+    // Generate cards with real sound IDs if available
     final cards = GameUtils.generateCards(
       gridSize: widget.gridSize,
       category: widget.category,
+      soundIds: widget.soundIds,
     );
 
     // Start the game
@@ -112,6 +118,17 @@ class _LocalMultiplayerGameScreenState
     }
 
     ref.read(gameProvider.notifier).flipCard(cardId);
+
+    // Play the sound for the flipped card
+    final flippedCard = ref.read(gameProvider)?.cards.firstWhere(
+      (c) => c.id == cardId,
+    );
+    if (flippedCard != null) {
+      final path = widget.soundPaths[flippedCard.soundId];
+      if (path != null) {
+        AudioService.play(path);
+      }
+    }
 
     // Check if we need to handle match/no-match after second card
     final newState = ref.read(gameProvider);
@@ -200,6 +217,7 @@ class _LocalMultiplayerGameScreenState
   @override
   void dispose() {
     _timer?.cancel();
+    AudioService.stop();
     super.dispose();
   }
 

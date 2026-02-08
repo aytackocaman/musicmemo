@@ -227,6 +227,93 @@ class GameHistoryEntry {
   }
 }
 
+/// Category group model (top-level grouping)
+class CategoryGroup {
+  final String id;
+  final String name;
+  final String icon;
+  final int sortOrder;
+
+  CategoryGroup({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.sortOrder,
+  });
+
+  factory CategoryGroup.fromJson(Map<String, dynamic> json) {
+    return CategoryGroup(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      icon: json['icon'] as String? ?? 'category',
+      sortOrder: json['sort_order'] as int? ?? 0,
+    );
+  }
+}
+
+/// Sound category model
+class SoundCategoryModel {
+  final String id;
+  final String groupId;
+  final String name;
+  final String icon;
+  final bool isPremium;
+  final int sortOrder;
+  final int soundCount;
+
+  SoundCategoryModel({
+    required this.id,
+    required this.groupId,
+    required this.name,
+    required this.icon,
+    required this.isPremium,
+    required this.sortOrder,
+    this.soundCount = 0,
+  });
+
+  factory SoundCategoryModel.fromJson(Map<String, dynamic> json) {
+    return SoundCategoryModel(
+      id: json['id'] as String,
+      groupId: json['group_id'] as String,
+      name: json['name'] as String,
+      icon: json['icon'] as String? ?? 'music_note',
+      isPremium: json['is_premium'] as bool? ?? false,
+      sortOrder: json['sort_order'] as int? ?? 0,
+      soundCount: json['sound_count'] as int? ?? 0,
+    );
+  }
+}
+
+/// Sound file model
+class SoundModel {
+  final String id;
+  final String categoryId;
+  final String name;
+  final String filePath;
+  final int durationMs;
+  final int fileSizeBytes;
+
+  SoundModel({
+    required this.id,
+    required this.categoryId,
+    required this.name,
+    required this.filePath,
+    required this.durationMs,
+    required this.fileSizeBytes,
+  });
+
+  factory SoundModel.fromJson(Map<String, dynamic> json) {
+    return SoundModel(
+      id: json['id'] as String,
+      categoryId: json['category_id'] as String,
+      name: json['name'] as String,
+      filePath: json['file_path'] as String,
+      durationMs: json['duration_ms'] as int? ?? 2000,
+      fileSizeBytes: json['file_size_bytes'] as int? ?? 0,
+    );
+  }
+}
+
 /// Handles all database operations with Supabase
 class DatabaseService {
   static SupabaseClient get _client => SupabaseService.client;
@@ -540,5 +627,70 @@ class DatabaseService {
       print('Error fetching game history: $e');
       return [];
     }
+  }
+
+  // ─── Sound System ─────────────────────────────────────────────
+
+  /// Get all category groups ordered by sort_order
+  static Future<List<CategoryGroup>> getCategoryGroups() async {
+    try {
+      final response = await _client
+          .from('category_groups')
+          .select()
+          .order('sort_order', ascending: true);
+
+      return (response as List)
+          .map((json) => CategoryGroup.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching category groups: $e');
+      return [];
+    }
+  }
+
+  /// Get all sound categories, optionally filtered by group
+  static Future<List<SoundCategoryModel>> getSoundCategories({
+    String? groupId,
+  }) async {
+    try {
+      var query = _client
+          .from('sound_categories')
+          .select();
+
+      if (groupId != null) {
+        query = query.eq('group_id', groupId);
+      }
+
+      final response = await query.order('sort_order', ascending: true);
+
+      return (response as List)
+          .map((json) => SoundCategoryModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching sound categories: $e');
+      return [];
+    }
+  }
+
+  /// Get sounds for a specific category
+  static Future<List<SoundModel>> getSoundsForCategory(String categoryId) async {
+    try {
+      final response = await _client
+          .from('sounds')
+          .select()
+          .eq('category_id', categoryId);
+
+      return (response as List)
+          .map((json) => SoundModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching sounds for category $categoryId: $e');
+      return [];
+    }
+  }
+
+  /// Get a public URL for a sound file in Supabase Storage
+  static String getSoundFileUrl(String filePath) {
+    return _client.storage.from('sounds').getPublicUrl(filePath);
   }
 }

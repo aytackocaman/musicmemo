@@ -30,11 +30,15 @@ Color hexToColor(String hex) {
 class LocalPlayerSetupScreen extends ConsumerStatefulWidget {
   final String category;
   final String gridSize;
+  final List<String>? soundIds;
+  final Map<String, String> soundPaths;
 
   const LocalPlayerSetupScreen({
     super.key,
     required this.category,
     required this.gridSize,
+    this.soundIds,
+    this.soundPaths = const {},
   });
 
   @override
@@ -76,6 +80,8 @@ class _LocalPlayerSetupScreenState
         builder: (context) => LocalMultiplayerGameScreen(
           category: widget.category,
           gridSize: widget.gridSize,
+          soundIds: widget.soundIds,
+          soundPaths: widget.soundPaths,
         ),
       ),
     );
