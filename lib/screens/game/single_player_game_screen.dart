@@ -36,6 +36,9 @@ class _SinglePlayerGameScreenState
   int _seconds = 0;
   bool _isPaused = false;
   bool _isProcessing = false;
+  final Set<String> _heardCardIds = {};
+  String? _countdownCardId;
+  int _countdownDurationMs = 0;
 
   @override
   void initState() {
@@ -138,11 +141,20 @@ class _SinglePlayerGameScreenState
         newState.cards.where((c) => c.state == CardState.flipped).length;
 
     if (newFlippedCards == 1) {
-      // First card flipped - brief delay then allow second flip
-      await Future.delayed(const Duration(milliseconds: 300));
+      // First card flipped - longer delay if never heard, shorter if already heard
+      final firstTime = !_heardCardIds.contains(cardId);
+      _heardCardIds.add(cardId);
+      final delay = firstTime ? 1500 : 800;
+      setState(() {
+        _countdownCardId = cardId;
+        _countdownDurationMs = delay;
+      });
+      await Future.delayed(Duration(milliseconds: delay));
       if (!mounted) return;
       setState(() {
         _isProcessing = false;
+        _countdownCardId = null;
+        _countdownDurationMs = 0;
       });
     } else if (newFlippedCards == 2) {
       // Second card, NO match (cards still in flipped state)
@@ -253,6 +265,8 @@ class _SinglePlayerGameScreenState
                   gridSize: widget.gridSize,
                   onCardTap: _handleCardTap,
                   enabled: !_isProcessing && !_isPaused,
+                  countdownCardId: _countdownCardId,
+                  countdownDurationMs: _countdownDurationMs,
                 ),
               ),
 

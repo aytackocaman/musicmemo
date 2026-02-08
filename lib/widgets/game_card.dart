@@ -9,12 +9,16 @@ class GameCardWidget extends StatefulWidget {
   final double size;
   final int cardNumber;
 
+  /// If > 0, shows a depleting circular countdown ring on the flipped card.
+  final int countdownMs;
+
   const GameCardWidget({
     super.key,
     required this.state,
     required this.cardNumber,
     this.onTap,
     this.size = 64,
+    this.countdownMs = 0,
   });
 
   @override
@@ -22,52 +26,73 @@ class GameCardWidget extends StatefulWidget {
 }
 
 class _GameCardWidgetState extends State<GameCardWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+    with TickerProviderStateMixin {
+  late AnimationController _flipController;
+  late Animation<double> _flipAnimation;
   bool _showFront = true;
+
+  AnimationController? _countdownController;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _flipController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _flipController, curve: Curves.easeInOut),
     );
 
-    _animation.addListener(() {
-      if (_animation.value >= 0.5 && _showFront) {
+    _flipAnimation.addListener(() {
+      if (_flipAnimation.value >= 0.5 && _showFront) {
         setState(() => _showFront = false);
-      } else if (_animation.value < 0.5 && !_showFront) {
+      } else if (_flipAnimation.value < 0.5 && !_showFront) {
         setState(() => _showFront = true);
       }
     });
 
-    _updateAnimation();
+    _updateFlipAnimation();
+    _updateCountdown();
   }
 
   @override
   void didUpdateWidget(GameCardWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.state != widget.state) {
-      _updateAnimation();
+      _updateFlipAnimation();
+    }
+    if (oldWidget.countdownMs != widget.countdownMs) {
+      _updateCountdown();
     }
   }
 
-  void _updateAnimation() {
+  void _updateFlipAnimation() {
     if (widget.state == CardState.faceDown) {
-      _controller.reverse();
+      _flipController.reverse();
     } else {
-      _controller.forward();
+      _flipController.forward();
+    }
+  }
+
+  void _updateCountdown() {
+    if (widget.countdownMs > 0) {
+      _countdownController?.dispose();
+      _countdownController = AnimationController(
+        duration: Duration(milliseconds: widget.countdownMs),
+        vsync: this,
+      );
+      _countdownController!.forward();
+    } else {
+      _countdownController?.dispose();
+      _countdownController = null;
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _flipController.dispose();
+    _countdownController?.dispose();
     super.dispose();
   }
 
@@ -76,9 +101,9 @@ class _GameCardWidgetState extends State<GameCardWidget>
     return GestureDetector(
       onTap: widget.state == CardState.faceDown ? widget.onTap : null,
       child: AnimatedBuilder(
-        animation: _animation,
+        animation: _flipAnimation,
         builder: (context, child) {
-          final angle = _animation.value * pi;
+          final angle = _flipAnimation.value * pi;
           final transform = Matrix4.identity()
             ..setEntry(3, 2, 0.001)
             ..rotateY(angle);
@@ -137,12 +162,35 @@ class _GameCardWidgetState extends State<GameCardWidget>
           width: 2,
         ),
       ),
-      child: Center(
-        child: Icon(
-          Icons.volume_up,
-          size: widget.size * 0.4,
-          color: AppColors.purple,
-        ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            Icons.volume_up,
+            size: widget.size * 0.4,
+            color: AppColors.purple,
+          ),
+          // Countdown ring overlay
+          if (_countdownController != null)
+            AnimatedBuilder(
+              animation: _countdownController!,
+              builder: (context, child) {
+                // Deplete from 1.0 → 0.0
+                final progress = 1.0 - _countdownController!.value;
+                if (progress <= 0) return const SizedBox();
+                return SizedBox(
+                  width: widget.size * 0.55,
+                  height: widget.size * 0.55,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 3,
+                    color: AppColors.purple.withValues(alpha: 0.6),
+                    backgroundColor: AppColors.purple.withValues(alpha: 0.1),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }

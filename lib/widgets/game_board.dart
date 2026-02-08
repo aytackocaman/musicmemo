@@ -8,12 +8,20 @@ class GameBoard extends StatelessWidget {
   final Function(String cardId) onCardTap;
   final bool enabled;
 
+  /// Card ID that should show a countdown ring (first flipped card of a turn).
+  final String? countdownCardId;
+
+  /// Duration in ms for the countdown ring.
+  final int countdownDurationMs;
+
   const GameBoard({
     super.key,
     required this.cards,
     required this.gridSize,
     required this.onCardTap,
     this.enabled = true,
+    this.countdownCardId,
+    this.countdownDurationMs = 0,
   });
 
   @override
@@ -63,6 +71,7 @@ class GameBoard extends StatelessWidget {
                       if (cardIndex >= cards.length) return const SizedBox();
 
                       final card = cards[cardIndex];
+                      final showCountdown = card.id == countdownCardId;
                       return Padding(
                         padding: EdgeInsets.only(right: colIndex < cols - 1 ? gap : 0),
                         child: GameCardWidget(
@@ -71,6 +80,7 @@ class GameBoard extends StatelessWidget {
                           size: cardSize,
                           cardNumber: cardIndex + 1,
                           onTap: enabled ? () => onCardTap(card.id) : null,
+                          countdownMs: showCountdown ? countdownDurationMs : 0,
                         ),
                       );
                     }),
