@@ -102,14 +102,14 @@ class _LocalPlayerSetupScreenState
                   children: [
                     // Back button
                     _buildBackButton(),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
 
                     // Title
                     Text(
                       'Player Setup',
                       style: AppTypography.headline3,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.xs),
 
                     Text(
                       'Enter names and pick colors',
@@ -117,7 +117,7 @@ class _LocalPlayerSetupScreenState
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.lg),
 
                     // Player 1 setup
                     _buildPlayerSetup(
@@ -129,7 +129,7 @@ class _LocalPlayerSetupScreenState
                         setState(() => _player1Color = color);
                       },
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
 
                     // VS divider
                     Center(
@@ -148,7 +148,7 @@ class _LocalPlayerSetupScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
 
                     // Player 2 setup
                     _buildPlayerSetup(
@@ -167,10 +167,10 @@ class _LocalPlayerSetupScreenState
 
             // Start game button (fixed at bottom)
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
               child: SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _startGame,
                   style: ElevatedButton.styleFrom(
@@ -219,10 +219,10 @@ class _LocalPlayerSetupScreenState
     required Function(Color) onColorSelected,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: selectedColor.withValues(alpha: 0.3),
           width: 2,
@@ -251,7 +251,7 @@ class _LocalPlayerSetupScreenState
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Name input
           TextField(
@@ -270,21 +270,21 @@ class _LocalPlayerSetupScreenState
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 14,
+                vertical: 12,
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Color picker
           Text(
             'Choose color',
             style: AppTypography.labelSmall,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Wrap(
-            spacing: 10,
-            runSpacing: 10,
+            spacing: 8,
+            runSpacing: 8,
             children: playerColors.map((color) {
               final isSelected = color == selectedColor;
               final isDisabled = color == disabledColor;
@@ -293,8 +293,8 @@ class _LocalPlayerSetupScreenState
                 onTap: isDisabled ? null : () => onColorSelected(color),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 36,
-                  height: 36,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     color: isDisabled ? color.withValues(alpha: 0.3) : color,
                     shape: BoxShape.circle,

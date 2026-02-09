@@ -248,38 +248,42 @@ class _LocalMultiplayerGameScreenState
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              children: [
-                // Header with home/pause
-                _buildHeader(),
-                const SizedBox(height: 12),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Column(
+                  children: [
+                    // Header with home/pause
+                    _buildHeader(),
+                    const SizedBox(height: 12),
 
-                // Player scores and turn indicator
-                _buildPlayerScores(gameState),
-                const SizedBox(height: 16),
+                    // Player scores and turn indicator
+                    _buildPlayerScores(gameState),
+                    const SizedBox(height: 16),
 
-                // Stats row (time and moves)
-                _buildStatsRow(gameState),
-                const SizedBox(height: 16),
+                    // Stats row (time and moves)
+                    _buildStatsRow(gameState),
+                    const SizedBox(height: 16),
 
-                // Game board
-                Expanded(
-                  child: GameBoard(
-                    cards: gameState.cards,
-                    gridSize: widget.gridSize,
-                    onCardTap: _handleCardTap,
-                    enabled: !_isProcessing && !_isPaused,
-                    countdownCardId: _countdownCardId,
-                    countdownDurationMs: _countdownDurationMs,
-                  ),
+                    // Game board
+                    Expanded(
+                      child: GameBoard(
+                        cards: gameState.cards,
+                        gridSize: widget.gridSize,
+                        onCardTap: _handleCardTap,
+                        enabled: !_isProcessing && !_isPaused,
+                        countdownCardId: _countdownCardId,
+                        countdownDurationMs: _countdownDurationMs,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
 
-                // Pause overlay
-                if (_isPaused) _buildPauseOverlay(),
-              ],
-            ),
+              // Pause overlay
+              if (_isPaused) _buildPauseOverlay(),
+            ],
           ),
         ),
       ),
@@ -426,41 +430,69 @@ class _LocalMultiplayerGameScreenState
 
   Widget _buildPauseOverlay() {
     return Positioned.fill(
-      child: Container(
-        color: AppColors.textPrimary.withValues(alpha: 0.8),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.pause_circle_filled,
-                size: 80,
-                color: AppColors.white,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Game Paused',
-                style: AppTypography.headline3.copyWith(
-                  color: AppColors.white,
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _togglePause,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.purple,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+      child: GestureDetector(
+        onTap: _togglePause,
+        child: Container(
+          color: AppColors.background.withValues(alpha: 0.95),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppColors.purple.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.pause_rounded,
+                    size: 40,
+                    color: AppColors.purple,
                   ),
                 ),
-                child: Text(
-                  'Resume',
-                  style: AppTypography.button,
+                const SizedBox(height: 20),
+                Text(
+                  'Game Paused',
+                  style: AppTypography.headline3,
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  'Tap anywhere to resume',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                GestureDetector(
+                  onTap: _togglePause,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Text(
+                      'Resume',
+                      style: AppTypography.button,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () => _showHomeConfirmation(),
+                  child: Text(
+                    'Quit Game',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

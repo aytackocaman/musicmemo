@@ -18,10 +18,13 @@ class ModeScreen extends ConsumerStatefulWidget {
 }
 
 class _ModeScreenState extends ConsumerState<ModeScreen> {
-  void _showPaywall(BuildContext context) {
+  void _showPaywall(BuildContext context, {bool isPremiumFeature = false}) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PaywallScreen()),
+      MaterialPageRoute(
+        builder: (context) =>
+            PaywallScreen(isPremiumFeature: isPremiumFeature),
+      ),
     );
   }
 
@@ -141,7 +144,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 badge: isPremium ? null : _PremiumBadge(),
                 onTap: () {
                   if (!isPremium) {
-                    _showPaywall(context);
+                    _showPaywall(context, isPremiumFeature: true);
                     return;
                   }
                   ref.read(selectedGameModeProvider.notifier).state =

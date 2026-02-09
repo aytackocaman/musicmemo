@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/theme.dart';
 
-/// Full-screen paywall shown when free tier limit is reached.
-/// Displays upgrade CTA with subscription options.
+/// Full-screen paywall shown when free tier limit is reached
+/// or when a premium-only feature is accessed.
 class PaywallScreen extends StatelessWidget {
-  const PaywallScreen({super.key});
+  /// If true, shows "Premium Feature" messaging instead of "Reached Your Limit".
+  final bool isPremiumFeature;
+
+  const PaywallScreen({super.key, this.isPremiumFeature = false});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.purple,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(32, 22, 32, 32),
-          child: Column(
-            children: [
-              // Close button row
-              Align(
+        child: Column(
+          children: [
+            // Fixed close button at top
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 22, 32, 0),
+              child: Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
                   onTap: () => Navigator.pop(context),
@@ -36,20 +39,26 @@ class PaywallScreen extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
 
-              const Spacer(),
+            // Scrollable content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+                child: Column(
+                  children: [
 
               // Lock icon
               Container(
-                width: 100,
-                height: 100,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(40),
                 ),
                 child: const Icon(
                   Icons.lock_outline,
-                  size: 48,
+                  size: 40,
                   color: Colors.white,
                 ),
               ),
@@ -57,7 +66,9 @@ class PaywallScreen extends StatelessWidget {
 
               // Title
               Text(
-                "You've Reached Your Limit!",
+                isPremiumFeature
+                    ? 'Premium Feature'
+                    : "You've Reached Your Limit!",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 28,
@@ -69,7 +80,9 @@ class PaywallScreen extends StatelessWidget {
 
               // Subtitle
               Text(
-                'Upgrade to Premium to keep playing',
+                isPremiumFeature
+                    ? 'Online multiplayer requires a Premium subscription'
+                    : 'Upgrade to Premium to keep playing',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 16,
@@ -77,18 +90,18 @@ class PaywallScreen extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.8),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // Benefits list
               _BenefitItem(text: 'Unlimited single player games'),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               _BenefitItem(text: 'Unlimited local multiplayer'),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               _BenefitItem(text: 'Online multiplayer access'),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               _BenefitItem(text: 'Ad-free experience'),
 
-              const Spacer(),
+              const SizedBox(height: 32),
 
               // Yearly CTA button
               GestureDetector(
@@ -183,8 +196,11 @@ class PaywallScreen extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.5),
                 ),
               ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
