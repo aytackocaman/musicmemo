@@ -61,26 +61,27 @@ class _WinScreenState extends ConsumerState<WinScreen> {
       child: Scaffold(
         backgroundColor: AppColors.purple,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 // Trophy icon
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: 88,
+                  height: 88,
                   decoration: BoxDecoration(
                     color: AppColors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.emoji_events,
-                    size: 64,
+                    size: 48,
                     color: AppColors.white,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Title
                 Text(
@@ -89,7 +90,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                     color: AppColors.white,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Stars
                 Row(
@@ -99,17 +100,17 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Icon(
                         index < stars ? Icons.star : Icons.star_border,
-                        size: 40,
+                        size: 32,
                         color: const Color(0xFFFBBF24), // Gold
                       ),
                     );
                   }),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Stats card
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -149,7 +150,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // Buttons — vary based on whether free games remain
                 if (hasGamesLeft) ...[
@@ -159,19 +160,19 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                     isPrimary: true,
                     onTap: () => _playNextLevel(context),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   _buildButton(
                     label: 'Play Again',
                     icon: Icons.replay,
                     onTap: () => _playAgain(context),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   _buildButton(
                     label: 'Change Category',
                     icon: Icons.category,
                     onTap: () => _changeCategory(context),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                 ] else ...[
                   _buildButton(
                     label: 'Upgrade to Premium',
@@ -179,7 +180,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                     isPrimary: true,
                     onTap: () => _goToPaywall(context),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                 ],
 
                 _buildButton(
@@ -189,6 +190,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                   onTap: () => _goHome(context),
                 ),
               ],
+              ),
             ),
           ),
         ),
@@ -235,7 +237,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 56,
+        height: 48,
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(28),

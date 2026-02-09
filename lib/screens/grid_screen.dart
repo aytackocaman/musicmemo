@@ -114,17 +114,22 @@ class GridScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xl),
 
               // Grid options
-              ..._gridOptions.map((option) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _GridOptionItem(
-                      option: option,
-                      onTap: () {
-                        ref.read(selectedGridSizeProvider.notifier).state =
-                            option.id;
-                        _startGame(context, ref, option);
-                      },
-                    ),
-                  )),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: _gridOptions.map((option) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _GridOptionItem(
+                          option: option,
+                          onTap: () {
+                            ref.read(selectedGridSizeProvider.notifier).state =
+                                option.id;
+                            _startGame(context, ref, option);
+                          },
+                        ),
+                      )).toList(),
+                ),
+              ),
             ],
           ),
         ),
@@ -218,8 +223,7 @@ class _GridOptionItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 72,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),

@@ -163,16 +163,20 @@ class _CurrentPlanCard extends StatelessWidget {
               return countsAsync.when(
                 data: (counts) => Row(
                   children: [
-                    _LimitCounter(
-                      value:
-                          '${counts.singlePlayerCount}/${DailyGameCounts.singlePlayerLimit}',
-                      label: 'Single player today',
+                    Expanded(
+                      child: _LimitCounter(
+                        value:
+                            '${counts.singlePlayerCount}/${DailyGameCounts.singlePlayerLimit}',
+                        label: 'Single player today',
+                      ),
                     ),
-                    const SizedBox(width: 24),
-                    _LimitCounter(
-                      value:
-                          '${counts.localMultiplayerCount}/${DailyGameCounts.localMultiplayerLimit}',
-                      label: 'Local multiplayer today',
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _LimitCounter(
+                        value:
+                            '${counts.localMultiplayerCount}/${DailyGameCounts.localMultiplayerLimit}',
+                        label: 'Local MP today',
+                      ),
                     ),
                   ],
                 ),
