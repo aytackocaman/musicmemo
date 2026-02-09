@@ -35,8 +35,8 @@ class GameBoard extends StatelessWidget {
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
 
-        // Gap between cards
-        const gap = 8.0;
+        // Gap between cards — smaller for larger grids
+        final gap = (cols >= 6 || rows >= 7) ? 4.0 : 6.0;
         final totalGapWidth = (cols - 1) * gap;
         final totalGapHeight = (rows - 1) * gap;
 

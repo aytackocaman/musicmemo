@@ -251,20 +251,20 @@ class _LocalMultiplayerGameScreenState
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                 child: Column(
                   children: [
-                    // Header with home/pause
-                    _buildHeader(),
-                    const SizedBox(height: 12),
+                    // Compact header with home/pause
+                    _buildCompactHeader(),
+                    const SizedBox(height: 6),
 
-                    // Player scores and turn indicator
+                    // Player scores (compact)
                     _buildPlayerScores(gameState),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 6),
 
-                    // Stats row (time and moves)
+                    // Stats row (compact)
                     _buildStatsRow(gameState),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
                     // Game board
                     Expanded(
@@ -290,49 +290,24 @@ class _LocalMultiplayerGameScreenState
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildCompactHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Home button
         GestureDetector(
           onTap: () => _showHomeConfirmation(),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Icon(
-              Icons.home,
-              size: 20,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          child: const Icon(Icons.home, size: 20, color: AppColors.textSecondary),
         ),
-
-        // Category title
         Text(
           _formatCategoryName(widget.category),
-          style: AppTypography.bodyLarge,
+          style: AppTypography.bodySmall,
         ),
-
-        // Pause button
         GestureDetector(
           onTap: _togglePause,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              _isPaused ? Icons.play_arrow : Icons.pause,
-              size: 20,
-              color: AppColors.textPrimary,
-            ),
+          child: Icon(
+            _isPaused ? Icons.play_arrow : Icons.pause,
+            size: 20,
+            color: AppColors.textSecondary,
           ),
         ),
       ],
@@ -346,7 +321,6 @@ class _LocalMultiplayerGameScreenState
 
     return Row(
       children: [
-        // Player 1
         Expanded(
           child: _PlayerScoreCard(
             name: player1?.name ?? 'Player 1',
@@ -355,9 +329,7 @@ class _LocalMultiplayerGameScreenState
             isCurrentTurn: isPlayer1Turn,
           ),
         ),
-        const SizedBox(width: 12),
-
-        // Player 2
+        const SizedBox(width: 8),
         Expanded(
           child: _PlayerScoreCard(
             name: player2?.name ?? 'Player 2',
@@ -372,58 +344,34 @@ class _LocalMultiplayerGameScreenState
 
   Widget _buildStatsRow(GameState gameState) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStat(
-            value: '${gameState.moves}',
-            label: 'Moves',
-          ),
-          Container(
-            width: 1,
-            height: 30,
-            color: AppColors.elevated,
-          ),
-          _buildStat(
-            value: GameUtils.formatTime(_seconds),
-            label: 'Time',
-          ),
-          Container(
-            width: 1,
-            height: 30,
-            color: AppColors.elevated,
-          ),
-          _buildStat(
-            value: '${gameState.matchedPairs}/${gameState.totalPairs}',
-            label: 'Pairs',
-          ),
+          _buildInlineStat('${gameState.moves}', 'Moves'),
+          Container(width: 1, height: 20, color: AppColors.elevated),
+          _buildInlineStat(GameUtils.formatTime(_seconds), 'Time'),
+          Container(width: 1, height: 20, color: AppColors.elevated),
+          _buildInlineStat(
+              '${gameState.matchedPairs}/${gameState.totalPairs}', 'Pairs'),
         ],
       ),
     );
   }
 
-  Widget _buildStat({
-    required String value,
-    required String label,
-  }) {
+  Widget _buildInlineStat(String value, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          value,
-          style: AppTypography.bodyLarge,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
+        Text(value, style: AppTypography.bodySmall.copyWith(
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        )),
+        Text(label, style: AppTypography.labelSmall.copyWith(fontSize: 10)),
       ],
     );
   }
@@ -553,74 +501,62 @@ class _PlayerScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isCurrentTurn ? color.withValues(alpha: 0.15) : AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: isCurrentTurn ? color.withValues(alpha: 0.12) : AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCurrentTurn ? color : Colors.transparent,
           width: 2,
         ),
       ),
-      child: Column(
+      child: Row(
         children: [
-          // Turn indicator
-          if (isCurrentTurn)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              margin: const EdgeInsets.only(bottom: 6),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                'YOUR TURN',
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+          // Color dot
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
             ),
+          ),
+          const SizedBox(width: 6),
 
-          // Player name with color dot
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
+          // Name (+ turn indicator)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
                   name,
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    color: AppColors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                if (isCurrentTurn)
+                  Text(
+                    'TURN',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
 
           // Score
           Text(
             '$score',
-            style: AppTypography.metric.copyWith(
+            style: AppTypography.bodyLarge.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
               color: color,
-              fontSize: 28,
-            ),
-          ),
-          Text(
-            'pairs',
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.textTertiary,
             ),
           ),
         ],

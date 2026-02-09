@@ -249,16 +249,12 @@ class _SinglePlayerGameScreenState
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               child: Column(
                 children: [
-                  // Header
-                  _buildHeader(),
-                  const SizedBox(height: 20),
-
-                  // Stats row
-                  _buildStatsRow(gameState),
-                  const SizedBox(height: 20),
+                  // Compact header with inline stats
+                  _buildCompactHeader(gameState),
+                  const SizedBox(height: 8),
 
                   // Game board
                   Expanded(
@@ -284,102 +280,69 @@ class _SinglePlayerGameScreenState
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Home button
-        GestureDetector(
-          onTap: () => _showHomeConfirmation(),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
+  Widget _buildCompactHeader(GameState gameState) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Home button
+          GestureDetector(
+            onTap: () => _showHomeConfirmation(),
             child: const Icon(
               Icons.home,
               size: 20,
-              color: AppColors.textPrimary,
+              color: AppColors.textSecondary,
             ),
           ),
-        ),
+          const SizedBox(width: 12),
 
-        // Category title
-        Text(
-          _formatCategoryName(widget.category),
-          style: AppTypography.bodyLarge,
-        ),
-
-        // Pause button
-        GestureDetector(
-          onTap: _togglePause,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
+          // Stats inline
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildInlineStat(
+                    '${gameState.score}', 'Score', AppColors.purple),
+                _buildInlineStat('${gameState.moves}', 'Moves', null),
+                _buildInlineStat(
+                    GameUtils.formatTime(_seconds), 'Time', null),
+              ],
             ),
+          ),
+
+          const SizedBox(width: 12),
+          // Pause button
+          GestureDetector(
+            onTap: _togglePause,
             child: Icon(
               _isPaused ? Icons.play_arrow : Icons.pause,
               size: 20,
-              color: AppColors.textPrimary,
+              color: AppColors.textSecondary,
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsRow(GameState gameState) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildStat(
-            value: '${gameState.score}',
-            label: 'Score',
-            valueColor: AppColors.purple,
-          ),
-          _buildStat(
-            value: '${gameState.moves}',
-            label: 'Moves',
-          ),
-          _buildStat(
-            value: GameUtils.formatTime(_seconds),
-            label: 'Time',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStat({
-    required String value,
-    required String label,
-    Color? valueColor,
-  }) {
+  Widget _buildInlineStat(String value, String label, Color? color) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
-          style: AppTypography.metricSmall.copyWith(
-            color: valueColor ?? AppColors.textPrimary,
+          style: AppTypography.bodyLarge.copyWith(
+            fontSize: 16,
+            color: color ?? AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: AppTypography.labelSmall.copyWith(fontSize: 10),
         ),
       ],
     );
@@ -454,13 +417,6 @@ class _SinglePlayerGameScreenState
         ),
       ),
     );
-  }
-
-  String _formatCategoryName(String category) {
-    return category
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
-        .join(' ');
   }
 
   void _showHomeConfirmation() {
