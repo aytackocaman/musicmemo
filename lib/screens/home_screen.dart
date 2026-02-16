@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../services/auth_service.dart';
 import '../services/database_service.dart';
 import '../widgets/game_button.dart';
+import 'login_screen.dart';
 import 'mode_screen.dart';
 import 'statistics_screen.dart';
 import 'subscription_screen.dart';
@@ -44,7 +46,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
+        child: Stack(
+          children: [
+            // Logout button (top-right)
+            Positioned(
+              top: 12,
+              right: 16,
+              child: GestureDetector(
+                onTap: _showLogoutConfirmation,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.logout,
+                    size: 20,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+            // Main content
+            Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
             child: Column(
@@ -152,6 +178,40 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await AuthService.signOut();
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            child: Text(
+              'Log Out',
+              style: TextStyle(color: Colors.red[600]),
+            ),
+          ),
+        ],
       ),
     );
   }
