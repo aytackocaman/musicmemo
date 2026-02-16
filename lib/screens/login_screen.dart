@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
+import '../services/deep_link_service.dart';
 import '../widgets/game_button.dart';
 import 'home_screen.dart';
 
@@ -59,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result.success) {
       if (mounted) {
+        if (DeepLinkService.consumePendingInviteCode(context)) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
@@ -80,6 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result.success) {
       if (mounted) {
+        if (DeepLinkService.consumePendingInviteCode(context)) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );

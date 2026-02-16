@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../config/theme.dart';
 import '../../services/database_service.dart';
 import '../../services/multiplayer_service.dart';
@@ -30,7 +31,8 @@ final List<Map<String, dynamic>> _gridOptions = [
 ];
 
 class OnlineModeScreen extends ConsumerStatefulWidget {
-  const OnlineModeScreen({super.key});
+  final String? initialInviteCode;
+  const OnlineModeScreen({super.key, this.initialInviteCode});
 
   @override
   ConsumerState<OnlineModeScreen> createState() => _OnlineModeScreenState();
@@ -73,6 +75,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     final user = SupabaseService.currentUser;
     if (user?.email != null) {
       _nameController.text = user!.email!.split('@').first;
+    }
+    if (widget.initialInviteCode != null) {
+      _codeController.text = widget.initialInviteCode!;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showJoinOptions());
     }
   }
 
@@ -380,6 +386,18 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _shareInviteCode() async {
+    if (_inviteCode == null) return;
+    final box = context.findRenderObject() as RenderBox?;
+    await Share.share(
+      'Join my Music Memo game! Enter code $_inviteCode or tap: musicmemo://join?code=$_inviteCode',
+      subject: 'Music Memo - Game Invite',
+      sharePositionOrigin: box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null,
+    );
   }
 
   Future<void> _hostStartGame() async {
@@ -807,33 +825,65 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(height: 24),
 
           if (!_isPublicSession) ...[
-            GestureDetector(
-              onTap: _copyInviteCode,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.elevated),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _inviteCode ?? '',
-                      style: AppTypography.headline2.copyWith(
-                        letterSpacing: 8,
-                        color: AppColors.purple,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Icon(Icons.copy, color: AppColors.textSecondary),
-                  ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.elevated),
+              ),
+              child: Text(
+                _inviteCode ?? '',
+                style: AppTypography.headline2.copyWith(
+                  letterSpacing: 8,
+                  color: AppColors.purple,
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            Text('Tap to copy', style: AppTypography.labelSmall),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _copyInviteCode,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.button),
+                      border: Border.all(color: AppColors.elevated),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.copy, size: 18, color: AppColors.textSecondary),
+                        const SizedBox(width: 8),
+                        Text('Copy', style: AppTypography.bodySmall),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: _shareInviteCode,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(AppRadius.button),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.share, size: 18, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text('Share', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ] else ...[
             Container(
               padding: const EdgeInsets.all(20),

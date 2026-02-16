@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../services/deep_link_service.dart';
 import '../services/supabase_service.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
@@ -26,6 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Check if user is logged in
     if (SupabaseService.isLoggedIn) {
+      if (DeepLinkService.consumePendingInviteCode(context)) return;
       _navigateTo(const HomeScreen());
     } else {
       _navigateTo(const LoginScreen());
