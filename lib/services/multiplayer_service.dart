@@ -22,6 +22,8 @@ class OnlineSession {
   final Map<String, dynamic>? gameState;
   final DateTime createdAt;
   final bool isPublic;
+  final bool rematchPlayer1;
+  final bool rematchPlayer2;
 
   OnlineSession({
     required this.id,
@@ -39,6 +41,8 @@ class OnlineSession {
     this.gameState,
     required this.createdAt,
     this.isPublic = false,
+    this.rematchPlayer1 = false,
+    this.rematchPlayer2 = false,
   });
 
   factory OnlineSession.fromJson(Map<String, dynamic> json) {
@@ -58,6 +62,8 @@ class OnlineSession {
       gameState: json['game_state'] as Map<String, dynamic>?,
       createdAt: DateTime.parse(json['created_at'] as String),
       isPublic: json['is_public'] as bool? ?? false,
+      rematchPlayer1: json['rematch_player1'] as bool? ?? false,
+      rematchPlayer2: json['rematch_player2'] as bool? ?? false,
     );
   }
 
@@ -70,6 +76,14 @@ class OnlineSession {
   bool isMyTurn(String myUserId) => currentTurn == myUserId;
 
   bool amIPlayer1(String myUserId) => player1Id == myUserId;
+
+  bool wantsRematch(String myUserId) =>
+      amIPlayer1(myUserId) ? rematchPlayer1 : rematchPlayer2;
+
+  bool opponentWantsRematch(String myUserId) =>
+      amIPlayer1(myUserId) ? rematchPlayer2 : rematchPlayer1;
+
+  bool get bothWantRematch => rematchPlayer1 && rematchPlayer2;
 
   int getMyScore(String myUserId) {
     return amIPlayer1(myUserId) ? player1Score : player2Score;
@@ -502,6 +516,110 @@ class MultiplayerService {
       return true;
     } catch (e) {
       debugPrint('Error deleting session: $e');
+      return false;
+    }
+  }
+
+  /// Request a rematch (sets my rematch flag to true)
+  static Future<bool> requestRematch(String sessionId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      final session = await getSession(sessionId);
+      if (session == null) return false;
+
+      final column = session.amIPlayer1(user.id)
+          ? 'rematch_player1'
+          : 'rematch_player2';
+
+      await _client.from('online_sessions').update({
+        column: true,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+
+      return true;
+    } catch (e) {
+      debugPrint('Error requesting rematch: $e');
+      return false;
+    }
+  }
+
+  /// Cancel a rematch request (sets my rematch flag back to false)
+  static Future<bool> cancelRematch(String sessionId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      final session = await getSession(sessionId);
+      if (session == null) return false;
+
+      final column = session.amIPlayer1(user.id)
+          ? 'rematch_player1'
+          : 'rematch_player2';
+
+      await _client.from('online_sessions').update({
+        column: false,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+
+      return true;
+    } catch (e) {
+      debugPrint('Error cancelling rematch: $e');
+      return false;
+    }
+  }
+
+  /// Decline a rematch (clears both flags so the offerer knows)
+  static Future<bool> declineRematch(String sessionId) async {
+    try {
+      await _client.from('online_sessions').update({
+        'rematch_player1': false,
+        'rematch_player2': false,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+
+      return true;
+    } catch (e) {
+      debugPrint('Error declining rematch: $e');
+      return false;
+    }
+  }
+
+  /// Start a rematch: reset scores, flags, new cards, random first turn, status → playing
+  static Future<bool> startRematch({
+    required String sessionId,
+    required List<GameCard> cards,
+    required String hostId,
+  }) async {
+    try {
+      final session = await getSession(sessionId);
+      final player2Id = session?.player2Id;
+      final firstTurn = (player2Id != null && Random().nextBool())
+          ? player2Id
+          : hostId;
+
+      final cardData = cards.map((c) => {
+        'id': c.id,
+        'soundId': c.soundId,
+        'state': c.state.name,
+      }).toList();
+
+      await _client.from('online_sessions').update({
+        'game_state': {'cards': cardData},
+        'player1_score': 0,
+        'player2_score': 0,
+        'current_turn': firstTurn,
+        'rematch_player1': false,
+        'rematch_player2': false,
+        'status': 'playing',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+
+      debugPrint('Rematch started, first turn: ${firstTurn == hostId ? "host" : "guest"}');
+      return true;
+    } catch (e) {
+      debugPrint('Error starting rematch: $e');
       return false;
     }
   }

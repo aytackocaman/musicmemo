@@ -33,6 +33,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   bool _isInitialized = false;
   bool _isProcessing = false;
   bool _gameEnded = false;
+  bool _navigatingToWinScreen = false;
 
   late String _myUserId;
   late bool _amIPlayer1;
@@ -497,12 +498,14 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
 
     final totalPairs = _cards.isEmpty ? 0 : _cards.length ~/ 2;
 
+    _navigatingToWinScreen = true;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => _OnlineWinScreen(
           session: _currentSession,
           myUserId: _myUserId,
+          playerName: widget.playerName,
           timeSeconds: _seconds,
           totalPairs: totalPairs,
         ),
@@ -515,7 +518,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     _timer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
-    MultiplayerService.unsubscribeFromSession();
+    // Don't kill the global subscription if navigating to win screen —
+    // it will be reused there for rematch detection.
+    if (!_navigatingToWinScreen) {
+      MultiplayerService.unsubscribeFromSession();
+    }
     super.dispose();
   }
 
@@ -801,29 +808,204 @@ class _PlayerScoreCard extends StatelessWidget {
   }
 }
 
-/// Online Win Screen
-class _OnlineWinScreen extends StatelessWidget {
+enum _RematchState { idle, requested, opponentRequested, starting, declined }
+
+/// Online Win Screen with rematch support
+class _OnlineWinScreen extends StatefulWidget {
   final OnlineSession session;
   final String myUserId;
+  final String playerName;
   final int timeSeconds;
   final int totalPairs;
 
   const _OnlineWinScreen({
     required this.session,
     required this.myUserId,
+    required this.playerName,
     required this.timeSeconds,
     required this.totalPairs,
   });
 
   @override
+  State<_OnlineWinScreen> createState() => _OnlineWinScreenState();
+}
+
+class _OnlineWinScreenState extends State<_OnlineWinScreen> {
+  _RematchState _rematchState = _RematchState.idle;
+  StreamSubscription<OnlineSession>? _sessionSubscription;
+  Timer? _timeoutTimer;
+  late OnlineSession _latestSession;
+  bool _navigatingToGame = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _latestSession = widget.session;
+    _sessionSubscription =
+        MultiplayerService.subscribeToSession(widget.session.id).listen(
+      _handleSessionUpdate,
+    );
+  }
+
+  void _handleSessionUpdate(OnlineSession updatedSession) {
+    if (!mounted) return;
+    _latestSession = updatedSession;
+
+    // Game restarted — navigate to new game
+    if (updatedSession.isPlaying) {
+      _timeoutTimer?.cancel();
+      _sessionSubscription?.cancel();
+      _navigatingToGame = true;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OnlineGameScreen(
+            session: updatedSession,
+            playerName: widget.playerName,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // I requested rematch but my flag was cleared → opponent declined
+    if (_rematchState == _RematchState.requested &&
+        !updatedSession.wantsRematch(widget.myUserId)) {
+      _timeoutTimer?.cancel();
+      setState(() => _rematchState = _RematchState.declined);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Opponent declined the rematch',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          backgroundColor: AppColors.white.withValues(alpha: 0.9),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    // Both want rematch and I'm the host — generate cards
+    if (updatedSession.bothWantRematch &&
+        updatedSession.amIPlayer1(widget.myUserId)) {
+      _hostStartRematch();
+      return;
+    }
+
+    // Opponent requested while I haven't yet
+    if (updatedSession.opponentWantsRematch(widget.myUserId) &&
+        !updatedSession.wantsRematch(widget.myUserId) &&
+        _rematchState != _RematchState.starting) {
+      setState(() => _rematchState = _RematchState.opponentRequested);
+      return;
+    }
+  }
+
+  Future<void> _requestRematch() async {
+    setState(() => _rematchState = _RematchState.requested);
+    final success =
+        await MultiplayerService.requestRematch(widget.session.id);
+    if (!mounted) return;
+    if (!success) {
+      setState(() => _rematchState = _RematchState.idle);
+      return;
+    }
+    // Start 30-second timeout
+    _timeoutTimer = Timer(const Duration(seconds: 30), () {
+      if (mounted && _rematchState == _RematchState.requested) {
+        MultiplayerService.cancelRematch(widget.session.id);
+        setState(() => _rematchState = _RematchState.declined);
+      }
+    });
+  }
+
+  Future<void> _cancelRematch() async {
+    _timeoutTimer?.cancel();
+    await MultiplayerService.cancelRematch(widget.session.id);
+    if (!mounted) return;
+    setState(() => _rematchState = _RematchState.idle);
+  }
+
+  Future<void> _acceptRematch() async {
+    setState(() => _rematchState = _RematchState.requested);
+    await MultiplayerService.requestRematch(widget.session.id);
+    // If I'm host, _handleSessionUpdate will detect bothWantRematch
+    // If I'm guest, host will detect and start the rematch
+  }
+
+  Future<void> _declineRematch() async {
+    setState(() => _rematchState = _RematchState.declined);
+    await MultiplayerService.declineRematch(widget.session.id);
+  }
+
+  Future<void> _hostStartRematch() async {
+    if (_rematchState == _RematchState.starting) return;
+    setState(() => _rematchState = _RematchState.starting);
+
+    // Fetch sounds for session category (fall back to piano)
+    final category = _latestSession.category ?? 'piano';
+    var sounds = await DatabaseService.getSoundsForCategory(category);
+    if (sounds.isEmpty && category != 'piano') {
+      sounds = await DatabaseService.getSoundsForCategory('piano');
+    }
+    final soundIds = sounds.map((s) => s.id).toList();
+
+    final cards = GameUtils.generateCards(
+      gridSize: _latestSession.gridSize ?? '4x5',
+      category: category,
+      soundIds: soundIds.isNotEmpty ? soundIds : null,
+    );
+
+    final success = await MultiplayerService.startRematch(
+      sessionId: widget.session.id,
+      cards: cards,
+      hostId: widget.myUserId,
+    );
+
+    if (!mounted) return;
+    if (!success) {
+      setState(() => _rematchState = _RematchState.declined);
+    }
+    // Navigation happens via _handleSessionUpdate when status='playing'
+  }
+
+  @override
+  void dispose() {
+    _timeoutTimer?.cancel();
+    // If we requested a rematch but are leaving (not to a game), cancel it
+    if (_rematchState == _RematchState.requested && !_navigatingToGame) {
+      MultiplayerService.cancelRematch(widget.session.id);
+    }
+    _sessionSubscription?.cancel();
+    // Don't kill the global subscription if navigating to the rematch game —
+    // the new OnlineGameScreen will reuse it.
+    if (!_navigatingToGame) {
+      MultiplayerService.unsubscribeFromSession();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final amIPlayer1 = session.player1Id == myUserId;
-    final myScore = amIPlayer1 ? session.player1Score : session.player2Score;
-    final opponentScore =
-        amIPlayer1 ? session.player2Score : session.player1Score;
-    final opponentName =
-        amIPlayer1 ? session.player2Name : session.player1Name;
-    final category = session.category ?? 'unknown';
+    final amIPlayer1 = widget.session.player1Id == widget.myUserId;
+    final myScore = amIPlayer1
+        ? widget.session.player1Score
+        : widget.session.player2Score;
+    final opponentScore = amIPlayer1
+        ? widget.session.player2Score
+        : widget.session.player1Score;
+    final opponentName = amIPlayer1
+        ? widget.session.player2Name
+        : widget.session.player1Name;
+    final category = widget.session.category ?? 'unknown';
 
     final iWon = myScore > opponentScore;
     final isTie = myScore == opponentScore;
@@ -986,53 +1168,158 @@ class _OnlineWinScreen extends StatelessWidget {
                       ),
                       _buildInfoItem(
                         icon: Icons.grid_view,
-                        value: '${session.gridSize ?? '4x5'} ($totalPairs pairs)',
+                        value: '${widget.session.gridSize ?? '4x5'} (${widget.totalPairs} pairs)',
                       ),
                       _buildInfoItem(
                         icon: Icons.timer,
-                        value: GameUtils.formatTime(timeSeconds),
+                        value: GameUtils.formatTime(widget.timeSeconds),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
 
-                // Find New Opponent
-                _buildButton(
-                  context: context,
-                  label: 'Find New Opponent',
-                  icon: Icons.person_search,
-                  onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const OnlineModeScreen()),
-                      (route) => false,
-                    );
-                  },
-                  isPrimary: true,
-                ),
-                const SizedBox(height: 12),
-
-                // Home button
-                _buildButton(
-                  context: context,
-                  label: 'Home',
-                  icon: Icons.home,
-                  onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomeScreen()),
-                      (route) => false,
-                    );
-                  },
-                  isOutlined: true,
-                ),
+                // Rematch action buttons
+                ..._buildRematchButtons(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  List<Widget> _buildRematchButtons() {
+    switch (_rematchState) {
+      case _RematchState.idle:
+        return [
+          // Rematch button (primary)
+          _buildButton(
+            label: 'Rematch',
+            icon: Icons.replay,
+            onTap: _requestRematch,
+            isPrimary: true,
+          ),
+          const SizedBox(height: 12),
+          // Find New Opponent
+          _buildButton(
+            label: 'Find New Opponent',
+            icon: Icons.person_search,
+            onTap: () {
+              _sessionSubscription?.cancel();
+              MultiplayerService.unsubscribeFromSession();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const OnlineModeScreen()),
+                (route) => false,
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildButton(
+            label: 'Home',
+            icon: Icons.home,
+            onTap: _navigateHome,
+            isOutlined: true,
+          ),
+        ];
+
+      case _RematchState.requested:
+        return [
+          // Waiting spinner
+          _buildButton(
+            label: 'Waiting for opponent...',
+            icon: null,
+            onTap: () {},
+            isPrimary: true,
+            showSpinner: true,
+          ),
+          const SizedBox(height: 12),
+          _buildButton(
+            label: 'Cancel',
+            icon: Icons.close,
+            onTap: _cancelRematch,
+          ),
+          const SizedBox(height: 12),
+          _buildButton(
+            label: 'Home',
+            icon: Icons.home,
+            onTap: _navigateHome,
+            isOutlined: true,
+          ),
+        ];
+
+      case _RematchState.opponentRequested:
+        return [
+          // Accept rematch (teal accent)
+          _buildButton(
+            label: 'Accept Rematch!',
+            icon: Icons.check,
+            onTap: _acceptRematch,
+            isPrimary: true,
+          ),
+          const SizedBox(height: 12),
+          _buildButton(
+            label: 'Decline',
+            icon: Icons.close,
+            onTap: _declineRematch,
+          ),
+          const SizedBox(height: 12),
+          _buildButton(
+            label: 'Home',
+            icon: Icons.home,
+            onTap: _navigateHome,
+            isOutlined: true,
+          ),
+        ];
+
+      case _RematchState.starting:
+        return [
+          _buildButton(
+            label: 'Starting rematch...',
+            icon: null,
+            onTap: () {},
+            isPrimary: true,
+            showSpinner: true,
+            fullWidth: true,
+          ),
+        ];
+
+      case _RematchState.declined:
+        return [
+          // Find New Opponent (primary)
+          _buildButton(
+            label: 'Find New Opponent',
+            icon: Icons.person_search,
+            onTap: () {
+              _sessionSubscription?.cancel();
+              MultiplayerService.unsubscribeFromSession();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const OnlineModeScreen()),
+                (route) => false,
+              );
+            },
+            isPrimary: true,
+          ),
+          const SizedBox(height: 12),
+          _buildButton(
+            label: 'Home',
+            icon: Icons.home,
+            onTap: _navigateHome,
+            isOutlined: true,
+          ),
+        ];
+    }
+  }
+
+  void _navigateHome() {
+    _sessionSubscription?.cancel();
+    MultiplayerService.unsubscribeFromSession();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      (route) => false,
     );
   }
 
@@ -1059,24 +1346,23 @@ class _OnlineWinScreen extends StatelessWidget {
   }
 
   Widget _buildButton({
-    required BuildContext context,
     required String label,
-    required IconData icon,
+    required IconData? icon,
     required VoidCallback onTap,
     bool isPrimary = false,
     bool isOutlined = false,
+    bool showSpinner = false,
+    bool fullWidth = false,
   }) {
     final backgroundColor = isPrimary
         ? AppColors.white
         : isOutlined
             ? Colors.transparent
             : AppColors.white.withValues(alpha: 0.1);
-    final foregroundColor = isPrimary
-        ? AppColors.purple
-        : AppColors.white;
+    final foregroundColor = isPrimary ? AppColors.purple : AppColors.white;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: showSpinner ? null : onTap,
       child: Container(
         width: double.infinity,
         height: 56,
@@ -1091,8 +1377,20 @@ class _OnlineWinScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: foregroundColor),
-            const SizedBox(width: 12),
+            if (showSpinner) ...[
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ] else if (icon != null) ...[
+              Icon(icon, size: 24, color: foregroundColor),
+              const SizedBox(width: 12),
+            ],
             Text(
               label,
               style: AppTypography.bodyLarge.copyWith(
