@@ -392,7 +392,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     if (_inviteCode == null) return;
     final box = context.findRenderObject() as RenderBox?;
     await Share.share(
-      'Join my Music Memo game! Enter code $_inviteCode or tap: musicmemo://join?code=$_inviteCode',
+      'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?code=$_inviteCode',
       subject: 'Music Memo - Game Invite',
       sharePositionOrigin: box != null
           ? box.localToGlobal(Offset.zero) & box.size
