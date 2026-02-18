@@ -36,3 +36,6 @@ android/*.iml
 .env
 .env.local
 .env.*.local
+
+# Site (deployed separately via musicmemo-site repo)
+site/
