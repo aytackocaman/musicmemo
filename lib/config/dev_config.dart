@@ -19,4 +19,16 @@ class DevConfig {
       _bypassPaywall = !_bypassPaywall;
     }
   }
+
+  /// Simulate network disconnect for testing connection retry UI.
+  /// When true, MultiplayerService polling will throw artificial errors.
+  static bool _simulateDisconnect = false;
+
+  static bool get simulateDisconnect => kDebugMode && _simulateDisconnect;
+
+  static void toggleSimulateDisconnect() {
+    if (kDebugMode) {
+      _simulateDisconnect = !_simulateDisconnect;
+    }
+  }
 }

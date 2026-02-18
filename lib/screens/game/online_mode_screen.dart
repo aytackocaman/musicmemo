@@ -68,6 +68,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   bool _navigatingToGame = false;  // Track if we're navigating to game
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
+  StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
+  MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
 
   @override
   void initState() {
@@ -82,11 +84,21 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     }
   }
 
+  void _startConnectionListener() {
+    _connectionSubscription?.cancel();
+    _connectionSubscription =
+        MultiplayerService.connectionStateStream.listen((state) {
+      if (!mounted) return;
+      setState(() => _connectionState = state);
+    });
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _codeController.dispose();
     _sessionSubscription?.cancel();
+    _connectionSubscription?.cancel();
     // Only cleanup if NOT navigating to game (user backed out)
     if (!_navigatingToGame) {
       if (_sessionId != null && _isWaitingForOpponent) {
@@ -181,6 +193,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             }
           },
         );
+        _startConnectionListener();
         return;
       }
     }
@@ -241,6 +254,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         }
       },
     );
+    _startConnectionListener();
   }
 
   Future<void> _createGame() async {
@@ -293,6 +307,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         }
       },
     );
+    _startConnectionListener();
   }
 
   Future<void> _joinGame() async {
@@ -345,6 +360,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         }
       },
     );
+    _startConnectionListener();
   }
 
   void _navigateToGame(OnlineSession session) {
@@ -824,6 +840,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const SizedBox(height: 24),
 
+          _buildConnectionBanner(),
+
           if (!_isPublicSession) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
@@ -1150,7 +1168,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             style: AppTypography.body.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+
+          _buildConnectionBanner(),
+          const SizedBox(height: 8),
 
           // Game info
           if (_currentSession != null)
@@ -1396,6 +1417,45 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildConnectionBanner() {
+    if (_connectionState == MultiplayerConnectionState.connected) {
+      return const SizedBox.shrink();
+    }
+    final isDisconnected =
+        _connectionState == MultiplayerConnectionState.disconnected;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: (isDisconnected ? Colors.red : Colors.orange)
+            .withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                isDisconnected ? Colors.red : Colors.orange,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isDisconnected ? 'Connection lost' : 'Reconnecting...',
+            style: AppTypography.bodySmall.copyWith(
+              color: isDisconnected ? Colors.red : Colors.orange,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

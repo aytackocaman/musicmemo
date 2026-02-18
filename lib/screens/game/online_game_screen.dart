@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/dev_config.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
 import '../../services/audio_service.dart';
@@ -50,6 +52,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   int _countdownDurationMs = 0;
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
+  StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
+  MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
 
   @override
   void initState() {
@@ -71,6 +75,21 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
         _handleSessionUpdate(updatedSession);
       },
     );
+
+    // Subscribe to connection state changes
+    _connectionSubscription =
+        MultiplayerService.connectionStateStream.listen((state) {
+      if (!mounted) return;
+      setState(() => _connectionState = state);
+      // Pause opponent timeout while we're disconnected/reconnecting
+      if (state != MultiplayerConnectionState.connected) {
+        _opponentTimeout?.cancel();
+        _opponentTimeout = null;
+      } else {
+        // Connection recovered — restart opponent timeout if it's their turn
+        _resetOpponentTimeout(_isMyTurn);
+      }
+    });
 
     // Both players load cards from the session (cards were already created by host in OnlineModeScreen)
     await _loadGameFromSession();
@@ -518,6 +537,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     _timer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
+    _connectionSubscription?.cancel();
     // Don't kill the global subscription if navigating to win screen —
     // it will be reused there for rematch detection.
     if (!_navigatingToWinScreen) {
@@ -576,7 +596,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
                     cards: _cards,
                     gridSize: widget.session.gridSize ?? '4x5',
                     onCardTap: _handleCardTap,
-                    enabled: _isMyTurn && !_isProcessing,
+                    enabled: _isMyTurn && !_isProcessing && _connectionState == MultiplayerConnectionState.connected,
                     countdownCardId: _countdownCardId,
                     countdownDurationMs: _countdownDurationMs,
                   ),
@@ -590,29 +610,64 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   }
 
   Widget _buildCompactHeader() {
+    final Color dotColor;
+    final String label;
+    switch (_connectionState) {
+      case MultiplayerConnectionState.connected:
+        dotColor = AppColors.teal;
+        label = 'LIVE';
+      case MultiplayerConnectionState.reconnecting:
+        dotColor = Colors.orange;
+        label = 'Reconnecting...';
+      case MultiplayerConnectionState.disconnected:
+        dotColor = Colors.red;
+        label = 'Offline';
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
-          onTap: () => _showExitConfirmation(),
-          child: const Icon(Icons.home, size: 20, color: AppColors.textSecondary),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: () => _showExitConfirmation(),
+              child: const Icon(Icons.home, size: 20, color: AppColors.textSecondary),
+            ),
+            if (kDebugMode) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () {
+                  DevConfig.toggleSimulateDisconnect();
+                  setState(() {});
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: DevConfig.simulateDisconnect
+                        ? Colors.red.withValues(alpha: 0.15)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    DevConfig.simulateDisconnect ? Icons.wifi_off : Icons.wifi,
+                    size: 20,
+                    color: DevConfig.simulateDisconnect ? Colors.red : AppColors.textTertiary,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 6,
-              height: 6,
-              decoration: const BoxDecoration(
-                color: AppColors.teal,
-                shape: BoxShape.circle,
-              ),
-            ),
+            _AnimatedDot(color: dotColor, animate: _connectionState == MultiplayerConnectionState.reconnecting),
             const SizedBox(width: 4),
             Text(
-              'LIVE',
+              label,
               style: AppTypography.labelSmall.copyWith(
-                color: AppColors.teal,
+                color: dotColor,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
@@ -803,6 +858,66 @@ class _PlayerScoreCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Animated dot that pulses when [animate] is true
+class _AnimatedDot extends StatefulWidget {
+  final Color color;
+  final bool animate;
+
+  const _AnimatedDot({required this.color, required this.animate});
+
+  @override
+  State<_AnimatedDot> createState() => _AnimatedDotState();
+}
+
+class _AnimatedDotState extends State<_AnimatedDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    if (widget.animate) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedDot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.animate && _controller.isAnimating) {
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: widget.animate
+          ? Tween<double>(begin: 0.3, end: 1.0).animate(_controller)
+          : const AlwaysStoppedAnimation(1.0),
+      child: Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }
@@ -1021,15 +1136,25 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
       child: Scaffold(
         backgroundColor: accentColor,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxHeight < 700;
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: isCompact ? 16 : 32,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - (isCompact ? 32 : 64),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                 // Result icon
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: isCompact ? 80 : 120,
+                  height: isCompact ? 80 : 120,
                   decoration: BoxDecoration(
                     color: AppColors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
@@ -1040,11 +1165,11 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
                         : iWon
                             ? Icons.emoji_events
                             : Icons.sentiment_dissatisfied,
-                    size: 64,
+                    size: isCompact ? 40 : 64,
                     color: AppColors.white,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: isCompact ? 16 : 24),
 
                 // Result text
                 Text(
@@ -1069,7 +1194,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
                     color: AppColors.white.withValues(alpha: 0.8),
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: isCompact ? 20 : 32),
 
                 // Scores comparison card
                 Container(
@@ -1177,12 +1302,15 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: isCompact ? 20 : 32),
 
                 // Rematch action buttons
                 ..._buildRematchButtons(),
-              ],
-            ),
+                  ],
+                ),
+              ),
+              );
+            },
           ),
         ),
       ),

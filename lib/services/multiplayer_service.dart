@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
+import '../config/dev_config.dart';
 import '../providers/game_provider.dart';
 
 /// Online session model
@@ -102,6 +103,13 @@ class OnlineSession {
   }
 }
 
+/// Connection health state for online multiplayer
+enum MultiplayerConnectionState {
+  connected,
+  reconnecting,
+  disconnected,
+}
+
 /// Multiplayer service for online games
 class MultiplayerService {
   static SupabaseClient get _client => SupabaseService.client;
@@ -109,6 +117,57 @@ class MultiplayerService {
   static RealtimeChannel? _sessionChannel;
   static StreamController<OnlineSession>? _sessionController;
   static Timer? _pollingTimer;
+
+  // Connection health tracking
+  static int _consecutiveFailures = 0;
+  static MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
+  static StreamController<MultiplayerConnectionState>? _connectionStateController;
+
+  /// Stream of connection state changes for UI consumption
+  static Stream<MultiplayerConnectionState> get connectionStateStream {
+    _connectionStateController ??= StreamController<MultiplayerConnectionState>.broadcast();
+    return _connectionStateController!.stream;
+  }
+
+  /// Current connection state
+  static MultiplayerConnectionState get currentConnectionState => _connectionState;
+
+  static void _emitConnectionState(MultiplayerConnectionState state) {
+    if (_connectionState == state) return;
+    _connectionState = state;
+    if (_connectionStateController != null && !_connectionStateController!.isClosed) {
+      _connectionStateController!.add(state);
+    }
+    debugPrint('Connection state: $state (failures: $_consecutiveFailures)');
+  }
+
+  /// Re-establish the Realtime channel without touching polling or stream controller
+  static void _resubscribeRealtime(String sessionId) {
+    debugPrint('Re-subscribing Realtime channel for session: $sessionId');
+    _sessionChannel?.unsubscribe();
+    _sessionChannel = null;
+
+    _sessionChannel = _client
+        .channel('online_session_$sessionId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'online_sessions',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: sessionId,
+          ),
+          callback: (payload) {
+            debugPrint('Realtime: Session update received');
+            final session = OnlineSession.fromJson(payload.newRecord);
+            _sessionController?.add(session);
+          },
+        )
+        .subscribe((status, error) {
+          debugPrint('Realtime subscription status: $status, error: $error');
+        });
+  }
 
   /// Generate a random 6-character invite code
   static String _generateInviteCode() {
@@ -282,6 +341,9 @@ class MultiplayerService {
   /// Get session by ID
   static Future<OnlineSession?> getSession(String sessionId) async {
     try {
+      if (DevConfig.simulateDisconnect) {
+        throw Exception('Simulated disconnect (DevConfig)');
+      }
       final response = await _client
           .from('online_sessions')
           .select()
@@ -312,6 +374,10 @@ class MultiplayerService {
     _pollingTimer?.cancel();
     _sessionController = StreamController<OnlineSession>.broadcast();
 
+    // Reset connection health tracking for new subscription
+    _consecutiveFailures = 0;
+    _emitConnectionState(MultiplayerConnectionState.connected);
+
     String? lastUpdatedAt;
 
     // Set up Realtime subscription
@@ -336,7 +402,7 @@ class MultiplayerService {
           debugPrint('Realtime subscription status: $status, error: $error');
         });
 
-    // Polling every 1 second to detect game state changes
+    // Polling every 500ms to detect game state changes
     debugPrint('Starting polling timer for session: $sessionId');
     _pollingTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) async {
       if (_sessionController == null || _sessionController!.isClosed) {
@@ -345,11 +411,25 @@ class MultiplayerService {
         return;
       }
       try {
+        // Debug-only: simulate network failure for testing reconnect UI
+        if (DevConfig.simulateDisconnect) {
+          throw Exception('Simulated disconnect (DevConfig)');
+        }
+
         final response = await _client
             .from('online_sessions')
             .select()
             .eq('id', sessionId)
             .single();
+
+        // Poll succeeded — handle recovery if we were previously failing
+        if (_consecutiveFailures > 0) {
+          debugPrint('Connection recovered after $_consecutiveFailures failures');
+          _consecutiveFailures = 0;
+          _emitConnectionState(MultiplayerConnectionState.connected);
+          // Re-establish Realtime channel (it likely died during the outage)
+          _resubscribeRealtime(sessionId);
+        }
 
         // Check if updated_at has changed (indicates any update to the session)
         final updatedAt = response['updated_at'] as String?;
@@ -362,7 +442,13 @@ class MultiplayerService {
           }
         }
       } catch (e) {
-        debugPrint('Polling error: $e');
+        _consecutiveFailures++;
+        debugPrint('Polling error ($_consecutiveFailures): $e');
+        if (_consecutiveFailures >= 6) {
+          _emitConnectionState(MultiplayerConnectionState.disconnected);
+        } else if (_consecutiveFailures >= 1) {
+          _emitConnectionState(MultiplayerConnectionState.reconnecting);
+        }
       }
     });
 
@@ -376,6 +462,10 @@ class MultiplayerService {
     _currentSessionId = null;
     _pollingTimer?.cancel();
     _pollingTimer = null;
+    _consecutiveFailures = 0;
+    _connectionState = MultiplayerConnectionState.connected;
+    await _connectionStateController?.close();
+    _connectionStateController = null;
     await _sessionChannel?.unsubscribe();
     _sessionChannel = null;
     await _sessionController?.close();
@@ -392,6 +482,9 @@ class MultiplayerService {
     String? status,
   }) async {
     try {
+      if (DevConfig.simulateDisconnect) {
+        throw Exception('Simulated disconnect (DevConfig)');
+      }
       final cardData = cards.map((c) => {
         'id': c.id,
         'soundId': c.soundId,
