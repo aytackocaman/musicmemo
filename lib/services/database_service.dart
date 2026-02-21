@@ -233,12 +233,14 @@ class CategoryGroup {
   final String name;
   final String icon;
   final int sortOrder;
+  final String groupType; // 'tag' | 'collection'
 
   CategoryGroup({
     required this.id,
     required this.name,
     required this.icon,
     required this.sortOrder,
+    this.groupType = 'collection',
   });
 
   factory CategoryGroup.fromJson(Map<String, dynamic> json) {
@@ -247,6 +249,7 @@ class CategoryGroup {
       name: json['name'] as String,
       icon: json['icon'] as String? ?? 'category',
       sortOrder: json['sort_order'] as int? ?? 0,
+      groupType: json['group_type'] as String? ?? 'collection',
     );
   }
 }
@@ -260,6 +263,8 @@ class SoundCategoryModel {
   final bool isPremium;
   final int sortOrder;
   final int soundCount;
+  final String? subGroup;
+  final bool showInUi;
 
   SoundCategoryModel({
     required this.id,
@@ -269,6 +274,8 @@ class SoundCategoryModel {
     required this.isPremium,
     required this.sortOrder,
     this.soundCount = 0,
+    this.subGroup,
+    this.showInUi = true,
   });
 
   factory SoundCategoryModel.fromJson(Map<String, dynamic> json) {
@@ -280,6 +287,38 @@ class SoundCategoryModel {
       isPremium: json['is_premium'] as bool? ?? false,
       sortOrder: json['sort_order'] as int? ?? 0,
       soundCount: json['sound_count'] as int? ?? 0,
+      subGroup: json['sub_group'] as String?,
+      showInUi: json['show_in_ui'] as bool? ?? true,
+    );
+  }
+}
+
+/// Tag value model (for mood/genre/movement/theme browsing)
+class TagValueModel {
+  final String id;
+  final String tagType;
+  final String value;
+  final int soundCount;
+  final bool isPremium;
+  final int sortOrder;
+
+  TagValueModel({
+    required this.id,
+    required this.tagType,
+    required this.value,
+    required this.soundCount,
+    this.isPremium = false,
+    this.sortOrder = 0,
+  });
+
+  factory TagValueModel.fromJson(Map<String, dynamic> json) {
+    return TagValueModel(
+      id: json['id'] as String,
+      tagType: json['tag_type'] as String,
+      value: json['value'] as String,
+      soundCount: json['sound_count'] as int? ?? 0,
+      isPremium: json['is_premium'] as bool? ?? false,
+      sortOrder: json['sort_order'] as int? ?? 0,
     );
   }
 }
@@ -648,17 +687,20 @@ class DatabaseService {
     }
   }
 
-  /// Get all sound categories, optionally filtered by group
+  /// Get all sound categories.
+  /// By default only returns categories with show_in_ui = true (sound_count > 50).
   static Future<List<SoundCategoryModel>> getSoundCategories({
     String? groupId,
+    bool showInUiOnly = true,
   }) async {
     try {
-      var query = _client
-          .from('sound_categories')
-          .select();
+      var query = _client.from('sound_categories').select();
 
       if (groupId != null) {
         query = query.eq('group_id', groupId);
+      }
+      if (showInUiOnly) {
+        query = query.eq('show_in_ui', true);
       }
 
       final response = await query.order('sort_order', ascending: true);
@@ -685,6 +727,48 @@ class DatabaseService {
           .toList();
     } catch (e) {
       print('Error fetching sounds for category $categoryId: $e');
+      return [];
+    }
+  }
+
+  /// Get selectable tag values for a given tag type (mood/genre/movement/theme),
+  /// ordered by sort_order (descending sound count).
+  static Future<List<TagValueModel>> getTagValues(String tagType) async {
+    try {
+      final response = await _client
+          .from('tag_values')
+          .select()
+          .eq('tag_type', tagType)
+          .order('sort_order', ascending: true);
+
+      return (response as List)
+          .map((json) => TagValueModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching tag values for $tagType: $e');
+      return [];
+    }
+  }
+
+  /// Get sounds for a tag-based category (e.g. mood=Relaxing).
+  /// Returns up to 200 sounds to give the game enough variety.
+  static Future<List<SoundModel>> getSoundsByTag(
+    String tagType,
+    String tagValue,
+  ) async {
+    try {
+      final response = await _client
+          .from('sounds')
+          .select('id, category_id, name, file_path, duration_ms, file_size_bytes, sound_tags!inner(tag_type, tag_value)')
+          .eq('sound_tags.tag_type', tagType)
+          .eq('sound_tags.tag_value', tagValue)
+          .limit(200);
+
+      return (response as List)
+          .map((json) => SoundModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching sounds for tag $tagType=$tagValue: $e');
       return [];
     }
   }

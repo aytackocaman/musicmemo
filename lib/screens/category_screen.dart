@@ -8,55 +8,40 @@ import '../services/database_service.dart';
 import 'grid_screen.dart';
 import 'paywall_screen.dart';
 
-/// Map icon name strings (from the database) to Material Icons.
-IconData _iconFromName(String name) {
-  const map = <String, IconData>{
-    'pets': Icons.pets,
-    'music_note': Icons.music_note,
-    'forest': Icons.forest,
-    'directions_car': Icons.directions_car,
-    'home': Icons.home,
-    'sports_basketball': Icons.sports_basketball,
-    'waves': Icons.waves,
-    'bug_report': Icons.bug_report,
-    'piano': Icons.piano,
-    'headphones': Icons.headphones,
-    'cloud': Icons.cloud,
-    'water_drop': Icons.water_drop,
-    'park': Icons.park,
-    'air': Icons.air,
-    'local_fire_department': Icons.local_fire_department,
-    'kitchen': Icons.kitchen,
-    'business_center': Icons.business_center,
-    'doorbell': Icons.doorbell,
-    'build': Icons.build,
-    'phone': Icons.phone,
-    'train': Icons.train,
-    'flight': Icons.flight,
-    'sailing': Icons.sailing,
-    'pedal_bike': Icons.pedal_bike,
-    'sports_soccer': Icons.sports_soccer,
-    'sports_martial_arts': Icons.sports_martial_arts,
-    'pool': Icons.pool,
-    'ac_unit': Icons.ac_unit,
-    'sports_esports': Icons.sports_esports,
-    'category': Icons.category,
-  };
-  return map[name] ?? Icons.music_note;
+// ── Tag type config ───────────────────────────────────────────────────────────
+
+const _tagTypes = [
+  _TagType('mood',     'Mood',     Icons.sentiment_satisfied_alt, AppColors.purple),
+  _TagType('genre',    'Genre',    Icons.queue_music,             AppColors.teal),
+  _TagType('movement', 'Movement', Icons.speed,                   AppColors.pink),
+  _TagType('theme',    'Theme',    Icons.movie_outlined,          Color(0xFFFBBF24)),
+];
+
+class _TagType {
+  final String id;
+  final String label;
+  final IconData icon;
+  final Color color;
+  const _TagType(this.id, this.label, this.icon, this.color);
 }
 
-/// Group color by index — cycles through brand colors
-Color _groupColor(int index) {
-  const colors = [
-    Color(0xFF8B5CF6), // purple
-    Color(0xFF14B8A6), // teal
-    Color(0xFFF472B6), // pink
-    Color(0xFFFBBF24), // amber
-    Color(0xFF3B82F6), // blue
-    Color(0xFFEF4444), // red
-  ];
-  return colors[index % colors.length];
-}
+// ── Sub-group colors (cycle through brand palette) ────────────────────────────
+
+const _subGroupColors = [
+  AppColors.purple,
+  AppColors.teal,
+  AppColors.pink,
+  Color(0xFFFBBF24), // amber
+  Color(0xFF3B82F6), // blue
+  Color(0xFFEF4444), // red
+  Color(0xFF10B981), // emerald
+  Color(0xFF6366F1), // indigo
+  Color(0xFFF59E0B), // orange
+];
+
+Color _subGroupColor(int index) => _subGroupColors[index % _subGroupColors.length];
+
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 class CategoryScreen extends ConsumerStatefulWidget {
   const CategoryScreen({super.key});
@@ -66,10 +51,8 @@ class CategoryScreen extends ConsumerStatefulWidget {
 }
 
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  List<CategoryGroup> _groups = [];
   List<SoundCategoryModel> _categories = [];
   bool _isLoading = true;
 
@@ -80,16 +63,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   }
 
   Future<void> _loadCategories() async {
-    final results = await Future.wait([
-      DatabaseService.getCategoryGroups(),
-      DatabaseService.getSoundCategories(),
-    ]);
+    final categories = await DatabaseService.getSoundCategories();
     if (!mounted) return;
     setState(() {
-      _groups = results[0] as List<CategoryGroup>;
-      _categories = results[1] as List<SoundCategoryModel>;
+      _categories = categories;
       _isLoading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   bool get _isPremium {
@@ -101,19 +86,54 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         );
   }
 
-  List<SoundCategoryModel> _categoriesForGroup(String groupId) {
-    var cats = _categories.where((c) => c.groupId == groupId).toList();
-    if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
-      cats = cats.where((c) => c.name.toLowerCase().contains(q)).toList();
+  /// Groups categories by sub_group, preserving sort order.
+  /// Filters by search query if active.
+  Map<String, List<SoundCategoryModel>> get _subGroups {
+    final filtered = _searchQuery.isEmpty
+        ? _categories
+        : _categories
+            .where((c) => c.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
+    final map = <String, List<SoundCategoryModel>>{};
+    for (final cat in filtered) {
+      map.putIfAbsent(cat.subGroup ?? 'Other', () => []).add(cat);
     }
-    return cats;
+    return map;
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void _openTagSheet(BuildContext context, _TagType tagType) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _TagValueSheet(
+        tagType: tagType,
+        onSelected: (tagValue) {
+          Navigator.pop(context); // close sheet
+          ref.read(selectedCategoryProvider.notifier).state =
+              'tag:${tagType.id}:$tagValue';
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const GridScreen()),
+          );
+        },
+      ),
+    );
+  }
+
+  void _selectCategory(SoundCategoryModel cat) {
+    if (cat.isPremium && !_isPremium) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PaywallScreen()),
+      );
+      return;
+    }
+    ref.read(selectedCategoryProvider.notifier).state = cat.id;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const GridScreen()),
+    );
   }
 
   @override
@@ -121,14 +141,15 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              // Back button
-              GestureDetector(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+
+            // Back button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
                   width: 44,
@@ -137,20 +158,23 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    size: 24,
-                    color: AppColors.textPrimary,
-                  ),
+                  child: const Icon(Icons.arrow_back, size: 24, color: AppColors.textPrimary),
                 ),
               ),
-              const SizedBox(height: AppSpacing.xl),
+            ),
+            const SizedBox(height: AppSpacing.xl),
 
-              Text('Select Category', style: AppTypography.headline3),
-              const SizedBox(height: AppSpacing.lg),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text('Select Category', style: AppTypography.headline3),
+            ),
+            const SizedBox(height: AppSpacing.lg),
 
-              // Search bar
-              Container(
+            // Search bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
@@ -165,111 +189,231 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     Expanded(
                       child: TextField(
                         controller: _searchController,
-                        onChanged: (value) => setState(() => _searchQuery = value),
+                        onChanged: (v) => setState(() => _searchQuery = v),
                         style: AppTypography.body,
                         decoration: InputDecoration(
-                          hintText: 'Search categories...',
-                          hintStyle: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                          hintText: 'Search collections...',
+                          hintStyle: AppTypography.body.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
                     ),
+                    if (_searchQuery.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                        child: const Icon(Icons.close, size: 18, color: AppColors.textSecondary),
+                      ),
                   ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
+            ),
+            const SizedBox(height: AppSpacing.lg),
 
-              // Category list
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildGroupedList(),
-              ),
-            ],
-          ),
+            // Scrollable body
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildBody(context),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildGroupedList() {
-    // Filter groups that have matching categories when searching
-    final visibleGroups = _groups.where((g) {
-      return _categoriesForGroup(g.id).isNotEmpty;
-    }).toList();
-
-    if (visibleGroups.isEmpty) {
-      return Center(
-        child: Text(
-          _searchQuery.isNotEmpty
-              ? 'No categories match "$_searchQuery"'
-              : 'No categories available',
-          style: AppTypography.body.copyWith(color: AppColors.textSecondary),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: visibleGroups.length,
-      itemBuilder: (context, groupIndex) {
-        final group = visibleGroups[groupIndex];
-        final cats = _categoriesForGroup(group.id);
-        final color = _groupColor(groupIndex);
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Group header
-              Row(
-                children: [
-                  Icon(_iconFromName(group.icon), size: 20, color: color),
-                  const SizedBox(width: 8),
-                  Text(
-                    group.name,
-                    style: AppTypography.bodyLarge.copyWith(color: color),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              // Category items
-              ...cats.map((cat) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _CategoryTile(
-                      category: cat,
-                      color: color,
-                      isPremiumUser: _isPremium,
-                      onTap: () => _selectCategory(cat),
-                    ),
-                  )),
-            ],
+  Widget _buildBody(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      children: [
+        // ── Browse by Feel ───────────────────────────────────────────────────
+        if (_searchQuery.isEmpty) ...[
+          _SectionHeader(title: 'Browse by Feel'),
+          const SizedBox(height: 12),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 2.4,
+            children: _tagTypes
+                .map((t) => _TagTypeButton(
+                      tagType: t,
+                      onTap: () => _openTagSheet(context, t),
+                    ))
+                .toList(),
           ),
-        );
-      },
+          const SizedBox(height: AppSpacing.xl),
+        ],
+
+        // ── Collections ──────────────────────────────────────────────────────
+        _SectionHeader(title: 'Collections'),
+        const SizedBox(height: 12),
+        ..._buildCollectionGroups(),
+        const SizedBox(height: 24),
+      ],
     );
   }
 
-  void _selectCategory(SoundCategoryModel cat) {
-    // If category is premium and user is not premium, show paywall
-    if (cat.isPremium && !_isPremium) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const PaywallScreen()),
-      );
-      return;
+  List<Widget> _buildCollectionGroups() {
+    final groups = _subGroups;
+
+    if (groups.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Center(
+            child: Text(
+              _searchQuery.isNotEmpty
+                  ? 'No collections match "$_searchQuery"'
+                  : 'No categories available',
+              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+        ),
+      ];
     }
 
-    ref.read(selectedCategoryProvider.notifier).state = cat.id;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const GridScreen()),
+    final widgets = <Widget>[];
+    var groupIndex = 0;
+    for (final entry in groups.entries) {
+      final color = _subGroupColor(groupIndex++);
+      widgets.add(_SubGroupHeader(title: entry.key, color: color));
+      widgets.add(const SizedBox(height: 8));
+      for (final cat in entry.value) {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _CategoryTile(
+            category: cat,
+            color: color,
+            isPremiumUser: _isPremium,
+            onTap: () => _selectCategory(cat),
+          ),
+        ));
+      }
+      widgets.add(const SizedBox(height: 16));
+    }
+    return widgets;
+  }
+}
+
+// ── Section header ────────────────────────────────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: AppTypography.bodyLarge.copyWith(
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+      ),
     );
   }
 }
+
+// ── Sub-group header ──────────────────────────────────────────────────────────
+
+class _SubGroupHeader extends StatelessWidget {
+  final String title;
+  final Color color;
+  const _SubGroupHeader({required this.title, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: AppTypography.body.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Tag type button ───────────────────────────────────────────────────────────
+
+class _TagTypeButton extends StatelessWidget {
+  final _TagType tagType;
+  final VoidCallback onTap;
+  const _TagTypeButton({required this.tagType, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: tagType.color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: tagType.color.withValues(alpha: 0.25), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: tagType.color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(tagType.icon, size: 18, color: tagType.color),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    tagType.label,
+                    style: AppTypography.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    'Browse',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: tagType.color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 18, color: tagType.color),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Category tile ─────────────────────────────────────────────────────────────
 
 class _CategoryTile extends StatelessWidget {
   final SoundCategoryModel category;
@@ -291,8 +435,8 @@ class _CategoryTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 64,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 60,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           color: isLocked ? AppColors.surface.withValues(alpha: 0.6) : AppColors.surface,
           borderRadius: BorderRadius.circular(14),
@@ -300,34 +444,41 @@ class _CategoryTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Icon
             Container(
-              width: 40,
-              height: 40,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(9),
               ),
               child: Icon(
-                _iconFromName(category.icon),
-                size: 22,
+                Icons.music_note,
+                size: 18,
                 color: isLocked ? AppColors.textTertiary : color,
               ),
             ),
-            const SizedBox(width: 14),
-
-            // Name
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                category.name,
-                style: AppTypography.body.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: isLocked ? AppColors.textTertiary : AppColors.textPrimary,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    category.name,
+                    style: AppTypography.body.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: isLocked ? AppColors.textTertiary : AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    '${category.soundCount} tracks',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            // Premium badge or chevron
             if (isLocked)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -338,21 +489,250 @@ class _CategoryTile extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock, size: 14, color: AppColors.purple),
+                    const Icon(Icons.lock, size: 12, color: AppColors.purple),
                     const SizedBox(width: 4),
                     Text(
                       'PRO',
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w700,
-                        fontSize: 11,
+                        fontSize: 10,
                       ),
                     ),
                   ],
                 ),
               )
             else
-              const Icon(Icons.chevron_right, size: 20, color: AppColors.textSecondary),
+              Icon(Icons.chevron_right, size: 18, color: color.withValues(alpha: 0.6)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Tag value bottom sheet ────────────────────────────────────────────────────
+
+class _TagValueSheet extends StatefulWidget {
+  final _TagType tagType;
+  final void Function(String tagValue) onSelected;
+
+  const _TagValueSheet({required this.tagType, required this.onSelected});
+
+  @override
+  State<_TagValueSheet> createState() => _TagValueSheetState();
+}
+
+class _TagValueSheetState extends State<_TagValueSheet> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+  List<TagValueModel> _allValues = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final values = await DatabaseService.getTagValues(widget.tagType.id);
+    if (!mounted) return;
+    setState(() {
+      _allValues = values;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<TagValueModel> get _filtered {
+    if (_searchQuery.isEmpty) return _allValues;
+    final q = _searchQuery.toLowerCase();
+    return _allValues.where((v) => v.value.toLowerCase().contains(q)).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.tagType;
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Drag handle
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.elevated,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: t.color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(t.icon, size: 20, color: t.color),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      t.label,
+                      style: AppTypography.headline3,
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.close, size: 16, color: AppColors.textSecondary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Search
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.elevated, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.search, size: 18, color: t.color.withValues(alpha: 0.6)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (v) => setState(() => _searchQuery = v),
+                          style: AppTypography.body,
+                          decoration: InputDecoration(
+                            hintText: 'Search ${t.label.toLowerCase()}...',
+                            hintStyle: AppTypography.body.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // List
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _filtered.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No results',
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            itemCount: _filtered.length,
+                            itemBuilder: (_, i) {
+                              final v = _filtered[i];
+                              return _TagValueTile(
+                                tagValue: v,
+                                color: t.color,
+                                onTap: () => widget.onSelected(v.value),
+                              );
+                            },
+                          ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Tag value tile ────────────────────────────────────────────────────────────
+
+class _TagValueTile extends StatelessWidget {
+  final TagValueModel tagValue;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _TagValueTile({
+    required this.tagValue,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.elevated, width: 1),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                tagValue.value,
+                style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+              ),
+            ),
+            Text(
+              '${tagValue.soundCount} tracks',
+              style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right, size: 18, color: color.withValues(alpha: 0.6)),
           ],
         ),
       ),

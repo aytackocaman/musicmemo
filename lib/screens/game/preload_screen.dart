@@ -37,15 +37,25 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
 
   Future<void> _preload() async {
     try {
-      // 1. Fetch sound metadata for this category
+      // 1. Fetch sound metadata — either by app category or by tag
       setState(() => _statusText = 'Fetching sound list...');
-      var sounds = await DatabaseService.getSoundsForCategory(widget.category);
+
+      List<SoundModel> sounds;
+      if (widget.category.startsWith('tag:')) {
+        // Format: 'tag:{tagType}:{tagValue}' e.g. 'tag:mood:Relaxing'
+        final parts = widget.category.split(':');
+        final tagType = parts[1];
+        final tagValue = parts.sublist(2).join(':'); // handles values with colons
+        sounds = await DatabaseService.getSoundsByTag(tagType, tagValue);
+      } else {
+        sounds = await DatabaseService.getSoundsForCategory(widget.category);
+      }
 
       if (!mounted) return;
 
-      // Fall back to piano sounds if the selected category has none yet
-      if (sounds.isEmpty && widget.category != 'piano') {
-        sounds = await DatabaseService.getSoundsForCategory('piano');
+      // Fall back to jazz sounds if the selected category has none yet
+      if (sounds.isEmpty && widget.category != 'jazz') {
+        sounds = await DatabaseService.getSoundsForCategory('jazz');
         if (!mounted) return;
       }
 
