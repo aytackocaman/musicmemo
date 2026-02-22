@@ -25,6 +25,8 @@ class OnlineSession {
   final bool isPublic;
   final bool rematchPlayer1;
   final bool rematchPlayer2;
+  final bool player1Left;
+  final bool player2Left;
 
   OnlineSession({
     required this.id,
@@ -44,6 +46,8 @@ class OnlineSession {
     this.isPublic = false,
     this.rematchPlayer1 = false,
     this.rematchPlayer2 = false,
+    this.player1Left = false,
+    this.player2Left = false,
   });
 
   factory OnlineSession.fromJson(Map<String, dynamic> json) {
@@ -65,6 +69,8 @@ class OnlineSession {
       isPublic: json['is_public'] as bool? ?? false,
       rematchPlayer1: json['rematch_player1'] as bool? ?? false,
       rematchPlayer2: json['rematch_player2'] as bool? ?? false,
+      player1Left: json['player1_left'] as bool? ?? false,
+      player2Left: json['player2_left'] as bool? ?? false,
     );
   }
 
@@ -85,6 +91,12 @@ class OnlineSession {
       amIPlayer1(myUserId) ? rematchPlayer2 : rematchPlayer1;
 
   bool get bothWantRematch => rematchPlayer1 && rematchPlayer2;
+
+  bool hasLeft(String myUserId) =>
+      amIPlayer1(myUserId) ? player1Left : player2Left;
+
+  bool opponentHasLeft(String myUserId) =>
+      amIPlayer1(myUserId) ? player2Left : player1Left;
 
   int getMyScore(String myUserId) {
     return amIPlayer1(myUserId) ? player1Score : player2Score;
@@ -660,6 +672,24 @@ class MultiplayerService {
     } catch (e) {
       debugPrint('Error cancelling rematch: $e');
       return false;
+    }
+  }
+
+  /// Mark that the current user has left the post-game screen.
+  /// Called when pressing the home button or navigating away after a match.
+  static Future<void> markPlayerLeft(String sessionId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      final session = await getSession(sessionId);
+      if (session == null) return;
+      final column = session.amIPlayer1(user.id) ? 'player1_left' : 'player2_left';
+      await _client.from('online_sessions').update({
+        column: true,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+    } catch (e) {
+      debugPrint('Error marking player left: $e');
     }
   }
 

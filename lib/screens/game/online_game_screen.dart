@@ -921,16 +921,19 @@ class _OnlineWinScreen extends StatefulWidget {
   State<_OnlineWinScreen> createState() => _OnlineWinScreenState();
 }
 
-class _OnlineWinScreenState extends State<_OnlineWinScreen> {
+class _OnlineWinScreenState extends State<_OnlineWinScreen>
+    with WidgetsBindingObserver {
   _RematchState _rematchState = _RematchState.idle;
   StreamSubscription<OnlineSession>? _sessionSubscription;
   Timer? _timeoutTimer;
   late OnlineSession _latestSession;
   bool _navigatingToGame = false;
+  bool _markedLeft = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _latestSession = widget.session;
     _sessionSubscription =
         MultiplayerService.subscribeToSession(widget.session.id).listen(
@@ -938,9 +941,32 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
     );
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // `inactive` fires as soon as the home button is pressed (before the app
+    // is fully suspended), giving us the best chance to complete the HTTP call.
+    if (state == AppLifecycleState.inactive && !_navigatingToGame && !_markedLeft) {
+      _markedLeft = true;
+      MultiplayerService.markPlayerLeft(widget.session.id);
+    }
+  }
+
   void _handleSessionUpdate(OnlineSession updatedSession) {
     if (!mounted) return;
     _latestSession = updatedSession;
+
+    // Opponent left the post-game screen — no rematch possible
+    if (updatedSession.opponentHasLeft(widget.myUserId) &&
+        _rematchState != _RematchState.declined) {
+      _timeoutTimer?.cancel();
+      setState(() => _rematchState = _RematchState.declined);
+      showAppSnackBar(
+        context,
+        'Opponent left the room',
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
 
     // Game restarted — navigate to new game
     if (updatedSession.isPlaying) {
@@ -1064,10 +1090,12 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timeoutTimer?.cancel();
-    // If we requested a rematch but are leaving (not to a game), cancel it
-    if (_rematchState == _RematchState.requested && !_navigatingToGame) {
-      MultiplayerService.cancelRematch(widget.session.id);
+    // Notify opponent we've left (in-app Home, back gesture, swipe-away).
+    if (!_navigatingToGame && !_markedLeft) {
+      _markedLeft = true;
+      MultiplayerService.markPlayerLeft(widget.session.id);
     }
     _sessionSubscription?.cancel();
     // Don't kill the global subscription if navigating to the rematch game —
@@ -1401,6 +1429,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
   }
 
   void _navigateHome() {
+    if (!_markedLeft) {
+      _markedLeft = true;
+      MultiplayerService.markPlayerLeft(widget.session.id);
+    }
     _sessionSubscription?.cancel();
     MultiplayerService.unsubscribeFromSession();
     Navigator.pushAndRemoveUntil(
@@ -1411,6 +1443,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
   }
 
   void _navigateToFindOpponent() {
+    if (!_markedLeft) {
+      _markedLeft = true;
+      MultiplayerService.markPlayerLeft(widget.session.id);
+    }
     _sessionSubscription?.cancel();
     MultiplayerService.unsubscribeFromSession();
     final navigator = Navigator.of(context);

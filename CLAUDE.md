@@ -6,6 +6,7 @@
 - Build incrementally so I can review each step
 - Push back if something is overcomplicating the project
 - Be honest about limitations and trade-offs
+- **Never commit or push automatically. Only commit and push when explicitly asked.**
 
 ## Project Overview
 
