@@ -40,9 +40,19 @@ class UserSubscription {
     this.expiresAt,
   });
 
-  bool get isPremium => plan == 'monthly' || plan == 'yearly';
+  bool get isTrial => plan == 'trial';
+  bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
+  bool get isPremium =>
+      (plan == 'monthly' || plan == 'yearly' || plan == 'trial') && !isExpired;
   bool get isActive => status == 'active';
   bool get canAccessPremiumFeatures => isPremium && isActive;
+
+  /// Days remaining in trial (null if not a trial)
+  int? get trialDaysRemaining {
+    if (!isTrial || expiresAt == null) return null;
+    final remaining = expiresAt!.difference(DateTime.now()).inDays;
+    return remaining < 0 ? 0 : remaining;
+  }
 
   factory UserSubscription.fromJson(Map<String, dynamic> json) {
     return UserSubscription(

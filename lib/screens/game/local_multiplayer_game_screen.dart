@@ -608,15 +608,15 @@ class _MultiplayerWinScreen extends ConsumerWidget {
         backgroundColor: AppColors.background,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             child: Column(
               children: [
-                const Spacer(),
+                const Spacer(flex: 1),
 
                 // Trophy or tie icon
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: isTie
                         ? AppColors.surface
@@ -627,7 +627,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   ),
                   child: Icon(
                     isTie ? Icons.handshake : Icons.emoji_events,
-                    size: 50,
+                    size: 40,
                     color: isTie
                         ? AppColors.textSecondary
                         : winner != null
@@ -635,7 +635,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                             : AppColors.purple,
                   ),
                 ),
-                const SizedBox(height: 24),
+
+                const Spacer(flex: 2),
 
                 // Result text
                 Text(
@@ -643,17 +644,15 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   style: AppTypography.headline2,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
-
+                const SizedBox(height: 6),
                 Text(
-                  isTie
-                      ? 'Great match, both players!'
-                      : 'Congratulations!',
+                  isTie ? 'Great match, both players!' : 'Congratulations!',
                   style: AppTypography.body.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 32),
+
+                const Spacer(flex: 2),
 
                 // Scores comparison
                 Row(
@@ -668,11 +667,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                         isWinner: !isTie && player1Score > player2Score,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         'VS',
                         style: AppTypography.bodyLarge.copyWith(
@@ -692,11 +688,11 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
 
                 // Game stats
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
@@ -704,27 +700,18 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _StatItem(
-                        value: '$moves',
-                        label: 'Moves',
-                      ),
-                      _StatItem(
-                        value: GameUtils.formatTime(timeSeconds),
-                        label: 'Time',
-                      ),
+                      _StatItem(value: '$moves', label: 'Moves'),
+                      _StatItem(value: GameUtils.formatTime(timeSeconds), label: 'Time'),
                     ],
                   ),
                 ),
 
                 // Remaining free games banner (only for non-premium users)
                 if (!isPremium) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: AppColors.purple.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -741,7 +728,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   ),
                 ],
 
-                const Spacer(),
+                const Spacer(flex: 2),
 
                 // Action buttons — vary based on whether free games remain
                 if (hasGamesLeft) ...[
@@ -805,6 +792,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     );
                   },
                 ),
+
+                const Spacer(flex: 1),
               ],
             ),
           ),

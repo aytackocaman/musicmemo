@@ -18,12 +18,14 @@ class ModeScreen extends ConsumerStatefulWidget {
 }
 
 class _ModeScreenState extends ConsumerState<ModeScreen> {
-  void _showPaywall(BuildContext context, {bool isPremiumFeature = false}) {
+  void _showPaywall(BuildContext context, {bool isPremiumFeature = false, bool isTrialExpired = false}) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            PaywallScreen(isPremiumFeature: isPremiumFeature),
+        builder: (context) => PaywallScreen(
+          isPremiumFeature: isPremiumFeature,
+          isTrialExpired: isTrialExpired,
+        ),
       ),
     );
   }
@@ -36,6 +38,13 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
     final isPremium = DevConfig.bypassPaywall ||
         subscriptionAsync.when(
           data: (sub) => sub.canAccessPremiumFeatures,
+          loading: () => false,
+          error: (_, _) => false,
+        );
+
+    final isTrialExpired = !DevConfig.bypassPaywall &&
+        subscriptionAsync.when(
+          data: (sub) => sub.isTrial && sub.isExpired,
           loading: () => false,
           error: (_, _) => false,
         );
@@ -93,7 +102,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 isPrimary: true,
                 onTap: () {
                   if (!isPremium && !counts.canPlaySinglePlayer) {
-                    _showPaywall(context);
+                    _showPaywall(context, isTrialExpired: isTrialExpired);
                     return;
                   }
                   ref.read(selectedGameModeProvider.notifier).state =
@@ -118,7 +127,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 iconBackgroundColor: const Color(0x268B5CF6),
                 onTap: () {
                   if (!isPremium && !counts.canPlayLocalMultiplayer) {
-                    _showPaywall(context);
+                    _showPaywall(context, isTrialExpired: isTrialExpired);
                     return;
                   }
                   ref.read(selectedGameModeProvider.notifier).state =
@@ -144,7 +153,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 badge: isPremium ? null : _PremiumBadge(),
                 onTap: () {
                   if (!isPremium) {
-                    _showPaywall(context, isPremiumFeature: true);
+                    _showPaywall(context, isPremiumFeature: true, isTrialExpired: isTrialExpired);
                     return;
                   }
                   ref.read(selectedGameModeProvider.notifier).state =

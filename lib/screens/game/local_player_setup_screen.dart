@@ -89,104 +89,102 @@ class _LocalPlayerSetupScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header (always at top) ──────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Back button
                     _buildBackButton(),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Title
-                    Text(
-                      'Player Setup',
-                      style: AppTypography.headline3,
-                    ),
+                    const SizedBox(height: 20),
+                    Text('Player Setup', style: AppTypography.headline3),
                     const SizedBox(height: AppSpacing.xs),
-
                     Text(
                       'Enter names and pick colors',
                       style: AppTypography.body.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // Player 1 setup
-                    _buildPlayerSetup(
-                      playerNumber: 1,
-                      controller: _player1Controller,
-                      selectedColor: _player1Color,
-                      disabledColor: _player2Color,
-                      onColorSelected: (color) {
-                        setState(() => _player1Color = color);
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // VS divider
-                    Center(
-                      child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'VS',
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-
-                    // Player 2 setup
-                    _buildPlayerSetup(
-                      playerNumber: 2,
-                      controller: _player2Controller,
-                      selectedColor: _player2Color,
-                      disabledColor: _player1Color,
-                      onColorSelected: (color) {
-                        setState(() => _player2Color = color);
-                      },
-                    ),
                   ],
                 ),
               ),
-            ),
 
-            // Start game button (fixed at bottom)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: _startGame,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.purple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button),
+              // ── Cards (close to title) ──────────────────────────
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                        _buildPlayerSetup(
+                          playerNumber: 1,
+                          controller: _player1Controller,
+                          selectedColor: _player1Color,
+                          disabledColor: _player2Color,
+                          onColorSelected: (color) =>
+                              setState(() => _player1Color = color),
+                        ),
+
+                        // VS divider
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'VS',
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        _buildPlayerSetup(
+                          playerNumber: 2,
+                          controller: _player2Controller,
+                          selectedColor: _player2Color,
+                          disabledColor: _player1Color,
+                          onColorSelected: (color) =>
+                              setState(() => _player2Color = color),
+                        ),
+                      ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // ── Button (always at bottom) ────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: _startGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.purple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.button),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Start Game',
-                    style: AppTypography.button,
+                    child: Text('Start Game', style: AppTypography.button),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -219,7 +217,7 @@ class _LocalPlayerSetupScreenState
     required Function(Color) onColorSelected,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -251,12 +249,13 @@ class _LocalPlayerSetupScreenState
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // Name input
           TextField(
             controller: controller,
             style: AppTypography.bodyLarge,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               hintText: 'Enter name',
               hintStyle: AppTypography.body.copyWith(
@@ -270,21 +269,17 @@ class _LocalPlayerSetupScreenState
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 12,
+                vertical: 10,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Color picker
-          Text(
-            'Choose color',
-            style: AppTypography.labelSmall,
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Text('Choose color', style: AppTypography.labelSmall),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: playerColors.map((color) {
               final isSelected = color == selectedColor;
               final isDisabled = color == disabledColor;
@@ -293,16 +288,13 @@ class _LocalPlayerSetupScreenState
                 onTap: isDisabled ? null : () => onColorSelected(color),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 32,
-                  height: 32,
+                  width: 30,
+                  height: 30,
                   decoration: BoxDecoration(
                     color: isDisabled ? color.withValues(alpha: 0.3) : color,
                     shape: BoxShape.circle,
                     border: isSelected
-                        ? Border.all(
-                            color: AppColors.textPrimary,
-                            width: 3,
-                          )
+                        ? Border.all(color: AppColors.textPrimary, width: 3)
                         : null,
                     boxShadow: isSelected
                         ? [
@@ -315,11 +307,7 @@ class _LocalPlayerSetupScreenState
                         : null,
                   ),
                   child: isSelected
-                      ? const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 20,
-                        )
+                      ? const Icon(Icons.check, color: Colors.white, size: 18)
                       : null,
                 ),
               );

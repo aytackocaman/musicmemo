@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/theme.dart';
 
-/// Full-screen paywall shown when free tier limit is reached
-/// or when a premium-only feature is accessed.
+/// Full-screen paywall shown when free tier limit is reached,
+/// a premium-only feature is accessed, or the trial has expired.
 class PaywallScreen extends StatelessWidget {
   /// If true, shows "Premium Feature" messaging instead of "Reached Your Limit".
   final bool isPremiumFeature;
 
+  /// If true, shows "Trial Ended" messaging.
+  final bool isTrialExpired;
+
   /// Overrides the default subtitle when set.
   final String? subtitle;
 
-  const PaywallScreen({super.key, this.isPremiumFeature = false, this.subtitle});
+  const PaywallScreen({
+    super.key,
+    this.isPremiumFeature = false,
+    this.isTrialExpired = false,
+    this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +77,11 @@ class PaywallScreen extends StatelessWidget {
 
               // Title
               Text(
-                isPremiumFeature
-                    ? 'Premium Feature'
-                    : "You've Reached Your Limit!",
+                isTrialExpired
+                    ? 'Your Free Trial Has Ended'
+                    : isPremiumFeature
+                        ? 'Premium Feature'
+                        : "You've Reached Your Limit!",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 28,
@@ -84,9 +94,11 @@ class PaywallScreen extends StatelessWidget {
               // Subtitle
               Text(
                 subtitle ??
-                    (isPremiumFeature
-                        ? 'Online multiplayer requires a Premium subscription'
-                        : 'Upgrade to Premium to keep playing'),
+                    (isTrialExpired
+                        ? 'Subscribe to keep enjoying unlimited games and all premium features'
+                        : isPremiumFeature
+                            ? 'Online multiplayer requires a Premium subscription'
+                            : 'Upgrade to Premium to keep playing'),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 16,
