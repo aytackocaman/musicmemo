@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_dialogs.dart';
@@ -90,6 +91,30 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } else {
       setState(() => _errorMessage = result.errorMessage);
+    }
+  }
+
+  Future<void> _signInWithApple() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await AuthService.signInWithApple();
+
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      if (mounted) {
+        if (DeepLinkService.consumePendingInviteCode(context)) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } else {
+      if (result.errorMessage != 'Sign-in cancelled.') {
+        setState(() => _errorMessage = result.errorMessage);
+      }
     }
   }
 
@@ -359,6 +384,19 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               const SizedBox(height: AppSpacing.lg),
+
+              // Sign in with Apple button
+              SizedBox(
+                width: double.infinity,
+                child: SignInWithAppleButton(
+                  onPressed: _isLoading ? () {} : _signInWithApple,
+                  style: SignInWithAppleButtonStyle.black,
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                  height: 56,
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.sm),
 
               // Play as Guest button
               SizedBox(

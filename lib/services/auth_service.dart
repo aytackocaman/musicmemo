@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 
@@ -171,6 +176,64 @@ class AuthService {
       // Non-critical error
       print('Update last login error: $e');
     }
+  }
+
+  /// Sign in with Apple (native sheet, no browser redirect)
+  static Future<AuthResult> signInWithApple() async {
+    try {
+      final rawNonce = _generateNonce();
+      final hashedNonce = _sha256ofString(rawNonce);
+
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: hashedNonce,
+      );
+
+      final identityToken = credential.identityToken;
+      if (identityToken == null) {
+        return AuthResult.failure('Apple Sign-In failed: no identity token.');
+      }
+
+      final response = await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: identityToken,
+        nonce: rawNonce,
+      );
+
+      if (response.user != null) {
+        return AuthResult.success(response.user!);
+      }
+
+      return AuthResult.failure('Apple Sign-In failed. Please try again.');
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return AuthResult.failure('Sign-in cancelled.');
+      }
+      return AuthResult.failure('Apple Sign-In error: ${e.message}');
+    } on AuthException catch (e) {
+      return AuthResult.failure(_parseAuthError(e.message));
+    } catch (e) {
+      return AuthResult.failure('An unexpected error occurred.');
+    }
+  }
+
+  /// Generates a cryptographically random nonce string
+  static String _generateNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+        .join();
+  }
+
+  /// Returns the SHA256 hex digest of [input]
+  static String _sha256ofString(String input) {
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   /// Parse Supabase auth errors into user-friendly messages
