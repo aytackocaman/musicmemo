@@ -6,6 +6,7 @@ import '../../providers/game_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
+import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
 import '../home_screen.dart';
@@ -420,30 +421,20 @@ class _SinglePlayerGameScreenState
   }
 
   void _showHomeConfirmation() {
-    showDialog(
+    showAppDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Go Home?'),
-        content: const Text('Your progress will be lost.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext); // Close dialog
-              _timer?.cancel();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text('Go Home'),
-          ),
-        ],
-      ),
+      title: 'Go Home?',
+      message: 'Your progress will be lost.',
+      confirmLabel: 'Go Home',
+      isDestructive: true,
+      onConfirm: () {
+        _timer?.cancel();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      },
     );
   }
 }

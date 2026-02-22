@@ -5,6 +5,7 @@ import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
+import '../utils/app_dialogs.dart';
 import 'game/preload_screen.dart';
 import 'game/online_lobby_screen.dart';
 
@@ -142,9 +143,7 @@ class GridScreen extends ConsumerWidget {
     final category = ref.read(selectedCategoryProvider);
 
     if (gameMode == null || category == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select game mode and category')),
-      );
+      showAppSnackBar(context, 'Please select a game mode and category', isError: true);
       return;
     }
 

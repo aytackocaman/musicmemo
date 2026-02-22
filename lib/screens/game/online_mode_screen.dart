@@ -10,6 +10,7 @@ import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/game_utils.dart';
 import '../../providers/game_provider.dart';
+import '../../utils/app_dialogs.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import 'online_game_screen.dart';
@@ -399,12 +400,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   void _copyInviteCode() {
     if (_inviteCode != null) {
       Clipboard.setData(ClipboardData(text: _inviteCode!));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Code copied!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      showAppSnackBar(context, 'Code copied!');
     }
   }
 

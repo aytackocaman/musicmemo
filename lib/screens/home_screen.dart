@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
+import '../utils/app_dialogs.dart';
 import '../services/database_service.dart';
 import '../widgets/game_button.dart';
 import 'login_screen.dart';
@@ -185,34 +186,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showLogoutConfirmation() {
-    showDialog(
+    showAppDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              await AuthService.signOut();
-              if (!mounted) return;
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            child: Text(
-              'Log Out',
-              style: TextStyle(color: Colors.red[600]),
-            ),
-          ),
-        ],
-      ),
+      title: 'Log Out',
+      message: 'Are you sure you want to log out?',
+      confirmLabel: 'Log Out',
+      isDestructive: true,
+      onConfirm: () async {
+        await AuthService.signOut();
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      },
     );
   }
 }

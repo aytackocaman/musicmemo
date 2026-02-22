@@ -9,6 +9,7 @@ import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
+import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
 import '../home_screen.dart';
@@ -247,25 +248,16 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
 
-    showDialog(
+    showAppDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Opponent Left'),
-        content: const Text('Your opponent has left the game. You win!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text('OK'),
-          ),
-        ],
+      title: 'Opponent Left',
+      message: 'Your opponent has left the game. You win!',
+      confirmLabel: 'Go Home',
+      cancelLabel: 'Stay',
+      onConfirm: () => Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
       ),
     );
   }
@@ -279,26 +271,16 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
 
     MultiplayerService.endSession(widget.session.id);
 
-    showDialog(
+    showAppDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Opponent Timed Out'),
-        content: const Text(
-            'Your opponent hasn\'t made a move in 60 seconds. The game has been ended.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text('OK'),
-          ),
-        ],
+      title: 'Opponent Timed Out',
+      message: "Your opponent hasn't made a move in 60 seconds. The game has been ended.",
+      confirmLabel: 'Go Home',
+      cancelLabel: 'Stay',
+      onConfirm: () => Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
       ),
     );
   }
@@ -768,33 +750,22 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   }
 
   void _showExitConfirmation() {
-    showDialog(
+    showAppDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Go Home?'),
-        content: const Text(
-            'You will forfeit this game if you leave.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext); // Close dialog
-              _timer?.cancel();
-              _sessionSubscription?.cancel();
-              MultiplayerService.endSession(widget.session.id);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text('Go Home'),
-          ),
-        ],
-      ),
+      title: 'Go Home?',
+      message: 'You will forfeit this game if you leave.',
+      confirmLabel: 'Go Home',
+      isDestructive: true,
+      onConfirm: () {
+        _timer?.cancel();
+        _sessionSubscription?.cancel();
+        MultiplayerService.endSession(widget.session.id);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      },
     );
   }
 }
@@ -988,22 +959,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
         !updatedSession.wantsRematch(widget.myUserId)) {
       _timeoutTimer?.cancel();
       setState(() => _rematchState = _RematchState.declined);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Opponent declined the rematch',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textPrimary,
-            ),
-          ),
-          backgroundColor: AppColors.white.withValues(alpha: 0.9),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: const Duration(seconds: 3),
-        ),
+      showAppSnackBar(
+        context,
+        'Opponent declined the rematch',
+        duration: const Duration(seconds: 3),
       );
       return;
     }
@@ -1333,15 +1292,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
           _buildButton(
             label: 'Find New Opponent',
             icon: Icons.person_search,
-            onTap: () {
-              _sessionSubscription?.cancel();
-              MultiplayerService.unsubscribeFromSession();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const OnlineModeScreen()),
-                (route) => false,
-              );
-            },
+            onTap: _navigateToFindOpponent,
           ),
           const SizedBox(height: 12),
           _buildButton(
@@ -1419,15 +1370,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
           _buildButton(
             label: 'Find New Opponent',
             icon: Icons.person_search,
-            onTap: () {
-              _sessionSubscription?.cancel();
-              MultiplayerService.unsubscribeFromSession();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const OnlineModeScreen()),
-                (route) => false,
-              );
-            },
+            onTap: _navigateToFindOpponent,
             isPrimary: true,
           ),
           const SizedBox(height: 12),
@@ -1448,6 +1391,20 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
       context,
       MaterialPageRoute(builder: (_) => const HomeScreen()),
       (route) => false,
+    );
+  }
+
+  void _navigateToFindOpponent() {
+    _sessionSubscription?.cancel();
+    MultiplayerService.unsubscribeFromSession();
+    final navigator = Navigator.of(context);
+    // Ensure HomeScreen is at the root so back navigation works
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      (route) => false,
+    );
+    navigator.push(
+      MaterialPageRoute(builder: (_) => const OnlineModeScreen()),
     );
   }
 
