@@ -9,18 +9,10 @@ import '../../services/database_service.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/game_utils.dart';
+import '../../providers/game_provider.dart';
+import '../grand_category_screen.dart';
+import '../home_screen.dart';
 import 'online_game_screen.dart';
-
-/// Categories available for selection
-const List<Map<String, dynamic>> _categories = [
-  {'id': 'piano', 'name': 'Piano', 'icon': Icons.piano},
-  {'id': 'animals', 'name': 'Animals', 'icon': Icons.pets},
-  {'id': 'instruments', 'name': 'Instruments', 'icon': Icons.music_note},
-  {'id': 'nature', 'name': 'Nature', 'icon': Icons.eco},
-  {'id': 'vehicles', 'name': 'Vehicles', 'icon': Icons.directions_car},
-  {'id': 'household', 'name': 'Household', 'icon': Icons.home},
-  {'id': 'sports', 'name': 'Sports', 'icon': Icons.sports_soccer},
-];
 
 /// Grid options
 final List<Map<String, dynamic>> _gridOptions = [
@@ -137,7 +129,19 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         _errorMessage = null;
       });
     } else {
+      _popOrHome();
+    }
+  }
+
+  /// Pop if there's a route behind, otherwise go to HomeScreen
+  void _popOrHome() {
+    if (Navigator.canPop(context)) {
       Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     }
   }
 
@@ -498,7 +502,19 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             iconColor: AppColors.pink,
             title: 'Find Opponent',
             subtitle: 'Get matched with a random player',
-            onTap: _showFindOpponent,
+            onTap: () async {
+              ref.read(selectedGameModeProvider.notifier).state =
+                  GameMode.onlineMultiplayer;
+              final navigator = Navigator.of(context);
+              await navigator.push(
+                MaterialPageRoute(builder: (_) => const GrandCategoryScreen()),
+              );
+              final picked = ref.read(selectedCategoryProvider);
+              if (picked != null && mounted) {
+                setState(() => _selectedCategory = picked);
+                _showFindOpponent();
+              }
+            },
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -508,7 +524,19 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             iconColor: AppColors.purple,
             title: 'Create Private Game',
             subtitle: 'Start a new game and invite a friend',
-            onTap: _showCreateOptions,
+            onTap: () async {
+              ref.read(selectedGameModeProvider.notifier).state =
+                  GameMode.onlineMultiplayer;
+              final navigator = Navigator.of(context);
+              await navigator.push(
+                MaterialPageRoute(builder: (_) => const GrandCategoryScreen()),
+              );
+              final picked = ref.read(selectedCategoryProvider);
+              if (picked != null && mounted) {
+                setState(() => _selectedCategory = picked);
+                _showCreateOptions();
+              }
+            },
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -571,12 +599,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             _buildSectionTitle('Your Name'),
             const SizedBox(height: 8),
             _buildTextField(_nameController, 'Enter your name'),
-            const SizedBox(height: AppSpacing.xl),
-
-            // Category selection
-            _buildSectionTitle('Category'),
-            const SizedBox(height: 8),
-            _buildCategorySelector(),
             const SizedBox(height: AppSpacing.xl),
 
             // Grid selection
@@ -658,12 +680,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildSectionTitle('Your Name'),
           const SizedBox(height: 8),
           _buildTextField(_nameController, 'Enter your name'),
-          const SizedBox(height: AppSpacing.xl),
-
-          // Category selection
-          _buildSectionTitle('Category'),
-          const SizedBox(height: 8),
-          _buildCategorySelector(),
           const SizedBox(height: AppSpacing.xl),
 
           // Grid selection
@@ -1126,8 +1142,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             child: GestureDetector(
               onTap: () {
                 _sessionSubscription?.cancel();
+                _connectionSubscription?.cancel();
                 MultiplayerService.unsubscribeFromSession();
-                Navigator.pop(context);
+                _popOrHome();
               },
               child: Container(
                 width: 44,
@@ -1231,8 +1248,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             child: OutlinedButton(
               onPressed: () {
                 _sessionSubscription?.cancel();
+                _connectionSubscription?.cancel();
                 MultiplayerService.unsubscribeFromSession();
-                Navigator.pop(context);
+                _popOrHome();
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.elevated),
@@ -1331,47 +1349,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
-    );
-  }
-
-  Widget _buildCategorySelector() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _categories.map((cat) {
-        final isSelected = _selectedCategory == cat['id'];
-        return GestureDetector(
-          onTap: () => setState(() => _selectedCategory = cat['id']),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.purple : AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? AppColors.purple : AppColors.elevated,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  cat['icon'],
-                  size: 18,
-                  color: isSelected ? Colors.white : AppColors.textSecondary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  cat['name'],
-                  style: AppTypography.bodySmall.copyWith(
-                    color: isSelected ? Colors.white : AppColors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 

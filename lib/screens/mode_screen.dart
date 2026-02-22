@@ -6,7 +6,7 @@ import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
-import 'category_screen.dart';
+import 'grand_category_screen.dart';
 import 'game/online_mode_screen.dart';
 import 'paywall_screen.dart';
 
@@ -101,7 +101,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CategoryScreen(),
+                      builder: (context) => const GrandCategoryScreen(),
                     ),
                   );
                 },
@@ -126,7 +126,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CategoryScreen(),
+                      builder: (context) => const GrandCategoryScreen(),
                     ),
                   );
                 },

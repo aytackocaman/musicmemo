@@ -8,7 +8,10 @@ class PaywallScreen extends StatelessWidget {
   /// If true, shows "Premium Feature" messaging instead of "Reached Your Limit".
   final bool isPremiumFeature;
 
-  const PaywallScreen({super.key, this.isPremiumFeature = false});
+  /// Overrides the default subtitle when set.
+  final String? subtitle;
+
+  const PaywallScreen({super.key, this.isPremiumFeature = false, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +83,10 @@ class PaywallScreen extends StatelessWidget {
 
               // Subtitle
               Text(
-                isPremiumFeature
-                    ? 'Online multiplayer requires a Premium subscription'
-                    : 'Upgrade to Premium to keep playing',
+                subtitle ??
+                    (isPremiumFeature
+                        ? 'Online multiplayer requires a Premium subscription'
+                        : 'Upgrade to Premium to keep playing'),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 16,

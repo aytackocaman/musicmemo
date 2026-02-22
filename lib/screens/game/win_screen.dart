@@ -6,7 +6,7 @@ import '../../providers/game_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
-import '../category_screen.dart';
+import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
 import 'single_player_game_screen.dart';
@@ -301,7 +301,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const CategoryScreen()),
+      MaterialPageRoute(builder: (context) => const GrandCategoryScreen()),
     );
   }
 

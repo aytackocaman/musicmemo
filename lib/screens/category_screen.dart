@@ -108,14 +108,19 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => _TagValueSheet(
         tagType: tagType,
+        isPremiumUser: _isPremium,
         onSelected: (tagValue) {
           Navigator.pop(context); // close sheet
           ref.read(selectedCategoryProvider.notifier).state =
               'tag:${tagType.id}:$tagValue';
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const GridScreen()),
-          );
+          if (ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer) {
+            Navigator.pop(context); // pop CategoryScreen; caller handles rest
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GridScreen()),
+            );
+          }
         },
       ),
     );
@@ -125,15 +130,24 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     if (cat.isPremium && !_isPremium) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const PaywallScreen()),
+        MaterialPageRoute(
+          builder: (_) => PaywallScreen(
+            isPremiumFeature: true,
+            subtitle: '${cat.name} is a Premium category. Upgrade to unlock it and all other premium collections.',
+          ),
+        ),
       );
       return;
     }
     ref.read(selectedCategoryProvider.notifier).state = cat.id;
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const GridScreen()),
-    );
+    if (ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer) {
+      Navigator.pop(context); // pop CategoryScreen; caller handles rest
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GridScreen()),
+      );
+    }
   }
 
   @override
@@ -515,9 +529,14 @@ class _CategoryTile extends StatelessWidget {
 
 class _TagValueSheet extends StatefulWidget {
   final _TagType tagType;
+  final bool isPremiumUser;
   final void Function(String tagValue) onSelected;
 
-  const _TagValueSheet({required this.tagType, required this.onSelected});
+  const _TagValueSheet({
+    required this.tagType,
+    required this.isPremiumUser,
+    required this.onSelected,
+  });
 
   @override
   State<_TagValueSheet> createState() => _TagValueSheetState();
@@ -677,10 +696,23 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                             itemCount: _filtered.length,
                             itemBuilder: (_, i) {
                               final v = _filtered[i];
+                              final isLocked = v.isPremium && !widget.isPremiumUser;
                               return _TagValueTile(
                                 tagValue: v,
                                 color: t.color,
-                                onTap: () => widget.onSelected(v.value),
+                                isLocked: isLocked,
+                                onTap: isLocked
+                                    ? () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => PaywallScreen(
+                                              isPremiumFeature: true,
+                                              subtitle:
+                                                  '${v.value} is a Premium category. Upgrade to unlock it and all other premium collections.',
+                                            ),
+                                          ),
+                                        )
+                                    : () => widget.onSelected(v.value),
                               );
                             },
                           ),
@@ -699,12 +731,14 @@ class _TagValueSheetState extends State<_TagValueSheet> {
 class _TagValueTile extends StatelessWidget {
   final TagValueModel tagValue;
   final Color color;
+  final bool isLocked;
   final VoidCallback onTap;
 
   const _TagValueTile({
     required this.tagValue,
     required this.color,
     required this.onTap,
+    this.isLocked = false,
   });
 
   @override
@@ -724,7 +758,10 @@ class _TagValueTile extends StatelessWidget {
             Expanded(
               child: Text(
                 tagValue.value,
-                style: AppTypography.body.copyWith(fontWeight: FontWeight.w500),
+                style: AppTypography.body.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: isLocked ? AppColors.textTertiary : AppColors.textPrimary,
+                ),
               ),
             ),
             Text(
@@ -732,7 +769,31 @@ class _TagValueTile extends StatelessWidget {
               style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.chevron_right, size: 18, color: color.withValues(alpha: 0.6)),
+            if (isLocked)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.purple.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock, size: 12, color: AppColors.purple),
+                    const SizedBox(width: 4),
+                    Text(
+                      'PRO',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.purple,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Icon(Icons.chevron_right, size: 18, color: color.withValues(alpha: 0.6)),
           ],
         ),
       ),

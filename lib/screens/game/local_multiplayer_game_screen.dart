@@ -9,7 +9,7 @@ import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
-import '../category_screen.dart';
+import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
 import 'local_player_setup_screen.dart';
@@ -777,7 +777,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CategoryScreen()),
+                            builder: (context) => const GrandCategoryScreen()),
                       );
                     },
                   ),
