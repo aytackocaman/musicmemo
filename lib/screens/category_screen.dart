@@ -377,52 +377,52 @@ class _TagTypeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: tagType.color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: tagType.color.withValues(alpha: 0.25), width: 1),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: tagType.color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(tagType.icon, size: 18, color: tagType.color),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 162;
+        final hPad = narrow ? 8.0 : 16.0;
+        final iconBox = narrow ? 24.0 : 28.0;
+        final iconInner = narrow ? 14.0 : 16.0;
+        final spacing = narrow ? 6.0 : 8.0;
+
+        return GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
+            decoration: BoxDecoration(
+              color: tagType.color.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: tagType.color.withValues(alpha: 0.25), width: 1),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
+            child: Row(
+              children: [
+                Container(
+                  width: iconBox,
+                  height: iconBox,
+                  decoration: BoxDecoration(
+                    color: tagType.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(tagType.icon, size: iconInner, color: tagType.color),
+                ),
+                SizedBox(width: spacing),
+                Expanded(
+                  child: Text(
                     tagType.label,
                     style: AppTypography.body.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    'Browse',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: tagType.color,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                Icon(Icons.chevron_right, size: 16, color: tagType.color),
+              ],
             ),
-            Icon(Icons.chevron_right, size: 18, color: tagType.color),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
