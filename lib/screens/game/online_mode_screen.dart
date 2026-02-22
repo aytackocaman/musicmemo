@@ -422,7 +422,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     setState(() => _isStartingGame = true);
 
     // Fetch real sound IDs from the database (fall back to piano if empty)
-    var sounds = await DatabaseService.getSoundsForCategory(_selectedCategory);
+    List<SoundModel> sounds;
+    if (_selectedCategory.startsWith('tag:')) {
+      final parts = _selectedCategory.split(':');
+      sounds = await DatabaseService.getSoundsByTag(parts[1], parts.sublist(2).join(':'));
+    } else {
+      sounds = await DatabaseService.getSoundsForCategory(_selectedCategory);
+    }
     if (sounds.isEmpty && _selectedCategory != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }

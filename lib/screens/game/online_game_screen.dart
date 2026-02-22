@@ -116,7 +116,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
 
   Future<void> _preloadSounds() async {
     final category = _currentSession.category ?? 'piano';
-    var sounds = await DatabaseService.getSoundsForCategory(category);
+    List<SoundModel> sounds;
+    if (category.startsWith('tag:')) {
+      final parts = category.split(':');
+      sounds = await DatabaseService.getSoundsByTag(parts[1], parts.sublist(2).join(':'));
+    } else {
+      sounds = await DatabaseService.getSoundsForCategory(category);
+    }
     // Fall back to piano if the selected category has no sounds
     if (sounds.isEmpty && category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
@@ -1026,7 +1032,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
 
     // Fetch sounds for session category (fall back to piano)
     final category = _latestSession.category ?? 'piano';
-    var sounds = await DatabaseService.getSoundsForCategory(category);
+    List<SoundModel> sounds;
+    if (category.startsWith('tag:')) {
+      final parts = category.split(':');
+      sounds = await DatabaseService.getSoundsByTag(parts[1], parts.sublist(2).join(':'));
+    } else {
+      sounds = await DatabaseService.getSoundsForCategory(category);
+    }
     if (sounds.isEmpty && category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
