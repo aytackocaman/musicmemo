@@ -329,20 +329,27 @@ Valid plan values: `'free'`, `'monthly'`, `'yearly'` (must match exactly — app
 ### Database Maintenance — Cron Jobs
 Enable the `pg_cron` extension first: Dashboard → Database → Extensions → enable `pg_cron`.
 
-**Clean up old daily game counts** (rows accumulate forever; 7 days is safe for all timezones):
+**`daily_game_counts`** — safe to delete after 7 days, pure operational data:
 ```sql
-SELECT cron.schedule(
-  'cleanup-old-game-counts',
-  '0 4 * * *',   -- daily at 4 AM UTC
-  $$
-    DELETE FROM daily_game_counts
-    WHERE date < CURRENT_DATE - INTERVAL '7 days';
-  $$
-);
+SELECT cron.schedule('cleanup-game-counts', '0 4 * * *', $$
+  DELETE FROM daily_game_counts
+  WHERE date < CURRENT_DATE - INTERVAL '7 days';
+$$);
 ```
 
-Verify: `SELECT * FROM cron.job;`
-Remove: `SELECT cron.unschedule('cleanup-old-game-counts');`
+**`online_sessions`** — delete finished sessions after 30 days (keep waiting/playing regardless):
+```sql
+SELECT cron.schedule('cleanup-online-sessions', '0 4 * * *', $$
+  DELETE FROM online_sessions
+  WHERE status = 'finished'
+  AND updated_at < NOW() - INTERVAL '30 days';
+$$);
+```
+
+**`games`** — do NOT delete. This is user game history used for stats/leaderboards. Keep indefinitely. Row count is manageable (one row per game played).
+
+Verify jobs: `SELECT * FROM cron.job;`
+Remove a job: `SELECT cron.unschedule('job-name');`
 
 ### Daily Game Count Reset
 Resets happen automatically at **3 AM in each user's local time** — no cron job needed.
