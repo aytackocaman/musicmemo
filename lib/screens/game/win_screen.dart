@@ -9,7 +9,7 @@ import '../../utils/game_utils.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
-import 'single_player_game_screen.dart';
+import 'preload_screen.dart';
 
 class WinScreen extends ConsumerStatefulWidget {
   final int score;
@@ -155,15 +155,9 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                 // Buttons — vary based on whether free games remain
                 if (hasGamesLeft) ...[
                   _buildButton(
-                    label: 'Next Level',
-                    icon: Icons.arrow_forward,
-                    isPrimary: true,
-                    onTap: () => _playNextLevel(context),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildButton(
                     label: 'Play Again',
                     icon: Icons.replay,
+                    isPrimary: true,
                     onTap: () => _playAgain(context),
                   ),
                   const SizedBox(height: 10),
@@ -265,21 +259,6 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     );
   }
 
-  void _playNextLevel(BuildContext context) {
-    DatabaseService.incrementGameCount('single_player');
-    ref.invalidate(dailyGameCountsProvider);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SinglePlayerGameScreen(
-          category: widget.category,
-          gridSize: widget.gridSize,
-        ),
-      ),
-    );
-  }
-
   void _playAgain(BuildContext context) {
     DatabaseService.incrementGameCount('single_player');
     ref.invalidate(dailyGameCountsProvider);
@@ -287,7 +266,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => SinglePlayerGameScreen(
+        builder: (context) => PreloadScreen(
           category: widget.category,
           gridSize: widget.gridSize,
         ),

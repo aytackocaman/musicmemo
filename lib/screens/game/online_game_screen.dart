@@ -1244,19 +1244,24 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildInfoItem(
-                        icon: Icons.category,
-                        value: _formatCategoryName(category),
+                      Expanded(
+                        child: _buildInfoItem(
+                          icon: Icons.category,
+                          value: _formatCategoryName(category),
+                        ),
                       ),
-                      _buildInfoItem(
-                        icon: Icons.grid_view,
-                        value: '${widget.session.gridSize ?? '4x5'} (${widget.totalPairs} pairs)',
+                      Expanded(
+                        child: _buildInfoItem(
+                          icon: Icons.grid_view,
+                          value: widget.session.gridSize ?? '4x5',
+                        ),
                       ),
-                      _buildInfoItem(
-                        icon: Icons.timer,
-                        value: GameUtils.formatTime(widget.timeSeconds),
+                      Expanded(
+                        child: _buildInfoItem(
+                          icon: Icons.timer,
+                          value: GameUtils.formatTime(widget.timeSeconds),
+                        ),
                       ),
                     ],
                   ),
@@ -1413,7 +1418,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
     required String value,
   }) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(icon, size: 16, color: AppColors.white.withValues(alpha: 0.7)),
         const SizedBox(width: 6),
@@ -1489,9 +1494,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen> {
   }
 
   String _formatCategoryName(String category) {
+    if (category.startsWith('tag:')) {
+      final parts = category.split(':');
+      return parts.length >= 3 ? parts.sublist(2).join(':') : category;
+    }
     return category
         .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : word)
         .join(' ');
   }
 }

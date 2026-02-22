@@ -449,9 +449,13 @@ class _LocalMultiplayerGameScreenState
   }
 
   String _formatCategoryName(String category) {
+    if (category.startsWith('tag:')) {
+      final parts = category.split(':');
+      return parts.length >= 3 ? parts.sublist(2).join(':') : category;
+    }
     return category
         .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : word)
         .join(' ');
   }
 

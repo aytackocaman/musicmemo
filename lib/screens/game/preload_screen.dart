@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
+import '../../utils/game_utils.dart';
 import 'single_player_game_screen.dart';
 import 'local_player_setup_screen.dart';
 
@@ -65,7 +68,15 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
         return;
       }
 
-      // 2. Download / cache all sounds
+      // 2. Limit to only the sounds needed for this grid size.
+      //    A grid of CxR has C*R/2 pairs → that many unique sounds required.
+      final (cols, rows) = GameUtils.parseGridSize(widget.gridSize);
+      final pairsNeeded = (cols * rows) ~/ 2;
+      if (sounds.length > pairsNeeded) {
+        sounds = (sounds..shuffle(Random())).take(pairsNeeded).toList();
+      }
+
+      // 3. Download / cache only those sounds.
       // Use the actual category the sounds belong to (may differ if falling back to piano)
       final actualCategoryId = sounds.first.categoryId;
       setState(() => _statusText = 'Downloading sounds...');
