@@ -52,166 +52,161 @@ class PaywallScreen extends StatelessWidget {
               ),
             ),
 
-            // Scrollable content
+            // Content
             Expanded(
-              child: SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
                 child: Column(
                   children: [
-
-              // Lock icon
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: const Icon(
-                  Icons.lock_outline,
-                  size: 40,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Title
-              Text(
-                isTrialExpired
-                    ? 'Your Free Trial Has Ended'
-                    : isPremiumFeature
-                        ? 'Premium Feature'
-                        : "You've Reached Your Limit!",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Subtitle
-              Text(
-                subtitle ??
-                    (isTrialExpired
-                        ? 'Subscribe to keep enjoying unlimited games and all premium features'
-                        : isPremiumFeature
-                            ? 'Online multiplayer requires a Premium subscription'
-                            : 'Upgrade to Premium to keep playing'),
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withValues(alpha: 0.8),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Benefits list
-              _BenefitItem(text: 'Unlimited single player games'),
-              const SizedBox(height: 12),
-              _BenefitItem(text: 'Unlimited local multiplayer'),
-              const SizedBox(height: 12),
-              _BenefitItem(text: 'Online multiplayer access'),
-              const SizedBox(height: 12),
-              _BenefitItem(text: 'Ad-free experience'),
-
-              const SizedBox(height: 32),
-
-              // Yearly CTA button
-              GestureDetector(
-                onTap: () {
-                  // TODO: Trigger yearly subscription purchase
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Get Yearly – \$35.99/year',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.purple,
-                        ),
+                    // Lock icon
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(40),
                       ),
-                      Text(
-                        'Save 40%',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.teal,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Monthly CTA button
-              GestureDetector(
-                onTap: () {
-                  // TODO: Trigger monthly subscription purchase
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(26),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Get Monthly – \$4.99/month',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      child: const Icon(
+                        Icons.lock_outline,
+                        size: 40,
                         color: Colors.white,
                       ),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
+                    const Spacer(),
 
-              // Restore purchase
-              GestureDetector(
-                onTap: () {
-                  // TODO: Restore purchases
-                },
-                child: Text(
-                  'Restore Purchase',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white.withValues(alpha: 0.67),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
+                    // Title
+                    Text(
+                      isTrialExpired
+                          ? 'Your Free Trial Has Ended'
+                          : isPremiumFeature
+                              ? 'Premium Feature'
+                              : "You've Reached Your Limit!",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
 
-              // Terms
-              Text(
-                'Cancel anytime. Terms & Privacy apply.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withValues(alpha: 0.5),
-                ),
-              ),
+                    // Subtitle
+                    Text(
+                      subtitle ??
+                          (isTrialExpired
+                              ? 'Subscribe to keep enjoying unlimited games and all premium features'
+                              : isPremiumFeature
+                                  ? 'Online multiplayer requires a Premium subscription'
+                                  : 'Upgrade to Premium to keep playing'),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
+                    ),
+                    const Spacer(),
+
+                    // Benefits list
+                    _BenefitItem(text: 'Unlimited single player games'),
+                    const SizedBox(height: 10),
+                    _BenefitItem(text: 'Unlimited local multiplayer'),
+                    const SizedBox(height: 10),
+                    _BenefitItem(text: 'Online multiplayer access'),
+                    const SizedBox(height: 10),
+                    _BenefitItem(text: 'Ad-free experience'),
+                    const Spacer(),
+
+                    // Yearly CTA button
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: Trigger yearly subscription purchase
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Get Yearly – \$35.99/year',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.purple,
+                              ),
+                            ),
+                            Text(
+                              'Save 40%',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.teal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Monthly CTA button
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: Trigger monthly subscription purchase
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(26),
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Get Monthly – \$4.99/month',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Restore purchase
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: Restore purchases
+                      },
+                      child: Text(
+                        'Restore Purchase',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.67),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Terms
+                    Text(
+                      'Cancel anytime. Terms & Privacy apply.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ],
                 ),
               ),
