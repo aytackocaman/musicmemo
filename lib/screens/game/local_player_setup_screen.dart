@@ -256,6 +256,10 @@ class _LocalPlayerSetupScreenState
             controller: controller,
             style: AppTypography.bodyLarge,
             textInputAction: TextInputAction.done,
+            onTap: () => controller.selection = TextSelection(
+              baseOffset: 0,
+              extentOffset: controller.text.length,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter name',
               hintStyle: AppTypography.body.copyWith(
