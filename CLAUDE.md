@@ -178,7 +178,7 @@ CREATE TABLE profiles (
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  plan TEXT NOT NULL DEFAULT 'free',  -- 'free', 'premium_monthly', 'premium_yearly'
+  plan TEXT NOT NULL DEFAULT 'free',  -- 'free', 'monthly', 'yearly'
   status TEXT NOT NULL DEFAULT 'active',  -- 'active', 'cancelled', 'expired'
   started_at TIMESTAMPTZ DEFAULT NOW(),
   expires_at TIMESTAMPTZ,
@@ -307,6 +307,46 @@ google_sign_in: ^6.2.2
 3. Run SQL migrations above in SQL Editor
 4. Get project URL and anon key from Settings > API
 5. Configure Google OAuth credentials
+
+### Making a User Premium (Manual)
+Run in SQL Editor. Find the user UUID in Dashboard → Authentication → Users (or query `auth.users`).
+
+```sql
+-- Update existing subscription row
+UPDATE subscriptions
+SET plan = 'monthly',   -- or 'yearly'
+    status = 'active',
+    expires_at = NOW() + INTERVAL '1 month'  -- or '1 year' for yearly
+WHERE user_id = '<user-uuid>';
+
+-- If no row exists yet, insert one
+INSERT INTO subscriptions (user_id, plan, status, expires_at)
+VALUES ('<user-uuid>', 'monthly', 'active', NOW() + INTERVAL '1 month');
+```
+
+Valid plan values: `'free'`, `'monthly'`, `'yearly'` (must match exactly — app checks `plan == 'monthly' || plan == 'yearly'`).
+
+### Database Maintenance — Cron Jobs
+Enable the `pg_cron` extension first: Dashboard → Database → Extensions → enable `pg_cron`.
+
+**Clean up old daily game counts** (rows accumulate forever; 7 days is safe for all timezones):
+```sql
+SELECT cron.schedule(
+  'cleanup-old-game-counts',
+  '0 4 * * *',   -- daily at 4 AM UTC
+  $$
+    DELETE FROM daily_game_counts
+    WHERE date < CURRENT_DATE - INTERVAL '7 days';
+  $$
+);
+```
+
+Verify: `SELECT * FROM cron.job;`
+Remove: `SELECT cron.unschedule('cleanup-old-game-counts');`
+
+### Daily Game Count Reset
+Resets happen automatically at **3 AM in each user's local time** — no cron job needed.
+`getGameDay()` in `database_service.dart` uses device local time: if `hour < 3` it returns yesterday's date, so the DB row for "today" doesn't exist yet and counts return zero.
 
 ## Game Logic (Implementation Status)
 
