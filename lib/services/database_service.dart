@@ -773,6 +773,25 @@ class DatabaseService {
     }
   }
 
+  /// Fetch specific sounds by their IDs (used by online multiplayer to preload
+  /// exactly the sounds that are in the session's cards).
+  static Future<List<SoundModel>> getSoundsByIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+    try {
+      final response = await _client
+          .from('sounds')
+          .select()
+          .inFilter('id', ids);
+
+      return (response as List)
+          .map((json) => SoundModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching sounds by ids: $e');
+      return [];
+    }
+  }
+
   /// Get a public URL for a sound file in Supabase Storage
   static String getSoundFileUrl(String filePath) {
     return _client.storage.from('sounds').getPublicUrl(filePath);

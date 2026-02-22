@@ -115,18 +115,17 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   }
 
   Future<void> _preloadSounds() async {
-    final category = _currentSession.category ?? 'piano';
-    List<SoundModel> sounds;
-    if (category.startsWith('tag:')) {
-      final parts = category.split(':');
-      sounds = await DatabaseService.getSoundsByTag(parts[1], parts.sublist(2).join(':'));
-    } else {
-      sounds = await DatabaseService.getSoundsForCategory(category);
-    }
-    // Fall back to piano if the selected category has no sounds
-    if (sounds.isEmpty && category != 'piano') {
-      sounds = await DatabaseService.getSoundsForCategory('piano');
-    }
+    // Use exactly the sound IDs that are in the session's cards — the host
+    // already picked them, and both players must load the same ones.
+    final soundIds = _cards
+        .map((c) => c.soundId)
+        .whereType<String>()
+        .toSet()
+        .toList();
+
+    if (soundIds.isEmpty) return;
+
+    final sounds = await DatabaseService.getSoundsByIds(soundIds);
     if (sounds.isEmpty) return;
 
     final actualCategoryId = sounds.first.categoryId;
