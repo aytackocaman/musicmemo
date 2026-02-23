@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'config/theme.dart';
+import 'providers/settings_provider.dart';
 import 'services/audio_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/supabase_service.dart';
@@ -22,28 +24,38 @@ void main() async {
   // Initialize deep link handling
   await DeepLinkService.init();
 
+  // Load persisted theme preference
+  final prefs = await SharedPreferences.getInstance();
+  final initialThemeMode = ThemeModeNotifier.fromPrefs(prefs);
+
   runApp(
-    const ProviderScope(
-      child: MusicMemoApp(),
+    ProviderScope(
+      overrides: [
+        themeModeProvider.overrideWith(
+          (ref) => ThemeModeNotifier(initialThemeMode),
+        ),
+      ],
+      child: const MusicMemoApp(),
     ),
   );
 }
 
-class MusicMemoApp extends StatelessWidget {
+class MusicMemoApp extends ConsumerWidget {
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   const MusicMemoApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     DeepLinkService.navigatorKey = navigatorKey;
+    final themeMode = ref.watch(themeModeProvider);
     return MaterialApp(
       title: 'Music Memo',
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       home: const SplashScreen(),
     );
   }
