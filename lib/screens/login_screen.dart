@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
@@ -6,6 +7,8 @@ import '../utils/app_dialogs.dart';
 import '../services/deep_link_service.dart';
 import '../widgets/game_button.dart';
 import 'home_screen.dart';
+
+const _kHasLoggedInBefore = 'has_logged_in_before';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,7 +26,28 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _isSignUp = false;
   bool _obscurePassword = true;
+  bool _isFirstLaunch = true;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFirstLaunch();
+  }
+
+  Future<void> _loadFirstLaunch() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _isFirstLaunch = !(prefs.getBool(_kHasLoggedInBefore) ?? false);
+      });
+    }
+  }
+
+  Future<void> _markLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kHasLoggedInBefore, true);
+  }
 
   @override
   void dispose() {
@@ -61,6 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (result.success) {
+      await _markLoggedIn();
       if (mounted) {
         if (DeepLinkService.consumePendingInviteCode(context)) return;
         Navigator.of(context).pushReplacement(
@@ -83,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (result.success) {
+      await _markLoggedIn();
       if (mounted) {
         if (DeepLinkService.consumePendingInviteCode(context)) return;
         Navigator.of(context).pushReplacement(
@@ -170,14 +196,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Title
               Text(
-                _isSignUp ? 'Create Account' : 'Welcome Back',
+                _isSignUp
+                    ? 'Create Account'
+                    : (_isFirstLaunch ? 'Welcome!' : 'Welcome Back'),
                 style: AppTypography.headline2(context),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 _isSignUp
                     ? 'Sign up to save your progress'
-                    : 'Sign in to continue playing',
+                    : (_isFirstLaunch
+                        ? 'Create an account or sign in to start playing'
+                        : 'Sign in to continue playing'),
                 style: AppTypography.body(context).copyWith(
                   color: context.colors.textSecondary,
                 ),
