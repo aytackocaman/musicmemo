@@ -103,7 +103,7 @@ void showAppSnackBar(
         style: AppTypography.bodySmall(context).copyWith(color: AppColors.white),
       ),
       backgroundColor:
-          isError ? const Color(0xFFEF4444) : context.colors.textPrimary,
+          isError ? const Color(0xFFEF4444) : const Color(0xFF27272A),
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
