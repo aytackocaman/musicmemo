@@ -17,7 +17,6 @@ class AuthState {
   });
 
   bool get isAuthenticated => user != null;
-  bool get isGuest => user != null && user!.isAnonymous;
 
   AuthState copyWith({
     supabase.User? user,
@@ -95,44 +94,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Sign in as guest (anonymous)
-  Future<bool> signInAsGuest() async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    final result = await AuthService.signInAsGuest();
-
-    if (result.success) {
-      state = AuthState(user: result.user, isLoading: false);
-      return true;
-    } else {
-      state = state.copyWith(isLoading: false, error: result.errorMessage);
-      return false;
-    }
-  }
-
-  /// Link guest account to email/password
-  Future<bool> linkAccount({
-    required String email,
-    required String password,
-    String? displayName,
-  }) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    final result = await AuthService.linkAccountWithEmail(
-      email: email,
-      password: password,
-      displayName: displayName,
-    );
-
-    if (result.success) {
-      state = AuthState(user: result.user, isLoading: false);
-      return true;
-    } else {
-      state = state.copyWith(isLoading: false, error: result.errorMessage);
-      return false;
-    }
-  }
-
   /// Send password reset email
   Future<bool> resetPassword(String email) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -170,11 +131,6 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 /// Convenience provider for checking if user is authenticated
 final isAuthenticatedProvider = Provider<bool>((ref) {
   return ref.watch(authProvider).isAuthenticated;
-});
-
-/// Convenience provider for checking if user is guest
-final isGuestProvider = Provider<bool>((ref) {
-  return ref.watch(authProvider).isGuest;
 });
 
 /// Convenience provider for current user

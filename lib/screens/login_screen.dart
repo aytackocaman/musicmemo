@@ -72,28 +72,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _signInAsGuest() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final result = await AuthService.signInAsGuest();
-
-    setState(() => _isLoading = false);
-
-    if (result.success) {
-      if (mounted) {
-        if (DeepLinkService.consumePendingInviteCode(context)) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      }
-    } else {
-      setState(() => _errorMessage = result.errorMessage);
-    }
-  }
-
   Future<void> _signInWithApple() async {
     setState(() {
       _isLoading = true;
@@ -394,37 +372,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                   height: 56,
                 ),
-              ),
-
-              const SizedBox(height: AppSpacing.sm),
-
-              // Play as Guest button
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _signInAsGuest,
-                  icon: const Icon(Icons.person_outline),
-                  label: const Text('Play as Guest'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: context.colors.textSecondary,
-                    side: BorderSide(color: context.colors.surface, width: 2),
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.sm),
-
-              // Guest mode note
-              Text(
-                'Progress saved locally. Create an account to sync across devices.',
-                style: AppTypography.labelSmall(context).copyWith(
-                  color: context.colors.textTertiary,
-                ),
-                textAlign: TextAlign.center,
               ),
 
               const SizedBox(height: AppSpacing.xxl),
