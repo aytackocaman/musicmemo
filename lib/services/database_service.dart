@@ -749,6 +749,7 @@ class DatabaseService {
           .from('tag_values')
           .select()
           .eq('tag_type', tagType)
+          .gte('sound_count', 100)
           .order('sort_order', ascending: true);
 
       return (response as List)
