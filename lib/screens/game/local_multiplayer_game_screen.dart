@@ -247,7 +247,7 @@ class _LocalMultiplayerGameScreenState
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: SafeArea(
           child: Stack(
             children: [
@@ -297,18 +297,18 @@ class _LocalMultiplayerGameScreenState
       children: [
         GestureDetector(
           onTap: () => _showHomeConfirmation(),
-          child: const Icon(Icons.home, size: 20, color: AppColors.textSecondary),
+          child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
         ),
         Text(
           _formatCategoryName(widget.category),
-          style: AppTypography.bodySmall,
+          style: AppTypography.bodySmall(context),
         ),
         GestureDetector(
           onTap: _togglePause,
           child: Icon(
             _isPaused ? Icons.play_arrow : Icons.pause,
             size: 20,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -347,16 +347,16 @@ class _LocalMultiplayerGameScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildInlineStat('${gameState.moves}', 'Moves'),
-          Container(width: 1, height: 20, color: AppColors.elevated),
+          Container(width: 1, height: 20, color: context.colors.elevated),
           _buildInlineStat(GameUtils.formatTime(_seconds), 'Time'),
-          Container(width: 1, height: 20, color: AppColors.elevated),
+          Container(width: 1, height: 20, color: context.colors.elevated),
           _buildInlineStat(
               '${gameState.matchedPairs}/${gameState.totalPairs}', 'Pairs'),
         ],
@@ -368,11 +368,11 @@ class _LocalMultiplayerGameScreenState
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(value, style: AppTypography.bodySmall.copyWith(
+        Text(value, style: AppTypography.bodySmall(context).copyWith(
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
         )),
-        Text(label, style: AppTypography.labelSmall.copyWith(fontSize: 10)),
+        Text(label, style: AppTypography.labelSmall(context).copyWith(fontSize: 10)),
       ],
     );
   }
@@ -382,7 +382,7 @@ class _LocalMultiplayerGameScreenState
       child: GestureDetector(
         onTap: _togglePause,
         child: Container(
-          color: AppColors.background.withValues(alpha: 0.95),
+          color: context.colors.background.withValues(alpha: 0.95),
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -403,13 +403,13 @@ class _LocalMultiplayerGameScreenState
                 const SizedBox(height: 20),
                 Text(
                   'Game Paused',
-                  style: AppTypography.headline3,
+                  style: AppTypography.headline3(context),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Tap anywhere to resume',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.textSecondary,
+                  style: AppTypography.body(context).copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -435,8 +435,8 @@ class _LocalMultiplayerGameScreenState
                   onTap: () => _showHomeConfirmation(),
                   child: Text(
                     'Quit Game',
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.textSecondary,
+                    style: AppTypography.body(context).copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),
@@ -498,7 +498,7 @@ class _PlayerScoreCard extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isCurrentTurn ? color.withValues(alpha: 0.12) : AppColors.surface,
+        color: isCurrentTurn ? color.withValues(alpha: 0.12) : context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCurrentTurn ? color : Colors.transparent,
@@ -526,9 +526,9 @@ class _PlayerScoreCard extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: AppTypography.bodySmall.copyWith(
+                  style: AppTypography.bodySmall(context).copyWith(
                     fontSize: 12,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -548,7 +548,7 @@ class _PlayerScoreCard extends StatelessWidget {
           // Score
           Text(
             '$score',
-            style: AppTypography.bodyLarge.copyWith(
+            style: AppTypography.bodyLarge(context).copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: color,
@@ -605,7 +605,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
     return PopScope(
       canPop: hasGamesLeft,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -619,17 +619,17 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     color: isTie
-                        ? AppColors.surface
+                        ? context.colors.surface
                         : winner != null
                             ? hexToColor(winner.color).withValues(alpha: 0.2)
-                            : AppColors.surface,
+                            : context.colors.surface,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     isTie ? Icons.handshake : Icons.emoji_events,
                     size: 40,
                     color: isTie
-                        ? AppColors.textSecondary
+                        ? context.colors.textSecondary
                         : winner != null
                             ? hexToColor(winner.color)
                             : AppColors.purple,
@@ -641,14 +641,14 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                 // Result text
                 Text(
                   isTie ? "It's a Tie!" : '${winner?.name ?? "Player"} Wins!',
-                  style: AppTypography.headline2,
+                  style: AppTypography.headline2(context),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   isTie ? 'Great match, both players!' : 'Congratulations!',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.textSecondary,
+                  style: AppTypography.body(context).copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
 
@@ -671,8 +671,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         'VS',
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: AppColors.textTertiary,
+                        style: AppTypography.bodyLarge(context).copyWith(
+                          color: context.colors.textTertiary,
                         ),
                       ),
                     ),
@@ -694,7 +694,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -721,8 +721,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                           ? '${counts.localMultiplayerRemaining} free game${counts.localMultiplayerRemaining == 1 ? '' : 's'} left today'
                           : 'No free games left. Resets at 3:00 AM',
                       textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                      style: AppTypography.bodySmall(context).copyWith(
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -821,7 +821,7 @@ class _ScoreColumn extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isWinner ? color.withValues(alpha: 0.15) : AppColors.surface,
+        color: isWinner ? color.withValues(alpha: 0.15) : context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: isWinner
             ? Border.all(color: color, width: 2)
@@ -838,8 +838,8 @@ class _ScoreColumn extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             name,
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+            style: AppTypography.bodySmall(context).copyWith(
+              color: context.colors.textSecondary,
             ),
             overflow: TextOverflow.ellipsis,
           ),
@@ -852,8 +852,8 @@ class _ScoreColumn extends StatelessWidget {
           ),
           Text(
             'pairs',
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+            style: AppTypography.labelSmall(context).copyWith(
+              color: context.colors.textTertiary,
             ),
           ),
         ],
@@ -877,13 +877,13 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: AppTypography.bodyLarge,
+          style: AppTypography.bodyLarge(context),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textSecondary,
+          style: AppTypography.labelSmall(context).copyWith(
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -929,12 +929,12 @@ class _ActionButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppColors.elevated),
+          side: BorderSide(color: context.colors.elevated),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
         ),
-        child: Text(label, style: AppTypography.buttonSecondary),
+        child: Text(label, style: AppTypography.buttonSecondary(context)),
       ),
     );
   }

@@ -16,7 +16,7 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -30,13 +30,13 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back,
                     size: 24,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -45,15 +45,15 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
               // Title
               Text(
                 'Select Category',
-                style: AppTypography.headline3,
+                style: AppTypography.headline3(context),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // Description
               Text(
                 'What kind of sounds do you want to match?',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTypography.body(context).copyWith(
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
@@ -149,11 +149,11 @@ class _GrandCategoryCard extends StatelessWidget {
     final card = Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: isPrimary ? AppColors.purple : AppColors.surface,
+        color: isPrimary ? AppColors.purple : context.colors.surface,
         borderRadius: BorderRadius.circular(20),
         border: isPrimary
             ? null
-            : Border.all(color: AppColors.elevated, width: 1),
+            : Border.all(color: context.colors.elevated, width: 1),
       ),
       child: Row(
         children: [
@@ -183,18 +183,18 @@ class _GrandCategoryCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTypography.body.copyWith(
-                    color: isPrimary ? AppColors.white : AppColors.textPrimary,
+                  style: AppTypography.body(context).copyWith(
+                    color: isPrimary ? AppColors.white : context.colors.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: AppTypography.labelSmall.copyWith(
+                  style: AppTypography.labelSmall(context).copyWith(
                     color: isPrimary
                         ? AppColors.white.withValues(alpha: 0.8)
-                        : AppColors.textSecondary,
+                        : context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -206,13 +206,13 @@ class _GrandCategoryCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.elevated,
+                color: context.colors.elevated,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 'Soon',
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTypography.labelSmall(context).copyWith(
+                  color: context.colors.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -225,7 +225,7 @@ class _GrandCategoryCard extends StatelessWidget {
               size: 20,
               color: isPrimary
                   ? AppColors.white.withValues(alpha: 0.7)
-                  : AppColors.textSecondary,
+                  : context.colors.textSecondary,
             ),
         ],
       ),

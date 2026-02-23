@@ -86,7 +86,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                 // Title
                 Text(
                   'You Won!',
-                  style: AppTypography.headline2.copyWith(
+                  style: AppTypography.headline2(context).copyWith(
                     color: AppColors.white,
                   ),
                 ),
@@ -144,7 +144,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                           ? '${counts.singlePlayerRemaining} free game${counts.singlePlayerRemaining == 1 ? '' : 's'} left today'
                           : 'No free games left. Resets at 3:00 AM',
                       textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall.copyWith(
+                      style: AppTypography.bodySmall(context).copyWith(
                         color: AppColors.white.withValues(alpha: 0.9),
                       ),
                     ),
@@ -197,14 +197,14 @@ class _WinScreenState extends ConsumerState<WinScreen> {
       children: [
         Text(
           value,
-          style: AppTypography.metricSmall.copyWith(
+          style: AppTypography.metricSmall(context).copyWith(
             color: AppColors.white,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.bodySmall.copyWith(
+          style: AppTypography.bodySmall(context).copyWith(
             color: AppColors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -249,7 +249,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
             const SizedBox(width: 12),
             Text(
               label,
-              style: AppTypography.bodyLarge.copyWith(
+              style: AppTypography.bodyLarge(context).copyWith(
                 color: foregroundColor,
               ),
             ),

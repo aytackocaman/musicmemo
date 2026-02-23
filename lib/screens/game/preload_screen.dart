@@ -146,7 +146,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -172,13 +172,13 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
 
                 Text(
                   'Preparing Game',
-                  style: AppTypography.headline3,
+                  style: AppTypography.headline3(context),
                 ),
                 const SizedBox(height: 8),
 
                 Text(
                   _statusText,
-                  style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -189,7 +189,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       value: _progress > 0 ? _progress : null,
-                      backgroundColor: AppColors.surface,
+                      backgroundColor: context.colors.surface,
                       color: AppColors.purple,
                       minHeight: 8,
                     ),
@@ -197,7 +197,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                   const SizedBox(height: 8),
                   Text(
                     '${(_progress * 100).round()}%',
-                    style: AppTypography.labelSmall,
+                    style: AppTypography.labelSmall(context),
                   ),
                 ],
 
@@ -229,8 +229,8 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       'Go Back',
-                      style: AppTypography.buttonSecondary.copyWith(
-                        color: AppColors.textSecondary,
+                      style: AppTypography.buttonSecondary(context).copyWith(
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),

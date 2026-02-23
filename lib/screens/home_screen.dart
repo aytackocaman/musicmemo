@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -59,13 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.logout,
                     size: 20,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ),
@@ -96,15 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Title
                 Text(
                   'Music Memo',
-                  style: AppTypography.headline2,
+                  style: AppTypography.headline2(context),
                 ),
                 const SizedBox(height: AppSpacing.sm),
 
                 // Subtitle
                 Text(
                   'Match the sounds to win!',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.textSecondary,
+                  style: AppTypography.body(context).copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
@@ -164,12 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       'High Score',
-                      style: AppTypography.labelSmall,
+                      style: AppTypography.labelSmall(context),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       _formatHighScore(_highScore),
-                      style: AppTypography.headline3.copyWith(
+                      style: AppTypography.headline3(context).copyWith(
                         color: AppColors.teal,
                       ),
                     ),

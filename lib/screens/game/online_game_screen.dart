@@ -537,7 +537,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   Widget build(BuildContext context) {
     if (!_isInitialized) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -548,7 +548,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
               const SizedBox(height: 16),
               Text(
                 _amIPlayer1 ? 'Setting up game...' : 'Waiting for host...',
-                style: AppTypography.body,
+                style: AppTypography.body(context),
               ),
             ],
           ),
@@ -559,7 +559,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -619,7 +619,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
           children: [
             GestureDetector(
               onTap: () => _showExitConfirmation(),
-              child: const Icon(Icons.home, size: 20, color: AppColors.textSecondary),
+              child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
             ),
             if (kDebugMode) ...[
               const SizedBox(width: 8),
@@ -639,7 +639,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
                   child: Icon(
                     DevConfig.simulateDisconnect ? Icons.wifi_off : Icons.wifi,
                     size: 20,
-                    color: DevConfig.simulateDisconnect ? Colors.red : AppColors.textTertiary,
+                    color: DevConfig.simulateDisconnect ? Colors.red : context.colors.textTertiary,
                   ),
                 ),
               ),
@@ -653,7 +653,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
             const SizedBox(width: 4),
             Text(
               label,
-              style: AppTypography.labelSmall.copyWith(
+              style: AppTypography.labelSmall(context).copyWith(
                 color: dotColor,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
@@ -712,7 +712,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       decoration: BoxDecoration(
         color: _isMyTurn
             ? AppColors.purple.withValues(alpha: 0.08)
-            : AppColors.surface,
+            : context.colors.surface,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -720,15 +720,15 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
         children: [
           Text(
             _isMyTurn ? 'Your turn' : 'Waiting...',
-            style: AppTypography.bodySmall.copyWith(
+            style: AppTypography.bodySmall(context).copyWith(
               fontSize: 11,
-              color: _isMyTurn ? AppColors.purple : AppColors.textSecondary,
+              color: _isMyTurn ? AppColors.purple : context.colors.textSecondary,
               fontWeight: _isMyTurn ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
-          Container(width: 1, height: 20, color: AppColors.elevated),
+          Container(width: 1, height: 20, color: context.colors.elevated),
           _buildInlineStat(GameUtils.formatTime(_seconds), 'Time'),
-          Container(width: 1, height: 20, color: AppColors.elevated),
+          Container(width: 1, height: 20, color: context.colors.elevated),
           _buildInlineStat('$matchedPairs/$totalPairs', 'Pairs'),
         ],
       ),
@@ -741,14 +741,14 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       children: [
         Text(
           value,
-          style: AppTypography.bodySmall.copyWith(
+          style: AppTypography.bodySmall(context).copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: context.colors.textPrimary,
           ),
         ),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(fontSize: 10),
+          style: AppTypography.labelSmall(context).copyWith(fontSize: 10),
         ),
       ],
     );
@@ -797,7 +797,7 @@ class _PlayerScoreCard extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isCurrentTurn ? color.withValues(alpha: 0.12) : AppColors.surface,
+        color: isCurrentTurn ? color.withValues(alpha: 0.12) : context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCurrentTurn ? color : Colors.transparent,
@@ -818,16 +818,16 @@ class _PlayerScoreCard extends StatelessWidget {
           Expanded(
             child: Text(
               isMe ? 'You' : name,
-              style: AppTypography.bodySmall.copyWith(
+              style: AppTypography.bodySmall(context).copyWith(
                 fontSize: 12,
-                color: AppColors.textPrimary,
+                color: context.colors.textPrimary,
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             '$score',
-            style: AppTypography.bodyLarge.copyWith(
+            style: AppTypography.bodyLarge(context).copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: color,
@@ -1176,7 +1176,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                       : iWon
                           ? 'You Win!'
                           : 'You Lost',
-                  style: AppTypography.headline2.copyWith(
+                  style: AppTypography.headline2(context).copyWith(
                     color: AppColors.white,
                   ),
                 ),
@@ -1188,7 +1188,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                       : iWon
                           ? 'Congratulations!'
                           : 'Better luck next time!',
-                  style: AppTypography.body.copyWith(
+                  style: AppTypography.body(context).copyWith(
                     color: AppColors.white.withValues(alpha: 0.8),
                   ),
                 ),
@@ -1208,7 +1208,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                           children: [
                             Text(
                               'You',
-                              style: AppTypography.bodySmall.copyWith(
+                              style: AppTypography.bodySmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.8),
                               ),
                             ),
@@ -1221,7 +1221,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                             ),
                             Text(
                               'pairs',
-                              style: AppTypography.labelSmall.copyWith(
+                              style: AppTypography.labelSmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.7),
                               ),
                             ),
@@ -1237,7 +1237,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                         ),
                         child: Text(
                           'VS',
-                          style: AppTypography.bodyLarge.copyWith(
+                          style: AppTypography.bodyLarge(context).copyWith(
                             color: AppColors.white.withValues(alpha: 0.6),
                           ),
                         ),
@@ -1247,7 +1247,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                           children: [
                             Text(
                               opponentName ?? 'Opponent',
-                              style: AppTypography.bodySmall.copyWith(
+                              style: AppTypography.bodySmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.8),
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -1261,7 +1261,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                             ),
                             Text(
                               'pairs',
-                              style: AppTypography.labelSmall.copyWith(
+                              style: AppTypography.labelSmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.7),
                               ),
                             ),
@@ -1472,7 +1472,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
         Flexible(
           child: Text(
             value,
-            style: AppTypography.bodySmall.copyWith(
+            style: AppTypography.bodySmall(context).copyWith(
               color: AppColors.white.withValues(alpha: 0.9),
             ),
             overflow: TextOverflow.ellipsis,
@@ -1530,7 +1530,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
             ],
             Text(
               label,
-              style: AppTypography.bodyLarge.copyWith(
+              style: AppTypography.bodyLarge(context).copyWith(
                 color: foregroundColor,
               ),
             ),

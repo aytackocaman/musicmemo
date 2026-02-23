@@ -462,7 +462,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: _isWaitingForHostToStart
             ? _buildWaitingForHostScreen()
@@ -490,11 +490,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Online Multiplayer', style: AppTypography.headline3),
+          Text('Online Multiplayer', style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
             'Play with friends in real-time',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xxl),
 
@@ -564,13 +564,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Find Opponent', style: AppTypography.headline3),
+          Text('Find Opponent', style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
             _isSearchingForOpponent
                 ? 'Searching for available players...'
                 : 'No players found. Create a game and wait for someone to join!',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
 
@@ -587,8 +587,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                     const SizedBox(height: 16),
                     Text(
                       'Looking for opponents...',
-                      style: AppTypography.body
-                          .copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.body(context)
+                          .copyWith(color: context.colors.textSecondary),
                     ),
                   ],
                 ),
@@ -644,13 +644,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               child: OutlinedButton(
                 onPressed: _searchForOpponent,
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.elevated),
+                  side: BorderSide(color: context.colors.elevated),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                 ),
                 child:
-                    Text('Search Again', style: AppTypography.buttonSecondary),
+                    Text('Search Again', style: AppTypography.buttonSecondary(context)),
               ),
             ),
           ],
@@ -668,11 +668,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Create Game', style: AppTypography.headline3),
+          Text('Create Game', style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
             'Set up the game and invite a friend',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
 
@@ -728,11 +728,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Join Game', style: AppTypography.headline3),
+          Text('Join Game', style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
             'Enter the code from your friend',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
 
@@ -749,7 +749,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(height: 8),
           TextField(
             controller: _codeController,
-            style: AppTypography.body.copyWith(
+            style: AppTypography.body(context).copyWith(
               letterSpacing: 8,
               fontWeight: FontWeight.bold,
               fontSize: 24,
@@ -759,13 +759,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             maxLength: 6,
             decoration: InputDecoration(
               hintText: '------',
-              hintStyle: AppTypography.body.copyWith(
+              hintStyle: AppTypography.body(context).copyWith(
                 letterSpacing: 8,
-                color: AppColors.textTertiary,
+                color: context.colors.textTertiary,
               ),
               counterText: '',
               filled: true,
-              fillColor: AppColors.surface,
+              fillColor: context.colors.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
@@ -820,10 +820,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Icon(Icons.close, size: 24, color: AppColors.textPrimary),
+                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
               ),
             ),
           ),
@@ -846,7 +846,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
           Text(
             'Waiting for opponent...',
-            style: AppTypography.headline3,
+            style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -854,7 +854,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             _isPublicSession
                 ? 'Someone will join your game soon'
                 : 'Share this code with a friend',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 24),
 
@@ -864,13 +864,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.elevated),
+                border: Border.all(color: context.colors.elevated),
               ),
               child: Text(
                 _inviteCode ?? '',
-                style: AppTypography.headline2.copyWith(
+                style: AppTypography.headline2(context).copyWith(
                   letterSpacing: 8,
                   color: AppColors.purple,
                 ),
@@ -885,16 +885,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.colors.surface,
                       borderRadius: BorderRadius.circular(AppRadius.button),
-                      border: Border.all(color: AppColors.elevated),
+                      border: Border.all(color: context.colors.elevated),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.copy, size: 18, color: AppColors.textSecondary),
+                        Icon(Icons.copy, size: 18, color: context.colors.textSecondary),
                         const SizedBox(width: 8),
-                        Text('Copy', style: AppTypography.bodySmall),
+                        Text('Copy', style: AppTypography.bodySmall(context)),
                       ],
                     ),
                   ),
@@ -913,7 +913,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                       children: [
                         const Icon(Icons.share, size: 18, color: Colors.white),
                         const SizedBox(width: 8),
-                        Text('Share', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                        Text('Share', style: AppTypography.bodySmall(context).copyWith(color: Colors.white)),
                       ],
                     ),
                   ),
@@ -933,15 +933,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Public Game',
-                    style: AppTypography.bodyLarge.copyWith(
+                    style: AppTypography.bodyLarge(context).copyWith(
                       color: AppColors.pink,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Anyone can find and join this game',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                    style: AppTypography.bodySmall(context).copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -957,12 +957,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             child: OutlinedButton(
               onPressed: _cancelWaiting,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.elevated),
+                side: BorderSide(color: context.colors.elevated),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text('Cancel', style: AppTypography.buttonSecondary),
+              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -984,10 +984,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Icon(Icons.close, size: 24, color: AppColors.textPrimary),
+                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
               ),
             ),
           ),
@@ -1013,7 +1013,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
           Text(
             'Opponent Joined!',
-            style: AppTypography.headline3,
+            style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -1022,7 +1022,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.teal.withValues(alpha: 0.3)),
             ),
@@ -1044,11 +1044,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   children: [
                     Text(
                       _opponentName ?? 'Player 2',
-                      style: AppTypography.bodyLarge,
+                      style: AppTypography.bodyLarge(context),
                     ),
                     Text(
                       'Ready to play',
-                      style: AppTypography.bodySmall.copyWith(
+                      style: AppTypography.bodySmall(context).copyWith(
                         color: AppColors.teal,
                       ),
                     ),
@@ -1063,7 +1063,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -1071,15 +1071,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               children: [
                 Column(
                   children: [
-                    Text(_selectedCategory, style: AppTypography.bodySmall),
-                    Text('Category', style: AppTypography.labelSmall),
+                    Text(_selectedCategory, style: AppTypography.bodySmall(context)),
+                    Text('Category', style: AppTypography.labelSmall(context)),
                   ],
                 ),
-                Container(width: 1, height: 30, color: AppColors.elevated),
+                Container(width: 1, height: 30, color: context.colors.elevated),
                 Column(
                   children: [
-                    Text(_selectedGrid, style: AppTypography.bodySmall),
-                    Text('Grid', style: AppTypography.labelSmall),
+                    Text(_selectedGrid, style: AppTypography.bodySmall(context)),
+                    Text('Grid', style: AppTypography.labelSmall(context)),
                   ],
                 ),
               ],
@@ -1120,12 +1120,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             child: OutlinedButton(
               onPressed: _cancelWaiting,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.elevated),
+                side: BorderSide(color: context.colors.elevated),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text('Cancel', style: AppTypography.buttonSecondary),
+              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -1152,10 +1152,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Icon(Icons.close, size: 24, color: AppColors.textPrimary),
+                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
               ),
             ),
           ),
@@ -1178,13 +1178,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
           Text(
             'Joined Successfully!',
-            style: AppTypography.headline3,
+            style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'Waiting for host to start the game...',
-            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -1197,7 +1197,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -1209,7 +1209,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'Host: ${_currentSession!.player1Name ?? "Player 1"}',
-                        style: AppTypography.body,
+                        style: AppTypography.body(context),
                       ),
                     ],
                   ),
@@ -1221,19 +1221,19 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         children: [
                           Text(
                             _currentSession!.category ?? 'Unknown',
-                            style: AppTypography.bodySmall,
+                            style: AppTypography.bodySmall(context),
                           ),
-                          Text('Category', style: AppTypography.labelSmall),
+                          Text('Category', style: AppTypography.labelSmall(context)),
                         ],
                       ),
-                      Container(width: 1, height: 30, color: AppColors.elevated),
+                      Container(width: 1, height: 30, color: context.colors.elevated),
                       Column(
                         children: [
                           Text(
                             _currentSession!.gridSize ?? '4x5',
-                            style: AppTypography.bodySmall,
+                            style: AppTypography.bodySmall(context),
                           ),
-                          Text('Grid', style: AppTypography.labelSmall),
+                          Text('Grid', style: AppTypography.labelSmall(context)),
                         ],
                       ),
                     ],
@@ -1255,12 +1255,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 _popOrHome();
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.elevated),
+                side: BorderSide(color: context.colors.elevated),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text('Leave', style: AppTypography.buttonSecondary),
+              child: Text('Leave', style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -1275,10 +1275,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: const Icon(Icons.arrow_back, size: 24, color: AppColors.textPrimary),
+        child: Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
       ),
     );
   }
@@ -1295,9 +1295,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.elevated),
+          border: Border.all(color: context.colors.elevated),
         ),
         child: Row(
           children: [
@@ -1315,18 +1315,18 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTypography.bodyLarge),
+                  Text(title, style: AppTypography.bodyLarge(context)),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                    style: AppTypography.bodySmall(context).copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+            Icon(Icons.chevron_right, color: context.colors.textTertiary),
           ],
         ),
       ),
@@ -1334,17 +1334,17 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title, style: AppTypography.label);
+    return Text(title, style: AppTypography.label(context));
   }
 
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
-      style: AppTypography.body,
+      style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: context.colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -1367,27 +1367,27 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.purple : AppColors.surface,
+                color: isSelected ? AppColors.purple : context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? AppColors.purple : AppColors.elevated,
+                  color: isSelected ? AppColors.purple : context.colors.elevated,
                 ),
               ),
               child: Column(
                 children: [
                   Text(
                     grid['label'],
-                    style: AppTypography.bodyLarge.copyWith(
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                    style: AppTypography.bodyLarge(context).copyWith(
+                      color: isSelected ? Colors.white : context.colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     grid['difficulty'],
-                    style: AppTypography.labelSmall.copyWith(
+                    style: AppTypography.labelSmall(context).copyWith(
                       color: isSelected
                           ? Colors.white.withValues(alpha: 0.8)
-                          : AppColors.textTertiary,
+                          : context.colors.textTertiary,
                     ),
                   ),
                 ],
@@ -1429,7 +1429,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(width: 10),
           Text(
             isDisconnected ? 'Connection lost' : 'Reconnecting...',
-            style: AppTypography.bodySmall.copyWith(
+            style: AppTypography.bodySmall(context).copyWith(
               color: isDisconnected ? Colors.red : Colors.orange,
             ),
           ),
@@ -1453,7 +1453,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           Expanded(
             child: Text(
               _errorMessage!,
-              style: AppTypography.bodySmall.copyWith(color: Colors.red),
+              style: AppTypography.bodySmall(context).copyWith(color: Colors.red),
             ),
           ),
         ],

@@ -87,7 +87,7 @@ class GridScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -101,15 +101,15 @@ class GridScreen extends ConsumerWidget {
               // Title
               Text(
                 'Select Grid Size',
-                style: AppTypography.headline3,
+                style: AppTypography.headline3(context),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // Description
               Text(
                 'Larger grids are more challenging',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTypography.body(context).copyWith(
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
@@ -195,13 +195,13 @@ class _BackButton extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back,
           size: 24,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
         ),
       ),
     );
@@ -224,10 +224,10 @@ class _GridOptionItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.elevated,
+            color: context.colors.elevated,
             width: 1,
           ),
         ),
@@ -257,13 +257,13 @@ class _GridOptionItem extends StatelessWidget {
                 children: [
                   Text(
                     option.label,
-                    style: AppTypography.bodyLarge,
+                    style: AppTypography.bodyLarge(context),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     option.description,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                    style: AppTypography.bodySmall(context).copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -279,7 +279,7 @@ class _GridOptionItem extends StatelessWidget {
               ),
               child: Text(
                 option.badgeText,
-                style: AppTypography.labelSmall.copyWith(
+                style: AppTypography.labelSmall(context).copyWith(
                   color: option.badgeColor,
                   fontWeight: FontWeight.w600,
                 ),

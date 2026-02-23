@@ -32,7 +32,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -49,7 +49,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       // Title
                       Text(
                         'Statistics',
-                        style: AppTypography.headline2,
+                        style: AppTypography.headline2(context),
                       ),
                       const SizedBox(height: 24),
 
@@ -60,7 +60,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       // By Game Mode label
                       Text(
                         'By Game Mode',
-                        style: AppTypography.headline3,
+                        style: AppTypography.headline3(context),
                       ),
                       const SizedBox(height: 12),
 
@@ -83,12 +83,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(22),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back,
-              color: AppColors.textPrimary,
+              color: context.colors.textPrimary,
               size: 24,
             ),
           ),
@@ -112,7 +112,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         children: [
           Text(
             'Overall Stats',
-            style: AppTypography.label.copyWith(
+            style: AppTypography.label(context).copyWith(
               color: Colors.white.withValues(alpha: 0.8),
               fontWeight: FontWeight.w600,
             ),
@@ -160,7 +160,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(
+          style: AppTypography.labelSmall(context).copyWith(
             color: Colors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -215,10 +215,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.elevated,
+          color: context.colors.elevated,
           width: 1,
         ),
       ),
@@ -247,15 +247,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 Text(
                   title,
-                  style: AppTypography.bodyLarge.copyWith(
+                  style: AppTypography.bodyLarge(context).copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '$games games • ${winRate.toStringAsFixed(0)}% win rate',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                  style: AppTypography.bodySmall(context).copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],

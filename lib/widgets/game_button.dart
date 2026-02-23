@@ -19,14 +19,25 @@ class GameButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = switch (variant) {
+      GameButtonVariant.primary => AppColors.purple,
+      GameButtonVariant.secondary => context.colors.surface,
+      GameButtonVariant.ghost => Colors.transparent,
+    };
+    final foregroundColor = switch (variant) {
+      GameButtonVariant.primary => AppColors.white,
+      GameButtonVariant.secondary => context.colors.textPrimary,
+      GameButtonVariant.ghost => context.colors.textSecondary,
+    };
+
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: _backgroundColor,
-          foregroundColor: _foregroundColor,
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
@@ -43,35 +54,13 @@ class GameButton extends StatelessWidget {
               label,
               style: variant == GameButtonVariant.primary
                   ? AppTypography.button
-                  : AppTypography.buttonSecondary.copyWith(
-                      color: _foregroundColor,
+                  : AppTypography.buttonSecondary(context).copyWith(
+                      color: foregroundColor,
                     ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Color get _backgroundColor {
-    switch (variant) {
-      case GameButtonVariant.primary:
-        return AppColors.purple;
-      case GameButtonVariant.secondary:
-        return AppColors.surface;
-      case GameButtonVariant.ghost:
-        return Colors.transparent;
-    }
-  }
-
-  Color get _foregroundColor {
-    switch (variant) {
-      case GameButtonVariant.primary:
-        return AppColors.white;
-      case GameButtonVariant.secondary:
-        return AppColors.textPrimary;
-      case GameButtonVariant.ghost:
-        return AppColors.textSecondary;
-    }
   }
 }

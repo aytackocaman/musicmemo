@@ -17,7 +17,7 @@ Future<void> showAppDialog({
   return showDialog(
     context: context,
     builder: (dialogContext) => Dialog(
-      backgroundColor: AppColors.background,
+      backgroundColor: dialogContext.colors.background,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 32),
       child: Padding(
@@ -26,11 +26,11 @@ Future<void> showAppDialog({
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: AppTypography.bodyLarge),
+            Text(title, style: AppTypography.bodyLarge(dialogContext)),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.body(dialogContext).copyWith(color: dialogContext.colors.textSecondary),
             ),
             const SizedBox(height: 24),
             Row(
@@ -42,12 +42,12 @@ Future<void> showAppDialog({
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: dialogContext.colors.surface,
                         borderRadius: BorderRadius.circular(AppRadius.button),
-                        border: Border.all(color: AppColors.elevated),
+                        border: Border.all(color: dialogContext.colors.elevated),
                       ),
                       child: Center(
-                        child: Text(cancelLabel, style: AppTypography.buttonSecondary),
+                        child: Text(cancelLabel, style: AppTypography.buttonSecondary(dialogContext)),
                       ),
                     ),
                   ),
@@ -71,7 +71,7 @@ Future<void> showAppDialog({
                       child: Center(
                         child: Text(
                           confirmLabel,
-                          style: AppTypography.buttonSecondary.copyWith(
+                          style: AppTypography.buttonSecondary(dialogContext).copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.w700,
                           ),
@@ -100,10 +100,10 @@ void showAppSnackBar(
     SnackBar(
       content: Text(
         message,
-        style: AppTypography.bodySmall.copyWith(color: AppColors.white),
+        style: AppTypography.bodySmall(context).copyWith(color: AppColors.white),
       ),
       backgroundColor:
-          isError ? const Color(0xFFEF4444) : AppColors.textPrimary,
+          isError ? const Color(0xFFEF4444) : context.colors.textPrimary,
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

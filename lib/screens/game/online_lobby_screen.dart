@@ -173,7 +173,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: _isWaiting ? _buildWaitingScreen() : _buildLobbyScreen(),
       ),
@@ -193,14 +193,14 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
           // Title
           Text(
             'Online Multiplayer',
-            style: AppTypography.headline3,
+            style: AppTypography.headline3(context),
           ),
           const SizedBox(height: AppSpacing.sm),
 
           Text(
             'Create a game or join with a code',
-            style: AppTypography.body.copyWith(
-              color: AppColors.textSecondary,
+            style: AppTypography.body(context).copyWith(
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(height: AppSpacing.xxl),
@@ -208,16 +208,16 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
           // Name input
           Text(
             'Your Name',
-            style: AppTypography.label,
+            style: AppTypography.label(context),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _nameController,
-            style: AppTypography.body,
+            style: AppTypography.body(context),
             decoration: InputDecoration(
               hintText: 'Enter your name',
               filled: true,
-              fillColor: AppColors.surface,
+              fillColor: context.colors.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -245,7 +245,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   Expanded(
                     child: Text(
                       _errorMessage!,
-                      style: AppTypography.bodySmall.copyWith(color: Colors.red),
+                      style: AppTypography.bodySmall(context).copyWith(color: Colors.red),
                     ),
                   ),
                 ],
@@ -287,11 +287,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                         children: [
                           Text(
                             'Create Game',
-                            style: AppTypography.bodyLarge,
+                            style: AppTypography.bodyLarge(context),
                           ),
                           Text(
                             'Get a code to share with a friend',
-                            style: AppTypography.labelSmall,
+                            style: AppTypography.labelSmall(context),
                           ),
                         ],
                       ),
@@ -331,15 +331,15 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
           // OR divider
           Row(
             children: [
-              Expanded(child: Divider(color: AppColors.elevated)),
+              Expanded(child: Divider(color: context.colors.elevated)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'OR',
-                  style: AppTypography.labelSmall,
+                  style: AppTypography.labelSmall(context),
                 ),
               ),
-              Expanded(child: Divider(color: AppColors.elevated)),
+              Expanded(child: Divider(color: context.colors.elevated)),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -348,7 +348,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -374,11 +374,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                         children: [
                           Text(
                             'Join Game',
-                            style: AppTypography.bodyLarge,
+                            style: AppTypography.bodyLarge(context),
                           ),
                           Text(
                             'Enter a code from your friend',
-                            style: AppTypography.labelSmall,
+                            style: AppTypography.labelSmall(context),
                           ),
                         ],
                       ),
@@ -388,7 +388,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _codeController,
-                  style: AppTypography.body.copyWith(
+                  style: AppTypography.body(context).copyWith(
                     letterSpacing: 4,
                     fontWeight: FontWeight.bold,
                   ),
@@ -398,7 +398,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                     hintText: 'XXXXXX',
                     counterText: '',
                     filled: true,
-                    fillColor: AppColors.white,
+                    fillColor: context.colors.background,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -456,13 +456,13 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.close,
                   size: 24,
-                  color: AppColors.textPrimary,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
@@ -488,15 +488,15 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
 
           Text(
             'Waiting for opponent...',
-            style: AppTypography.headline3,
+            style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
 
           Text(
             'Share this code with a friend',
-            style: AppTypography.body.copyWith(
-              color: AppColors.textSecondary,
+            style: AppTypography.body(context).copyWith(
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(height: 24),
@@ -507,16 +507,16 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.elevated),
+                border: Border.all(color: context.colors.elevated),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     _inviteCode ?? '',
-                    style: AppTypography.headline2.copyWith(
+                    style: AppTypography.headline2(context).copyWith(
                       letterSpacing: 8,
                       color: AppColors.purple,
                     ),
@@ -524,7 +524,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   const SizedBox(width: 16),
                   Icon(
                     Icons.copy,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ],
               ),
@@ -534,7 +534,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
 
           Text(
             'Tap to copy',
-            style: AppTypography.labelSmall,
+            style: AppTypography.labelSmall(context),
           ),
 
           const Spacer(),
@@ -546,14 +546,14 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
             child: OutlinedButton(
               onPressed: _cancelWaiting,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.elevated),
+                side: BorderSide(color: context.colors.elevated),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
               child: Text(
                 'Cancel',
-                style: AppTypography.buttonSecondary,
+                style: AppTypography.buttonSecondary(context),
               ),
             ),
           ),
@@ -569,13 +569,13 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back,
           size: 24,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
         ),
       ),
     );

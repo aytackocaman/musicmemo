@@ -92,7 +92,7 @@ class _LocalPlayerSetupScreenState
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -111,12 +111,12 @@ class _LocalPlayerSetupScreenState
                             children: [
                               _buildBackButton(),
                               const SizedBox(height: 20),
-                              Text('Player Setup', style: AppTypography.headline3),
+                              Text('Player Setup', style: AppTypography.headline3(context)),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
                                 'Enter names and pick colors',
-                                style: AppTypography.body.copyWith(
-                                  color: AppColors.textSecondary,
+                                style: AppTypography.body(context).copyWith(
+                                  color: context.colors.textSecondary,
                                 ),
                               ),
                             ],
@@ -145,13 +145,13 @@ class _LocalPlayerSetupScreenState
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: context.colors.surface,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
                                   'VS',
-                                  style: AppTypography.bodyLarge.copyWith(
-                                    color: AppColors.textSecondary,
+                                  style: AppTypography.bodyLarge(context).copyWith(
+                                    color: context.colors.textSecondary,
                                   ),
                                 ),
                               ),
@@ -209,13 +209,13 @@ class _LocalPlayerSetupScreenState
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back,
           size: 24,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
         ),
       ),
     );
@@ -231,7 +231,7 @@ class _LocalPlayerSetupScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: selectedColor.withValues(alpha: 0.3),
@@ -255,8 +255,8 @@ class _LocalPlayerSetupScreenState
               const SizedBox(width: 8),
               Text(
                 'Player $playerNumber',
-                style: AppTypography.label.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTypography.label(context).copyWith(
+                  color: context.colors.textSecondary,
                 ),
               ),
             ],
@@ -266,7 +266,7 @@ class _LocalPlayerSetupScreenState
           // Name input
           TextField(
             controller: controller,
-            style: AppTypography.bodyLarge,
+            style: AppTypography.bodyLarge(context),
             textInputAction: TextInputAction.done,
             onTap: () => controller.selection = TextSelection(
               baseOffset: 0,
@@ -274,11 +274,11 @@ class _LocalPlayerSetupScreenState
             ),
             decoration: InputDecoration(
               hintText: 'Enter name',
-              hintStyle: AppTypography.body.copyWith(
-                color: AppColors.textTertiary,
+              hintStyle: AppTypography.body(context).copyWith(
+                color: context.colors.textTertiary,
               ),
               filled: true,
-              fillColor: AppColors.white,
+              fillColor: context.colors.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -292,7 +292,7 @@ class _LocalPlayerSetupScreenState
           const SizedBox(height: 10),
 
           // Color picker
-          Text('Choose color', style: AppTypography.labelSmall),
+          Text('Choose color', style: AppTypography.labelSmall(context)),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -310,7 +310,7 @@ class _LocalPlayerSetupScreenState
                     color: isDisabled ? color.withValues(alpha: 0.3) : color,
                     shape: BoxShape.circle,
                     border: isSelected
-                        ? Border.all(color: AppColors.textPrimary, width: 3)
+                        ? Border.all(color: context.colors.textPrimary, width: 3)
                         : null,
                     boxShadow: isSelected
                         ? [

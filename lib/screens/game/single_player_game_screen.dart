@@ -245,7 +245,7 @@ class _SinglePlayerGameScreenState
     return PopScope(
       canPop: false,
       child: Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -285,7 +285,7 @@ class _SinglePlayerGameScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -293,10 +293,10 @@ class _SinglePlayerGameScreenState
           // Home button
           GestureDetector(
             onTap: () => _showHomeConfirmation(),
-            child: const Icon(
+            child: Icon(
               Icons.home,
               size: 20,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(width: 12),
@@ -322,7 +322,7 @@ class _SinglePlayerGameScreenState
             child: Icon(
               _isPaused ? Icons.play_arrow : Icons.pause,
               size: 20,
-              color: AppColors.textSecondary,
+              color: context.colors.textSecondary,
             ),
           ),
         ],
@@ -336,14 +336,14 @@ class _SinglePlayerGameScreenState
       children: [
         Text(
           value,
-          style: AppTypography.bodyLarge.copyWith(
+          style: AppTypography.bodyLarge(context).copyWith(
             fontSize: 16,
-            color: color ?? AppColors.textPrimary,
+            color: color ?? context.colors.textPrimary,
           ),
         ),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(fontSize: 10),
+          style: AppTypography.labelSmall(context).copyWith(fontSize: 10),
         ),
       ],
     );
@@ -354,7 +354,7 @@ class _SinglePlayerGameScreenState
       child: GestureDetector(
         onTap: _togglePause,
         child: Container(
-          color: AppColors.background.withValues(alpha: 0.95),
+          color: context.colors.background.withValues(alpha: 0.95),
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -375,13 +375,13 @@ class _SinglePlayerGameScreenState
                 const SizedBox(height: 20),
                 Text(
                   'Game Paused',
-                  style: AppTypography.headline3,
+                  style: AppTypography.headline3(context),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Tap anywhere to resume',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.textSecondary,
+                  style: AppTypography.body(context).copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -407,8 +407,8 @@ class _SinglePlayerGameScreenState
                   onTap: () => _showHomeConfirmation(),
                   child: Text(
                     'Quit Game',
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.textSecondary,
+                    style: AppTypography.body(context).copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),

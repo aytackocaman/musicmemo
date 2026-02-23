@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
             // Title
             Text(
               'Music Memo',
-              style: AppTypography.headline2.copyWith(
+              style: AppTypography.headline2(context).copyWith(
                 color: AppColors.white,
               ),
             ),

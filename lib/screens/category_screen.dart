@@ -153,7 +153,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,10 +169,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Icon(Icons.arrow_back, size: 24, color: AppColors.textPrimary),
+                  child: Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
                 ),
               ),
             ),
@@ -181,7 +181,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             // Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text('Select Category', style: AppTypography.headline3),
+              child: Text('Select Category', style: AppTypography.headline3(context)),
             ),
             const SizedBox(height: AppSpacing.lg),
 
@@ -192,23 +192,23 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.elevated, width: 1),
+                  border: Border.all(color: context.colors.elevated, width: 1),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+                    Icon(Icons.search, size: 20, color: context.colors.textSecondary),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
                         controller: _searchController,
                         onChanged: (v) => setState(() => _searchQuery = v),
-                        style: AppTypography.body,
+                        style: AppTypography.body(context),
                         decoration: InputDecoration(
                           hintText: 'Search collections...',
-                          hintStyle: AppTypography.body.copyWith(
-                            color: AppColors.textSecondary,
+                          hintStyle: AppTypography.body(context).copyWith(
+                            color: context.colors.textSecondary,
                           ),
                           border: InputBorder.none,
                           isDense: true,
@@ -222,7 +222,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
                         },
-                        child: const Icon(Icons.close, size: 18, color: AppColors.textSecondary),
+                        child: Icon(Icons.close, size: 18, color: context.colors.textSecondary),
                       ),
                   ],
                 ),
@@ -288,7 +288,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               _searchQuery.isNotEmpty
                   ? 'No collections match "$_searchQuery"'
                   : 'No categories available',
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
             ),
           ),
         ),
@@ -328,9 +328,9 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: AppTypography.bodyLarge.copyWith(
+      style: AppTypography.bodyLarge(context).copyWith(
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
+        color: context.colors.textPrimary,
       ),
     );
   }
@@ -358,9 +358,9 @@ class _SubGroupHeader extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: AppTypography.body.copyWith(
+          style: AppTypography.body(context).copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -409,9 +409,9 @@ class _TagTypeButton extends StatelessWidget {
                 Expanded(
                   child: Text(
                     tagType.label,
-                    style: AppTypography.body.copyWith(
+                    style: AppTypography.body(context).copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: context.colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -452,9 +452,9 @@ class _CategoryTile extends StatelessWidget {
         height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: isLocked ? AppColors.surface.withValues(alpha: 0.6) : AppColors.surface,
+          color: isLocked ? context.colors.surface.withValues(alpha: 0.6) : context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.elevated, width: 1),
+          border: Border.all(color: context.colors.elevated, width: 1),
         ),
         child: Row(
           children: [
@@ -468,7 +468,7 @@ class _CategoryTile extends StatelessWidget {
               child: Icon(
                 Icons.music_note,
                 size: 18,
-                color: isLocked ? AppColors.textTertiary : color,
+                color: isLocked ? context.colors.textTertiary : color,
               ),
             ),
             const SizedBox(width: 12),
@@ -479,15 +479,15 @@ class _CategoryTile extends StatelessWidget {
                 children: [
                   Text(
                     category.name,
-                    style: AppTypography.body.copyWith(
+                    style: AppTypography.body(context).copyWith(
                       fontWeight: FontWeight.w500,
-                      color: isLocked ? AppColors.textTertiary : AppColors.textPrimary,
+                      color: isLocked ? context.colors.textTertiary : context.colors.textPrimary,
                     ),
                   ),
                   Text(
                     '${category.soundCount} tracks',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.textSecondary,
+                    style: AppTypography.labelSmall(context).copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -507,7 +507,7 @@ class _CategoryTile extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'PRO',
-                      style: AppTypography.labelSmall.copyWith(
+                      style: AppTypography.labelSmall(context).copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
@@ -585,9 +585,9 @@ class _TagValueSheetState extends State<_TagValueSheet> {
       expand: false,
       builder: (_, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: context.colors.background,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
@@ -597,7 +597,7 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.elevated,
+                  color: context.colors.elevated,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -620,7 +620,7 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                     const SizedBox(width: 12),
                     Text(
                       t.label,
-                      style: AppTypography.headline3,
+                      style: AppTypography.headline3(context),
                     ),
                     const Spacer(),
                     GestureDetector(
@@ -629,10 +629,10 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: context.colors.surface,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.close, size: 16, color: AppColors.textSecondary),
+                        child: Icon(Icons.close, size: 16, color: context.colors.textSecondary),
                       ),
                     ),
                   ],
@@ -647,9 +647,9 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                   height: 44,
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.elevated, width: 1),
+                    border: Border.all(color: context.colors.elevated, width: 1),
                   ),
                   child: Row(
                     children: [
@@ -659,11 +659,11 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                         child: TextField(
                           controller: _searchController,
                           onChanged: (v) => setState(() => _searchQuery = v),
-                          style: AppTypography.body,
+                          style: AppTypography.body(context),
                           decoration: InputDecoration(
                             hintText: 'Search ${t.label.toLowerCase()}...',
-                            hintStyle: AppTypography.body.copyWith(
-                              color: AppColors.textSecondary,
+                            hintStyle: AppTypography.body(context).copyWith(
+                              color: context.colors.textSecondary,
                             ),
                             border: InputBorder.none,
                             isDense: true,
@@ -685,8 +685,8 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                         ? Center(
                             child: Text(
                               'No results',
-                              style: AppTypography.body.copyWith(
-                                color: AppColors.textSecondary,
+                              style: AppTypography.body(context).copyWith(
+                                color: context.colors.textSecondary,
                               ),
                             ),
                           )
@@ -749,24 +749,24 @@ class _TagValueTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.elevated, width: 1),
+          border: Border.all(color: context.colors.elevated, width: 1),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 tagValue.value,
-                style: AppTypography.body.copyWith(
+                style: AppTypography.body(context).copyWith(
                   fontWeight: FontWeight.w500,
-                  color: isLocked ? AppColors.textTertiary : AppColors.textPrimary,
+                  color: isLocked ? context.colors.textTertiary : context.colors.textPrimary,
                 ),
               ),
             ),
             Text(
               '${tagValue.soundCount} tracks',
-              style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.labelSmall(context).copyWith(color: context.colors.textSecondary),
             ),
             const SizedBox(width: 8),
             if (isLocked)
@@ -783,7 +783,7 @@ class _TagValueTile extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'PRO',
-                      style: AppTypography.labelSmall.copyWith(
+                      style: AppTypography.labelSmall(context).copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,

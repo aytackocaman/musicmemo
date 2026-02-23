@@ -155,7 +155,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
       width: widget.size,
       height: widget.size * 1.25,
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.colors.background,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: AppColors.purple,

@@ -56,7 +56,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
     );
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -79,15 +79,15 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               // Title
               Text(
                 'Select Game Mode',
-                style: AppTypography.headline3,
+                style: AppTypography.headline3(context),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // Description
               Text(
                 'Choose how you want to play',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTypography.body(context).copyWith(
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
@@ -187,13 +187,13 @@ class _BackButton extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.arrow_back,
           size: 24,
-          color: AppColors.textPrimary,
+          color: context.colors.textPrimary,
         ),
       ),
     );
@@ -221,10 +221,10 @@ class _ModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isPrimary ? AppColors.purple : AppColors.surface;
-    final textColor = isPrimary ? AppColors.white : AppColors.textPrimary;
+    final backgroundColor = isPrimary ? AppColors.purple : context.colors.surface;
+    final textColor = isPrimary ? AppColors.white : context.colors.textPrimary;
     final subtitleColor =
-        isPrimary ? AppColors.white.withValues(alpha: 0.8) : AppColors.textSecondary;
+        isPrimary ? AppColors.white.withValues(alpha: 0.8) : context.colors.textSecondary;
     final iconBgColor = isPrimary
         ? AppColors.white.withValues(alpha: 0.2)
         : (iconBackgroundColor ?? const Color(0x268B5CF6));
@@ -239,7 +239,7 @@ class _ModeButton extends StatelessWidget {
           border: isPrimary
               ? null
               : Border.all(
-                  color: AppColors.elevated,
+                  color: context.colors.elevated,
                   width: 1,
                 ),
         ),
@@ -269,7 +269,7 @@ class _ModeButton extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.body.copyWith(
+                    style: AppTypography.body(context).copyWith(
                       color: textColor,
                       fontWeight: FontWeight.w600,
                     ),
@@ -277,7 +277,7 @@ class _ModeButton extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppTypography.labelSmall.copyWith(
+                    style: AppTypography.labelSmall(context).copyWith(
                       color: subtitleColor,
                     ),
                   ),
@@ -305,7 +305,7 @@ class _PremiumBadge extends StatelessWidget {
       ),
       child: Text(
         'Premium',
-        style: AppTypography.labelSmall.copyWith(
+        style: AppTypography.labelSmall(context).copyWith(
           color: const Color(0xFFFBBF24),
           fontWeight: FontWeight.w600,
         ),
@@ -344,7 +344,7 @@ class _DebugPaywallToggle extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               isPremium ? 'Premium ON' : 'Premium OFF',
-              style: AppTypography.labelSmall.copyWith(
+              style: AppTypography.labelSmall(context).copyWith(
                 color: AppColors.white,
                 fontWeight: FontWeight.w600,
               ),

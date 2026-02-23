@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -193,15 +193,15 @@ class _LoginScreenState extends State<LoginScreen> {
               // Title
               Text(
                 _isSignUp ? 'Create Account' : 'Welcome Back',
-                style: AppTypography.headline2,
+                style: AppTypography.headline2(context),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 _isSignUp
                     ? 'Sign up to save your progress'
                     : 'Sign in to continue playing',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
+                style: AppTypography.body(context).copyWith(
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -250,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           _obscurePassword
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
-                          color: AppColors.textTertiary,
+                          color: context.colors.textTertiary,
                         ),
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: _isLoading ? null : _resetPassword,
                           child: Text(
                             'Forgot Password?',
-                            style: AppTypography.bodySmall.copyWith(
+                            style: AppTypography.bodySmall(context).copyWith(
                               color: AppColors.purple,
                             ),
                           ),
@@ -307,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: AppTypography.bodySmall.copyWith(
+                          style: AppTypography.bodySmall(context).copyWith(
                             color: Colors.red.shade700,
                           ),
                         ),
@@ -340,13 +340,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     _isSignUp
                         ? 'Already have an account?'
                         : "Don't have an account?",
-                    style: AppTypography.bodySmall,
+                    style: AppTypography.bodySmall(context),
                   ),
                   TextButton(
                     onPressed: _isLoading ? null : _toggleMode,
                     child: Text(
                       _isSignUp ? 'Sign In' : 'Sign Up',
-                      style: AppTypography.label.copyWith(
+                      style: AppTypography.label(context).copyWith(
                         color: AppColors.purple,
                       ),
                     ),
@@ -362,22 +362,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(
                     child: Container(
                       height: 1,
-                      color: AppColors.surface,
+                      color: context.colors.surface,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                     child: Text(
                       'or',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
+                      style: AppTypography.bodySmall(context).copyWith(
+                        color: context.colors.textTertiary,
                       ),
                     ),
                   ),
                   Expanded(
                     child: Container(
                       height: 1,
-                      color: AppColors.surface,
+                      color: context.colors.surface,
                     ),
                   ),
                 ],
@@ -406,8 +406,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: const Icon(Icons.person_outline),
                   label: const Text('Play as Guest'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    side: const BorderSide(color: AppColors.surface, width: 2),
+                    foregroundColor: context.colors.textSecondary,
+                    side: BorderSide(color: context.colors.surface, width: 2),
                     padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.button),
@@ -421,8 +421,8 @@ class _LoginScreenState extends State<LoginScreen> {
               // Guest mode note
               Text(
                 'Progress saved locally. Create an account to sync across devices.',
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
+                style: AppTypography.labelSmall(context).copyWith(
+                  color: context.colors.textTertiary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -432,7 +432,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Terms
               Text(
                 'By continuing, you agree to our',
-                style: AppTypography.labelSmall,
+                style: AppTypography.labelSmall(context),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -446,13 +446,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Text(
                       'Terms of Service',
-                      style: AppTypography.labelSmall.copyWith(
+                      style: AppTypography.labelSmall(context).copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  Text(' & ', style: AppTypography.labelSmall),
+                  Text(' & ', style: AppTypography.labelSmall(context)),
                   TextButton(
                     onPressed: () {},
                     style: TextButton.styleFrom(
@@ -462,7 +462,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Text(
                       'Privacy Policy',
-                      style: AppTypography.labelSmall.copyWith(
+                      style: AppTypography.labelSmall(context).copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w600,
                       ),
@@ -502,16 +502,16 @@ class _LoginScreenState extends State<LoginScreen> {
       keyboardType: keyboardType,
       obscureText: obscureText,
       validator: validator,
-      style: AppTypography.body,
+      style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: AppTypography.body.copyWith(
-          color: AppColors.textTertiary,
+        hintStyle: AppTypography.body(context).copyWith(
+          color: context.colors.textTertiary,
         ),
-        prefixIcon: Icon(icon, color: AppColors.textTertiary),
+        prefixIcon: Icon(icon, color: context.colors.textTertiary),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: context.colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),
           borderSide: BorderSide.none,
