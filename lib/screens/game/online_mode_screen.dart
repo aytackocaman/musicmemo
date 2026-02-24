@@ -746,66 +746,75 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildJoinScreen() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildBackButton(),
-          const SizedBox(height: AppSpacing.xl),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildBackButton(),
+                const SizedBox(height: AppSpacing.xl),
 
-          Text('Join Game', style: AppTypography.headline3(context)),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Enter the code from your friend',
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
-          ),
-          const SizedBox(height: AppSpacing.xl),
+                Text('Join Game', style: AppTypography.headline3(context)),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Enter the code from your friend',
+                  style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-          if (_errorMessage != null) _buildErrorMessage(),
+                if (_errorMessage != null) _buildErrorMessage(),
 
-          // Name input
-          _buildSectionTitle('Your Name'),
-          const SizedBox(height: 8),
-          _buildTextField(_nameController, 'Enter your name'),
-          const SizedBox(height: AppSpacing.xl),
+                // Name input
+                _buildSectionTitle('Your Name'),
+                const SizedBox(height: 8),
+                _buildTextField(_nameController, 'Enter your name'),
+                const SizedBox(height: AppSpacing.xl),
 
-          // Code input
-          _buildSectionTitle('Invite Code'),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _codeController,
-            style: AppTypography.body(context).copyWith(
-              letterSpacing: 8,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
+                // Code input
+                _buildSectionTitle('Invite Code'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _codeController,
+                  style: AppTypography.body(context).copyWith(
+                    letterSpacing: 8,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  decoration: InputDecoration(
+                    hintText: '000000',
+                    hintStyle: AppTypography.body(context).copyWith(
+                      letterSpacing: 8,
+                      color: context.colors.textTertiary,
+                    ),
+                    counterText: '',
+                    filled: true,
+                    fillColor: context.colors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            decoration: InputDecoration(
-              hintText: '000000',
-              hintStyle: AppTypography.body(context).copyWith(
-                letterSpacing: 8,
-                color: context.colors.textTertiary,
-              ),
-              counterText: '',
-              filled: true,
-              fillColor: context.colors.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 20,
-              ),
-            ),
           ),
-          const SizedBox(height: AppSpacing.xxl),
+        ),
 
-          // Join button
-          SizedBox(
+        // Join button — stays above keyboard
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: SizedBox(
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
@@ -828,8 +837,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   : Text('Join Game', style: AppTypography.button),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1115,6 +1124,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   /// Screen shown to JOINER while waiting for host to start the game
   Widget _buildWaitingForHostScreen() {
+    final hostName = _currentSession?.player1Name ?? 'Host';
+    final myName = _nameController.text.isNotEmpty ? _nameController.text : 'You';
+    final category = _currentSession?.category;
+    final gridSize = _currentSession?.gridSize ?? '4x5';
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -1141,21 +1155,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const Spacer(),
 
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.teal.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.teal),
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
           Text(
             'Joined Successfully!',
             style: AppTypography.headline3(context),
@@ -1163,64 +1162,52 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Waiting for host to start the game...',
+            'Waiting for host to start...',
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 40),
 
-          _buildConnectionBanner(),
-          const SizedBox(height: 8),
+          _VsPlayersWidget(player1Name: hostName, player2Name: myName),
+          const SizedBox(height: 32),
 
-          // Game info
-          if (_currentSession != null)
+          // Game settings — values only, no labels
+          if (category != null)
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
                 color: context.colors.surface,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.person, color: AppColors.purple, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Host: ${_currentSession!.player1Name ?? "Player 1"}',
-                        style: AppTypography.body(context),
-                      ),
-                    ],
+                  Text(
+                    _formatCategoryName(category),
+                    style: AppTypography.bodySmall(context)
+                        .copyWith(color: context.colors.textSecondary),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            _currentSession!.category ?? 'Unknown',
-                            style: AppTypography.bodySmall(context),
-                          ),
-                          Text('Category', style: AppTypography.labelSmall(context)),
-                        ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Container(
+                      width: 4, height: 4,
+                      decoration: BoxDecoration(
+                        color: context.colors.textSecondary,
+                        shape: BoxShape.circle,
                       ),
-                      Container(width: 1, height: 30, color: context.colors.elevated),
-                      Column(
-                        children: [
-                          Text(
-                            _currentSession!.gridSize ?? '4x5',
-                            style: AppTypography.bodySmall(context),
-                          ),
-                          Text('Grid', style: AppTypography.labelSmall(context)),
-                        ],
-                      ),
-                    ],
+                    ),
+                  ),
+                  Text(
+                    gridSize,
+                    style: AppTypography.bodySmall(context)
+                        .copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
             ),
+          const SizedBox(height: 16),
+
+          _buildConnectionBanner(),
 
           const Spacer(),
 
