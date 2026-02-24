@@ -33,8 +33,8 @@ class DeepLinkService {
   }
 
   static void _handleDeepLink(Uri uri) {
-    // Custom scheme: musicmemo://join?invite=123456
-    // Universal link: https://musicmemo.app/join?invite=123456
+    // Custom scheme: musicmemo://join?code=123456
+    // Universal link: https://musicmemo.app/join?code=123456
     final isCustomScheme = uri.scheme == 'musicmemo' && uri.host == 'join';
     final isUniversalLink = uri.scheme == 'https' &&
         uri.host == 'musicmemo.app' &&
@@ -42,7 +42,7 @@ class DeepLinkService {
 
     if (!isCustomScheme && !isUniversalLink) return;
 
-    final code = uri.queryParameters['invite'];
+    final code = uri.queryParameters['code'];
     if (code == null || code.length != 6) return;
 
     _navigateToJoin(code);
