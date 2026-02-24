@@ -187,9 +187,8 @@ class _LocalMultiplayerGameScreenState
       ref.read(gameProvider.notifier).switchTurn();
 
       // Derive upper bound from the second card's sound duration
-      final flippedCard = newState.cards.firstWhere((c) => c.id == cardId);
-      final soundDurationMs = widget.soundDurations[flippedCard.soundId] ?? 3000;
-      final remainingMs = (soundDurationMs - noMatchDelay).clamp(0, soundDurationMs);
+      const autoFlipMs = 2100;
+      final remainingMs = (autoFlipMs - noMatchDelay).clamp(0, autoFlipMs);
 
       setState(() {
         _isProcessing = false;

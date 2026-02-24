@@ -80,11 +80,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // ── Gameplay ──────────────────────────────────────────────────
               _Section(
                 title: 'Gameplay',
+                trailing: GestureDetector(
+                  onTap: () => _showGameplayInfo(context),
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 15,
+                    color: context.colors.textTertiary,
+                  ),
+                ),
                 children: [
                   _SubsectionHeader(label: 'Single Player'),
                   _SliderRow(
-                    icon: Icons.hearing,
-                    label: 'Listen time',
+                    icon: Icons.touch_app,
+                    label: 'Delay after 1st card',
                     value: timings.spListenMs.toDouble(),
                     min: 300,
                     max: 2000,
@@ -96,7 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _SectionDivider(),
                   _SliderRow(
                     icon: Icons.flip,
-                    label: 'Flip back delay',
+                    label: 'Delay after mismatch',
                     value: timings.spNoMatchMs.toDouble(),
                     min: 400,
                     max: 2000,
@@ -108,8 +116,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _SectionDivider(),
                   _SubsectionHeader(label: 'Local Multiplayer'),
                   _SliderRow(
-                    icon: Icons.hearing,
-                    label: 'Listen time',
+                    icon: Icons.touch_app,
+                    label: 'Delay after 1st card',
                     value: timings.lmpListenMs.toDouble(),
                     min: 300,
                     max: 2000,
@@ -121,7 +129,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _SectionDivider(),
                   _SliderRow(
                     icon: Icons.flip,
-                    label: 'Flip back delay',
+                    label: 'Delay after mismatch',
                     value: timings.lmpNoMatchMs.toDouble(),
                     min: 400,
                     max: 2000,
@@ -265,6 +273,78 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  void _showGameplayInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: context.colors.background,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AppColors.purple.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.tune, size: 16, color: AppColors.purple),
+                  ),
+                  const SizedBox(width: 10),
+                  Text('Card Timing', style: AppTypography.bodyLarge(context)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _InfoItem(
+                icon: Icons.touch_app,
+                title: 'Delay after 1st card',
+                description:
+                    'How long you must wait after tapping the first card before you can tap a second. The sound keeps playing regardless — this only controls when your next tap is accepted.',
+              ),
+              const SizedBox(height: 14),
+              _InfoItem(
+                icon: Icons.flip,
+                title: 'Delay after mismatch',
+                description:
+                    'Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven\'t tapped yet.',
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(AppRadius.button),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Got it',
+                        style: AppTypography.label(context).copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _restorePurchase() {
     // TODO: Implement via StoreKit when IAP is integrated
     showAppSnackBar(context, 'No active purchases found.');
@@ -276,8 +356,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 class _Section extends StatelessWidget {
   final String title;
   final List<Widget> children;
+  final Widget? trailing;
 
-  const _Section({required this.title, required this.children});
+  const _Section({required this.title, required this.children, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -286,9 +367,17 @@ class _Section extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(
-            title.toUpperCase(),
-            style: AppTypography.labelSmall(context),
+          child: Row(
+            children: [
+              Text(
+                title.toUpperCase(),
+                style: AppTypography.labelSmall(context),
+              ),
+              if (trailing != null) ...[
+                const SizedBox(width: 6),
+                trailing!,
+              ],
+            ],
           ),
         ),
         Container(
@@ -759,6 +848,53 @@ class _EditNameDialog extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─── Info item (used inside gameplay info dialog) ─────────────────────────────
+
+class _InfoItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+
+  const _InfoItem({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: AppColors.purple.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: Icon(icon, size: 14, color: AppColors.purple),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: AppTypography.label(context)
+                      .copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(description,
+                  style: AppTypography.bodySmall(context)
+                      .copyWith(color: context.colors.textSecondary)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
