@@ -48,6 +48,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   // Form controllers
   final _nameController = TextEditingController(text: 'Player');
   final _codeController = TextEditingController();
+  bool _nameSetFromProfile = false;
 
   // Selections
   String _selectedCategory = 'piano';
@@ -412,7 +413,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     if (_inviteCode == null) return;
     final box = context.findRenderObject() as RenderBox?;
     await Share.share(
-      'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?code=$_inviteCode',
+      'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?invite=$_inviteCode',
       subject: 'Music Memo - Game Invite',
       sharePositionOrigin: box != null
           ? box.localToGlobal(Offset.zero) & box.size
@@ -465,6 +466,17 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider,
+        (prev, next) {
+      if (!_nameSetFromProfile) {
+        final name = next.valueOrNull?.displayName;
+        if (name != null && name.isNotEmpty) {
+          _nameController.text = name;
+          _nameSetFromProfile = true;
+        }
+      }
+    });
+
     return Scaffold(
       backgroundColor: context.colors.background,
       body: GestureDetector(
@@ -1503,6 +1515,7 @@ class _CreatePrivateGameScreen extends ConsumerStatefulWidget {
 class _CreatePrivateGameScreenState
     extends ConsumerState<_CreatePrivateGameScreen> {
   final _nameController = TextEditingController();
+  bool _nameSetFromProfile = false;
   String _selectedGrid = '4x5';
 
   bool _isLoading = false;
@@ -1670,7 +1683,7 @@ class _CreatePrivateGameScreenState
     if (_inviteCode == null) return;
     final box = context.findRenderObject() as RenderBox?;
     await Share.share(
-      'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?code=$_inviteCode',
+      'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?invite=$_inviteCode',
       subject: 'Music Memo - Game Invite',
       sharePositionOrigin:
           box != null ? box.localToGlobal(Offset.zero) & box.size : null,
@@ -1679,6 +1692,17 @@ class _CreatePrivateGameScreenState
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider,
+        (prev, next) {
+      if (!_nameSetFromProfile) {
+        final name = next.valueOrNull?.displayName;
+        if (name != null && name.isNotEmpty) {
+          _nameController.text = name;
+          _nameSetFromProfile = true;
+        }
+      }
+    });
+
     return Scaffold(
       backgroundColor: context.colors.background,
       body: GestureDetector(
