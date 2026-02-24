@@ -5,7 +5,11 @@ import '../providers/game_provider.dart';
 import 'category_screen.dart';
 
 class GrandCategoryScreen extends ConsumerStatefulWidget {
-  const GrandCategoryScreen({super.key});
+  /// When provided, called with the picked category instead of popping.
+  /// Use this to push a next screen on top of GrandCategoryScreen.
+  final void Function(BuildContext context, String category)? onCategoryPicked;
+
+  const GrandCategoryScreen({super.key, this.onCategoryPicked});
 
   @override
   ConsumerState<GrandCategoryScreen> createState() =>
@@ -73,11 +77,13 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
                 await navigator.push(
                   MaterialPageRoute(builder: (_) => const CategoryScreen()),
                 );
-                // For online mode CategoryScreen pops itself after picking;
-                // pop GrandCategoryScreen too so OnlineModeScreen resumes.
-                if (isOnline &&
-                    ref.read(selectedCategoryProvider) != null &&
-                    mounted) {
+                final picked = ref.read(selectedCategoryProvider);
+                if (!mounted || picked == null) return;
+                if (widget.onCategoryPicked != null) {
+                  // Caller handles forward navigation
+                  widget.onCategoryPicked!(context, picked); // ignore: use_build_context_synchronously
+                } else if (isOnline) {
+                  // Default online behaviour: pop so the caller can resume
                   navigator.pop();
                 }
               },

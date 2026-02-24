@@ -113,13 +113,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     super.dispose();
   }
 
-  void _showCreateOptions() {
-    setState(() {
-      _isCreateMode = true;
-      _isJoinMode = false;
-      _errorMessage = null;
-    });
-  }
 
   void _showJoinOptions() {
     setState(() {
@@ -540,18 +533,25 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             iconColor: AppColors.purple,
             title: 'Create Private Game',
             subtitle: 'Start a new game and invite a friend',
-            onTap: () async {
+            onTap: () {
               ref.read(selectedGameModeProvider.notifier).state =
                   GameMode.onlineMultiplayer;
-              final navigator = Navigator.of(context);
-              await navigator.push(
-                MaterialPageRoute(builder: (_) => const GrandCategoryScreen()),
+              ref.read(selectedCategoryProvider.notifier).state = null;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GrandCategoryScreen(
+                    onCategoryPicked: (ctx, category) {
+                      Navigator.of(ctx).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              _CreatePrivateGameScreen(category: category),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               );
-              final picked = ref.read(selectedCategoryProvider);
-              if (picked != null && mounted) {
-                setState(() => _selectedCategory = picked);
-                _showCreateOptions();
-              }
             },
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -1472,6 +1472,621 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  String _formatCategoryName(String category) {
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Create Private Game screen — pushed on top of GrandCategoryScreen so that
+// the back button correctly returns to category selection.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CreatePrivateGameScreen extends ConsumerStatefulWidget {
+  final String category;
+  const _CreatePrivateGameScreen({required this.category});
+
+  @override
+  ConsumerState<_CreatePrivateGameScreen> createState() =>
+      _CreatePrivateGameScreenState();
+}
+
+class _CreatePrivateGameScreenState
+    extends ConsumerState<_CreatePrivateGameScreen> {
+  final _nameController = TextEditingController();
+  String _selectedGrid = '4x5';
+
+  bool _isLoading = false;
+  bool _isWaiting = false;
+  bool _isOpponentJoined = false;
+  bool _isStartingGame = false;
+  bool _navigatingToGame = false;
+
+  String? _inviteCode;
+  String? _sessionId;
+  String? _opponentName;
+  OnlineSession? _currentSession;
+  String? _errorMessage;
+
+  StreamSubscription<OnlineSession>? _sessionSubscription;
+  StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
+  MultiplayerConnectionState _connectionState =
+      MultiplayerConnectionState.connected;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final profile = ref.read(userProfileNotifierProvider).valueOrNull;
+      if (profile?.displayName != null && profile!.displayName!.isNotEmpty) {
+        _nameController.text = profile.displayName!;
+      } else {
+        final user = SupabaseService.currentUser;
+        if (user?.email != null) {
+          _nameController.text = user!.email!.split('@').first;
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _sessionSubscription?.cancel();
+    _connectionSubscription?.cancel();
+    if (!_navigatingToGame && _isWaiting && _sessionId != null) {
+      MultiplayerService.deleteSession(_sessionId!);
+      MultiplayerService.unsubscribeFromSession();
+    }
+    super.dispose();
+  }
+
+  void _startConnectionListener() {
+    _connectionSubscription?.cancel();
+    _connectionSubscription =
+        MultiplayerService.connectionStateStream.listen((state) {
+      if (!mounted) return;
+      setState(() => _connectionState = state);
+    });
+  }
+
+  Future<void> _createGame() async {
+    if (_nameController.text.trim().isEmpty) {
+      setState(() => _errorMessage = 'Please enter your name');
+      return;
+    }
+    setState(() { _isLoading = true; _errorMessage = null; });
+
+    final session = await MultiplayerService.createSession(
+      category: widget.category,
+      gridSize: _selectedGrid,
+      playerName: _nameController.text.trim(),
+    );
+
+    if (session == null) {
+      setState(() { _isLoading = false; _errorMessage = 'Failed to create game. Please try again.'; });
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+      _isWaiting = true;
+      _inviteCode = session.inviteCode;
+      _sessionId = session.id;
+    });
+
+    _sessionSubscription =
+        MultiplayerService.subscribeToSession(session.id).listen(
+      (updatedSession) {
+        _currentSession = updatedSession;
+        if (updatedSession.isReady && updatedSession.hasOpponent) {
+          setState(() {
+            _isOpponentJoined = true;
+            _opponentName = updatedSession.player2Name;
+          });
+        } else if (updatedSession.isPlaying) {
+          _navigateToGame(updatedSession);
+        }
+      },
+    );
+    _startConnectionListener();
+  }
+
+  Future<void> _hostStartGame() async {
+    if (_currentSession == null || _sessionId == null) return;
+    setState(() => _isStartingGame = true);
+
+    List<SoundModel> sounds;
+    if (widget.category.startsWith('tag:')) {
+      final parts = widget.category.split(':');
+      sounds = await DatabaseService.getSoundsByTag(
+          parts[1], parts.sublist(2).join(':'));
+    } else {
+      sounds = await DatabaseService.getSoundsForCategory(widget.category);
+    }
+    if (sounds.isEmpty && widget.category != 'piano') {
+      sounds = await DatabaseService.getSoundsForCategory('piano');
+    }
+
+    final cards = GameUtils.generateCards(
+      gridSize: _selectedGrid,
+      category: widget.category,
+      soundIds: sounds.isNotEmpty ? sounds.map((s) => s.id).toList() : null,
+    );
+
+    final success = await MultiplayerService.startGame(
+      sessionId: _sessionId!,
+      cards: cards,
+      hostId: SupabaseService.currentUser?.id ?? '',
+    );
+
+    if (!success) {
+      setState(() { _isStartingGame = false; _errorMessage = 'Failed to start game. Please try again.'; });
+    }
+  }
+
+  void _navigateToGame(OnlineSession session) {
+    _navigatingToGame = true;
+    _sessionSubscription?.cancel();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OnlineGameScreen(
+          session: session,
+          playerName: _nameController.text.trim(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _cancelAndPop() async {
+    _sessionSubscription?.cancel();
+    if (_sessionId != null) MultiplayerService.deleteSession(_sessionId!);
+    MultiplayerService.unsubscribeFromSession();
+    if (mounted) {
+      setState(() { _isWaiting = false; _sessionId = null; });
+      Navigator.pop(context);
+    }
+  }
+
+  void _copyInviteCode() {
+    if (_inviteCode != null) {
+      Clipboard.setData(ClipboardData(text: _inviteCode!));
+      showAppSnackBar(context, 'Code copied!');
+    }
+  }
+
+  Future<void> _shareInviteCode() async {
+    if (_inviteCode == null) return;
+    final box = context.findRenderObject() as RenderBox?;
+    await Share.share(
+      'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?code=$_inviteCode',
+      subject: 'Music Memo - Game Invite',
+      sharePositionOrigin:
+          box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: context.colors.background,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: _isOpponentJoined
+              ? _buildOpponentJoinedScreen()
+              : _isWaiting
+                  ? _buildWaitingScreen()
+                  : _buildCreateForm(),
+        ),
+      ),
+    );
+  }
+
+  // ── Create form ─────────────────────────────────────────────────────────────
+
+  Widget _buildCreateForm() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBackButton(),
+          const SizedBox(height: AppSpacing.xl),
+          Text('Create Game', style: AppTypography.headline3(context)),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Set up the game and invite a friend',
+            style: AppTypography.body(context)
+                .copyWith(color: context.colors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          if (_errorMessage != null) _buildErrorMessage(),
+          _buildSectionTitle('Your Name'),
+          const SizedBox(height: 8),
+          _buildTextField(_nameController, 'Enter your name'),
+          const SizedBox(height: AppSpacing.xl),
+          _buildSectionTitle('Grid Size'),
+          const SizedBox(height: 8),
+          _buildGridSelector(),
+          const SizedBox(height: AppSpacing.xxl),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _createGame,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.purple,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button)),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : Text('Create Game', style: AppTypography.button),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Waiting for opponent ─────────────────────────────────────────────────────
+
+  Widget _buildWaitingScreen() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: _cancelAndPop,
+              child: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: BorderRadius.circular(22)),
+                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
+              ),
+            ),
+          ),
+          const Spacer(),
+          Container(
+            width: 100, height: 100,
+            decoration: BoxDecoration(
+                color: AppColors.purple.withValues(alpha: 0.1),
+                shape: BoxShape.circle),
+            child: const Center(
+              child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple)),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text('Waiting for opponent...', style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Text('Share this code with a friend',
+              style: AppTypography.body(context)
+                  .copyWith(color: context.colors.textSecondary)),
+          const SizedBox(height: 24),
+          _buildConnectionBanner(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+            decoration: BoxDecoration(
+                color: context.colors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: context.colors.elevated)),
+            child: Text(
+              _inviteCode ?? '',
+              style: AppTypography.headline2(context)
+                  .copyWith(letterSpacing: 8, color: AppColors.purple),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: _copyInviteCode,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.button),
+                      border: Border.all(color: context.colors.elevated)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.copy, size: 18, color: context.colors.textSecondary),
+                    const SizedBox(width: 8),
+                    Text('Copy', style: AppTypography.bodySmall(context)),
+                  ]),
+                ),
+              ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: _shareInviteCode,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                      color: AppColors.purple,
+                      borderRadius: BorderRadius.circular(AppRadius.button)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.share, size: 18, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text('Share',
+                        style: AppTypography.bodySmall(context)
+                            .copyWith(color: Colors.white)),
+                  ]),
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity, height: 56,
+            child: OutlinedButton(
+              onPressed: _cancelAndPop,
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.elevated),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.button))),
+              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Opponent joined ──────────────────────────────────────────────────────────
+
+  Widget _buildOpponentJoinedScreen() {
+    final categoryName = _formatCategoryName(widget.category);
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: _cancelAndPop,
+              child: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: BorderRadius.circular(22)),
+                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
+              ),
+            ),
+          ),
+          const Spacer(),
+          Container(
+            width: 100, height: 100,
+            decoration: BoxDecoration(
+                color: AppColors.teal.withValues(alpha: 0.1),
+                shape: BoxShape.circle),
+            child: const Center(
+                child: Icon(Icons.person_add, size: 50, color: AppColors.teal)),
+          ),
+          const SizedBox(height: 32),
+          Text('Opponent Joined!', style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+                color: context.colors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.teal.withValues(alpha: 0.3))),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 48, height: 48,
+                  decoration: BoxDecoration(
+                      color: AppColors.teal.withValues(alpha: 0.2),
+                      shape: BoxShape.circle),
+                  child: const Icon(Icons.person, color: AppColors.teal),
+                ),
+                const SizedBox(width: 16),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(_opponentName ?? 'Player 2', style: AppTypography.bodyLarge(context)),
+                  Text('Ready to play',
+                      style: AppTypography.bodySmall(context)
+                          .copyWith(color: AppColors.teal)),
+                ]),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+                color: context.colors.surface,
+                borderRadius: BorderRadius.circular(12)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(children: [
+                  Text(categoryName, style: AppTypography.bodySmall(context)),
+                  Text('Category', style: AppTypography.labelSmall(context)),
+                ]),
+                Container(width: 1, height: 30, color: context.colors.elevated),
+                Column(children: [
+                  Text(_selectedGrid, style: AppTypography.bodySmall(context)),
+                  Text('Grid', style: AppTypography.labelSmall(context)),
+                ]),
+              ],
+            ),
+          ),
+          const Spacer(),
+          if (_errorMessage != null) ...[_buildErrorMessage(), const SizedBox(height: 8)],
+          SizedBox(
+            width: double.infinity, height: 56,
+            child: ElevatedButton(
+              onPressed: _isStartingGame ? null : _hostStartGame,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.teal,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.button))),
+              child: _isStartingGame
+                  ? const SizedBox(
+                      width: 24, height: 24,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : Text('Start Game', style: AppTypography.button),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity, height: 56,
+            child: OutlinedButton(
+              onPressed: _cancelAndPop,
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.elevated),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.button))),
+              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  Widget _buildBackButton() {
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: Container(
+        width: 44, height: 44,
+        decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(22)),
+        child: Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) =>
+      Text(title, style: AppTypography.label(context));
+
+  Widget _buildTextField(TextEditingController controller, String hint) {
+    return TextField(
+      controller: controller,
+      style: AppTypography.body(context),
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: context.colors.surface,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+    );
+  }
+
+  Widget _buildGridSelector() {
+    return Row(
+      children: _gridOptions.map((grid) {
+        final isSelected = _selectedGrid == grid['id'];
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => setState(() => _selectedGrid = grid['id']),
+            child: Container(
+              margin: EdgeInsets.only(right: grid != _gridOptions.last ? 8 : 0),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.purple : context.colors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: isSelected
+                        ? AppColors.purple
+                        : context.colors.elevated),
+              ),
+              child: Column(children: [
+                Text(grid['label'],
+                    style: AppTypography.bodyLarge(context).copyWith(
+                        color: isSelected
+                            ? Colors.white
+                            : context.colors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(grid['difficulty'],
+                    style: AppTypography.labelSmall(context).copyWith(
+                        color: isSelected
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : context.colors.textTertiary)),
+              ]),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildConnectionBanner() {
+    if (_connectionState == MultiplayerConnectionState.connected) {
+      return const SizedBox.shrink();
+    }
+    final isDisconnected =
+        _connectionState == MultiplayerConnectionState.disconnected;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+          color: (isDisconnected ? Colors.red : Colors.orange)
+              .withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10)),
+      child: Row(children: [
+        SizedBox(
+          width: 14, height: 14,
+          child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  isDisconnected ? Colors.red : Colors.orange)),
+        ),
+        const SizedBox(width: 10),
+        Text(isDisconnected ? 'Connection lost' : 'Reconnecting...',
+            style: AppTypography.bodySmall(context)
+                .copyWith(color: isDisconnected ? Colors.red : Colors.orange)),
+      ]),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8)),
+      child: Row(children: [
+        const Icon(Icons.error_outline, color: Colors.red, size: 20),
+        const SizedBox(width: 8),
+        Expanded(
+            child: Text(_errorMessage!,
+                style: AppTypography.bodySmall(context)
+                    .copyWith(color: Colors.red))),
+      ]),
     );
   }
 
