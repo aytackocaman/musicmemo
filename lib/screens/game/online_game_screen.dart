@@ -683,7 +683,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       children: [
         Expanded(
           child: _PlayerScoreCard(
-            name: myName ?? 'You',
+            name: myName ?? widget.playerName,
             score: myScore,
             isCurrentTurn: _isMyTurn,
             isMe: true,
@@ -817,7 +817,7 @@ class _PlayerScoreCard extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              isMe ? 'You' : name,
+              name,
               style: AppTypography.bodySmall(context).copyWith(
                 fontSize: 12,
                 color: context.colors.textPrimary,
@@ -1207,7 +1207,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                         child: Column(
                           children: [
                             Text(
-                              'You',
+                              widget.playerName,
                               style: AppTypography.bodySmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.8),
                               ),
