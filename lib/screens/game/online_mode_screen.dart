@@ -364,6 +364,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     _currentSession = session;
     _sessionId = session.id;
 
+    FocusScope.of(context).unfocus(); // dismiss keyboard before showing waiting screen
     setState(() {
       _isWaitingForHostToStart = true;
     });
@@ -1141,69 +1142,77 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     final category = _currentSession?.category;
     final gridSize = _currentSession?.gridSize ?? '4x5';
 
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const Spacer(),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
 
-          Text(
-            'Waiting for Host to Start the Game!',
-            style: AppTypography.headline3(context),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'You\'ve joined successfully',
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 40),
+                Text(
+                  'Waiting for Host to Start the Game!',
+                  style: AppTypography.headline3(context),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'You\'ve joined successfully',
+                  style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
 
-          _VsPlayersWidget(player1Name: hostName, player2Name: myName),
-          const SizedBox(height: 32),
+                _VsPlayersWidget(player1Name: hostName, player2Name: myName),
+                const SizedBox(height: 32),
 
-          // Game settings — values only, no labels
-          if (category != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _formatCategoryName(category),
-                    style: AppTypography.bodySmall(context)
-                        .copyWith(color: context.colors.textSecondary),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Container(
-                      width: 4, height: 4,
-                      decoration: BoxDecoration(
-                        color: context.colors.textSecondary,
-                        shape: BoxShape.circle,
-                      ),
+                // Game settings — values only, no labels
+                if (category != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _formatCategoryName(category),
+                          style: AppTypography.bodySmall(context)
+                              .copyWith(color: context.colors.textSecondary),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Container(
+                            width: 4, height: 4,
+                            decoration: BoxDecoration(
+                              color: context.colors.textSecondary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          gridSize,
+                          style: AppTypography.bodySmall(context)
+                              .copyWith(color: context.colors.textSecondary),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    gridSize,
-                    style: AppTypography.bodySmall(context)
-                        .copyWith(color: context.colors.textSecondary),
-                  ),
-                ],
-              ),
+                const SizedBox(height: 16),
+
+                _buildConnectionBanner(),
+                const SizedBox(height: 40),
+              ],
             ),
-          const SizedBox(height: 16),
+          ),
+        ),
 
-          _buildConnectionBanner(),
-
-          const Spacer(),
-
-          SizedBox(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: SizedBox(
             width: double.infinity,
             height: 56,
             child: OutlinedButton(
@@ -1225,8 +1234,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               child: Text('Leave', style: AppTypography.buttonSecondary(context)),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
