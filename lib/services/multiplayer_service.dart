@@ -50,6 +50,13 @@ class OnlineSession {
     this.player2Left = false,
   });
 
+  factory OnlineSession.cancelled(String id) => OnlineSession(
+        id: id,
+        inviteCode: '',
+        status: 'cancelled',
+        createdAt: DateTime.now(),
+      );
+
   factory OnlineSession.fromJson(Map<String, dynamic> json) {
     return OnlineSession(
       id: json['id'] as String,
@@ -78,6 +85,7 @@ class OnlineSession {
   bool get isReady => status == 'ready';  // Player 2 joined, waiting for host to start
   bool get isPlaying => status == 'playing';
   bool get isFinished => status == 'finished';
+  bool get isCancelled => status == 'cancelled';
   bool get hasOpponent => player2Id != null;
 
   bool isMyTurn(String myUserId) => currentTurn == myUserId;
@@ -431,7 +439,14 @@ class MultiplayerService {
             .from('online_sessions')
             .select()
             .eq('id', sessionId)
-            .single();
+            .maybeSingle();
+
+        if (response == null) {
+          // Session was deleted — host cancelled before game started
+          _sessionController?.add(OnlineSession.cancelled(sessionId));
+          timer.cancel();
+          return;
+        }
 
         // Poll succeeded — handle recovery if we were previously failing
         if (_consecutiveFailures > 0) {

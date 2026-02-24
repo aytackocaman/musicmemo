@@ -372,6 +372,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     _sessionSubscription =
         MultiplayerService.subscribeToSession(session.id).listen(
       (updatedSession) {
+        if (updatedSession.isCancelled) {
+          _sessionSubscription?.cancel();
+          _connectionSubscription?.cancel();
+          MultiplayerService.unsubscribeFromSession();
+          setState(() => _isWaitingForHostToStart = false);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) showAppSnackBar(context, 'Host cancelled the game');
+          });
+          return;
+        }
         _currentSession = updatedSession;
         if (updatedSession.isPlaying) {
           // Host started the game - navigate
@@ -1020,21 +1030,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: _cancelWaiting,
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
-              ),
-            ),
-          ),
           const Spacer(),
 
           Text(
@@ -1827,19 +1822,6 @@ class _CreatePrivateGameScreenState
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: _cancelAndPop,
-              child: Container(
-                width: 44, height: 44,
-                decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(22)),
-                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
-              ),
-            ),
-          ),
           const Spacer(),
 
           Text('Opponent Joined!', style: AppTypography.headline3(context), textAlign: TextAlign.center),
