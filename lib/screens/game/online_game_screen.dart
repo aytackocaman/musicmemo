@@ -29,7 +29,8 @@ class OnlineGameScreen extends ConsumerStatefulWidget {
   ConsumerState<OnlineGameScreen> createState() => _OnlineGameScreenState();
 }
 
-class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
+class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
+    with SingleTickerProviderStateMixin {
   Timer? _timer;
   Timer? _opponentTimeout;
   int _seconds = 0;
@@ -37,6 +38,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
   bool _isProcessing = false;
   bool _gameEnded = false;
   bool _navigatingToWinScreen = false;
+
+  late AnimationController _pulseController;
 
   late String _myUserId;
   late bool _amIPlayer1;
@@ -62,6 +65,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
     _myUserId = SupabaseService.currentUser?.id ?? '';
     _amIPlayer1 = widget.session.player1Id == _myUserId;
     _currentSession = widget.session;
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..repeat(reverse: true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeGame();
@@ -521,6 +529,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
 
   @override
   void dispose() {
+    _pulseController.dispose();
     _timer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
@@ -679,23 +688,46 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
         ? _currentSession.player2Name
         : _currentSession.player1Name;
 
+    final pulseScale = Tween<double>(begin: 1.0, end: 1.04).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     return Row(
       children: [
         Expanded(
-          child: _PlayerScoreCard(
-            name: myName ?? widget.playerName,
-            score: myScore,
-            isCurrentTurn: _isMyTurn,
-            isMe: true,
+          child: ScaleTransition(
+            scale: _isMyTurn ? pulseScale : const AlwaysStoppedAnimation(1.0),
+            child: Opacity(
+              opacity: _isMyTurn ? 1.0 : 0.55,
+              child: _PlayerScoreCard(
+                name: myName ?? widget.playerName,
+                score: myScore,
+                isCurrentTurn: _isMyTurn,
+                isMe: true,
+              ),
+            ),
           ),
         ),
-        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Icon(
+            _isMyTurn ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
+            size: 12,
+            color: _isMyTurn ? AppColors.purple : AppColors.teal,
+          ),
+        ),
         Expanded(
-          child: _PlayerScoreCard(
-            name: opponentName ?? 'Opponent',
-            score: opponentScore,
-            isCurrentTurn: !_isMyTurn,
-            isMe: false,
+          child: ScaleTransition(
+            scale: !_isMyTurn ? pulseScale : const AlwaysStoppedAnimation(1.0),
+            child: Opacity(
+              opacity: !_isMyTurn ? 1.0 : 0.55,
+              child: _PlayerScoreCard(
+                name: opponentName ?? 'Opponent',
+                score: opponentScore,
+                isCurrentTurn: !_isMyTurn,
+                isMe: false,
+              ),
+            ),
           ),
         ),
       ],
@@ -719,7 +751,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Text(
-            _isMyTurn ? 'Your turn' : 'Waiting...',
+            _isMyTurn
+                ? 'Your turn'
+                : '${(_amIPlayer1 ? _currentSession.player2Name : _currentSession.player1Name) ?? "Opponent"}\'s turn',
             style: AppTypography.bodySmall(context).copyWith(
               fontSize: 11,
               color: _isMyTurn ? AppColors.purple : context.colors.textSecondary,
