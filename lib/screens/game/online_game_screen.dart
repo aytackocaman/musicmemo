@@ -922,19 +922,34 @@ class _OnlineWinScreen extends StatefulWidget {
 }
 
 class _OnlineWinScreenState extends State<_OnlineWinScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   _RematchState _rematchState = _RematchState.idle;
   StreamSubscription<OnlineSession>? _sessionSubscription;
   Timer? _timeoutTimer;
   late OnlineSession _latestSession;
   bool _navigatingToGame = false;
   bool _markedLeft = false;
+  // Ignore opponentHasLeft if it was already true when the win screen opened
+  // (stale flag from a previous game / rematch that wasn't cleaned up).
+  late bool _opponentWasAlreadyLeft;
+
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnim;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _latestSession = widget.session;
+    _opponentWasAlreadyLeft = widget.session.opponentHasLeft(widget.myUserId);
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
     _sessionSubscription =
         MultiplayerService.subscribeToSession(widget.session.id).listen(
       _handleSessionUpdate,
@@ -955,8 +970,11 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     if (!mounted) return;
     _latestSession = updatedSession;
 
-    // Opponent left the post-game screen — no rematch possible
+    // Opponent left the post-game screen — no rematch possible.
+    // Ignore if the flag was already set when the win screen opened
+    // (stale value from a previous game that wasn't reset on rematch).
     if (updatedSession.opponentHasLeft(widget.myUserId) &&
+        !_opponentWasAlreadyLeft &&
         _rematchState != _RematchState.declined) {
       _timeoutTimer?.cancel();
       setState(() => _rematchState = _RematchState.declined);
@@ -1090,6 +1108,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
   @override
   void dispose() {
+    _pulseController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _timeoutTimer?.cancel();
     // Notify opponent we've left (in-app Home, back gesture, swipe-away).
@@ -1374,12 +1393,15 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
       case _RematchState.opponentRequested:
         return [
-          // Accept rematch (teal accent)
-          _buildButton(
-            label: 'Accept Rematch!',
-            icon: Icons.check,
-            onTap: _acceptRematch,
-            isPrimary: true,
+          // Accept rematch — pulsing to grab attention
+          ScaleTransition(
+            scale: _pulseAnim,
+            child: _buildButton(
+              label: 'Accept Rematch!',
+              icon: Icons.check,
+              onTap: _acceptRematch,
+              isPrimary: true,
+            ),
           ),
           const SizedBox(height: 12),
           _buildButton(

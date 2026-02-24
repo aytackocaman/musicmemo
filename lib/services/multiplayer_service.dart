@@ -777,6 +777,8 @@ class MultiplayerService {
         'current_turn': firstTurn,
         'rematch_player1': false,
         'rematch_player2': false,
+        'player1_left': false,
+        'player2_left': false,
         'status': 'playing',
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', sessionId);
