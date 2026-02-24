@@ -1142,26 +1142,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () {
-                _sessionSubscription?.cancel();
-                _connectionSubscription?.cancel();
-                MultiplayerService.unsubscribeFromSession();
-                _popOrHome();
-              },
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
-              ),
-            ),
-          ),
           const Spacer(),
 
           Text(
