@@ -258,7 +258,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       title: 'Opponent Left',
       message: 'Your opponent has left the game. You win!',
       confirmLabel: 'Go Home',
-      cancelLabel: 'Stay',
+      showCancel: false,
       onConfirm: () => Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -281,7 +281,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen> {
       title: 'Opponent Timed Out',
       message: "Your opponent hasn't made a move in 60 seconds. The game has been ended.",
       confirmLabel: 'Go Home',
-      cancelLabel: 'Stay',
+      showCancel: false,
       onConfirm: () => Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),

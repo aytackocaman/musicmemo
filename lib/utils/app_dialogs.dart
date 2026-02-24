@@ -12,6 +12,7 @@ Future<void> showAppDialog({
   String confirmLabel = 'Confirm',
   String cancelLabel = 'Cancel',
   bool isDestructive = false,
+  bool showCancel = true,
   required VoidCallback onConfirm,
 }) {
   return showDialog(
@@ -36,23 +37,25 @@ Future<void> showAppDialog({
             Row(
               children: [
                 // Cancel
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(dialogContext),
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: dialogContext.colors.surface,
-                        borderRadius: BorderRadius.circular(AppRadius.button),
-                        border: Border.all(color: dialogContext.colors.elevated),
-                      ),
-                      child: Center(
-                        child: Text(cancelLabel, style: AppTypography.buttonSecondary(dialogContext)),
+                if (showCancel) ...[
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(dialogContext),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: dialogContext.colors.surface,
+                          borderRadius: BorderRadius.circular(AppRadius.button),
+                          border: Border.all(color: dialogContext.colors.elevated),
+                        ),
+                        child: Center(
+                          child: Text(cancelLabel, style: AppTypography.buttonSecondary(dialogContext)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
+                ],
                 // Confirm
                 Expanded(
                   child: GestureDetector(
