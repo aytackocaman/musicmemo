@@ -10,6 +10,7 @@ import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/game_utils.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/user_provider.dart';
 import '../../utils/app_dialogs.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
@@ -67,10 +68,20 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   @override
   void initState() {
     super.initState();
-    final user = SupabaseService.currentUser;
-    if (user?.email != null) {
-      _nameController.text = user!.email!.split('@').first;
-    }
+    // Prefer saved display name; fall back to email prefix
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final profileState = ref.read(userProfileNotifierProvider);
+      final displayName = profileState.valueOrNull?.displayName;
+      if (displayName != null && displayName.isNotEmpty) {
+        _nameController.text = displayName;
+      } else {
+        final user = SupabaseService.currentUser;
+        if (user?.email != null) {
+          _nameController.text = user!.email!.split('@').first;
+        }
+      }
+    });
     if (widget.initialInviteCode != null) {
       _codeController.text = widget.initialInviteCode!;
       WidgetsBinding.instance.addPostFrameCallback((_) => _showJoinOptions());

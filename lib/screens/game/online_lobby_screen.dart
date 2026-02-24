@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../providers/user_provider.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import 'online_game_screen.dart';
@@ -37,11 +38,20 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   @override
   void initState() {
     super.initState();
-    // Set default name from user profile
-    final user = SupabaseService.currentUser;
-    if (user?.email != null) {
-      _nameController.text = user!.email!.split('@').first;
-    }
+    // Prefer saved display name; fall back to email prefix
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final profileState = ref.read(userProfileNotifierProvider);
+      final displayName = profileState.valueOrNull?.displayName;
+      if (displayName != null && displayName.isNotEmpty) {
+        _nameController.text = displayName;
+      } else {
+        final user = SupabaseService.currentUser;
+        if (user?.email != null) {
+          _nameController.text = user!.email!.split('@').first;
+        }
+      }
+    });
   }
 
   @override
