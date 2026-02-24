@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/dev_config.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
@@ -20,6 +21,7 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final String gridSize;
   final List<String>? soundIds;
   final Map<String, String> soundPaths;
+  final Map<String, int> soundDurations;
 
   const LocalMultiplayerGameScreen({
     super.key,
@@ -27,6 +29,7 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
     required this.gridSize,
     this.soundIds,
     this.soundPaths = const {},
+    this.soundDurations = const {},
   });
 
   @override
@@ -37,9 +40,11 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
 class _LocalMultiplayerGameScreenState
     extends ConsumerState<LocalMultiplayerGameScreen> {
   Timer? _timer;
+  Timer? _flipBackTimer;
   int _seconds = 0;
   bool _isPaused = false;
   bool _isProcessing = false;
+  bool _pendingFlipBack = false;
   final Set<String> _heardCardIds = {};
   String? _countdownCardId;
   int _countdownDurationMs = 0;
@@ -105,6 +110,14 @@ class _LocalMultiplayerGameScreenState
       _isProcessing = true;
     });
 
+    // If the previous no-match pair is still showing, flip them back first
+    if (_pendingFlipBack) {
+      _flipBackTimer?.cancel();
+      ref.read(gameProvider.notifier).flipCardsBack();
+      setState(() => _pendingFlipBack = false);
+    }
+
+    // Read state AFTER any pending flip-back so flippedCards count is fresh
     final gameState = ref.read(gameProvider);
     if (gameState == null) {
       setState(() => _isProcessing = false);
@@ -146,9 +159,10 @@ class _LocalMultiplayerGameScreenState
 
     if (newFlippedCards == 1) {
       // First card flipped - longer delay if never heard, shorter if already heard
+      final t = ref.read(cardTimingsProvider);
       final firstTime = !_heardCardIds.contains(cardId);
       _heardCardIds.add(cardId);
-      final delay = firstTime ? 1500 : 800;
+      final delay = firstTime ? t.lmpListenMs : t.lmpAlreadyHeardMs;
       setState(() {
         _countdownCardId = cardId;
         _countdownDurationMs = delay;
@@ -161,16 +175,31 @@ class _LocalMultiplayerGameScreenState
         _countdownDurationMs = 0;
       });
     } else if (newFlippedCards == 2) {
-      // Second card, NO match (cards still in flipped state)
-      // Show both cards for 1200ms, then flip back and switch turns
-      await Future.delayed(const Duration(milliseconds: 1200));
+      // Second card, NO match — show both cards for at least noMatchDelay,
+      // then unlock. Cards auto-flip back after the sound's full duration
+      // (upper bound), or sooner if the user taps the next card.
+      final noMatchDelay = ref.read(cardTimingsProvider).lmpNoMatchMs;
+      await Future.delayed(Duration(milliseconds: noMatchDelay));
       if (!mounted) return;
 
-      ref.read(gameProvider.notifier).flipCardsBack();
+      // Derive upper bound from the second card's sound duration
+      final flippedCard = newState.cards.firstWhere((c) => c.id == cardId);
+      final soundDurationMs = widget.soundDurations[flippedCard.soundId] ?? 3000;
+      final remainingMs = (soundDurationMs - noMatchDelay).clamp(0, soundDurationMs);
 
       setState(() {
         _isProcessing = false;
+        _pendingFlipBack = true;
       });
+
+      if (remainingMs > 0) {
+        _flipBackTimer = Timer(Duration(milliseconds: remainingMs), () {
+          if (mounted && _pendingFlipBack) {
+            ref.read(gameProvider.notifier).flipCardsBack();
+            setState(() => _pendingFlipBack = false);
+          }
+        });
+      }
     } else {
       // Second card, MATCH found (provider already set cards to matched, 0 flipped)
       // Player keeps their turn on a match
@@ -230,6 +259,7 @@ class _LocalMultiplayerGameScreenState
   @override
   void dispose() {
     _timer?.cancel();
+    _flipBackTimer?.cancel();
     AudioService.stop();
     super.dispose();
   }

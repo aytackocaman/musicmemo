@@ -32,6 +32,7 @@ class LocalPlayerSetupScreen extends ConsumerStatefulWidget {
   final String gridSize;
   final List<String>? soundIds;
   final Map<String, String> soundPaths;
+  final Map<String, int> soundDurations;
 
   const LocalPlayerSetupScreen({
     super.key,
@@ -39,6 +40,7 @@ class LocalPlayerSetupScreen extends ConsumerStatefulWidget {
     required this.gridSize,
     this.soundIds,
     this.soundPaths = const {},
+    this.soundDurations = const {},
   });
 
   @override
@@ -82,6 +84,7 @@ class _LocalPlayerSetupScreenState
           gridSize: widget.gridSize,
           soundIds: widget.soundIds,
           soundPaths: widget.soundPaths,
+          soundDurations: widget.soundDurations,
         ),
       ),
     );

@@ -36,6 +36,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     final profileAsync = ref.watch(userProfileNotifierProvider);
+    final timings = ref.watch(cardTimingsProvider);
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -73,6 +74,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _Section(
                 title: 'Appearance',
                 children: [_ThemeSelector(current: themeMode)],
+              ),
+              const SizedBox(height: AppSpacing.xl),
+
+              // ── Gameplay ──────────────────────────────────────────────────
+              _Section(
+                title: 'Gameplay',
+                children: [
+                  _SubsectionHeader(label: 'Single Player'),
+                  _SliderRow(
+                    icon: Icons.hearing,
+                    label: 'Listen time',
+                    value: timings.spListenMs.toDouble(),
+                    min: 300,
+                    max: 2000,
+                    divisions: 17,
+                    onChanged: (v) => ref
+                        .read(cardTimingsProvider.notifier)
+                        .setSpListenMs(v.round()),
+                  ),
+                  _SectionDivider(),
+                  _SliderRow(
+                    icon: Icons.flip,
+                    label: 'Flip back delay',
+                    value: timings.spNoMatchMs.toDouble(),
+                    min: 400,
+                    max: 2000,
+                    divisions: 16,
+                    onChanged: (v) => ref
+                        .read(cardTimingsProvider.notifier)
+                        .setSpNoMatchMs(v.round()),
+                  ),
+                  _SectionDivider(),
+                  _SubsectionHeader(label: 'Local Multiplayer'),
+                  _SliderRow(
+                    icon: Icons.hearing,
+                    label: 'Listen time',
+                    value: timings.lmpListenMs.toDouble(),
+                    min: 300,
+                    max: 2000,
+                    divisions: 17,
+                    onChanged: (v) => ref
+                        .read(cardTimingsProvider.notifier)
+                        .setLmpListenMs(v.round()),
+                  ),
+                  _SectionDivider(),
+                  _SliderRow(
+                    icon: Icons.flip,
+                    label: 'Flip back delay',
+                    value: timings.lmpNoMatchMs.toDouble(),
+                    min: 400,
+                    max: 2000,
+                    divisions: 16,
+                    onChanged: (v) => ref
+                        .read(cardTimingsProvider.notifier)
+                        .setLmpNoMatchMs(v.round()),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.xl),
 
@@ -438,6 +496,105 @@ class _SectionDivider extends StatelessWidget {
       // Indent to align with text (16 px padding + 32 px icon + 12 px gap)
       padding: const EdgeInsets.only(left: 60),
       child: Divider(height: 1, color: context.colors.elevated),
+    );
+  }
+}
+
+// ─── Subsection header (inside a _Section card) ──────────────────────────────
+
+class _SubsectionHeader extends StatelessWidget {
+  final String label;
+  const _SubsectionHeader({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Text(
+        label.toUpperCase(),
+        style: AppTypography.labelSmall(context).copyWith(
+          color: AppColors.purple,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Slider row ───────────────────────────────────────────────────────────────
+
+class _SliderRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final double value;
+  final double min;
+  final double max;
+  final int divisions;
+  final ValueChanged<double> onChanged;
+
+  const _SliderRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.onChanged,
+  });
+
+  String _fmt(double ms) => '${(ms / 1000).toStringAsFixed(1)}s';
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.purple.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 16, color: AppColors.purple),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(label, style: AppTypography.label(context)),
+              ),
+              Text(
+                _fmt(value),
+                style: AppTypography.label(context).copyWith(
+                  color: AppColors.purple,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 3,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              activeTrackColor: AppColors.purple,
+              inactiveTrackColor: AppColors.purple.withValues(alpha: 0.15),
+              thumbColor: AppColors.purple,
+              overlayColor: AppColors.purple.withValues(alpha: 0.12),
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

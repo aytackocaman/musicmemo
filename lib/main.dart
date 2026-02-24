@@ -24,15 +24,19 @@ void main() async {
   // Initialize deep link handling
   await DeepLinkService.init();
 
-  // Load persisted theme preference
+  // Load persisted preferences
   final prefs = await SharedPreferences.getInstance();
   final initialThemeMode = ThemeModeNotifier.fromPrefs(prefs);
+  final initialCardTimings = CardTimingsNotifier.fromPrefs(prefs);
 
   runApp(
     ProviderScope(
       overrides: [
         themeModeProvider.overrideWith(
           (ref) => ThemeModeNotifier(initialThemeMode),
+        ),
+        cardTimingsProvider.overrideWith(
+          (ref) => CardTimingsNotifier(initialCardTimings),
         ),
       ],
       child: const MusicMemoApp(),

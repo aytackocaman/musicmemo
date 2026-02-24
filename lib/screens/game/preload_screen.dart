@@ -64,7 +64,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
 
       if (sounds.isEmpty) {
         // No sounds at all — use mock IDs and proceed
-        _navigateToGame(soundIds: null, soundPaths: {});
+        _navigateToGame(soundIds: null, soundPaths: {}, soundDurations: {});
         return;
       }
 
@@ -94,10 +94,11 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
 
       if (!mounted) return;
 
-      // Map soundId → local file path for quick lookup during gameplay
+      // Map soundId → local file path / duration for quick lookup during gameplay
       final soundIds = sounds.map((s) => s.id).toList();
+      final soundDurations = {for (final s in sounds) s.id: s.durationMs};
 
-      _navigateToGame(soundIds: soundIds, soundPaths: soundPaths);
+      _navigateToGame(soundIds: soundIds, soundPaths: soundPaths, soundDurations: soundDurations);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -110,6 +111,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
   void _navigateToGame({
     required List<String>? soundIds,
     required Map<String, String> soundPaths,
+    required Map<String, int> soundDurations,
   }) {
     final gameMode = ref.read(selectedGameModeProvider);
 
@@ -122,6 +124,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
             gridSize: widget.gridSize,
             soundIds: soundIds,
             soundPaths: soundPaths,
+            soundDurations: soundDurations,
           ),
         ),
       );
@@ -134,6 +137,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
             gridSize: widget.gridSize,
             soundIds: soundIds,
             soundPaths: soundPaths,
+            soundDurations: soundDurations,
           ),
         ),
       );
