@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
-import 'local_multiplayer_game_screen.dart';
+import 'preload_screen.dart';
 
 /// Available player colors
 const List<Color> playerColors = [
@@ -30,17 +30,11 @@ Color hexToColor(String hex) {
 class LocalPlayerSetupScreen extends ConsumerStatefulWidget {
   final String category;
   final String gridSize;
-  final List<String>? soundIds;
-  final Map<String, String> soundPaths;
-  final Map<String, int> soundDurations;
 
   const LocalPlayerSetupScreen({
     super.key,
     required this.category,
     required this.gridSize,
-    this.soundIds,
-    this.soundPaths = const {},
-    this.soundDurations = const {},
   });
 
   @override
@@ -75,16 +69,13 @@ class _LocalPlayerSetupScreenState
       player2Color: colorToHex(_player2Color),
     );
 
-    // Navigate to game
+    // Download sounds now (player setup is done)
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => LocalMultiplayerGameScreen(
+        builder: (context) => PreloadScreen(
           category: widget.category,
           gridSize: widget.gridSize,
-          soundIds: widget.soundIds,
-          soundPaths: widget.soundPaths,
-          soundDurations: widget.soundDurations,
         ),
       ),
     );

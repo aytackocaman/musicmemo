@@ -8,7 +8,7 @@ import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
 import 'single_player_game_screen.dart';
-import 'local_player_setup_screen.dart';
+import 'local_multiplayer_game_screen.dart';
 
 /// Screen shown while sounds are being downloaded/cached before a game starts.
 /// Fetches sounds for the selected category, preloads them locally, then
@@ -129,10 +129,11 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
         ),
       );
     } else if (gameMode == GameMode.localMultiplayer) {
+      // Player setup already done — go straight to the game
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => LocalPlayerSetupScreen(
+          builder: (_) => LocalMultiplayerGameScreen(
             category: widget.category,
             gridSize: widget.gridSize,
             soundIds: soundIds,

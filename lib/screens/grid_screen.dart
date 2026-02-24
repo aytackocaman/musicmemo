@@ -7,6 +7,7 @@ import '../providers/user_provider.dart';
 import '../services/database_service.dart';
 import '../utils/app_dialogs.dart';
 import 'game/preload_screen.dart';
+import 'game/local_player_setup_screen.dart';
 import 'game/online_lobby_screen.dart';
 
 /// Grid size option for the game
@@ -156,12 +157,22 @@ class GridScreen extends ConsumerWidget {
     }
 
     // Navigate based on game mode
-    if (gameMode == GameMode.singlePlayer || gameMode == GameMode.localMultiplayer) {
-      // Route through PreloadScreen to download sounds first
+    if (gameMode == GameMode.singlePlayer) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PreloadScreen(
+            category: category,
+            gridSize: gridOption.id,
+          ),
+        ),
+      );
+    } else if (gameMode == GameMode.localMultiplayer) {
+      // Show player setup first — sounds download while players enter names
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocalPlayerSetupScreen(
             category: category,
             gridSize: gridOption.id,
           ),
