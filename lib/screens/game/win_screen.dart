@@ -85,9 +85,18 @@ class _WinScreenState extends ConsumerState<WinScreen> {
 
                 // Title
                 Text(
-                  'You Won!',
+                  stars == 3 ? 'Perfect!' : stars == 2 ? 'Well Done!' : 'Nice Try!',
                   style: AppTypography.headline2(context).copyWith(
                     color: AppColors.white,
+                  ),
+                ),
+                const SizedBox(height: 6),
+
+                // Category & grid info
+                Text(
+                  '${_formatCategory(widget.category)}  ·  ${widget.gridSize.replaceAll('x', '×')}',
+                  style: AppTypography.bodySmall(context).copyWith(
+                    color: AppColors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -190,6 +199,16 @@ class _WinScreenState extends ConsumerState<WinScreen> {
         ),
       ),
     );
+  }
+
+  String _formatCategory(String category) {
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
   }
 
   Widget _buildStat(String value, String label) {

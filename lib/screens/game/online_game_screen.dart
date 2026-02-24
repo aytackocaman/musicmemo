@@ -1541,13 +1541,12 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
   }
 
   String _formatCategoryName(String category) {
-    if (category.startsWith('tag:')) {
-      final parts = category.split(':');
-      return parts.length >= 3 ? parts.sublist(2).join(':') : category;
-    }
-    return category
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
         .split('_')
-        .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : word)
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
         .join(' ');
   }
 }

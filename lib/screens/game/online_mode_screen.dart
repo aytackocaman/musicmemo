@@ -1074,7 +1074,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               children: [
                 Column(
                   children: [
-                    Text(_selectedCategory, style: AppTypography.bodySmall(context)),
+                    Text(_formatCategoryName(_selectedCategory), style: AppTypography.bodySmall(context)),
                     Text('Category', style: AppTypography.labelSmall(context)),
                   ],
                 ),
@@ -1462,5 +1462,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         ],
       ),
     );
+  }
+
+  String _formatCategoryName(String category) {
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
   }
 }
