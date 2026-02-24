@@ -181,11 +181,10 @@ class MultiplayerService {
         });
   }
 
-  /// Generate a random 6-character invite code
+  /// Generate a random 6-digit invite code
   static String _generateInviteCode() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     final random = Random();
-    return List.generate(6, (_) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(6, (_) => random.nextInt(10).toString()).join();
   }
 
   /// Create a new online session

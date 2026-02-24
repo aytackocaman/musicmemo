@@ -405,10 +405,10 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                     letterSpacing: 4,
                     fontWeight: FontWeight.bold,
                   ),
-                  textCapitalization: TextCapitalization.characters,
+                  keyboardType: TextInputType.number,
                   maxLength: 6,
                   decoration: InputDecoration(
-                    hintText: 'XXXXXX',
+                    hintText: '000000',
                     counterText: '',
                     filled: true,
                     fillColor: context.colors.background,

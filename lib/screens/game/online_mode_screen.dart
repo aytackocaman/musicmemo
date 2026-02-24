@@ -332,9 +332,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       return;
     }
 
-    final code = _codeController.text.trim().toUpperCase();
+    final code = _codeController.text.trim();
     if (code.isEmpty || code.length != 6) {
-      setState(() => _errorMessage = 'Please enter a valid 6-character code');
+      setState(() => _errorMessage = 'Please enter a valid 6-digit code');
       return;
     }
 
@@ -769,10 +769,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               fontSize: 24,
             ),
             textAlign: TextAlign.center,
-            textCapitalization: TextCapitalization.characters,
+            keyboardType: TextInputType.number,
             maxLength: 6,
             decoration: InputDecoration(
-              hintText: '------',
+              hintText: '000000',
               hintStyle: AppTypography.body(context).copyWith(
                 letterSpacing: 8,
                 color: context.colors.textTertiary,
