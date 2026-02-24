@@ -606,6 +606,21 @@ class MultiplayerService {
   }
 
   /// Delete a session (only if waiting and you're the host)
+  /// Joiner leaves before game starts — resets session back to 'waiting'
+  /// so the host can accept a new player without losing their session.
+  static Future<void> removeJoiner(String sessionId) async {
+    try {
+      await _client.from('online_sessions').update({
+        'player2_id': null,
+        'player2_name': null,
+        'status': 'waiting',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+    } catch (e) {
+      debugPrint('Error removing joiner: $e');
+    }
+  }
+
   static Future<bool> deleteSession(String sessionId) async {
     final user = _client.auth.currentUser;
     if (user == null) return false;

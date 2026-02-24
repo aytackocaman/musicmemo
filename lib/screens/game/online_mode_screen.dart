@@ -314,6 +314,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         } else if (updatedSession.isPlaying) {
           // Game started - navigate to game
           _navigateToGame(updatedSession);
+        } else if (_isOpponentJoined && updatedSession.isWaiting && !updatedSession.hasOpponent) {
+          // Opponent left before game started — go back to waiting
+          setState(() {
+            _isOpponentJoined = false;
+            _opponentName = null;
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) showAppSnackBar(context, 'Opponent left the game');
+          });
         }
       },
     );
@@ -1156,13 +1165,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const Spacer(),
 
           Text(
-            'Joined Successfully!',
+            'Waiting for Host to Start the Game!',
             style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Waiting for host to start...',
+            'You\'ve joined successfully',
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -1215,7 +1224,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             width: double.infinity,
             height: 56,
             child: OutlinedButton(
-              onPressed: () {
+              onPressed: () async {
+                if (_sessionId != null) {
+                  await MultiplayerService.removeJoiner(_sessionId!);
+                }
                 _sessionSubscription?.cancel();
                 _connectionSubscription?.cancel();
                 MultiplayerService.unsubscribeFromSession();
@@ -1550,6 +1562,15 @@ class _CreatePrivateGameScreenState
           });
         } else if (updatedSession.isPlaying) {
           _navigateToGame(updatedSession);
+        } else if (_isOpponentJoined && updatedSession.isWaiting && !updatedSession.hasOpponent) {
+          // Opponent left before game started — go back to waiting
+          setState(() {
+            _isOpponentJoined = false;
+            _opponentName = null;
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) showAppSnackBar(context, 'Opponent left the game');
+          });
         }
       },
     );
