@@ -645,8 +645,7 @@ class MultiplayerService {
           .from('online_sessions')
           .delete()
           .eq('id', sessionId)
-          .eq('player1_id', user.id)
-          .eq('status', 'waiting');
+          .eq('player1_id', user.id);
       return true;
     } catch (e) {
       debugPrint('Error deleting session: $e');
