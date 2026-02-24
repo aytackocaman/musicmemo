@@ -74,29 +74,12 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: AppSpacing.xl),
 
             // Loading indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildDot(1.0),
-                const SizedBox(width: 8),
-                _buildDot(0.6),
-                const SizedBox(width: 8),
-                _buildDot(0.3),
-              ],
+            const CircularProgressIndicator(
+              color: AppColors.white,
+              strokeWidth: 2.5,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDot(double opacity) {
-    return Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-        color: AppColors.white.withOpacity(opacity),
-        shape: BoxShape.circle,
       ),
     );
   }
