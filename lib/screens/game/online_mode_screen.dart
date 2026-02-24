@@ -1019,102 +1019,56 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const Spacer(),
 
-          // Success icon
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.teal.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.person_add,
-                size: 50,
-                color: AppColors.teal,
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
           Text(
             'Opponent Joined!',
             style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
-
-          // Opponent info card
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.teal.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.teal.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.person, color: AppColors.teal),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _opponentName ?? 'Player 2',
-                      style: AppTypography.bodyLarge(context),
-                    ),
-                    Text(
-                      'Ready to play',
-                      style: AppTypography.bodySmall(context).copyWith(
-                        color: AppColors.teal,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          const SizedBox(height: 8),
+          Text(
+            'Ready to play',
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 40),
 
-          // Game settings summary
+          _VsPlayersWidget(
+            player1Name: _nameController.text.isNotEmpty ? _nameController.text : 'You',
+            player2Name: _opponentName ?? 'Opponent',
+          ),
+          const SizedBox(height: 32),
+
+          // Game settings — values only, no labels
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Column(
-                  children: [
-                    Text(_formatCategoryName(_selectedCategory), style: AppTypography.bodySmall(context)),
-                    Text('Category', style: AppTypography.labelSmall(context)),
-                  ],
+                Text(_formatCategoryName(_selectedCategory),
+                    style: AppTypography.bodySmall(context)
+                        .copyWith(color: context.colors.textSecondary)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Container(
+                    width: 4, height: 4,
+                    decoration: BoxDecoration(
+                      color: context.colors.textSecondary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-                Container(width: 1, height: 30, color: context.colors.elevated),
-                Column(
-                  children: [
-                    Text(_selectedGrid, style: AppTypography.bodySmall(context)),
-                    Text('Grid', style: AppTypography.labelSmall(context)),
-                  ],
-                ),
+                Text(_selectedGrid,
+                    style: AppTypography.bodySmall(context)
+                        .copyWith(color: context.colors.textSecondary)),
               ],
             ),
           ),
 
           const Spacer(),
 
-          // Start Game button
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -1899,64 +1853,50 @@ class _CreatePrivateGameScreenState
             ),
           ),
           const Spacer(),
-          Container(
-            width: 100, height: 100,
-            decoration: BoxDecoration(
-                color: AppColors.teal.withValues(alpha: 0.1),
-                shape: BoxShape.circle),
-            child: const Center(
-                child: Icon(Icons.person_add, size: 50, color: AppColors.teal)),
+
+          Text('Opponent Joined!', style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Text(
+            'Ready to play',
+            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+          ),
+          const SizedBox(height: 40),
+
+          _VsPlayersWidget(
+            player1Name: _nameController.text.isNotEmpty ? _nameController.text : 'You',
+            player2Name: _opponentName ?? 'Opponent',
           ),
           const SizedBox(height: 32),
-          Text('Opponent Joined!', style: AppTypography.headline3(context), textAlign: TextAlign.center),
-          const SizedBox(height: 16),
+
+          // Game settings — values only, no labels
           Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.teal.withValues(alpha: 0.3))),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 48, height: 48,
-                  decoration: BoxDecoration(
-                      color: AppColors.teal.withValues(alpha: 0.2),
-                      shape: BoxShape.circle),
-                  child: const Icon(Icons.person, color: AppColors.teal),
-                ),
-                const SizedBox(width: 16),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(_opponentName ?? 'Player 2', style: AppTypography.bodyLarge(context)),
-                  Text('Ready to play',
-                      style: AppTypography.bodySmall(context)
-                          .copyWith(color: AppColors.teal)),
-                ]),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
                 color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12)),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Column(children: [
-                  Text(categoryName, style: AppTypography.bodySmall(context)),
-                  Text('Category', style: AppTypography.labelSmall(context)),
-                ]),
-                Container(width: 1, height: 30, color: context.colors.elevated),
-                Column(children: [
-                  Text(_selectedGrid, style: AppTypography.bodySmall(context)),
-                  Text('Grid', style: AppTypography.labelSmall(context)),
-                ]),
+                Text(categoryName,
+                    style: AppTypography.bodySmall(context)
+                        .copyWith(color: context.colors.textSecondary)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Container(
+                    width: 4, height: 4,
+                    decoration: BoxDecoration(
+                      color: context.colors.textSecondary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                Text(_selectedGrid,
+                    style: AppTypography.bodySmall(context)
+                        .copyWith(color: context.colors.textSecondary)),
               ],
             ),
           ),
+
           const Spacer(),
           if (_errorMessage != null) ...[_buildErrorMessage(), const SizedBox(height: 8)],
           SizedBox(
@@ -2122,5 +2062,111 @@ class _CreatePrivateGameScreenState
         .split('_')
         .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
         .join(' ');
+  }
+}
+
+/// Two player avatars with an animated pulsing VS badge between them.
+class _VsPlayersWidget extends StatefulWidget {
+  final String player1Name;
+  final String player2Name;
+
+  const _VsPlayersWidget({required this.player1Name, required this.player2Name});
+
+  @override
+  State<_VsPlayersWidget> createState() => _VsPlayersWidgetState();
+}
+
+class _VsPlayersWidgetState extends State<_VsPlayersWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 850),
+    )..repeat(reverse: true);
+    _scaleAnim = Tween<double>(begin: 0.88, end: 1.12).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildAvatar(widget.player1Name, AppColors.purple, context),
+        const SizedBox(width: 20),
+        ScaleTransition(
+          scale: _scaleAnim,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.purple,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.purple.withValues(alpha: 0.45),
+                  blurRadius: 14,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Text(
+                'VS',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        _buildAvatar(widget.player2Name, AppColors.teal, context),
+      ],
+    );
+  }
+
+  Widget _buildAvatar(String name, Color color, BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 76,
+          height: 76,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+            border: Border.all(color: color.withValues(alpha: 0.4), width: 2),
+          ),
+          child: Icon(Icons.person_rounded, size: 38, color: color),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: 80,
+          child: Text(
+            name,
+            style: AppTypography.bodySmall(context)
+                .copyWith(fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 }
