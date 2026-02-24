@@ -111,9 +111,10 @@ class _LocalMultiplayerGameScreenState
     });
 
     // If the previous no-match pair is still showing, flip them back first
+    // (turn was already switched at no-match time, so don't switch again)
     if (_pendingFlipBack) {
       _flipBackTimer?.cancel();
-      ref.read(gameProvider.notifier).flipCardsBack();
+      ref.read(gameProvider.notifier).flipCardsBack(switchTurn: false);
       setState(() => _pendingFlipBack = false);
     }
 
@@ -182,6 +183,9 @@ class _LocalMultiplayerGameScreenState
       await Future.delayed(Duration(milliseconds: noMatchDelay));
       if (!mounted) return;
 
+      // Switch turn immediately so the next player can tap right away
+      ref.read(gameProvider.notifier).switchTurn();
+
       // Derive upper bound from the second card's sound duration
       final flippedCard = newState.cards.firstWhere((c) => c.id == cardId);
       final soundDurationMs = widget.soundDurations[flippedCard.soundId] ?? 3000;
@@ -195,7 +199,8 @@ class _LocalMultiplayerGameScreenState
       if (remainingMs > 0) {
         _flipBackTimer = Timer(Duration(milliseconds: remainingMs), () {
           if (mounted && _pendingFlipBack) {
-            ref.read(gameProvider.notifier).flipCardsBack();
+            // Turn already switched — just flip cards back
+            ref.read(gameProvider.notifier).flipCardsBack(switchTurn: false);
             setState(() => _pendingFlipBack = false);
           }
         });

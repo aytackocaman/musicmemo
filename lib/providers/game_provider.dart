@@ -289,8 +289,9 @@ class GameNotifier extends StateNotifier<GameState?> {
     );
   }
 
-  /// Flip cards back after no match
-  void flipCardsBack() {
+  /// Flip cards back after no match.
+  /// Pass [switchTurn] = false if the turn was already switched separately.
+  void flipCardsBack({bool switchTurn = true}) {
     if (state == null || state!.firstFlippedCardId == null) return;
 
     final updatedCards = state!.cards.map((card) {
@@ -300,9 +301,10 @@ class GameNotifier extends StateNotifier<GameState?> {
       return card;
     }).toList();
 
-    // Switch player in multiplayer
     int nextPlayerIndex = state!.currentPlayerIndex;
-    if (state!.mode != GameMode.singlePlayer && state!.players.length > 1) {
+    if (switchTurn &&
+        state!.mode != GameMode.singlePlayer &&
+        state!.players.length > 1) {
       nextPlayerIndex = (state!.currentPlayerIndex + 1) % state!.players.length;
     }
 
@@ -312,6 +314,13 @@ class GameNotifier extends StateNotifier<GameState?> {
       clearFirstFlipped: true,
       consecutiveMatches: 0,
     );
+  }
+
+  /// Switch to the next player immediately (without flipping cards back).
+  void switchTurn() {
+    if (state == null || state!.players.length <= 1) return;
+    final nextIndex = (state!.currentPlayerIndex + 1) % state!.players.length;
+    state = state!.copyWith(currentPlayerIndex: nextIndex);
   }
 
   /// Update game timer
