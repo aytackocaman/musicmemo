@@ -154,7 +154,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: SafeArea(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -238,6 +240,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

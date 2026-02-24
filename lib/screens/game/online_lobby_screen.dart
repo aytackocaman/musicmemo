@@ -174,8 +174,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: SafeArea(
-        child: _isWaiting ? _buildWaitingScreen() : _buildLobbyScreen(),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: _isWaiting ? _buildWaitingScreen() : _buildLobbyScreen(),
+        ),
       ),
     );
   }

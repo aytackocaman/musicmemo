@@ -463,7 +463,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: SafeArea(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
         child: _isWaitingForHostToStart
             ? _buildWaitingForHostScreen()
             : _isOpponentJoined
@@ -477,6 +479,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                             : _isJoinMode
                                 ? _buildJoinScreen()
                                 : _buildMainScreen(),
+      ),
       ),
     );
   }

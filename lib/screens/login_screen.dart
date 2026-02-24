@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../config/theme.dart';
@@ -86,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result.success) {
       await _markLoggedIn();
+      TextInput.finishAutofillContext();
       if (mounted) {
         if (DeepLinkService.consumePendingInviteCode(context)) return;
         Navigator.of(context).pushReplacement(
@@ -158,7 +160,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.background,
-      body: SafeArea(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
@@ -215,7 +219,8 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: AppSpacing.xxl),
 
               // Form
-              Form(
+              AutofillGroup(
+                child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
@@ -235,6 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       hint: 'Email',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
@@ -253,6 +259,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       hint: 'Password',
                       icon: Icons.lock_outline,
                       obscureText: _obscurePassword,
+                      autofillHints: _isSignUp
+                          ? const [AutofillHints.newPassword]
+                          : const [AutofillHints.password],
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -293,6 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ],
                 ),
+              ),
               ),
 
               // Error message
@@ -451,6 +461,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -472,12 +483,14 @@ class _LoginScreenState extends State<LoginScreen> {
     TextInputType? keyboardType,
     bool obscureText = false,
     Widget? suffixIcon,
+    List<String>? autofillHints,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      autofillHints: autofillHints,
       validator: validator,
       style: AppTypography.body(context),
       decoration: InputDecoration(
