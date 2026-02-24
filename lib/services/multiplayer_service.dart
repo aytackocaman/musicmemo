@@ -636,6 +636,20 @@ class MultiplayerService {
     }
   }
 
+  /// Host cancels before game starts while a joiner is present.
+  /// Updates status to 'cancelled' so the joiner's polling detects it
+  /// as a status change within 500 ms (reliable, unlike row deletion).
+  static Future<void> cancelSession(String sessionId) async {
+    try {
+      await _client.from('online_sessions').update({
+        'status': 'cancelled',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+    } catch (e) {
+      debugPrint('Error cancelling session: $e');
+    }
+  }
+
   static Future<bool> deleteSession(String sessionId) async {
     final user = _client.auth.currentUser;
     if (user == null) return false;

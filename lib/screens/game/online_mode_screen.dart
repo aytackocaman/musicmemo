@@ -408,16 +408,24 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   void _cancelWaiting() async {
     if (_sessionId != null) {
-      await MultiplayerService.deleteSession(_sessionId!);
+      if (_isOpponentJoined) {
+        // Joiner is present — update status to 'cancelled' so their polling
+        // detects it as a status change within 500 ms.
+        await MultiplayerService.cancelSession(_sessionId!);
+      } else {
+        await MultiplayerService.deleteSession(_sessionId!);
+      }
     }
     _sessionSubscription?.cancel();
     await MultiplayerService.unsubscribeFromSession();
 
     setState(() {
       _isWaitingForOpponent = false;
+      _isOpponentJoined = false;
       _isPublicSession = false;
       _inviteCode = null;
       _sessionId = null;
+      _opponentName = null;
     });
   }
 
@@ -1601,10 +1609,16 @@ class _CreatePrivateGameScreenState
 
   Future<void> _cancelAndPop() async {
     _sessionSubscription?.cancel();
-    if (_sessionId != null) MultiplayerService.deleteSession(_sessionId!);
+    if (_sessionId != null) {
+      if (_isOpponentJoined) {
+        await MultiplayerService.cancelSession(_sessionId!);
+      } else {
+        MultiplayerService.deleteSession(_sessionId!);
+      }
+    }
     MultiplayerService.unsubscribeFromSession();
     if (mounted) {
-      setState(() { _isWaiting = false; _sessionId = null; });
+      setState(() { _isWaiting = false; _isOpponentJoined = false; _sessionId = null; });
       Navigator.pop(context);
     }
   }
