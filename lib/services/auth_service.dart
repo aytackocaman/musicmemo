@@ -138,9 +138,12 @@ class AuthService {
     }
 
     try {
+      // serverClientId causes Google to embed a nonce in the idToken,
+      // but google_sign_in doesn't expose it — Supabase rejects the token.
+      // Instead use only the iOS client ID; add it to Supabase's authorized
+      // client IDs so Supabase accepts iOS-audience tokens.
       final googleSignIn = GoogleSignIn(
         clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
-        serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
       );
 
       final googleUser = await googleSignIn.signIn();
