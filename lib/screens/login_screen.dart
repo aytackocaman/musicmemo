@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_dialogs.dart';
@@ -298,11 +298,8 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         SizedBox(
           width: double.infinity,
-          child: SignInWithAppleButton(
-            onPressed: _isLoading ? () {} : _signInWithApple,
-            style: SignInWithAppleButtonStyle.black,
-            borderRadius: BorderRadius.circular(AppRadius.button),
-            height: 56,
+          child: _AppleSignInButton(
+            onPressed: _isLoading ? null : _signInWithApple,
           ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -599,7 +596,7 @@ class _GoogleSignInButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _GoogleLogo(),
+            const _GoogleG(),
             const SizedBox(width: 12),
             Text(
               'Sign in with Google',
@@ -615,73 +612,62 @@ class _GoogleSignInButton extends StatelessWidget {
   }
 }
 
-class _GoogleLogo extends StatelessWidget {
+class _GoogleG extends StatelessWidget {
+  const _GoogleG();
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return SvgPicture.asset(
+      'assets/images/google_logo.svg',
       width: 20,
       height: 20,
-      child: CustomPaint(painter: _GoogleLogoPainter()),
     );
   }
 }
 
-class _GoogleLogoPainter extends CustomPainter {
+class _AppleSignInButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+
+  const _AppleSignInButton({required this.onPressed});
+
   @override
-  void paint(Canvas canvas, Size size) {
-    final double s = size.width;
-    final paint = Paint()..style = PaintingStyle.fill;
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
+    final fgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
 
-    // Blue segment (top-right arc)
-    paint.color = const Color(0xFF4285F4);
-    final path1 = Path()
-      ..moveTo(s, s * 0.5)
-      ..arcTo(Rect.fromLTWH(0, 0, s, s), -0.3, 0.8, false)
-      ..lineTo(s * 0.5, s * 0.5)
-      ..close();
-    canvas.drawPath(path1, paint);
-
-    // Green segment (bottom-right arc)
-    paint.color = const Color(0xFF34A853);
-    final path2 = Path()
-      ..moveTo(s * 0.5, s * 0.5)
-      ..arcTo(Rect.fromLTWH(0, 0, s, s), 0.5, 0.8, false)
-      ..lineTo(s * 0.5, s * 0.5)
-      ..close();
-    canvas.drawPath(path2, paint);
-
-    // Yellow segment (bottom-left arc)
-    paint.color = const Color(0xFFFBBC04);
-    final path3 = Path()
-      ..moveTo(s * 0.5, s * 0.5)
-      ..arcTo(Rect.fromLTWH(0, 0, s, s), 1.3, 0.8, false)
-      ..lineTo(s * 0.5, s * 0.5)
-      ..close();
-    canvas.drawPath(path3, paint);
-
-    // Red segment (top-left arc)
-    paint.color = const Color(0xFFEA4335);
-    final path4 = Path()
-      ..moveTo(s * 0.5, s * 0.5)
-      ..arcTo(Rect.fromLTWH(0, 0, s, s), 2.1, 0.8, false)
-      ..lineTo(s * 0.5, s * 0.5)
-      ..close();
-    canvas.drawPath(path4, paint);
-
-    // White center
-    paint.color = Colors.white;
-    canvas.drawCircle(Offset(s * 0.5, s * 0.5), s * 0.3, paint);
-
-    // Blue horizontal bar on right
-    paint.color = const Color(0xFF4285F4);
-    canvas.drawRect(
-      Rect.fromLTWH(s * 0.5, s * 0.375, s * 0.5, s * 0.25),
-      paint,
+    return SizedBox(
+      height: 56,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: fgColor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.button),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '\uF8FF',
+              style: TextStyle(fontSize: 20, color: fgColor, height: 1.1),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Sign in with Apple',
+              style: AppTypography.body(context).copyWith(
+                fontWeight: FontWeight.w600,
+                color: fgColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _EmailSignInButton extends StatelessWidget {

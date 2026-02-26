@@ -47,6 +47,9 @@ dependencies:
   # Google Sign-In
   google_sign_in: ^6.2.2
 
+  # SVG rendering (for Google logo)
+  flutter_svg: ^2.0.10+1
+
   # Environment variables
   flutter_dotenv: ^5.2.1
 
