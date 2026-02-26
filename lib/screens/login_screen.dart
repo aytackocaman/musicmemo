@@ -30,6 +30,34 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isFirstLaunch = true;
   String? _errorMessage;
 
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await AuthService.signInWithGoogle();
+
+    // Web: result is null — browser is redirecting to Google. Keep loading.
+    if (result == null) return;
+
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      await _markLoggedIn();
+      if (mounted) {
+        if (DeepLinkService.consumePendingInviteCode(context)) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } else {
+      if (result.errorMessage != 'Sign-in cancelled.') {
+        setState(() => _errorMessage = result.errorMessage);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -414,6 +442,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
+              const SizedBox(height: AppSpacing.md),
+
+              // Sign in with Google button
+              SizedBox(
+                width: double.infinity,
+                child: _GoogleSignInButton(
+                  onPressed: _isLoading ? null : _signInWithGoogle,
+                ),
+              ),
+
               const SizedBox(height: AppSpacing.xxl),
 
               // Terms
@@ -529,4 +567,110 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+class _GoogleSignInButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+
+  const _GoogleSignInButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 56,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
+          side: BorderSide(color: Colors.grey.shade300),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.button),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _GoogleLogo(),
+            const SizedBox(width: 12),
+            Text(
+              'Sign in with Google',
+              style: AppTypography.body(context).copyWith(
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF3C4043),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GoogleLogo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(painter: _GoogleLogoPainter()),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double s = size.width;
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    // Blue segment (top-right arc)
+    paint.color = const Color(0xFF4285F4);
+    final path1 = Path()
+      ..moveTo(s, s * 0.5)
+      ..arcTo(Rect.fromLTWH(0, 0, s, s), -0.3, 0.8, false)
+      ..lineTo(s * 0.5, s * 0.5)
+      ..close();
+    canvas.drawPath(path1, paint);
+
+    // Green segment (bottom-right arc)
+    paint.color = const Color(0xFF34A853);
+    final path2 = Path()
+      ..moveTo(s * 0.5, s * 0.5)
+      ..arcTo(Rect.fromLTWH(0, 0, s, s), 0.5, 0.8, false)
+      ..lineTo(s * 0.5, s * 0.5)
+      ..close();
+    canvas.drawPath(path2, paint);
+
+    // Yellow segment (bottom-left arc)
+    paint.color = const Color(0xFFFBBC04);
+    final path3 = Path()
+      ..moveTo(s * 0.5, s * 0.5)
+      ..arcTo(Rect.fromLTWH(0, 0, s, s), 1.3, 0.8, false)
+      ..lineTo(s * 0.5, s * 0.5)
+      ..close();
+    canvas.drawPath(path3, paint);
+
+    // Red segment (top-left arc)
+    paint.color = const Color(0xFFEA4335);
+    final path4 = Path()
+      ..moveTo(s * 0.5, s * 0.5)
+      ..arcTo(Rect.fromLTWH(0, 0, s, s), 2.1, 0.8, false)
+      ..lineTo(s * 0.5, s * 0.5)
+      ..close();
+    canvas.drawPath(path4, paint);
+
+    // White center
+    paint.color = Colors.white;
+    canvas.drawCircle(Offset(s * 0.5, s * 0.5), s * 0.3, paint);
+
+    // Blue horizontal bar on right
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawRect(
+      Rect.fromLTWH(s * 0.5, s * 0.375, s * 0.5, s * 0.25),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

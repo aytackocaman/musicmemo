@@ -30,6 +30,13 @@ android/*.iml
 # Apple Sign-In private key
 *.p8
 
+# Google OAuth client secret
+client_secret_*.json
+
+# Google credentials plist files (contain API keys)
+GoogleService-Info.plist
+client_*.plist
+
 # Misc
 *.log
 *.lock

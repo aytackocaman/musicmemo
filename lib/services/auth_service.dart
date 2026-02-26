@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
@@ -117,6 +120,56 @@ class AuthService {
     } catch (e) {
       // Non-critical error
       print('Update last login error: $e');
+    }
+  }
+
+  /// Sign in with Google.
+  /// On web: triggers a browser redirect via Supabase OAuth (returns null — caller must handle redirect).
+  /// On iOS: uses native Google sign-in sheet and exchanges idToken with Supabase.
+  static Future<AuthResult?> signInWithGoogle() async {
+    if (kIsWeb) {
+      // Pass the current app URL so Supabase redirects back to the right port.
+      await _client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: Uri.base.origin,
+      );
+      // Page will redirect to Google then back — no result to return.
+      return null;
+    }
+
+    try {
+      final googleSignIn = GoogleSignIn(
+        clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
+        serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
+      );
+
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        return AuthResult.failure('Sign-in cancelled.');
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        return AuthResult.failure('Google Sign-In failed: no ID token.');
+      }
+
+      final response = await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      if (response.user != null) {
+        return AuthResult.success(response.user!);
+      }
+
+      return AuthResult.failure('Google Sign-In failed. Please try again.');
+    } on AuthException catch (e) {
+      return AuthResult.failure(_parseAuthError(e.message));
+    } catch (e) {
+      return AuthResult.failure('Google Sign-In error: $e');
     }
   }
 
