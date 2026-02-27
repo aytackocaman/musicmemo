@@ -202,6 +202,18 @@ class AuthService {
       );
 
       if (response.user != null) {
+        // Apple only provides the name on the very first sign-in.
+        // Capture it immediately and update the profile.
+        final givenName = credential.givenName;
+        final familyName = credential.familyName;
+        if (givenName != null || familyName != null) {
+          final displayName = [givenName, familyName]
+              .where((s) => s != null && s.isNotEmpty)
+              .join(' ');
+          await _client.from('profiles').update({
+            'display_name': displayName,
+          }).eq('id', response.user!.id);
+        }
         return AuthResult.success(response.user!);
       }
 

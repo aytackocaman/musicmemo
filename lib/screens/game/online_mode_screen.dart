@@ -1142,15 +1142,42 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     final category = _currentSession?.category;
     final gridSize = _currentSession?.gridSize ?? '4x5';
 
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Stack(
+        children: [
+          // Leave button — pinned to bottom
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton(
+                onPressed: () async {
+                  if (_sessionId != null) {
+                    await MultiplayerService.removeJoiner(_sessionId!);
+                  }
+                  _sessionSubscription?.cancel();
+                  _connectionSubscription?.cancel();
+                  MultiplayerService.unsubscribeFromSession();
+                  _popOrHome();
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.elevated),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                  ),
+                ),
+                child: Text('Leave', style: AppTypography.buttonSecondary(context)),
+              ),
+            ),
+          ),
 
+          // Main content — truly centered
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
                   'Waiting for Host to Start the Game!',
                   style: AppTypography.headline3(context),
@@ -1204,38 +1231,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 const SizedBox(height: 16),
 
                 _buildConnectionBanner(),
-                const SizedBox(height: 40),
               ],
             ),
           ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-          child: SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: () async {
-                if (_sessionId != null) {
-                  await MultiplayerService.removeJoiner(_sessionId!);
-                }
-                _sessionSubscription?.cancel();
-                _connectionSubscription?.cancel();
-                MultiplayerService.unsubscribeFromSession();
-                _popOrHome();
-              },
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: context.colors.elevated),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.button),
-                ),
-              ),
-              child: Text('Leave', style: AppTypography.buttonSecondary(context)),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1311,6 +1311,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
+      onTap: () {
+        controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: controller.text.length,
+        );
+      },
       style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
@@ -1947,6 +1953,12 @@ class _CreatePrivateGameScreenState
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
+      onTap: () {
+        controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: controller.text.length,
+        );
+      },
       style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,

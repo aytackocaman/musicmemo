@@ -49,3 +49,6 @@ client_*.plist
 
 # Site (deployed separately via musicmemo-site repo)
 site/
+
+# ini files
+*.ini

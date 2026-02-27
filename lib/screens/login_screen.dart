@@ -395,21 +395,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                if (!_isSignUp) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _isLoading ? null : _resetPassword,
-                      child: Text(
-                        'Forgot Password?',
-                        style: AppTypography.bodySmall(context).copyWith(
-                          color: AppColors.purple,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -454,6 +439,28 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: _isLoading ? () {} : _submit,
           ),
         ),
+
+        const SizedBox(height: AppSpacing.sm),
+
+        // Forgot password
+        if (!_isSignUp)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _isLoading ? null : _resetPassword,
+              style: TextButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                minimumSize: Size.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              ),
+              child: Text(
+                'Forgot Password?',
+                style: AppTypography.bodySmall(context).copyWith(
+                  color: AppColors.purple,
+                ),
+              ),
+            ),
+          ),
 
         const SizedBox(height: AppSpacing.lg),
 

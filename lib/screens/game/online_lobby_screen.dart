@@ -194,7 +194,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   }
 
   Widget _buildLobbyScreen() {
-    return SingleChildScrollView(
+    return Column(children: [Expanded(child: SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,6 +226,12 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
           const SizedBox(height: 8),
           TextField(
             controller: _nameController,
+            onTap: () {
+              _nameController.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: _nameController.text.length,
+              );
+            },
             style: AppTypography.body(context),
             decoration: InputDecoration(
               hintText: 'Enter your name',
@@ -422,47 +428,50 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isJoining ? null : _joinGame,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.teal,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: _isJoining
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text('Join Game', style: AppTypography.button),
-                  ),
-                ),
               ],
             ),
           ),
         ],
       ),
-    );
+    )),
+    // Join button — stays above keyboard
+    Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed: _isJoining ? null : _joinGame,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.teal,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: _isJoining
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text('Join Game', style: AppTypography.button),
+        ),
+      ),
+    ),
+    ]);
   }
 
   Widget _buildWaitingScreen() {
     return Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(
+      child: Stack(
         children: [
-          // Back/Cancel button
+          // Close button — top left
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.topLeft,
             child: GestureDetector(
               onTap: _cancelWaiting,
               child: Container(
@@ -481,93 +490,99 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
             ),
           ),
 
-          const Spacer(),
-
-          // Waiting animation
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          Text(
-            'Waiting for opponent...',
-            style: AppTypography.headline3(context),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-
-          Text(
-            'Share this code with a friend',
-            style: AppTypography.body(context).copyWith(
-              color: context.colors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Invite code display
-          GestureDetector(
-            onTap: _copyInviteCode,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: context.colors.elevated),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _inviteCode ?? '',
-                    style: AppTypography.headline2(context).copyWith(
-                      letterSpacing: 8,
-                      color: AppColors.purple,
-                    ),
+          // Cancel button — bottom
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton(
+                onPressed: _cancelWaiting,
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.elevated),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
-                  const SizedBox(width: 16),
-                  Icon(
-                    Icons.copy,
-                    color: context.colors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          Text(
-            'Tap to copy',
-            style: AppTypography.labelSmall(context),
-          ),
-
-          const Spacer(),
-
-          // Cancel button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: _cancelWaiting,
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: context.colors.elevated),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: AppTypography.buttonSecondary(context),
                 ),
               ),
-              child: Text(
-                'Cancel',
-                style: AppTypography.buttonSecondary(context),
-              ),
+            ),
+          ),
+
+          // Main content — truly centered
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppColors.purple.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                Text(
+                  'Waiting for opponent...',
+                  style: AppTypography.headline3(context),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                Text(
+                  'Share this code with a friend',
+                  style: AppTypography.body(context).copyWith(
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Invite code display
+                GestureDetector(
+                  onTap: _copyInviteCode,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: context.colors.elevated),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _inviteCode ?? '',
+                          style: AppTypography.headline2(context).copyWith(
+                            letterSpacing: 8,
+                            color: AppColors.purple,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Icon(
+                          Icons.copy,
+                          color: context.colors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                Text(
+                  'Tap to copy',
+                  style: AppTypography.labelSmall(context),
+                ),
+              ],
             ),
           ),
         ],
