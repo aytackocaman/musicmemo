@@ -75,11 +75,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       final profileState = ref.read(userProfileNotifierProvider);
       final displayName = profileState.valueOrNull?.displayName;
       if (displayName != null && displayName.isNotEmpty) {
-        _nameController.text = displayName;
+        _nameController.text = displayName.substring(0, displayName.length.clamp(0, 20));
       } else {
         final user = SupabaseService.currentUser;
         if (user?.email != null) {
-          _nameController.text = user!.email!.split('@').first;
+          final prefix = user!.email!.split('@').first;
+          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
         }
       }
     });
@@ -499,7 +500,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       if (!_nameSetFromProfile) {
         final name = next.valueOrNull?.displayName;
         if (name != null && name.isNotEmpty) {
-          _nameController.text = name;
+          _nameController.text = name.substring(0, name.length.clamp(0, 20));
           _nameSetFromProfile = true;
         }
       }
@@ -1311,6 +1312,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
+      maxLength: 20,
       onTap: () {
         controller.selection = TextSelection(
           baseOffset: 0,
@@ -1320,6 +1322,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
+        counterText: '',
         filled: true,
         fillColor: context.colors.surface,
         border: OutlineInputBorder(
@@ -1493,11 +1496,13 @@ class _CreatePrivateGameScreenState
       if (!mounted) return;
       final profile = ref.read(userProfileNotifierProvider).valueOrNull;
       if (profile?.displayName != null && profile!.displayName!.isNotEmpty) {
-        _nameController.text = profile.displayName!;
+        final dn = profile.displayName!;
+        _nameController.text = dn.substring(0, dn.length.clamp(0, 20));
       } else {
         final user = SupabaseService.currentUser;
         if (user?.email != null) {
-          _nameController.text = user!.email!.split('@').first;
+          final prefix = user!.email!.split('@').first;
+          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
         }
       }
     });
@@ -1663,7 +1668,7 @@ class _CreatePrivateGameScreenState
       if (!_nameSetFromProfile) {
         final name = next.valueOrNull?.displayName;
         if (name != null && name.isNotEmpty) {
-          _nameController.text = name;
+          _nameController.text = name.substring(0, name.length.clamp(0, 20));
           _nameSetFromProfile = true;
         }
       }
@@ -1953,6 +1958,7 @@ class _CreatePrivateGameScreenState
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
+      maxLength: 20,
       onTap: () {
         controller.selection = TextSelection(
           baseOffset: 0,
@@ -1962,6 +1968,7 @@ class _CreatePrivateGameScreenState
       style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
+        counterText: '',
         filled: true,
         fillColor: context.colors.surface,
         border: OutlineInputBorder(

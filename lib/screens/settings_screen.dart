@@ -769,7 +769,7 @@ class _EditNameDialog extends StatelessWidget {
               controller: controller,
               autofocus: true,
               style: AppTypography.body(context),
-              maxLength: 24,
+              maxLength: 20,
               decoration: InputDecoration(
                 hintText: 'Your name',
                 hintStyle: AppTypography.body(context).copyWith(

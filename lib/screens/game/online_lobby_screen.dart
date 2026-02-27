@@ -44,11 +44,12 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
       final profileState = ref.read(userProfileNotifierProvider);
       final displayName = profileState.valueOrNull?.displayName;
       if (displayName != null && displayName.isNotEmpty) {
-        _nameController.text = displayName;
+        _nameController.text = displayName.substring(0, displayName.length.clamp(0, 20));
       } else {
         final user = SupabaseService.currentUser;
         if (user?.email != null) {
-          _nameController.text = user!.email!.split('@').first;
+          final prefix = user!.email!.split('@').first;
+          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
         }
       }
     });
@@ -232,9 +233,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                 extentOffset: _nameController.text.length,
               );
             },
+            maxLength: 20,
             style: AppTypography.body(context),
             decoration: InputDecoration(
               hintText: 'Enter your name',
+              counterText: '',
               filled: true,
               fillColor: context.colors.surface,
               border: OutlineInputBorder(

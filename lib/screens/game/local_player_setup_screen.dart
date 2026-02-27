@@ -260,6 +260,7 @@ class _LocalPlayerSetupScreenState
           // Name input
           TextField(
             controller: controller,
+            maxLength: 20,
             style: AppTypography.bodyLarge(context),
             textInputAction: TextInputAction.done,
             onTap: () => controller.selection = TextSelection(
@@ -268,6 +269,7 @@ class _LocalPlayerSetupScreenState
             ),
             decoration: InputDecoration(
               hintText: 'Enter name',
+              counterText: '',
               hintStyle: AppTypography.body(context).copyWith(
                 color: context.colors.textTertiary,
               ),
