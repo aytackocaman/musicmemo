@@ -291,15 +291,15 @@ class _LocalMultiplayerGameScreenState
                   children: [
                     // Compact header with home/pause
                     _buildCompactHeader(),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 10),
 
-                    // Player scores (compact)
+                    // Player scores
                     _buildPlayerScores(gameState),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 10),
 
-                    // Stats row (compact)
+                    // Stats row
                     _buildStatsRow(gameState),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
                     // Game board
                     Expanded(
@@ -331,18 +331,41 @@ class _LocalMultiplayerGameScreenState
       children: [
         GestureDetector(
           onTap: () => _showHomeConfirmation(),
-          child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
+          ),
         ),
-        Text(
-          _formatCategoryName(widget.category),
-          style: AppTypography.bodySmall(context),
+        Expanded(
+          child: Text(
+            _formatCategoryName(widget.category),
+            style: AppTypography.bodyLarge(context).copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         GestureDetector(
           onTap: _togglePause,
-          child: Icon(
-            _isPaused ? Icons.play_arrow : Icons.pause,
-            size: 20,
-            color: context.colors.textSecondary,
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              _isPaused ? Icons.play_arrow : Icons.pause,
+              size: 20,
+              color: context.colors.textSecondary,
+            ),
           ),
         ),
       ],
@@ -354,60 +377,90 @@ class _LocalMultiplayerGameScreenState
     final player2 = gameState.players.length > 1 ? gameState.players[1] : null;
     final isPlayer1Turn = gameState.currentPlayerIndex == 0;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _PlayerScoreCard(
-            name: player1?.name ?? 'Player 1',
-            color: player1 != null ? hexToColor(player1.color) : AppColors.purple,
-            score: player1?.score ?? 0,
-            isCurrentTurn: isPlayer1Turn,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _PlayerScoreCard(
-            name: player2?.name ?? 'Player 2',
-            color: player2 != null ? hexToColor(player2.color) : AppColors.teal,
-            score: player2?.score ?? 0,
-            isCurrentTurn: !isPlayer1Turn,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsRow(GameState gameState) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
+    return IntrinsicHeight(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildInlineStat('${gameState.moves}', 'Moves'),
-          Container(width: 1, height: 20, color: context.colors.elevated),
-          _buildInlineStat(GameUtils.formatTime(_seconds), 'Time'),
-          Container(width: 1, height: 20, color: context.colors.elevated),
-          _buildInlineStat(
-              '${gameState.matchedPairs}/${gameState.totalPairs}', 'Pairs'),
+          Expanded(
+            child: _PlayerScoreCard(
+              name: player1?.name ?? 'Player 1',
+              color: player1 != null ? hexToColor(player1.color) : AppColors.purple,
+              score: player1?.score ?? 0,
+              isCurrentTurn: isPlayer1Turn,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _PlayerScoreCard(
+              name: player2?.name ?? 'Player 2',
+              color: player2 != null ? hexToColor(player2.color) : AppColors.teal,
+              score: player2?.score ?? 0,
+              isCurrentTurn: !isPlayer1Turn,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInlineStat(String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(value, style: AppTypography.bodySmall(context).copyWith(
-          fontWeight: FontWeight.w600,
-          color: context.colors.textPrimary,
-        )),
-        Text(label, style: AppTypography.labelSmall(context).copyWith(fontSize: 10)),
-      ],
+  Widget _buildStatsRow(GameState gameState) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _buildStatCard('${gameState.moves}', 'Moves'),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(GameUtils.formatTime(_seconds), 'Time'),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(
+                '${gameState.matchedPairs}/${gameState.totalPairs}', 'Pairs'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String value, String label) {
+    // Same padding & border as _PlayerScoreCard so both rows match height
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: context.colors.elevated,
+          width: 2,
+        ),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: AppTypography.bodyLarge(context).copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              label,
+              style: AppTypography.labelSmall(context).copyWith(
+                fontSize: 11,
+                color: context.colors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -529,49 +582,81 @@ class _PlayerScoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: isCurrentTurn ? color.withValues(alpha: 0.12) : context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
+        gradient: isCurrentTurn
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color,
+                  Color.lerp(color, Colors.white, 0.25) ?? color,
+                ],
+              )
+            : null,
+        color: isCurrentTurn ? null : context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCurrentTurn ? color : Colors.transparent,
+          color: isCurrentTurn
+              ? Color.lerp(color, Colors.white, 0.35) ?? color
+              : context.colors.elevated,
           width: 2,
         ),
+        boxShadow: isCurrentTurn
+            ? [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.4),
+                  blurRadius: 18,
+                  spreadRadius: 0,
+                ),
+              ]
+            : null,
       ),
       child: Row(
         children: [
-          // Color dot
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-
-          // Name (+ turn indicator)
+          // Color dot + Name + Turn label
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  name,
-                  style: AppTypography.bodySmall(context).copyWith(
-                    fontSize: 12,
-                    color: context.colors.textPrimary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isCurrentTurn ? Colors.white : color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: AppTypography.bodySmall(context).copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isCurrentTurn
+                              ? Colors.white
+                              : context.colors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
                 if (isCurrentTurn)
-                  Text(
-                    'TURN',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: color,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 14, top: 2),
+                    child: Text(
+                      'Your Turn',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
                     ),
                   ),
               ],
@@ -582,9 +667,9 @@ class _PlayerScoreCard extends StatelessWidget {
           Text(
             '$score',
             style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: color,
+              color: isCurrentTurn ? Colors.white : context.colors.textPrimary,
             ),
           ),
         ],

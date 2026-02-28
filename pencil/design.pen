@@ -1,5 +1,5 @@
 {
-  "version": "2.6",
+  "version": "2.8",
   "children": [
     {
       "type": "frame",
@@ -5794,6 +5794,851 @@
                   "fontFamily": "Inter",
                   "fontSize": 12,
                   "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "7KzRt",
+      "x": 493,
+      "y": 3695,
+      "name": "Enhance Music Card Game",
+      "width": 2044,
+      "height": 1910,
+      "fill": [
+        "#ffffffff",
+        {
+          "type": "gradient",
+          "gradientType": "linear",
+          "enabled": true,
+          "rotation": -135,
+          "size": {
+            "height": 1.414213562373095
+          },
+          "colors": [
+            {
+              "color": "#101828ff",
+              "position": 0
+            },
+            {
+              "color": "#1e2939ff",
+              "position": 0.5
+            },
+            {
+              "color": "#101828ff",
+              "position": 1
+            }
+          ]
+        }
+      ],
+      "stroke": {
+        "align": "inside",
+        "thickness": 1
+      },
+      "layout": "vertical",
+      "padding": [
+        24,
+        574,
+        0,
+        574
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "k5nSx",
+          "name": "Container",
+          "width": "fill_container",
+          "height": 1862.3203125,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1
+          },
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "z6Byf",
+              "name": "motion.div",
+              "width": "fill_container",
+              "height": 44,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1
+              },
+              "gap": 335.96875,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "layoutIncludeStroke": true,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "p5P2l",
+                  "name": "motion.button",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "#1e2939ff",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1
+                  },
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "5QPBh",
+                      "x": 12,
+                      "y": 12,
+                      "name": "Home",
+                      "clip": true,
+                      "width": 20,
+                      "height": 20,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "path",
+                          "id": "FQnYZ",
+                          "x": 7.5,
+                          "y": 10,
+                          "name": "Vector",
+                          "geometry": "M6 9l0-8c0-0.26522-0.10536-0.51957-0.29289-0.70711-0.18754-0.18754-0.44189-0.29289-0.70711-0.29289l-4 0c-0.26522 0-0.51957 0.10536-0.70711 0.29289-0.18754 0.18754-0.29289 0.44189-0.29289 0.70711l0 8",
+                          "width": 5,
+                          "height": 7.5,
+                          "stroke": {
+                            "align": "center",
+                            "thickness": 1.6666666269302368,
+                            "join": "round",
+                            "cap": "round",
+                            "fill": "#d1d5dcff"
+                          }
+                        },
+                        {
+                          "type": "path",
+                          "id": "8y3yc",
+                          "x": 2.500000238418579,
+                          "y": 1.6671005487442017,
+                          "name": "Vector",
+                          "geometry": "M0 7.99948c-0.00007-0.29093 0.06333-0.57838 0.18579-0.84228 0.12245-0.26391 0.30101-0.49792 0.52321-0.68572l7-5.999c0.36099-0.30509 0.81836-0.47248 1.291-0.47248 0.47264 0 0.93001 0.16739 1.291 0.47248l7 5.999c0.2222 0.1878 0.40076 0.42181 0.52321 0.68572 0.12245 0.26391 0.18586 0.55135 0.18579 0.84228l0 9c0 0.53043-0.21071 1.03914-0.58579 1.41421-0.37507 0.37507-0.88378 0.58579-1.41421 0.58579l-14 0c-0.53043 0-1.03914-0.21071-1.41421-0.58579-0.37507-0.37507-0.58579-0.88378-0.58579-1.41421l0-9z",
+                          "width": 15,
+                          "height": 15.83289909362793,
+                          "stroke": {
+                            "align": "center",
+                            "thickness": 1.6666666269302368,
+                            "join": "round",
+                            "cap": "round",
+                            "fill": "#d1d5dcff"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bEkMF",
+                  "name": "h1",
+                  "width": 136.0703125,
+                  "height": 32,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1
+                  },
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PCsft",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Deep House",
+                      "fill": "#ffffffff",
+                      "content": "Deep House",
+                      "lineHeight": 1.3333333333333333,
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "700",
+                      "letterSpacing": 0.0703125
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "JipH3",
+                  "name": "motion.button",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "#1e2939ff",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    12,
+                    12,
+                    0,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pJm6Z",
+                      "name": "Pause",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": 20,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "path",
+                          "id": "zadkT",
+                          "x": 11.666666984558105,
+                          "y": 3.3333334922790527,
+                          "name": "Vector",
+                          "geometry": "M1 0l2 0c0.55228 0 1 0.44772 1 1l0 14c0 0.55228-0.44772 1-1 1l-2 0c-0.55228 0-1-0.44772-1-1l0-14c0-0.55228 0.44772-1 1-1z",
+                          "width": 3.3333332538604736,
+                          "height": 13.333333015441895,
+                          "stroke": {
+                            "align": "center",
+                            "thickness": 1.6666666269302368,
+                            "join": "round",
+                            "cap": "round",
+                            "fill": "#d1d5dcff"
+                          }
+                        },
+                        {
+                          "type": "path",
+                          "id": "quRUm",
+                          "x": 5,
+                          "y": 3.3333334922790527,
+                          "name": "Vector",
+                          "geometry": "M1 0l2 0c0.55228 0 1 0.44772 1 1l0 14c0 0.55228-0.44772 1-1 1l-2 0c-0.55228 0-1-0.44772-1-1l0-14c0-0.55228 0.44772-1 1-1z",
+                          "width": 3.3333332538604736,
+                          "height": 13.333333015441895,
+                          "stroke": {
+                            "align": "center",
+                            "thickness": 1.6666666269302368,
+                            "join": "round",
+                            "cap": "round",
+                            "fill": "#d1d5dcff"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lQDzo",
+              "name": "Container",
+              "width": "fill_container",
+              "height": 87,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1
+              },
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "U1yZI",
+                  "x": -4.4000244140625,
+                  "y": -0.8699951171875,
+                  "name": "motion.div",
+                  "width": 448.79998779296875,
+                  "height": 88.73999786376953,
+                  "fill": {
+                    "type": "gradient",
+                    "gradientType": "linear",
+                    "enabled": true,
+                    "rotation": -450,
+                    "size": {
+                      "height": 1
+                    },
+                    "colors": [
+                      {
+                        "color": "#9810faff",
+                        "position": 0
+                      },
+                      {
+                        "color": "#ad46ffff",
+                        "position": 1
+                      }
+                    ]
+                  },
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 2,
+                    "fill": "#c27affff"
+                  },
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "color": "#a855f766",
+                    "blur": 17.5
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    18.360000610351562,
+                    18.3599853515625,
+                    2,
+                    18.36004638671875
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "v9Cfo",
+                      "name": "div",
+                      "width": "fill_container",
+                      "height": 52.019989013671875,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "gap": 303.872314453125,
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "w5jKR",
+                          "name": "Container",
+                          "width": 88.52484130859375,
+                          "height": 52.019989013671875,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layout": "vertical",
+                          "gap": 4.0800018310546875,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "0l2Wh",
+                              "name": "Container",
+                              "width": "fill_container",
+                              "height": 27.539993286132812,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "gap": 8.15997314453125,
+                              "alignItems": "center",
+                              "layoutIncludeStroke": true,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "G4gxO",
+                                  "name": "Container",
+                                  "width": 12.239990234375,
+                                  "height": 12.240005493164062,
+                                  "fill": "#dab2ffff",
+                                  "cornerRadius": 16777200,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "P6biZ",
+                                  "name": "h3",
+                                  "width": "fill_container",
+                                  "height": 27.539993286132812,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1
+                                  },
+                                  "layout": "none",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "CDGi3",
+                                      "x": 0,
+                                      "y": 0.5499954223632812,
+                                      "name": "Player 1",
+                                      "fill": "#ffffffff",
+                                      "content": "Player 1",
+                                      "lineHeight": 1.5,
+                                      "fontFamily": "Inter",
+                                      "fontSize": 18,
+                                      "fontWeight": "700",
+                                      "letterSpacing": -0.439453125
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "m5mfq",
+                              "name": "motion.p",
+                              "width": "fill_container",
+                              "height": 20.399993896484375,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "rVv4a",
+                                  "x": 0,
+                                  "y": 0.529998779296875,
+                                  "name": "YOUR TURN",
+                                  "fill": "#e9d4ffff",
+                                  "content": "YOUR TURN",
+                                  "lineHeight": 1.4285714285714286,
+                                  "fontFamily": "Inter",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": -0.150390625
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KXMh9",
+                          "name": "motion.div",
+                          "width": 19.682861328125,
+                          "height": 36.720001220703125,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "5fPeA",
+                              "name": "3",
+                              "fill": "#ffffffff",
+                              "content": "3",
+                              "lineHeight": 1.2,
+                              "fontFamily": "Inter",
+                              "fontSize": 30,
+                              "fontWeight": "700",
+                              "letterSpacing": 0.3955078125
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "3WaAk",
+                  "x": 456,
+                  "y": 0,
+                  "name": "motion.div",
+                  "width": 440,
+                  "height": 87,
+                  "fill": "#1e2939ff",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 2,
+                    "fill": "#364153ff"
+                  },
+                  "layout": "vertical",
+                  "padding": [
+                    18,
+                    18,
+                    2,
+                    18
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "55PWp",
+                      "name": "div",
+                      "width": "fill_container",
+                      "height": 36,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "gap": 300.0625,
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dbCp1",
+                          "name": "Container",
+                          "width": 89.140625,
+                          "height": 27,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "gap": 8,
+                          "alignItems": "center",
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Oo4OP",
+                              "name": "Container",
+                              "width": 12,
+                              "height": 12,
+                              "fill": "#4a5565ff",
+                              "cornerRadius": 16777200,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "layout": "none"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "5jMly",
+                              "name": "h3",
+                              "width": "fill_container",
+                              "height": 27,
+                              "stroke": {
+                                "align": "inside",
+                                "thickness": 1
+                              },
+                              "layout": "none",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "qDXK6",
+                                  "x": 0,
+                                  "y": 0.5,
+                                  "name": "Player 2",
+                                  "fill": "#ffffffff",
+                                  "content": "Player 2",
+                                  "lineHeight": 1.5,
+                                  "fontFamily": "Inter",
+                                  "fontSize": 18,
+                                  "fontWeight": "700",
+                                  "letterSpacing": -0.439453125
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "F6C6q",
+                          "name": "motion.div",
+                          "width": 14.796875,
+                          "height": 36,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1
+                          },
+                          "layoutIncludeStroke": true,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UrhAf",
+                              "name": "1",
+                              "fill": "#ffffffff",
+                              "content": "1",
+                              "lineHeight": 1.2,
+                              "fontFamily": "Inter",
+                              "fontSize": 30,
+                              "fontWeight": "700",
+                              "letterSpacing": 0.3955078125
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "eELgz",
+              "name": "motion.div",
+              "width": "fill_container",
+              "height": 94,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1
+              },
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "4DbEE",
+                  "x": 0,
+                  "y": 0,
+                  "name": "div",
+                  "width": 288,
+                  "height": 94,
+                  "fill": "#1e2939ff",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#364153ff"
+                  },
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": [
+                    17,
+                    17,
+                    1,
+                    17
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Fweam",
+                      "name": "motion.div",
+                      "width": "fill_container",
+                      "height": 36,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "T41Xi",
+                          "name": "14",
+                          "fill": "#ffffffff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "14",
+                          "lineHeight": 1.2,
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 30,
+                          "fontWeight": "700",
+                          "letterSpacing": 0.3955078125
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "0Xb3P",
+                      "name": "Container",
+                      "width": "fill_container",
+                      "height": 20,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "2Vkb3",
+                          "x": 105.9375,
+                          "y": 0.5,
+                          "name": "Moves",
+                          "fill": "#99a1afff",
+                          "content": "Moves",
+                          "lineHeight": 1.4285714285714286,
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "letterSpacing": -0.150390625
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "3Vs5D",
+                  "x": 304,
+                  "y": 0,
+                  "name": "div",
+                  "width": 288,
+                  "height": 94,
+                  "fill": "#1e2939ff",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#364153ff"
+                  },
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": [
+                    17,
+                    17,
+                    1,
+                    17
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "2ot2I",
+                      "name": "Container",
+                      "width": "fill_container",
+                      "height": 36,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "u3dIA",
+                          "name": "2:36",
+                          "fill": "#ffffffff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "2:36",
+                          "lineHeight": 1.2,
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 30,
+                          "fontWeight": "700",
+                          "letterSpacing": 0.3955078125
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "v2Gwx",
+                      "name": "Container",
+                      "width": "fill_container",
+                      "height": 20,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "DMksY",
+                          "x": 111.109375,
+                          "y": 0.5,
+                          "name": "Time",
+                          "fill": "#99a1afff",
+                          "content": "Time",
+                          "lineHeight": 1.4285714285714286,
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "letterSpacing": -0.150390625
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vcAUk",
+                  "x": 608,
+                  "y": 0,
+                  "name": "div",
+                  "width": 288,
+                  "height": 94,
+                  "fill": "#1e2939ff",
+                  "cornerRadius": 14,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#364153ff"
+                  },
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": [
+                    17,
+                    17,
+                    1,
+                    17
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FUnFh",
+                      "name": "motion.div",
+                      "width": "fill_container",
+                      "height": 36,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layoutIncludeStroke": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Dk6Sr",
+                          "name": "4/10",
+                          "fill": "#ffffffff",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "4/10",
+                          "lineHeight": 1.2,
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 30,
+                          "fontWeight": "700",
+                          "letterSpacing": 0.3955078125
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QGnjb",
+                      "name": "Container",
+                      "width": "fill_container",
+                      "height": 20,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1
+                      },
+                      "layout": "none",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WSqgR",
+                          "x": 111.2109375,
+                          "y": 0.5,
+                          "name": "Pairs",
+                          "fill": "#99a1afff",
+                          "content": "Pairs",
+                          "lineHeight": 1.4285714285714286,
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal",
+                          "letterSpacing": -0.150390625
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
