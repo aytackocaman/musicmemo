@@ -75,7 +75,7 @@ class GameBoard extends StatelessWidget {
                       return Padding(
                         padding: EdgeInsets.only(right: colIndex < cols - 1 ? gap : 0),
                         child: GameCardWidget(
-                          key: ValueKey('${card.id}_${card.state.name}'),
+                          key: ValueKey(card.id),
                           state: card.state,
                           size: cardSize,
                           cardNumber: cardIndex + 1,
