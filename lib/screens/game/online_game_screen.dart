@@ -164,7 +164,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         setState(() {
           _currentSession = updatedSession;
           if (updatedSession.gameState != null) {
-            _cards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+            final serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+            _cards = _tagMatchedColors(serverCards, _cards);
           }
         });
         _handleGameComplete();
@@ -215,7 +216,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           debugPrint('Skipping server card overwrite — processing my own turn');
         } else {
           debugPrint('Server cards: ${serverCards.map((c) => "${c.id}:${c.state.name}").join(", ")}');
-          _cards = serverCards;
+          // Preserve local matchedByColor for cards we already tagged, and
+          // tag newly matched cards from the opponent with teal.
+          _cards = _tagMatchedColors(serverCards, _cards);
           _isInitialized = true;
         }
       }
@@ -308,6 +311,28 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     });
   }
 
+  /// Merge matchedByColor info: keep local tags for cards we already matched,
+  /// and tag newly matched cards (from opponent) with teal.
+  List<GameCard> _tagMatchedColors(List<GameCard> serverCards, List<GameCard> localCards) {
+    final localColorMap = <String, String?>{};
+    for (final c in localCards) {
+      if (c.state == CardState.matched && c.matchedByColor != null) {
+        localColorMap[c.id] = c.matchedByColor;
+      }
+    }
+    return serverCards.map((sc) {
+      if (sc.state == CardState.matched) {
+        // If we already have a local color for this card, keep it
+        if (localColorMap.containsKey(sc.id)) {
+          return sc.copyWith(matchedByColor: localColorMap[sc.id]);
+        }
+        // Newly matched card from server — must be opponent's match
+        return sc.copyWith(matchedByColor: '#F97316'); // orange
+      }
+      return sc;
+    }).toList();
+  }
+
   bool get _isMyTurn => _currentSession.currentTurn == _myUserId;
 
   void _handleCardTap(String cardId) async {
@@ -395,9 +420,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
       if (isMatch) {
         // Match found! Update the specific flipped cards to matched
+        // Tag with blue (my color in online mode)
         final updatedCards = _cards.map((c) {
           if (flippedCardIds.contains(c.id)) {
-            return c.copyWith(state: CardState.matched);
+            return c.copyWith(state: CardState.matched, matchedByColor: '#3B82F6');
           }
           return c;
         }).toList();
@@ -576,15 +602,15 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
               children: [
                 // Compact header
                 _buildCompactHeader(),
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
 
-                // Player scores (compact)
+                // Player scores
                 _buildPlayerScores(),
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
 
                 // Stats row with turn status
                 _buildStatsRow(),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 // Game board
                 Expanded(
@@ -607,71 +633,101 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   Widget _buildCompactHeader() {
     final Color dotColor;
-    final String label;
+    final String statusLabel;
     switch (_connectionState) {
       case MultiplayerConnectionState.connected:
         dotColor = AppColors.teal;
-        label = 'LIVE';
+        statusLabel = 'LIVE';
       case MultiplayerConnectionState.reconnecting:
         dotColor = Colors.orange;
-        label = 'Reconnecting...';
+        statusLabel = 'Reconnecting...';
       case MultiplayerConnectionState.disconnected:
         dotColor = Colors.red;
-        label = 'Offline';
+        statusLabel = 'Offline';
     }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () => _showExitConfirmation(),
-              child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
+        GestureDetector(
+          onTap: () => _showExitConfirmation(),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(14),
             ),
-            if (kDebugMode) ...[
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () {
-                  DevConfig.toggleSimulateDisconnect();
-                  setState(() {});
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: DevConfig.simulateDisconnect
-                        ? Colors.red.withValues(alpha: 0.15)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.home, size: 20, color: context.colors.textSecondary),
+                if (kDebugMode) ...[
+                  const SizedBox(width: 2),
+                  GestureDetector(
+                    onTap: () {
+                      DevConfig.toggleSimulateDisconnect();
+                      setState(() {});
+                    },
+                    child: Icon(
+                      DevConfig.simulateDisconnect ? Icons.wifi_off : Icons.wifi,
+                      size: 14,
+                      color: DevConfig.simulateDisconnect ? Colors.red : context.colors.textTertiary,
+                    ),
                   ),
-                  child: Icon(
-                    DevConfig.simulateDisconnect ? Icons.wifi_off : Icons.wifi,
-                    size: 20,
-                    color: DevConfig.simulateDisconnect ? Colors.red : context.colors.textTertiary,
-                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            _formatCategoryName(_currentSession.category ?? ''),
+            style: AppTypography.bodyLarge(context).copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _AnimatedDot(color: dotColor, animate: _connectionState == MultiplayerConnectionState.reconnecting),
+              const SizedBox(width: 3),
+              Text(
+                statusLabel,
+                style: AppTypography.labelSmall(context).copyWith(
+                  color: dotColor,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
-          ],
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _AnimatedDot(color: dotColor, animate: _connectionState == MultiplayerConnectionState.reconnecting),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: AppTypography.labelSmall(context).copyWith(
-                color: dotColor,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
+  }
+
+  String _formatCategoryName(String category) {
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
   }
 
   Widget _buildPlayerScores() {
@@ -688,49 +744,29 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         ? _currentSession.player2Name
         : _currentSession.player1Name;
 
-    final pulseScale = Tween<double>(begin: 1.0, end: 1.04).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    return Row(
-      children: [
-        Expanded(
-          child: ScaleTransition(
-            scale: _isMyTurn ? pulseScale : const AlwaysStoppedAnimation(1.0),
-            child: Opacity(
-              opacity: _isMyTurn ? 1.0 : 0.55,
-              child: _PlayerScoreCard(
-                name: myName ?? widget.playerName,
-                score: myScore,
-                isCurrentTurn: _isMyTurn,
-                isMe: true,
-              ),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _PlayerScoreCard(
+              name: myName ?? widget.playerName,
+              score: myScore,
+              isCurrentTurn: _isMyTurn,
+              isMe: true,
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Icon(
-            _isMyTurn ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
-            size: 12,
-            color: _isMyTurn ? AppColors.purple : AppColors.teal,
-          ),
-        ),
-        Expanded(
-          child: ScaleTransition(
-            scale: !_isMyTurn ? pulseScale : const AlwaysStoppedAnimation(1.0),
-            child: Opacity(
-              opacity: !_isMyTurn ? 1.0 : 0.55,
-              child: _PlayerScoreCard(
-                name: opponentName ?? 'Opponent',
-                score: opponentScore,
-                isCurrentTurn: !_isMyTurn,
-                isMe: false,
-              ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _PlayerScoreCard(
+              name: opponentName ?? 'Opponent',
+              score: opponentScore,
+              isCurrentTurn: !_isMyTurn,
+              isMe: false,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -738,53 +774,63 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     final totalPairs = _cards.length ~/ 2;
     final matchedPairs =
         _cards.where((c) => c.state == CardState.matched).length ~/ 2;
+    final totalMoves = _currentSession.player1Score + _currentSession.player2Score;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: _isMyTurn
-            ? AppColors.purple.withValues(alpha: 0.08)
-            : context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
+    return IntrinsicHeight(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            _isMyTurn
-                ? 'Your turn'
-                : '${(_amIPlayer1 ? _currentSession.player2Name : _currentSession.player1Name) ?? "Opponent"}\'s turn',
-            style: AppTypography.bodySmall(context).copyWith(
-              fontSize: 11,
-              color: _isMyTurn ? AppColors.purple : context.colors.textSecondary,
-              fontWeight: _isMyTurn ? FontWeight.w600 : FontWeight.normal,
-            ),
+          Expanded(
+            child: _buildStatCard('$totalMoves', 'Moves'),
           ),
-          Container(width: 1, height: 20, color: context.colors.elevated),
-          _buildInlineStat(GameUtils.formatTime(_seconds), 'Time'),
-          Container(width: 1, height: 20, color: context.colors.elevated),
-          _buildInlineStat('$matchedPairs/$totalPairs', 'Pairs'),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(GameUtils.formatTime(_seconds), 'Time'),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard('$matchedPairs/$totalPairs', 'Pairs'),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInlineStat(String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: AppTypography.bodySmall(context).copyWith(
-            fontWeight: FontWeight.w600,
-            color: context.colors.textPrimary,
-          ),
+  Widget _buildStatCard(String value, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: context.colors.elevated,
+          width: 2,
         ),
-        Text(
-          label,
-          style: AppTypography.labelSmall(context).copyWith(fontSize: 10),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: AppTypography.bodyLarge(context).copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              label,
+              style: AppTypography.labelSmall(context).copyWith(
+                fontSize: 11,
+                color: context.colors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -825,46 +871,95 @@ class _PlayerScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isMe ? AppColors.purple : AppColors.teal;
+    final color = isMe ? const Color(0xFF3B82F6) : const Color(0xFFF97316);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: isCurrentTurn ? color.withValues(alpha: 0.12) : context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
+        gradient: isCurrentTurn
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color,
+                  Color.lerp(color, Colors.white, 0.25) ?? color,
+                ],
+              )
+            : null,
+        color: isCurrentTurn ? null : context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCurrentTurn ? color : Colors.transparent,
+          color: isCurrentTurn
+              ? Color.lerp(color, Colors.white, 0.35) ?? color
+              : context.colors.elevated,
           width: 2,
         ),
+        boxShadow: isCurrentTurn
+            ? [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.4),
+                  blurRadius: 18,
+                  spreadRadius: 0,
+                ),
+              ]
+            : null,
       ),
       child: Row(
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
           Expanded(
-            child: Text(
-              name,
-              style: AppTypography.bodySmall(context).copyWith(
-                fontSize: 12,
-                color: context.colors.textPrimary,
-              ),
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isCurrentTurn ? Colors.white : color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: AppTypography.bodySmall(context).copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isCurrentTurn
+                              ? Colors.white
+                              : context.colors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (isCurrentTurn)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 14, top: 2),
+                    child: Text(
+                      'Your Turn',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           Text(
             '$score',
             style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: color,
+              color: isCurrentTurn ? Colors.white : context.colors.textPrimary,
             ),
           ),
         ],

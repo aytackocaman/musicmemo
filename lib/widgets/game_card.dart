@@ -12,6 +12,10 @@ class GameCardWidget extends StatefulWidget {
   /// If > 0, shows a depleting circular countdown ring on the flipped card.
   final int countdownMs;
 
+  /// Color of the player who matched this card. Used for matched card gradient
+  /// and particle burst. Falls back to teal if null.
+  final Color? matchedColor;
+
   const GameCardWidget({
     super.key,
     required this.state,
@@ -19,6 +23,7 @@ class GameCardWidget extends StatefulWidget {
     this.onTap,
     this.size = 64,
     this.countdownMs = 0,
+    this.matchedColor,
   });
 
   @override
@@ -34,6 +39,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
   bool _showFront = true;
 
   AnimationController? _countdownController;
+  AnimationController? _particleController;
 
   @override
   void initState() {
@@ -72,6 +78,9 @@ class _GameCardWidgetState extends State<GameCardWidget>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.state != widget.state) {
       _updateFlipAnimation();
+      if (widget.state == CardState.matched) {
+        _triggerParticles();
+      }
     }
     if (oldWidget.countdownMs != widget.countdownMs) {
       _updateCountdown();
@@ -100,6 +109,18 @@ class _GameCardWidgetState extends State<GameCardWidget>
     }
   }
 
+  void _triggerParticles() {
+    _particleController?.dispose();
+    _particleController = AnimationController(
+      duration: const Duration(milliseconds: 1400),
+      vsync: this,
+    );
+    _particleController!.forward().then((_) {
+      if (mounted) setState(() {});
+    });
+    setState(() {});
+  }
+
   void _handleTapDown(TapDownDetails _) {
     if (widget.state == CardState.faceDown && widget.onTap != null) {
       _scaleController?.forward();
@@ -122,33 +143,59 @@ class _GameCardWidgetState extends State<GameCardWidget>
     _flipController.dispose();
     _scaleController?.dispose();
     _countdownController?.dispose();
+    _particleController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: ScaleTransition(
-        scale: _scaleAnimation ?? const AlwaysStoppedAnimation(1.0),
-        child: AnimatedBuilder(
-          animation: _flipAnimation,
-          builder: (context, child) {
-            final angle = _flipAnimation.value * pi;
-            final transform = Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateY(angle);
+    final showParticles = _particleController != null &&
+        _particleController!.isAnimating;
 
-            return Transform(
-              alignment: Alignment.center,
-              transform: transform,
-              child: _showFront ? _buildFaceDown() : _buildFaceUp(),
-            );
-          },
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        GestureDetector(
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          child: ScaleTransition(
+            scale: _scaleAnimation ?? const AlwaysStoppedAnimation(1.0),
+            child: AnimatedBuilder(
+              animation: _flipAnimation,
+              builder: (context, child) {
+                final angle = _flipAnimation.value * pi;
+                final transform = Matrix4.identity()
+                  ..setEntry(3, 2, 0.001)
+                  ..rotateY(angle);
+
+                return Transform(
+                  alignment: Alignment.center,
+                  transform: transform,
+                  child: _showFront ? _buildFaceDown() : _buildFaceUp(),
+                );
+              },
+            ),
+          ),
         ),
-      ),
+        if (showParticles)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _particleController!,
+                builder: (context, _) => CustomPaint(
+                  painter: _ParticlePainter(
+                    progress: _particleController!.value,
+                    cardWidth: widget.size,
+                    cardHeight: widget.size * 1.25,
+                    matchedColor: widget.matchedColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -304,17 +351,19 @@ class _GameCardWidgetState extends State<GameCardWidget>
 
   Widget _buildMatchedCard() {
     final radius = BorderRadius.circular(12);
+    final baseColor = widget.matchedColor ?? AppColors.teal;
+    // Derive lighter and deeper shades from the base color for the gradient
+    final hsl = HSLColor.fromColor(baseColor);
+    final lighterColor = hsl.withLightness((hsl.lightness + 0.12).clamp(0.0, 1.0)).toColor();
+    final deeperColor = hsl.withLightness((hsl.lightness - 0.08).clamp(0.0, 1.0)).toColor();
     return Container(
       width: widget.size,
       height: widget.size * 1.25,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2DD4BF), // lighter teal
-            Color(0xFF0D9488), // deeper teal
-          ],
+          colors: [lighterColor, deeperColor],
         ),
         borderRadius: radius,
         border: Border.all(
@@ -323,7 +372,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.teal.withValues(alpha: 0.3),
+            color: baseColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -362,4 +411,71 @@ class _GameCardWidgetState extends State<GameCardWidget>
       ),
     );
   }
+}
+
+class _ParticlePainter extends CustomPainter {
+  final double progress;
+  final double cardWidth;
+  final double cardHeight;
+  final Color? matchedColor;
+
+  static const int _particleCount = 20;
+  static List<Offset>? _cachedDirections;
+  static List<Offset> get _directions {
+    if (_cachedDirections == null || _cachedDirections!.length != _particleCount) {
+      _cachedDirections = List.generate(_particleCount, (i) {
+        final angle = (i / _particleCount) * 2 * pi + 0.3 * i;
+        return Offset(cos(angle), sin(angle));
+      });
+    }
+    return _cachedDirections!;
+  }
+  static const List<Color> _defaultColors = [
+    Color(0xFF14B8A6), // teal
+    Color(0xFF8B5CF6), // purple
+    Color(0xFFF472B6), // pink
+    Color(0xFFFBBF24), // gold
+    Color(0xFF10B981), // green
+  ];
+
+  _ParticlePainter({
+    required this.progress,
+    required this.cardWidth,
+    required this.cardHeight,
+    this.matchedColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final maxDist = cardWidth * 1.4;
+    final opacity = (1.0 - progress).clamp(0.0, 1.0);
+
+    // When a matched color is provided, use it as the dominant particle color
+    // with white and a lighter variant for variety.
+    final colors = matchedColor != null
+        ? [
+            matchedColor!,
+            matchedColor!,
+            Colors.white,
+            HSLColor.fromColor(matchedColor!).withLightness(0.75).toColor(),
+            Color(0xFFFBBF24), // gold accent
+          ]
+        : _defaultColors;
+
+    for (int i = 0; i < _particleCount; i++) {
+      final dir = _directions[i];
+      final dist = maxDist * progress;
+      final x = cx + dir.dx * dist;
+      final y = cy + dir.dy * dist;
+      final radius = 3.5 * (1.0 - progress * 0.4);
+      final color = colors[i % colors.length].withValues(alpha: opacity);
+
+      canvas.drawCircle(Offset(x, y), radius, Paint()..color = color);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ParticlePainter old) => old.progress != progress;
 }

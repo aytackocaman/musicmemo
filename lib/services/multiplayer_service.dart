@@ -515,6 +515,7 @@ class MultiplayerService {
         'id': c.id,
         'soundId': c.soundId,
         'state': c.state.name,
+        if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
       final flippedCards = cards.where((c) => c.state == CardState.flipped).map((c) => c.id).toList();
@@ -564,6 +565,7 @@ class MultiplayerService {
         'id': c.id,
         'soundId': c.soundId,
         'state': c.state.name,
+        if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
       await _client.from('online_sessions').update({
@@ -592,6 +594,7 @@ class MultiplayerService {
         'id': c.id,
         'soundId': c.soundId,
         'state': c.state.name,
+        if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
       await _client.from('online_sessions').update({
@@ -768,6 +771,7 @@ class MultiplayerService {
         'id': c.id,
         'soundId': c.soundId,
         'state': c.state.name,
+        if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
       await _client.from('online_sessions').update({
@@ -805,6 +809,7 @@ class MultiplayerService {
           (s) => s.name == cardMap['state'],
           orElse: () => CardState.faceDown,
         ),
+        matchedByColor: cardMap['matchedByColor'] as String?,
       );
     }).toList();
   }

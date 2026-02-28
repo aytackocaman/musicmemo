@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/theme.dart';
 import '../providers/game_provider.dart';
 import 'game_card.dart';
 
@@ -81,6 +82,9 @@ class GameBoard extends StatelessWidget {
                           cardNumber: cardIndex + 1,
                           onTap: enabled ? () => onCardTap(card.id) : null,
                           countdownMs: showCountdown ? countdownDurationMs : 0,
+                          matchedColor: card.matchedByColor != null
+                              ? hexToColor(card.matchedByColor!)
+                              : null,
                         ),
                       );
                     }),

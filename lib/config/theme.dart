@@ -83,6 +83,11 @@ extension AppColorsContext on BuildContext {
   AppColorsTheme get colors => Theme.of(this).extension<AppColorsTheme>()!;
 }
 
+/// Convert a hex color string (e.g. '#8B5CF6') to a [Color].
+Color hexToColor(String hex) {
+  return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+}
+
 /// App color palette — brand colors only (theme-invariant).
 class AppColors {
   // Primary

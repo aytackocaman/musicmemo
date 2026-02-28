@@ -14,7 +14,6 @@ import '../../widgets/game_board.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
-import 'local_player_setup_screen.dart';
 
 class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final String category;

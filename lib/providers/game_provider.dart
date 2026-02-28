@@ -15,18 +15,21 @@ class GameCard {
   final String id;
   final String soundId;
   final CardState state;
+  final String? matchedByColor;
 
   const GameCard({
     required this.id,
     required this.soundId,
     this.state = CardState.faceDown,
+    this.matchedByColor,
   });
 
-  GameCard copyWith({CardState? state}) {
+  GameCard copyWith({CardState? state, String? matchedByColor}) {
     return GameCard(
       id: id,
       soundId: soundId,
       state: state ?? this.state,
+      matchedByColor: matchedByColor ?? this.matchedByColor,
     );
   }
 }
@@ -239,9 +242,14 @@ class GameNotifier extends StateNotifier<GameState?> {
   void _handleMatch(int firstIndex, int secondIndex) {
     if (state == null) return;
 
+    // Determine the color of the player who found this match
+    final matchColor = (state!.mode != GameMode.singlePlayer && state!.players.isNotEmpty)
+        ? state!.players[state!.currentPlayerIndex].color
+        : '#8B5CF6'; // brand purple for single player
+
     final updatedCards = List<GameCard>.from(state!.cards);
-    updatedCards[firstIndex] = updatedCards[firstIndex].copyWith(state: CardState.matched);
-    updatedCards[secondIndex] = updatedCards[secondIndex].copyWith(state: CardState.matched);
+    updatedCards[firstIndex] = updatedCards[firstIndex].copyWith(state: CardState.matched, matchedByColor: matchColor);
+    updatedCards[secondIndex] = updatedCards[secondIndex].copyWith(state: CardState.matched, matchedByColor: matchColor);
 
     // Streak-based scoring for single player
     int? newConsecutiveMatches;
@@ -376,9 +384,9 @@ class PlayerSetupState {
 
   const PlayerSetupState({
     this.player1Name = 'Player 1',
-    this.player1Color = '#8B5CF6', // purple
+    this.player1Color = '#3B82F6', // blue
     this.player2Name = 'Player 2',
-    this.player2Color = '#14B8A6', // teal
+    this.player2Color = '#F97316', // orange
   });
 
   PlayerSetupState copyWith({

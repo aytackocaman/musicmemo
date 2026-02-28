@@ -282,9 +282,13 @@ class _SinglePlayerGameScreenState
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               child: Column(
                 children: [
-                  // Compact header with inline stats
-                  _buildCompactHeader(gameState),
-                  const SizedBox(height: 8),
+                  // Compact header with home/pause
+                  _buildCompactHeader(),
+                  const SizedBox(height: 10),
+
+                  // Stats row
+                  _buildStatsRow(gameState),
+                  const SizedBox(height: 10),
 
                   // Game board
                   Expanded(
@@ -310,72 +314,123 @@ class _SinglePlayerGameScreenState
     );
   }
 
-  Widget _buildCompactHeader(GameState gameState) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          // Home button
-          GestureDetector(
-            onTap: () => _showHomeConfirmation(),
-            child: Icon(
-              Icons.home,
-              size: 20,
-              color: context.colors.textSecondary,
+  Widget _buildCompactHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: () => _showHomeConfirmation(),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(14),
             ),
+            child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
           ),
-          const SizedBox(width: 12),
-
-          // Stats inline
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildInlineStat(
-                    '${gameState.score}', 'Score', AppColors.purple),
-                _buildInlineStat('${gameState.moves}', 'Moves', null),
-                _buildInlineStat(
-                    GameUtils.formatTime(_seconds), 'Time', null),
-              ],
+        ),
+        Expanded(
+          child: Text(
+            _formatCategoryName(widget.category),
+            style: AppTypography.bodyLarge(context).copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
             ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
           ),
-
-          const SizedBox(width: 12),
-          // Pause button
-          GestureDetector(
-            onTap: _togglePause,
+        ),
+        GestureDetector(
+          onTap: _togglePause,
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Icon(
               _isPaused ? Icons.play_arrow : Icons.pause,
               size: 20,
               color: context.colors.textSecondary,
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(GameState gameState) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _buildStatCard(
+                '${gameState.score}', 'Score', AppColors.purple),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard('${gameState.moves}', 'Moves', null),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildStatCard(
+                GameUtils.formatTime(_seconds), 'Time', null),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInlineStat(String value, String label, Color? color) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: AppTypography.bodyLarge(context).copyWith(
-            fontSize: 16,
-            color: color ?? context.colors.textPrimary,
-          ),
+  Widget _buildStatCard(String value, String label, Color? valueColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: context.colors.elevated,
+          width: 2,
         ),
-        Text(
-          label,
-          style: AppTypography.labelSmall(context).copyWith(fontSize: 10),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: AppTypography.bodyLarge(context).copyWith(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: valueColor ?? context.colors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              label,
+              style: AppTypography.labelSmall(context).copyWith(
+                fontSize: 11,
+                color: context.colors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-      ],
+      ),
     );
+  }
+
+  String _formatCategoryName(String category) {
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
   }
 
   Widget _buildPauseOverlay() {

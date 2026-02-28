@@ -4,16 +4,15 @@ import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
 import 'preload_screen.dart';
 
-/// Available player colors
+/// Available player colors (purple excluded — too similar to face-down cards)
 const List<Color> playerColors = [
-  Color(0xFF8B5CF6), // Purple
+  Color(0xFF3B82F6), // Blue
+  Color(0xFFF97316), // Orange
   Color(0xFF14B8A6), // Teal
   Color(0xFFF472B6), // Pink
   Color(0xFFEF4444), // Red
-  Color(0xFFF97316), // Orange
   Color(0xFFEAB308), // Yellow
   Color(0xFF22C55E), // Green
-  Color(0xFF3B82F6), // Blue
 ];
 
 String colorToHex(Color color) {
@@ -21,10 +20,6 @@ String colorToHex(Color color) {
   final g = (color.g * 255).round().toRadixString(16).padLeft(2, '0');
   final b = (color.b * 255).round().toRadixString(16).padLeft(2, '0');
   return '#$r$g$b'.toUpperCase();
-}
-
-Color hexToColor(String hex) {
-  return Color(int.parse(hex.replaceFirst('#', '0xFF')));
 }
 
 class LocalPlayerSetupScreen extends ConsumerStatefulWidget {
