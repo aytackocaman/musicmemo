@@ -12,6 +12,7 @@ import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
 import '../grand_category_screen.dart';
+import 'preload_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
 
@@ -858,7 +859,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LocalMultiplayerGameScreen(
+                          builder: (context) => PreloadScreen(
                             category: category,
                             gridSize: gridSize,
                           ),

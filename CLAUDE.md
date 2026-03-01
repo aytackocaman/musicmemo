@@ -71,7 +71,7 @@ A turn-based mobile card matching game where players flip cards to hear sounds a
 | State Management | Riverpod (flutter_riverpod: ^2.6.1) |
 | Local Storage | SharedPreferences |
 | Backend | Supabase (Auth + PostgreSQL) |
-| Authentication | Email/Password + Guest Mode (Google Sign-In planned) |
+| Authentication | Email/Password + Google Sign-In + Guest Mode |
 
 ## Design System
 
@@ -159,7 +159,7 @@ Home → Mode (Online) → [Paywall if no subscription] → Matchmaking/Invite �
 
 ### Login Methods
 - **Email/Password** - Primary auth method via Supabase Auth
-- **Google Sign-In** - Future integration
+- **Google Sign-In** - Integrated via Supabase Auth
 - **Guest Mode** - Play without account (anonymous), can link account later
 
 ### Supabase Data Model (PostgreSQL)
@@ -358,7 +358,7 @@ Resets happen automatically at **3 AM in each user's local time** — no cron jo
 ## Game Logic (Implementation Status)
 
 - [x] Card flip animation (3D transform with AnimationController)
-- [ ] Sound playback on flip
+- [x] Sound playback on flip
 - [x] Match detection (compare sound IDs)
 - [x] Score calculation (single player + multiplayer)
 - [x] Timer

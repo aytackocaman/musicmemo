@@ -245,7 +245,7 @@ class GameNotifier extends StateNotifier<GameState?> {
     // Determine the color of the player who found this match
     final matchColor = (state!.mode != GameMode.singlePlayer && state!.players.isNotEmpty)
         ? state!.players[state!.currentPlayerIndex].color
-        : '#8B5CF6'; // brand purple for single player
+        : '#14B8A6'; // teal (success color) for single player
 
     final updatedCards = List<GameCard>.from(state!.cards);
     updatedCards[firstIndex] = updatedCards[firstIndex].copyWith(state: CardState.matched, matchedByColor: matchColor);

@@ -52,3 +52,6 @@ site/
 
 # ini files
 *.ini
+
+# Site (deployed separately via musicmemo-site repo)
+zz_notes_credentials/
