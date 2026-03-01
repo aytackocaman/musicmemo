@@ -728,6 +728,12 @@ abstract class AppLocalizations {
   /// **'Your Turn'**
   String get yourTurn;
 
+  /// No description provided for @opponentsTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent\'s Turn'**
+  String get opponentsTurn;
+
   /// No description provided for @itsATie.
   ///
   /// In en, this message translates to:

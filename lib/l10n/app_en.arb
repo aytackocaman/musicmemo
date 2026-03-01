@@ -157,6 +157,7 @@
   "goHome": "Go Home",
 
   "yourTurn": "Your Turn",
+  "opponentsTurn": "Opponent's Turn",
   "itsATie": "It's a Tie!",
   "playerWins": "{name} Wins!",
   "@playerWins": {

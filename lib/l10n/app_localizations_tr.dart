@@ -344,6 +344,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get yourTurn => 'Senin Sıran';
 
   @override
+  String get opponentsTurn => 'Rakibin Sırası';
+
+  @override
   String get itsATie => 'Berabere!';
 
   @override

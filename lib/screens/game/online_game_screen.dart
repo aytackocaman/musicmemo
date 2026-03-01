@@ -965,7 +965,7 @@ class _PlayerScoreCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 16, top: 2),
                       child: Text(
-                        l10n.yourTurn,
+                        isMe ? l10n.yourTurn : l10n.opponentsTurn,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

@@ -342,6 +342,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourTurn => 'Your Turn';
 
   @override
+  String get opponentsTurn => 'Opponent\'s Turn';
+
+  @override
   String get itsATie => 'It\'s a Tie!';
 
   @override
