@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/auth_service.dart';
+import '../services/haptic_service.dart';
 import '../utils/app_dialogs.dart';
 import 'login_screen.dart';
 import 'subscription_screen.dart';
@@ -98,9 +99,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     trailing: Switch.adaptive(
                       value: hapticEnabled,
                       activeTrackColor: AppColors.purple,
-                      onChanged: (v) => ref
-                          .read(hapticFeedbackProvider.notifier)
-                          .setEnabled(v),
+                      onChanged: (v) {
+                        ref
+                            .read(hapticFeedbackProvider.notifier)
+                            .setEnabled(v);
+                        if (v) HapticService.buttonTap();
+                      },
                     ),
                   ),
                   _SectionDivider(),
