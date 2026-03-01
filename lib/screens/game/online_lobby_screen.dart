@@ -521,11 +521,12 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
             ),
           ),
 
-          // Main content — truly centered
+          // Main content — centered, scrollable on small screens
           Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 Container(
                   width: 100,
                   height: 100,
@@ -592,6 +593,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   style: AppTypography.labelSmall(context),
                 ),
               ],
+              ),
             ),
           ),
         ],

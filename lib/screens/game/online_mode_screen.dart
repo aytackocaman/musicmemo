@@ -1192,65 +1192,67 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             ),
           ),
 
-          // Main content — truly centered
+          // Main content — centered, scrollable on small screens
           Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.waitingForHostToStart,
-                  style: AppTypography.headline3(context),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.joinedSuccessfully,
-                  style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.waitingForHostToStart,
+                    style: AppTypography.headline3(context),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.joinedSuccessfully,
+                    style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
 
-                _VsPlayersWidget(player1Name: hostName, player2Name: myName),
-                const SizedBox(height: 32),
+                  _VsPlayersWidget(player1Name: hostName, player2Name: myName),
+                  const SizedBox(height: 32),
 
-                // Game settings — values only, no labels
-                if (category != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: context.colors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _formatCategoryName(category),
-                          style: AppTypography.bodySmall(context)
-                              .copyWith(color: context.colors.textSecondary),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Container(
-                            width: 4, height: 4,
-                            decoration: BoxDecoration(
-                              color: context.colors.textSecondary,
-                              shape: BoxShape.circle,
+                  // Game settings — values only, no labels
+                  if (category != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: context.colors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _formatCategoryName(category),
+                            style: AppTypography.bodySmall(context)
+                                .copyWith(color: context.colors.textSecondary),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Container(
+                              width: 4, height: 4,
+                              decoration: BoxDecoration(
+                                color: context.colors.textSecondary,
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          gridSize,
-                          style: AppTypography.bodySmall(context)
-                              .copyWith(color: context.colors.textSecondary),
-                        ),
-                      ],
+                          Text(
+                            gridSize,
+                            style: AppTypography.bodySmall(context)
+                                .copyWith(color: context.colors.textSecondary),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                _buildConnectionBanner(),
-              ],
+                  _buildConnectionBanner(),
+                ],
+              ),
             ),
           ),
         ],
