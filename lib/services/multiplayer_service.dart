@@ -143,6 +143,9 @@ class MultiplayerService {
   static MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
   static StreamController<MultiplayerConnectionState>? _connectionStateController;
 
+  // Emoji reactions (broadcast-only, no DB persistence)
+  static StreamController<Map<String, String>>? _emojiController;
+
   /// Stream of connection state changes for UI consumption
   static Stream<MultiplayerConnectionState> get connectionStateStream {
     _connectionStateController ??= StreamController<MultiplayerConnectionState>.broadcast();
@@ -159,6 +162,26 @@ class MultiplayerService {
       _connectionStateController!.add(state);
     }
     debugPrint('Connection state: $state (failures: $_consecutiveFailures)');
+  }
+
+  /// Stream of emoji reactions from the opponent: {emoji, fromUserId}
+  static Stream<Map<String, String>> get emojiStream {
+    _emojiController ??= StreamController<Map<String, String>>.broadcast();
+    return _emojiController!.stream;
+  }
+
+  /// Send an emoji reaction to the opponent via Realtime Broadcast
+  static Future<void> sendEmoji(String emoji) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null || _sessionChannel == null) return;
+    try {
+      await _sessionChannel!.sendBroadcastMessage(
+        event: 'emoji',
+        payload: {'emoji': emoji, 'fromUserId': userId},
+      );
+    } catch (e) {
+      debugPrint('Error sending emoji: $e');
+    }
   }
 
   /// Re-establish the Realtime channel without touching polling or stream controller
@@ -182,6 +205,16 @@ class MultiplayerService {
             debugPrint('Realtime: Session update received');
             final session = OnlineSession.fromJson(payload.newRecord);
             _sessionController?.add(session);
+          },
+        )
+        .onBroadcast(
+          event: 'emoji',
+          callback: (payload) {
+            final emoji = payload['emoji'] as String?;
+            final fromUserId = payload['fromUserId'] as String?;
+            if (emoji != null && fromUserId != null) {
+              _emojiController?.add({'emoji': emoji, 'fromUserId': fromUserId});
+            }
           },
         )
         .subscribe((status, error) {
@@ -417,6 +450,16 @@ class MultiplayerService {
             _sessionController?.add(session);
           },
         )
+        .onBroadcast(
+          event: 'emoji',
+          callback: (payload) {
+            final emoji = payload['emoji'] as String?;
+            final fromUserId = payload['fromUserId'] as String?;
+            if (emoji != null && fromUserId != null) {
+              _emojiController?.add({'emoji': emoji, 'fromUserId': fromUserId});
+            }
+          },
+        )
         .subscribe((status, error) {
           debugPrint('Realtime subscription status: $status, error: $error');
         });
@@ -492,6 +535,8 @@ class MultiplayerService {
     _connectionState = MultiplayerConnectionState.connected;
     await _connectionStateController?.close();
     _connectionStateController = null;
+    await _emojiController?.close();
+    _emojiController = null;
     await _sessionChannel?.unsubscribe();
     _sessionChannel = null;
     await _sessionController?.close();

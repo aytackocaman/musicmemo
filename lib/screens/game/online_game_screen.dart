@@ -60,6 +60,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
   MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
 
+  // Emoji reactions
+  StreamSubscription<Map<String, String>>? _emojiSubscription;
+  bool _showEmojiPicker = false;
+  DateTime? _lastEmojiSentAt;
+
   @override
   void initState() {
     super.initState();
@@ -98,6 +103,17 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       } else {
         // Connection recovered — restart opponent timeout if it's their turn
         _resetOpponentTimeout(_isMyTurn);
+      }
+    });
+
+    // Subscribe to emoji reactions from opponent
+    _emojiSubscription = MultiplayerService.emojiStream.listen((data) {
+      if (!mounted) return;
+      final emoji = data['emoji'];
+      final fromUserId = data['fromUserId'];
+      if (emoji != null && fromUserId != null) {
+        final isMe = fromUserId == _myUserId;
+        _showFloatingEmoji(emoji, isMe);
       }
     });
 
@@ -196,7 +212,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           final existing = _cards.where((c) => c.id == sc.id).firstOrNull;
           if (existing != null &&
               existing.state == CardState.faceDown &&
-              sc.state == CardState.flipped) {
+              (sc.state == CardState.flipped || sc.state == CardState.matched)) {
             final path = _soundPaths[sc.soundId];
             if (path != null) {
               AudioService.play(path);
@@ -316,12 +332,20 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   /// and tag newly matched cards (from opponent) with teal.
   List<GameCard> _tagMatchedColors(List<GameCard> serverCards, List<GameCard> localCards) {
     final localColorMap = <String, String?>{};
+    final localMatchedIds = <String>{};
     for (final c in localCards) {
-      if (c.state == CardState.matched && c.matchedByColor != null) {
-        localColorMap[c.id] = c.matchedByColor;
+      if (c.state == CardState.matched) {
+        localMatchedIds.add(c.id);
+        if (c.matchedByColor != null) {
+          localColorMap[c.id] = c.matchedByColor;
+        }
       }
     }
     return serverCards.map((sc) {
+      // Never downgrade a locally matched card from a stale server echo
+      if (localMatchedIds.contains(sc.id) && sc.state != CardState.matched) {
+        return localCards.firstWhere((c) => c.id == sc.id);
+      }
       if (sc.state == CardState.matched) {
         // If we already have a local color for this card, keep it
         if (localColorMap.containsKey(sc.id)) {
@@ -378,9 +402,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
     debugPrint('Flipping card $cardId');
 
-    // Sync the flipped card to server
-    await _syncGameState();
-    if (!mounted) return;
+    // Sync the flipped card to server — but only for the first card.
+    // For the second card, the match/mismatch handler sends the final state
+    // directly, avoiding a stale "flipped" echo that races with the result.
+    if (_firstFlippedCardId == null) {
+      await _syncGameState();
+      if (!mounted) return;
+    }
 
     // Use explicit tracking instead of re-querying _cards (which may have
     // been overwritten by a server echo during the await above).
@@ -453,12 +481,17 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           status: gameOver ? 'finished' : null,
         );
 
-        // Unlock immediately after match
+        // Brief pause so the player registers the match before next tap
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted) return;
         setState(() {
           _isProcessing = false;
         });
       } else {
-        // No match — wait for player to see both cards, then flip back
+        // No match — sync flipped state so opponent sees both cards
+        await _syncGameState();
+        if (!mounted) return;
+        // Wait for player to see both cards, then flip back
         await Future.delayed(const Duration(milliseconds: 1200));
         if (!mounted) return;
 
@@ -558,6 +591,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
     _connectionSubscription?.cancel();
+    _emojiSubscription?.cancel();
     // Don't kill the global subscription if navigating to win screen —
     // it will be reused there for rematch detection.
     if (!_navigatingToWinScreen) {
@@ -631,23 +665,17 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   }
 
   Widget _buildCompactHeader() {
-    final l10n = AppLocalizations.of(context)!;
     final Color dotColor;
-    final String statusLabel;
     switch (_connectionState) {
       case MultiplayerConnectionState.connected:
         dotColor = AppColors.teal;
-        statusLabel = l10n.live;
       case MultiplayerConnectionState.reconnecting:
         dotColor = Colors.orange;
-        statusLabel = l10n.reconnecting;
       case MultiplayerConnectionState.disconnected:
         dotColor = Colors.red;
-        statusLabel = l10n.offline;
     }
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
           onTap: () => _showExitConfirmation(),
@@ -682,39 +710,30 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           ),
         ),
         Expanded(
-          child: Text(
-            _formatCategoryName(_currentSession.category ?? ''),
-            style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(14),
-          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              _AnimatedDot(color: dotColor, animate: _connectionState == MultiplayerConnectionState.reconnecting),
-              const SizedBox(width: 3),
-              Text(
-                statusLabel,
-                style: AppTypography.labelSmall(context).copyWith(
-                  color: dotColor,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  _formatCategoryName(_currentSession.category ?? ''),
+                  style: AppTypography.bodyLarge(context).copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 6),
+              _AnimatedDot(color: dotColor, animate: _connectionState == MultiplayerConnectionState.reconnecting),
             ],
           ),
+        ),
+        _EmojiPickerButton(
+          isExpanded: _showEmojiPicker,
+          onToggle: () => setState(() => _showEmojiPicker = !_showEmojiPicker),
+          onEmojiSelected: _sendEmoji,
+          onCollapse: () => setState(() => _showEmojiPicker = false),
         ),
       ],
     );
@@ -833,6 +852,36 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         ),
       ),
     );
+  }
+
+  void _sendEmoji(String emoji) {
+    final now = DateTime.now();
+    if (_lastEmojiSentAt != null &&
+        now.difference(_lastEmojiSentAt!).inSeconds < 3) {
+      return; // 3-second cooldown
+    }
+    _lastEmojiSentAt = now;
+    setState(() => _showEmojiPicker = false);
+    MultiplayerService.sendEmoji(emoji);
+    _showFloatingEmoji(emoji, true);
+  }
+
+  void _showFloatingEmoji(String emoji, bool isMe) {
+    final overlay = Overlay.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Position above the left (me) or right (opponent) score card
+    final dx = isMe ? screenWidth * 0.25 : screenWidth * 0.75;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _FloatingEmoji(
+        emoji: emoji,
+        left: dx - 24,
+        onDone: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
   }
 
   void _showExitConfirmation() {
@@ -984,6 +1033,232 @@ class _PlayerScoreCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _EmojiPickerButton extends StatefulWidget {
+  final bool isExpanded;
+  final VoidCallback onToggle;
+  final void Function(String emoji) onEmojiSelected;
+  final VoidCallback onCollapse;
+
+  const _EmojiPickerButton({
+    required this.isExpanded,
+    required this.onToggle,
+    required this.onEmojiSelected,
+    required this.onCollapse,
+  });
+
+  @override
+  State<_EmojiPickerButton> createState() => _EmojiPickerButtonState();
+}
+
+class _EmojiPickerButtonState extends State<_EmojiPickerButton> {
+  static const _emojis = ['👏', '😄', '😮', '🔥', '😅', '👋'];
+  OverlayEntry? _overlayEntry;
+  Timer? _autoCollapseTimer;
+
+  @override
+  void didUpdateWidget(_EmojiPickerButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isExpanded && _overlayEntry == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.isExpanded && _overlayEntry == null) {
+          _showOverlay();
+        }
+      });
+    } else if (!widget.isExpanded && _overlayEntry != null) {
+      _removeOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    _removeOverlay();
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bgColor = context.colors.surface;
+
+    _overlayEntry = OverlayEntry(
+      builder: (_) => Stack(
+        children: [
+          // Dismiss scrim
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: widget.onCollapse,
+              behavior: HitTestBehavior.translucent,
+            ),
+          ),
+          // Emoji row anchored to the right of the trigger button
+          Positioned(
+            top: offset.dy + size.height + 6,
+            right: screenWidth - offset.dx - size.width,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: AppColors.purple.withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final emoji in _emojis)
+                      GestureDetector(
+                        onTap: () => widget.onEmojiSelected(emoji),
+                        child: SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Center(
+                            child: Text(emoji, style: const TextStyle(fontSize: 22)),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    Overlay.of(context).insert(_overlayEntry!);
+
+    _autoCollapseTimer?.cancel();
+    _autoCollapseTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) widget.onCollapse();
+    });
+  }
+
+  void _removeOverlay() {
+    _autoCollapseTimer?.cancel();
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onToggle,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Center(
+          child: Text('😀', style: TextStyle(fontSize: 22)),
+        ),
+      ),
+    );
+  }
+}
+
+class _FloatingEmoji extends StatefulWidget {
+  final String emoji;
+  final double left;
+  final VoidCallback onDone;
+
+  const _FloatingEmoji({
+    required this.emoji,
+    required this.left,
+    required this.onDone,
+  });
+
+  @override
+  State<_FloatingEmoji> createState() => _FloatingEmojiState();
+}
+
+class _FloatingEmojiState extends State<_FloatingEmoji>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
+  late Animation<double> _translateY;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.3, end: 1.2), weight: 15),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 10),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 75),
+    ]).animate(_controller);
+    _opacity = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 10),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 40),
+    ]).animate(_controller);
+    _translateY = Tween<double>(begin: 0, end: -60).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _controller.forward().then((_) {
+      if (mounted) widget.onDone();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final topOffset = MediaQuery.of(context).padding.top + 60;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return Stack(
+          children: [
+            Positioned(
+              left: widget.left,
+              top: topOffset + _translateY.value,
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: _opacity.value,
+                  child: Transform.scale(
+                    scale: _scale.value,
+                    child: Text(
+                      widget.emoji,
+                      style: const TextStyle(
+                        fontSize: 48,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
