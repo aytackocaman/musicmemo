@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../services/haptic_service.dart';
 
 enum GameButtonVariant { primary, secondary, ghost }
 
@@ -34,7 +35,10 @@ class GameButton extends StatelessWidget {
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: () {
+          HapticService.buttonTap();
+          onPressed();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,

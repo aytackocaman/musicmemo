@@ -658,6 +658,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameplay => 'Gameplay';
 
   @override
+  String get hapticFeedback => 'Haptic Feedback';
+
+  @override
   String get account => 'Account';
 
   @override

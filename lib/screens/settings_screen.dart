@@ -38,6 +38,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final themeMode = ref.watch(themeModeProvider);
     final profileAsync = ref.watch(userProfileNotifierProvider);
     final timings = ref.watch(cardTimingsProvider);
+    final hapticEnabled = ref.watch(hapticFeedbackProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -91,6 +92,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 children: [
+                  _Row(
+                    icon: Icons.vibration,
+                    label: l10n.hapticFeedback,
+                    trailing: Switch.adaptive(
+                      value: hapticEnabled,
+                      activeTrackColor: AppColors.purple,
+                      onChanged: (v) => ref
+                          .read(hapticFeedbackProvider.notifier)
+                          .setEnabled(v),
+                    ),
+                  ),
+                  _SectionDivider(),
                   _SubsectionHeader(label: l10n.singlePlayer),
                   _SliderRow(
                     icon: Icons.touch_app,

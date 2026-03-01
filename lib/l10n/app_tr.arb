@@ -280,6 +280,7 @@
   "settings": "Ayarlar",
   "appearance": "Görünüm",
   "gameplay": "Oynanış",
+  "hapticFeedback": "Dokunsal Geri Bildirim",
   "account": "Hesap",
   "displayName": "Görünen Ad",
   "signOut": "Çıkış Yap",

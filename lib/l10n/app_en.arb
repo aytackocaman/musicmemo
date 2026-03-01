@@ -280,6 +280,7 @@
   "settings": "Settings",
   "appearance": "Appearance",
   "gameplay": "Gameplay",
+  "hapticFeedback": "Haptic Feedback",
   "account": "Account",
   "displayName": "Display Name",
   "signOut": "Sign Out",

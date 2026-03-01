@@ -664,6 +664,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get gameplay => 'Oynanış';
 
   @override
+  String get hapticFeedback => 'Dokunsal Geri Bildirim';
+
+  @override
   String get account => 'Hesap';
 
   @override

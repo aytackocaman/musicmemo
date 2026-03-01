@@ -1328,6 +1328,12 @@ abstract class AppLocalizations {
   /// **'Gameplay'**
   String get gameplay;
 
+  /// No description provided for @hapticFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic Feedback'**
+  String get hapticFeedback;
+
   /// No description provided for @account.
   ///
   /// In en, this message translates to:

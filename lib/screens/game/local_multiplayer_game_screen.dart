@@ -9,6 +9,7 @@ import '../../providers/settings_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
+import '../../services/haptic_service.dart';
 import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
@@ -186,6 +187,8 @@ class _LocalMultiplayerGameScreenState
 
       // Switch turn immediately so the next player can tap right away
       ref.read(gameProvider.notifier).switchTurn();
+      HapticService.noMatch();
+      HapticService.turnSwitch();
 
       // Derive upper bound from the second card's sound duration
       const autoFlipMs = 2100;
@@ -207,6 +210,7 @@ class _LocalMultiplayerGameScreenState
       }
     } else {
       // Second card, MATCH found (provider already set cards to matched, 0 flipped)
+      HapticService.matchFound();
       // Player keeps their turn on a match — unlock immediately
       setState(() {
         _isProcessing = false;
@@ -225,6 +229,8 @@ class _LocalMultiplayerGameScreenState
 
     final gameState = ref.read(gameProvider);
     if (gameState == null) return;
+
+    HapticService.gameWin();
 
     // Save game and fetch fresh counts BEFORE navigating
     await DatabaseService.saveGame(
@@ -797,6 +803,7 @@ class _NameTooltipState extends State<_NameTooltip>
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),

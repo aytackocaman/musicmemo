@@ -63,140 +63,157 @@ class _WinScreenState extends ConsumerState<WinScreen> {
       child: Scaffold(
         backgroundColor: AppColors.purple,
         body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                // Trophy icon
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.emoji_events,
-                    size: 48,
-                    color: AppColors.white,
-                  ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isCompact = constraints.maxHeight < 700;
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: isCompact ? 12 : 24,
                 ),
-                const SizedBox(height: 16),
+                child: Column(
+                  children: [
+                    const Spacer(flex: 1),
 
-                // Title
-                Text(
-                  stars == 3 ? l10n.perfect : stars == 2 ? l10n.wellDone : l10n.niceTry,
-                  style: AppTypography.headline2(context).copyWith(
-                    color: AppColors.white,
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Category & grid info
-                Text(
-                  '${_formatCategory(widget.category)}  ·  ${widget.gridSize.replaceAll('x', '×')}',
-                  style: AppTypography.bodySmall(context).copyWith(
-                    color: AppColors.white.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Stars
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                    // Trophy icon
+                    Container(
+                      width: isCompact ? 72 : 88,
+                      height: isCompact ? 72 : 88,
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
                       child: Icon(
-                        index < stars ? Icons.star : Icons.star_border,
-                        size: 32,
-                        color: const Color(0xFFFBBF24), // Gold
+                        Icons.emoji_events,
+                        size: isCompact ? 36 : 48,
+                        color: AppColors.white,
                       ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 20),
-
-                // Stats card
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStat('${widget.score}', l10n.score),
-                      _buildStat('${widget.moves}', l10n.moves),
-                      _buildStat(
-                          GameUtils.formatTime(widget.timeSeconds), l10n.time),
-                    ],
-                  ),
-                ),
-
-                // Remaining free games banner (only for non-premium users)
-                if (!isPremium) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
+                    SizedBox(height: isCompact ? 10 : 16),
+
+                    // Title
+                    Text(
+                      stars == 3
+                          ? l10n.perfect
+                          : stars == 2
+                              ? l10n.wellDone
+                              : l10n.niceTry,
+                      style: AppTypography.headline2(context).copyWith(
+                        color: AppColors.white,
+                      ),
                     ),
-                    child: Text(
-                      counts.canPlaySinglePlayer
-                          ? l10n.freeGamesLeftCount(counts.singlePlayerRemaining)
-                          : l10n.noFreeGamesLeft,
-                      textAlign: TextAlign.center,
+                    const SizedBox(height: 4),
+
+                    // Category & grid info
+                    Text(
+                      '${_formatCategory(widget.category)}  ·  ${widget.gridSize.replaceAll('x', '×')}',
                       style: AppTypography.bodySmall(context).copyWith(
-                        color: AppColors.white.withValues(alpha: 0.9),
+                        color: AppColors.white.withValues(alpha: 0.7),
                       ),
                     ),
-                  ),
-                ],
-                const SizedBox(height: 24),
+                    SizedBox(height: isCompact ? 8 : 12),
 
-                // Buttons — vary based on whether free games remain
-                if (hasGamesLeft) ...[
-                  _buildButton(
-                    label: l10n.playAgain,
-                    icon: Icons.replay,
-                    isPrimary: true,
-                    onTap: () => _playAgain(context),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildButton(
-                    label: l10n.changeCategory,
-                    icon: Icons.category,
-                    onTap: () => _changeCategory(context),
-                  ),
-                  const SizedBox(height: 10),
-                ] else ...[
-                  _buildButton(
-                    label: l10n.upgradeToPremium,
-                    icon: Icons.workspace_premium,
-                    isPrimary: true,
-                    onTap: () => _goToPaywall(context),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+                    // Stars
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(3, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Icon(
+                            index < stars ? Icons.star : Icons.star_border,
+                            size: isCompact ? 28 : 32,
+                            color: const Color(0xFFFBBF24), // Gold
+                          ),
+                        );
+                      }),
+                    ),
 
-                _buildButton(
-                  label: l10n.home,
-                  icon: Icons.home,
-                  isOutlined: true,
-                  onTap: () => _goHome(context),
+                    const Spacer(flex: 2),
+
+                    // Stats card
+                    Container(
+                      padding: EdgeInsets.all(isCompact ? 12 : 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStat('${widget.score}', l10n.score),
+                          _buildStat('${widget.moves}', l10n.moves),
+                          _buildStat(
+                              GameUtils.formatTime(widget.timeSeconds),
+                              l10n.time),
+                        ],
+                      ),
+                    ),
+
+                    // Remaining free games banner (only for non-premium users)
+                    if (!isPremium) ...[
+                      SizedBox(height: isCompact ? 10 : 16),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: isCompact ? 8 : 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          counts.canPlaySinglePlayer
+                              ? l10n.freeGamesLeftCount(
+                                  counts.singlePlayerRemaining)
+                              : l10n.noFreeGamesLeft,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodySmall(context).copyWith(
+                            color: AppColors.white.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    const Spacer(flex: 2),
+
+                    // Buttons — vary based on whether free games remain
+                    if (hasGamesLeft) ...[
+                      _buildButton(
+                        label: l10n.playAgain,
+                        icon: Icons.replay,
+                        isPrimary: true,
+                        onTap: () => _playAgain(context),
+                      ),
+                      SizedBox(height: isCompact ? 8 : 10),
+                      _buildButton(
+                        label: l10n.changeCategory,
+                        icon: Icons.category,
+                        onTap: () => _changeCategory(context),
+                      ),
+                      SizedBox(height: isCompact ? 8 : 10),
+                    ] else ...[
+                      _buildButton(
+                        label: l10n.upgradeToPremium,
+                        icon: Icons.workspace_premium,
+                        isPrimary: true,
+                        onTap: () => _goToPaywall(context),
+                      ),
+                      SizedBox(height: isCompact ? 8 : 10),
+                    ],
+
+                    _buildButton(
+                      label: l10n.home,
+                      icon: Icons.home,
+                      isOutlined: true,
+                      onTap: () => _goHome(context),
+                    ),
+
+                    const Spacer(flex: 1),
+                  ],
                 ),
-              ],
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

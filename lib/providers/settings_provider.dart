@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/haptic_service.dart';
 
 const _kThemeModeKey = 'theme_mode';
 const _kLocaleKey = 'locale';
+const _kHapticFeedbackKey = 'haptic_feedback';
 
 // ─── Card Timing Settings ─────────────────────────────────────────────────────
 
@@ -139,4 +141,28 @@ final localeProvider =
     StateNotifierProvider<LocaleNotifier, Locale?>((ref) {
   // Overridden in main.dart with the value loaded from SharedPreferences.
   return LocaleNotifier(null);
+});
+
+// ─── Haptic Feedback Setting ────────────────────────────────────────────────
+
+class HapticFeedbackNotifier extends StateNotifier<bool> {
+  HapticFeedbackNotifier(super.initial) {
+    HapticService.enabled = state;
+  }
+
+  Future<void> setEnabled(bool value) async {
+    state = value;
+    HapticService.enabled = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kHapticFeedbackKey, value);
+  }
+
+  static bool fromPrefs(SharedPreferences prefs) =>
+      prefs.getBool(_kHapticFeedbackKey) ?? true;
+}
+
+final hapticFeedbackProvider =
+    StateNotifierProvider<HapticFeedbackNotifier, bool>((ref) {
+  // Overridden in main.dart with the value loaded from SharedPreferences.
+  return HapticFeedbackNotifier(true);
 });

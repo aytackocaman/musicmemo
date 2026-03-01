@@ -30,6 +30,7 @@ void main() async {
   final initialThemeMode = ThemeModeNotifier.fromPrefs(prefs);
   final initialCardTimings = CardTimingsNotifier.fromPrefs(prefs);
   final initialLocale = LocaleNotifier.fromPrefs(prefs);
+  final initialHaptic = HapticFeedbackNotifier.fromPrefs(prefs);
 
   runApp(
     ProviderScope(
@@ -42,6 +43,9 @@ void main() async {
         ),
         localeProvider.overrideWith(
           (ref) => LocaleNotifier(initialLocale),
+        ),
+        hapticFeedbackProvider.overrideWith(
+          (ref) => HapticFeedbackNotifier(initialHaptic),
         ),
       ],
       child: const MusicMemoApp(),

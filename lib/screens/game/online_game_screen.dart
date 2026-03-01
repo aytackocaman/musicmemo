@@ -7,6 +7,7 @@ import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
+import '../../services/haptic_service.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/app_dialogs.dart';
@@ -244,6 +245,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       // Don't reset on updates while it's still the same player's turn (e.g., their own flip syncs)
       if (isNowMyTurn && turnChanged) {
         debugPrint('Turn changed to me, resetting _isProcessing');
+        HapticService.turnSwitch();
         _isProcessing = false;
         _firstFlippedCardId = null;
         _firstFlippedSoundId = null;
@@ -444,6 +446,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       debugPrint('Two cards flipped, isMatch=$isMatch, cards: $flippedCardIds');
 
       if (isMatch) {
+        HapticService.matchFound();
         // Match found! Update the specific flipped cards to matched
         // Tag with blue (my color in online mode)
         final updatedCards = _cards.map((c) {
@@ -481,6 +484,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           status: gameOver ? 'finished' : null,
         );
 
+        if (gameOver) {
+          // Go to win screen immediately — no pause needed
+          if (!mounted) return;
+          _handleGameComplete();
+          return;
+        }
+
         // Brief pause so the player registers the match before next tap
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
@@ -488,6 +498,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           _isProcessing = false;
         });
       } else {
+        HapticService.noMatch();
         // No match — sync flipped state so opponent sees both cards
         await _syncGameState();
         if (!mounted) return;
@@ -545,6 +556,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     _timer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
+    HapticService.gameWin();
 
     final myScore = _amIPlayer1
         ? _currentSession.player1Score

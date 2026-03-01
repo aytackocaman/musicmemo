@@ -8,6 +8,7 @@ import '../../providers/settings_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
+import '../../services/haptic_service.dart';
 import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
@@ -173,6 +174,7 @@ class _SinglePlayerGameScreenState
         _countdownDurationMs = 0;
       });
     } else if (newFlippedCards == 2) {
+      HapticService.noMatch();
       // Second card, NO match — show both cards for at least noMatchDelay,
       // then unlock. Cards auto-flip back after the sound's full duration
       // (upper bound), or sooner if the user taps the next card.
@@ -199,6 +201,7 @@ class _SinglePlayerGameScreenState
       }
     } else {
       // Second card, MATCH found (provider already set cards to matched, 0 flipped)
+      HapticService.matchFound();
       // Unlock immediately
       setState(() {
         _isProcessing = false;
@@ -217,6 +220,8 @@ class _SinglePlayerGameScreenState
 
     final gameState = ref.read(gameProvider);
     if (gameState == null) return;
+
+    HapticService.gameWin();
 
     // Save game and fetch fresh counts BEFORE navigating so the
     // win screen renders with all data on the first frame.

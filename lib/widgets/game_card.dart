@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../providers/game_provider.dart';
+import '../services/haptic_service.dart';
 
 class GameCardWidget extends StatefulWidget {
   final CardState state;
@@ -130,6 +131,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
   void _handleTapUp(TapUpDetails _) {
     _scaleController?.reverse();
     if (widget.state == CardState.faceDown) {
+      HapticService.cardTap();
       widget.onTap?.call();
     }
   }
