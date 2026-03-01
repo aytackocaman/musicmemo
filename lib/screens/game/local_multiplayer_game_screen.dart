@@ -207,11 +207,7 @@ class _LocalMultiplayerGameScreenState
       }
     } else {
       // Second card, MATCH found (provider already set cards to matched, 0 flipped)
-      // Player keeps their turn on a match
-      // Brief delay for visual feedback
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (!mounted) return;
-
+      // Player keeps their turn on a match — unlock immediately
       setState(() {
         _isProcessing = false;
       });

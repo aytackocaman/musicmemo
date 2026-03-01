@@ -415,10 +415,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
       debugPrint('Two cards flipped, isMatch=$isMatch, cards: $flippedCardIds');
 
-      // Wait for player to see both cards
-      await Future.delayed(const Duration(milliseconds: 1200));
-      if (!mounted) return;
-
       if (isMatch) {
         // Match found! Update the specific flipped cards to matched
         // Tag with blue (my color in online mode)
@@ -457,14 +453,15 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           status: gameOver ? 'finished' : null,
         );
 
-        // Wait before allowing next flip after match
-        await Future.delayed(const Duration(milliseconds: 800));
-        if (!mounted) return;
+        // Unlock immediately after match
         setState(() {
           _isProcessing = false;
         });
       } else {
-        // No match - flip cards back and switch turn
+        // No match — wait for player to see both cards, then flip back
+        await Future.delayed(const Duration(milliseconds: 1200));
+        if (!mounted) return;
+
         final updatedCards = _cards.map((c) {
           if (flippedCardIds.contains(c.id)) {
             return c.copyWith(state: CardState.faceDown);

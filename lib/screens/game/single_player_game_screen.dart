@@ -199,10 +199,7 @@ class _SinglePlayerGameScreenState
       }
     } else {
       // Second card, MATCH found (provider already set cards to matched, 0 flipped)
-      // Brief delay for visual feedback
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (!mounted) return;
-
+      // Unlock immediately
       setState(() {
         _isProcessing = false;
       });
