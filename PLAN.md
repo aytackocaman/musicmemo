@@ -37,7 +37,7 @@
 - [x] Implement guest mode (anonymous auth)
 - [x] Handle auth state persistence (via Supabase)
 - [x] Add "link account" for guest users
-- [ ] Add Google Sign-In integration (future)
+- [x] Add Google Sign-In integration (via Supabase Auth)
 
 **Note:** Enable "Allow anonymous sign-ins" in Supabase Dashboard → Authentication → Providers
 
@@ -56,7 +56,7 @@
 
 ### 2.2 Navigation
 - [x] Implement navigation flow between screens (Home → Mode → Category → Grid)
-- [ ] Add route guards (auth required, subscription required)
+- [x] Add route guards (auth required, subscription required) — via free tier gating pattern
 - [ ] Handle deep linking
 
 ### 2.3 Remaining Screens (from Pencil designs)
@@ -78,14 +78,12 @@
 - [x] Implement card states (face down, flipped, matched)
 - [x] Add card grid layout (responsive to grid size)
 
-### 3.2 Sound System (Deferred)
-> **Note:** Sound system will be added after all game modes are working
-
-- [ ] Set up audioplayers package
-- [ ] Create AudioService for sound playback
-- [ ] Add sound asset management
-- [ ] Implement sound preloading
-- [ ] Handle sound categories
+### 3.2 Sound System ✅
+- [x] Set up audioplayers package
+- [x] Create AudioService for sound playback
+- [x] Add sound asset management (Pixabay real sounds via Supabase Storage)
+- [x] Implement sound preloading (PreloadScreen)
+- [x] Handle sound categories (49 categories, Browse by Feel tags, Collections)
 
 ### 3.3 Game Logic ✅
 - [x] Card shuffle algorithm (game_utils.dart)
@@ -118,13 +116,20 @@
 - [x] Supabase Realtime setup
 - [x] Online session management (create/join with invite codes)
 - [x] Invite code matchmaking (6-character codes)
-- [x] Real-time game state sync (with polling fallback)
-- [x] Connection status handling (LIVE indicator)
+- [x] Public matchmaking (find random opponent)
+- [x] Real-time game state sync (with polling fallback, 500ms)
+- [x] Connection status handling (LIVE/reconnecting/offline indicator)
 - [x] Turn-based gameplay over network
-- [x] Race condition fixes (turn change detection, card state sync)
+- [x] Race condition fixes (turn change detection, card state sync, match color stale echo)
 - [x] Rapid click prevention (all game modes)
-- [ ] Reconnection logic (future improvement)
-- [ ] Opponent disconnect handling (future improvement)
+- [x] Reconnection logic (auto-resubscribe Realtime channel on recovery)
+- [x] Opponent disconnect handling (60s timeout + "opponent left" detection)
+- [x] Save online game results to history/stats
+- [x] Rematch flow (request/accept/decline/timeout)
+- [x] Randomize first turn
+- [x] Share invite code (share_plus)
+- [x] Emoji reactions (Supabase Realtime Broadcast, no DB writes)
+- [x] Stale session cleanup (ignore >10 min old)
 
 ---
 
@@ -136,7 +141,7 @@
 - [x] Show paywall when limit reached (PaywallScreen with upgrade CTAs)
 - [x] Show remaining games count in mode selection subtitles
 - [x] Subscription screen with current plan info and daily limits
-- [ ] Reset counts daily (server-side — handled by date-based query)
+- [x] Reset counts daily (automatic via date-based query + 3AM local time rollover)
 
 ### 5.2 Subscription System
 - [ ] Integrate RevenueCat or in-app purchases
@@ -151,15 +156,19 @@
 ## Phase 6: Polish & Launch
 
 ### 6.1 Data & Progress
-- [x] Save game history to Supabase (single player win screen)
+- [x] Save game history to Supabase (all game modes)
 - [x] Calculate and display statistics (Statistics Screen)
 - [ ] Implement leaderboards (optional)
+- [ ] Local high score storage (SharedPreferences — scores currently cloud-only)
 
 ### 6.2 UX Improvements
+- [x] Dark mode support
+- [x] Turkish localization (l10n with .arb files)
 - [ ] Add haptic feedback
 - [ ] Loading states and skeletons
 - [ ] Error handling and retry logic
 - [ ] Offline mode support
+- [ ] Additional languages
 
 ### 6.3 App Store Preparation
 - [ ] App icons (all sizes)
@@ -190,8 +199,8 @@ Start with these tasks in order:
 8. ~~**Online multiplayer**~~ ✅ Done (Supabase Realtime + invite codes + race condition fixes)
 9. ~~**Statistics screen**~~ ✅ Done (Overall stats, per-mode breakdown, game saving)
 10. ~~**Free tier limits**~~ ✅ Done (Paywall screen, subscription screen, limit checks, game counting)
-11. **Add sound system** - Integrate audioplayers package ← **START HERE**
-12. **Subscription system** - RevenueCat integration (wire purchase buttons)
+11. ~~**Add sound system**~~ ✅ Done (AudioService, Pixabay sounds, preloading, categories)
+12. **Subscription system** - RevenueCat / StoreKit integration ← **START HERE**
 
 ---
 
