@@ -1360,6 +1360,7 @@ class _NameTooltipState extends State<_NameTooltip>
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
