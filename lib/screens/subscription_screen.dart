@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
 
@@ -10,6 +11,7 @@ class SubscriptionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final subscriptionAsync = ref.watch(subscriptionProvider);
     final countsAsync = ref.watch(dailyGameCountsProvider);
 
@@ -41,7 +43,7 @@ class SubscriptionScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xl),
 
               // Title
-              Text('Subscription', style: AppTypography.headline3(context)),
+              Text(l10n.subscriptionTitle, style: AppTypography.headline3(context)),
               const SizedBox(height: AppSpacing.xl),
 
               // Current Plan card
@@ -81,6 +83,7 @@ class _CurrentPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -93,7 +96,7 @@ class _CurrentPlanCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Current Plan',
+            l10n.currentPlan,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -108,7 +111,7 @@ class _CurrentPlanCard extends StatelessWidget {
             children: [
               subscriptionAsync.when(
                 data: (sub) => Text(
-                  sub.isPremium ? 'Premium' : 'Free',
+                  sub.isPremium ? l10n.premium : l10n.free,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -120,7 +123,7 @@ class _CurrentPlanCard extends StatelessWidget {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                error: (_, __) => Text('Free',
+                error: (_, __) => Text(l10n.free,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -135,7 +138,7 @@ class _CurrentPlanCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Active',
+                  l10n.active,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -152,7 +155,7 @@ class _CurrentPlanCard extends StatelessWidget {
             data: (sub) {
               if (sub.canAccessPremiumFeatures) {
                 return Text(
-                  'Unlimited games',
+                  l10n.unlimitedGames,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -167,7 +170,7 @@ class _CurrentPlanCard extends StatelessWidget {
                       child: _LimitCounter(
                         value:
                             '${counts.singlePlayerCount}/${DailyGameCounts.singlePlayerLimit}',
-                        label: 'Single player today',
+                        label: l10n.singlePlayerToday,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -175,7 +178,7 @@ class _CurrentPlanCard extends StatelessWidget {
                       child: _LimitCounter(
                         value:
                             '${counts.localMultiplayerCount}/${DailyGameCounts.localMultiplayerLimit}',
-                        label: 'Local MP today',
+                        label: l10n.localMpToday,
                       ),
                     ),
                   ],
@@ -233,11 +236,12 @@ class _LimitCounter extends StatelessWidget {
 class _UpgradeSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Upgrade to Premium',
+          l10n.upgradeToPremium,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -265,7 +269,7 @@ class _UpgradeSection extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        'Monthly',
+                        l10n.monthly,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -274,7 +278,7 @@ class _UpgradeSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '\$4.99',
+                        l10n.monthlyPrice,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
@@ -283,7 +287,7 @@ class _UpgradeSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '/month',
+                        l10n.perMonth,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
@@ -319,7 +323,7 @@ class _UpgradeSection extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'SAVE 40%',
+                          l10n.save40,
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -329,7 +333,7 @@ class _UpgradeSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Yearly',
+                        l10n.yearly,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -338,7 +342,7 @@ class _UpgradeSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '\$35.99',
+                        l10n.yearlyPrice,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
@@ -347,7 +351,7 @@ class _UpgradeSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '/year',
+                        l10n.perYear,
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
@@ -364,11 +368,11 @@ class _UpgradeSection extends StatelessWidget {
         const SizedBox(height: 24),
 
         // Benefits
-        _BenefitRow(text: 'Unlimited single player games'),
+        _BenefitRow(text: l10n.unlimitedSinglePlayerGames),
         const SizedBox(height: 12),
-        _BenefitRow(text: 'Unlimited local multiplayer games'),
+        _BenefitRow(text: l10n.unlimitedLocalMultiplayerGames),
         const SizedBox(height: 12),
-        _BenefitRow(text: 'Access to online multiplayer'),
+        _BenefitRow(text: l10n.accessOnlineMultiplayer),
       ],
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/dev_config.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
@@ -55,6 +56,8 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
       error: (_, _) => DailyGameCounts.zero(),
     );
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
@@ -78,14 +81,14 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
 
               // Title
               Text(
-                'Select Game Mode',
+                l10n.selectGameMode,
                 style: AppTypography.headline3(context),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // Description
               Text(
-                'Choose how you want to play',
+                l10n.chooseHowToPlay,
                 style: AppTypography.body(context).copyWith(
                   color: context.colors.textSecondary,
                 ),
@@ -95,10 +98,10 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               // Single Player
               _ModeButton(
                 icon: Icons.person,
-                title: 'Single Player',
+                title: l10n.singlePlayer,
                 subtitle: isPremium
-                    ? 'Play solo and beat your high score'
-                    : '${counts.singlePlayerRemaining} of ${DailyGameCounts.singlePlayerLimit} free games left today',
+                    ? l10n.singlePlayerDescription
+                    : l10n.freeGamesLeftToday(counts.singlePlayerRemaining, DailyGameCounts.singlePlayerLimit),
                 isPrimary: true,
                 onTap: () {
                   if (!isPremium && !counts.canPlaySinglePlayer) {
@@ -120,10 +123,10 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               // Local Multiplayer
               _ModeButton(
                 icon: Icons.people,
-                title: 'Local Multiplayer',
+                title: l10n.localMultiplayer,
                 subtitle: isPremium
-                    ? 'Play with a friend on this device'
-                    : '${counts.localMultiplayerRemaining} of ${DailyGameCounts.localMultiplayerLimit} free games left today',
+                    ? l10n.localMultiplayerDescription
+                    : l10n.freeGamesLeftToday(counts.localMultiplayerRemaining, DailyGameCounts.localMultiplayerLimit),
                 iconBackgroundColor: const Color(0x268B5CF6),
                 onTap: () {
                   if (!isPremium && !counts.canPlayLocalMultiplayer) {
@@ -145,10 +148,10 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               // Online Multiplayer
               _ModeButton(
                 icon: Icons.public,
-                title: 'Online Multiplayer',
+                title: l10n.onlineMultiplayer,
                 subtitle: isPremium
-                    ? 'Challenge players worldwide'
-                    : 'Premium only',
+                    ? l10n.onlineMultiplayerDescription
+                    : l10n.premiumOnly,
                 iconBackgroundColor: const Color(0x2614B8A6),
                 badge: isPremium ? null : _PremiumBadge(),
                 onTap: () {
@@ -297,6 +300,7 @@ class _ModeButton extends StatelessWidget {
 class _PremiumBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -304,7 +308,7 @@ class _PremiumBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        'Premium',
+        l10n.premium,
         style: AppTypography.labelSmall(context).copyWith(
           color: const Color(0xFFFBBF24),
           fontWeight: FontWeight.w600,
@@ -325,6 +329,7 @@ class _DebugPaywallToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onToggle,
       child: Container(
@@ -343,7 +348,7 @@ class _DebugPaywallToggle extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              isPremium ? 'Premium ON' : 'Premium OFF',
+              isPremium ? l10n.premiumOn : l10n.premiumOff,
               style: AppTypography.labelSmall(context).copyWith(
                 color: AppColors.white,
                 fontWeight: FontWeight.w600,

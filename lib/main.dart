@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'config/theme.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/settings_provider.dart';
 import 'services/audio_service.dart';
 import 'services/deep_link_service.dart';
@@ -28,6 +29,7 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final initialThemeMode = ThemeModeNotifier.fromPrefs(prefs);
   final initialCardTimings = CardTimingsNotifier.fromPrefs(prefs);
+  final initialLocale = LocaleNotifier.fromPrefs(prefs);
 
   runApp(
     ProviderScope(
@@ -37,6 +39,9 @@ void main() async {
         ),
         cardTimingsProvider.overrideWith(
           (ref) => CardTimingsNotifier(initialCardTimings),
+        ),
+        localeProvider.overrideWith(
+          (ref) => LocaleNotifier(initialLocale),
         ),
       ],
       child: const MusicMemoApp(),
@@ -53,6 +58,7 @@ class MusicMemoApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     DeepLinkService.navigatorKey = navigatorKey;
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
     return MaterialApp(
       title: 'Music Memo',
       navigatorKey: navigatorKey,
@@ -60,6 +66,9 @@ class MusicMemoApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
       home: const SplashScreen(),
     );
   }

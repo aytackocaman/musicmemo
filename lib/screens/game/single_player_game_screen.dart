@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/user_provider.dart';
@@ -362,22 +363,23 @@ class _SinglePlayerGameScreenState
   }
 
   Widget _buildStatsRow(GameState gameState) {
+    final l10n = AppLocalizations.of(context)!;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: _buildStatCard(
-                '${gameState.score}', 'Score', AppColors.purple),
+                '${gameState.score}', l10n.score, AppColors.purple),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildStatCard('${gameState.moves}', 'Moves', null),
+            child: _buildStatCard('${gameState.moves}', l10n.moves, null),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(
-                GameUtils.formatTime(_seconds), 'Time', null),
+                GameUtils.formatTime(_seconds), l10n.time, null),
           ),
         ],
       ),
@@ -434,6 +436,7 @@ class _SinglePlayerGameScreenState
   }
 
   Widget _buildPauseOverlay() {
+    final l10n = AppLocalizations.of(context)!;
     return Positioned.fill(
       child: GestureDetector(
         onTap: _togglePause,
@@ -458,12 +461,12 @@ class _SinglePlayerGameScreenState
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Game Paused',
+                  l10n.gamePaused,
                   style: AppTypography.headline3(context),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Tap anywhere to resume',
+                  l10n.tapToResume,
                   style: AppTypography.body(context).copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -481,7 +484,7 @@ class _SinglePlayerGameScreenState
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
-                      'Resume',
+                      l10n.resume,
                       style: AppTypography.button,
                     ),
                   ),
@@ -490,7 +493,7 @@ class _SinglePlayerGameScreenState
                 GestureDetector(
                   onTap: () => _showHomeConfirmation(),
                   child: Text(
-                    'Quit Game',
+                    l10n.quitGame,
                     style: AppTypography.body(context).copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -505,11 +508,12 @@ class _SinglePlayerGameScreenState
   }
 
   void _showHomeConfirmation() {
+    final l10n = AppLocalizations.of(context)!;
     showAppDialog(
       context: context,
-      title: 'Go Home?',
-      message: 'Your progress will be lost.',
-      confirmLabel: 'Go Home',
+      title: l10n.goHomeTitle,
+      message: l10n.progressWillBeLost,
+      confirmLabel: l10n.goHome,
       isDestructive: true,
       onConfirm: () {
         _timer?.cancel();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/game_provider.dart';
 import 'preload_screen.dart';
 
@@ -39,10 +40,22 @@ class LocalPlayerSetupScreen extends ConsumerStatefulWidget {
 
 class _LocalPlayerSetupScreenState
     extends ConsumerState<LocalPlayerSetupScreen> {
-  final _player1Controller = TextEditingController(text: 'Player 1');
-  final _player2Controller = TextEditingController(text: 'Player 2');
+  final _player1Controller = TextEditingController();
+  final _player2Controller = TextEditingController();
   Color _player1Color = playerColors[0]; // Purple
   Color _player2Color = playerColors[1]; // Teal
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      final l10n = AppLocalizations.of(context)!;
+      _player1Controller.text = l10n.playerNumber(1);
+      _player2Controller.text = l10n.playerNumber(2);
+    }
+  }
 
   @override
   void dispose() {
@@ -52,14 +65,15 @@ class _LocalPlayerSetupScreenState
   }
 
   void _startGame() {
+    final l10n = AppLocalizations.of(context)!;
     // Update player setup state
     ref.read(playerSetupProvider.notifier).state = PlayerSetupState(
       player1Name: _player1Controller.text.trim().isEmpty
-          ? 'Player 1'
+          ? l10n.playerNumber(1)
           : _player1Controller.text.trim(),
       player1Color: colorToHex(_player1Color),
       player2Name: _player2Controller.text.trim().isEmpty
-          ? 'Player 2'
+          ? l10n.playerNumber(2)
           : _player2Controller.text.trim(),
       player2Color: colorToHex(_player2Color),
     );
@@ -78,6 +92,7 @@ class _LocalPlayerSetupScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -100,10 +115,10 @@ class _LocalPlayerSetupScreenState
                             children: [
                               _buildBackButton(),
                               const SizedBox(height: 20),
-                              Text('Player Setup', style: AppTypography.headline3(context)),
+                              Text(l10n.playerSetup, style: AppTypography.headline3(context)),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
-                                'Enter names and pick colors',
+                                l10n.enterNamesAndPickColors,
                                 style: AppTypography.body(context).copyWith(
                                   color: context.colors.textSecondary,
                                 ),
@@ -120,6 +135,7 @@ class _LocalPlayerSetupScreenState
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               _buildPlayerSetup(
+                                l10n: l10n,
                                 playerNumber: 1,
                                 controller: _player1Controller,
                                 selectedColor: _player1Color,
@@ -138,7 +154,7 @@ class _LocalPlayerSetupScreenState
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  'VS',
+                                  l10n.vs,
                                   style: AppTypography.bodyLarge(context).copyWith(
                                     color: context.colors.textSecondary,
                                   ),
@@ -147,6 +163,7 @@ class _LocalPlayerSetupScreenState
                               const SizedBox(height: 8),
 
                               _buildPlayerSetup(
+                                l10n: l10n,
                                 playerNumber: 2,
                                 controller: _player2Controller,
                                 selectedColor: _player2Color,
@@ -175,7 +192,7 @@ class _LocalPlayerSetupScreenState
                                       BorderRadius.circular(AppRadius.button),
                                 ),
                               ),
-                              child: Text('Start Game', style: AppTypography.button),
+                              child: Text(l10n.startGame, style: AppTypography.button),
                             ),
                           ),
                         ),
@@ -211,6 +228,7 @@ class _LocalPlayerSetupScreenState
   }
 
   Widget _buildPlayerSetup({
+    required AppLocalizations l10n,
     required int playerNumber,
     required TextEditingController controller,
     required Color selectedColor,
@@ -243,7 +261,7 @@ class _LocalPlayerSetupScreenState
               ),
               const SizedBox(width: 8),
               Text(
-                'Player $playerNumber',
+                l10n.playerNumber(playerNumber),
                 style: AppTypography.label(context).copyWith(
                   color: context.colors.textSecondary,
                 ),
@@ -263,7 +281,7 @@ class _LocalPlayerSetupScreenState
               extentOffset: controller.text.length,
             ),
             decoration: InputDecoration(
-              hintText: 'Enter name',
+              hintText: l10n.enterName,
               counterText: '',
               hintStyle: AppTypography.body(context).copyWith(
                 color: context.colors.textTertiary,
@@ -283,7 +301,7 @@ class _LocalPlayerSetupScreenState
           const SizedBox(height: 10),
 
           // Color picker
-          Text('Choose color', style: AppTypography.labelSmall(context)),
+          Text(l10n.chooseColor, style: AppTypography.labelSmall(context)),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -13,6 +13,7 @@ import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
 import '../../widgets/game_board.dart';
 import '../home_screen.dart';
+import '../../l10n/app_localizations.dart';
 import 'online_mode_screen.dart';
 
 class OnlineGameScreen extends ConsumerStatefulWidget {
@@ -266,9 +267,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
     showAppDialog(
       context: context,
-      title: 'Opponent Left',
-      message: 'Your opponent has left the game. You win!',
-      confirmLabel: 'Go Home',
+      title: AppLocalizations.of(context)!.opponentLeftTitle,
+      message: AppLocalizations.of(context)!.opponentLeftMessage,
+      confirmLabel: AppLocalizations.of(context)!.goHome,
       showCancel: false,
       onConfirm: () => Navigator.pushAndRemoveUntil(
         context,
@@ -289,9 +290,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
     showAppDialog(
       context: context,
-      title: 'Opponent Timed Out',
-      message: "Your opponent hasn't made a move in 60 seconds. The game has been ended.",
-      confirmLabel: 'Go Home',
+      title: AppLocalizations.of(context)!.opponentTimedOut,
+      message: AppLocalizations.of(context)!.opponentTimedOutMessage,
+      confirmLabel: AppLocalizations.of(context)!.goHome,
       showCancel: false,
       onConfirm: () => Navigator.pushAndRemoveUntil(
         context,
@@ -570,6 +571,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!_isInitialized) {
       return Scaffold(
         backgroundColor: context.colors.background,
@@ -582,7 +584,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
               ),
               const SizedBox(height: 16),
               Text(
-                _amIPlayer1 ? 'Setting up game...' : 'Waiting for host...',
+                _amIPlayer1 ? l10n.settingUpGame : l10n.waitingForHost,
                 style: AppTypography.body(context),
               ),
             ],
@@ -632,18 +634,19 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   }
 
   Widget _buildCompactHeader() {
+    final l10n = AppLocalizations.of(context)!;
     final Color dotColor;
     final String statusLabel;
     switch (_connectionState) {
       case MultiplayerConnectionState.connected:
         dotColor = AppColors.teal;
-        statusLabel = 'LIVE';
+        statusLabel = l10n.live;
       case MultiplayerConnectionState.reconnecting:
         dotColor = Colors.orange;
-        statusLabel = 'Reconnecting...';
+        statusLabel = l10n.reconnecting;
       case MultiplayerConnectionState.disconnected:
         dotColor = Colors.red;
-        statusLabel = 'Offline';
+        statusLabel = l10n.offline;
     }
 
     return Row(
@@ -759,7 +762,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           const SizedBox(width: 8),
           Expanded(
             child: _PlayerScoreCard(
-              name: opponentName ?? 'Opponent',
+              name: opponentName ?? AppLocalizations.of(context)!.opponent,
               score: opponentScore,
               isCurrentTurn: !_isMyTurn,
               isMe: false,
@@ -771,6 +774,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   }
 
   Widget _buildStatsRow() {
+    final l10n = AppLocalizations.of(context)!;
     final totalPairs = _cards.length ~/ 2;
     final matchedPairs =
         _cards.where((c) => c.state == CardState.matched).length ~/ 2;
@@ -781,15 +785,15 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: _buildStatCard('$totalMoves', 'Moves'),
+            child: _buildStatCard('$totalMoves', l10n.moves),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildStatCard(GameUtils.formatTime(_seconds), 'Time'),
+            child: _buildStatCard(GameUtils.formatTime(_seconds), l10n.time),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildStatCard('$matchedPairs/$totalPairs', 'Pairs'),
+            child: _buildStatCard('$matchedPairs/$totalPairs', l10n.pairs),
           ),
         ],
       ),
@@ -837,9 +841,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   void _showExitConfirmation() {
     showAppDialog(
       context: context,
-      title: 'Go Home?',
-      message: 'You will forfeit this game if you leave.',
-      confirmLabel: 'Go Home',
+      title: AppLocalizations.of(context)!.goHomeTitle,
+      message: AppLocalizations.of(context)!.forfeitMessage,
+      confirmLabel: AppLocalizations.of(context)!.goHome,
       isDestructive: true,
       onConfirm: () {
         _timer?.cancel();
@@ -871,6 +875,7 @@ class _PlayerScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = isMe ? const Color(0xFF3B82F6) : const Color(0xFFF97316);
 
     return AnimatedContainer(
@@ -943,7 +948,7 @@ class _PlayerScoreCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 14, top: 2),
                     child: Text(
-                      'Your Turn',
+                      l10n.yourTurn,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
@@ -1109,7 +1114,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
       setState(() => _rematchState = _RematchState.declined);
       showAppSnackBar(
         context,
-        'Opponent left the room',
+        AppLocalizations.of(context)!.opponentLeftTheRoom,
         duration: const Duration(seconds: 3),
       );
       return;
@@ -1139,7 +1144,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
       setState(() => _rematchState = _RematchState.declined);
       showAppSnackBar(
         context,
-        'Opponent declined the rematch',
+        AppLocalizations.of(context)!.opponentDeclinedRematch,
         duration: const Duration(seconds: 3),
       );
       return;
@@ -1256,6 +1261,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final amIPlayer1 = widget.session.player1Id == widget.myUserId;
     final myScore = amIPlayer1
         ? widget.session.player1Score
@@ -1320,10 +1326,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                 // Result text
                 Text(
                   isTie
-                      ? "It's a Tie!"
+                      ? l10n.itsATie
                       : iWon
-                          ? 'You Win!'
-                          : 'You Lost',
+                          ? l10n.youWin
+                          : l10n.youLost,
                   style: AppTypography.headline2(context).copyWith(
                     color: AppColors.white,
                   ),
@@ -1332,10 +1338,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
                 Text(
                   isTie
-                      ? 'Great match!'
+                      ? l10n.greatMatch
                       : iWon
-                          ? 'Congratulations!'
-                          : 'Better luck next time!',
+                          ? l10n.congratulations
+                          : l10n.betterLuckNextTime,
                   style: AppTypography.body(context).copyWith(
                     color: AppColors.white.withValues(alpha: 0.8),
                   ),
@@ -1368,7 +1374,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                               ),
                             ),
                             Text(
-                              'pairs',
+                              l10n.pairs,
                               style: AppTypography.labelSmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.7),
                               ),
@@ -1384,7 +1390,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          'VS',
+                          l10n.vs,
                           style: AppTypography.bodyLarge(context).copyWith(
                             color: AppColors.white.withValues(alpha: 0.6),
                           ),
@@ -1394,7 +1400,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                         child: Column(
                           children: [
                             Text(
-                              opponentName ?? 'Opponent',
+                              opponentName ?? l10n.opponent,
                               style: AppTypography.bodySmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.8),
                               ),
@@ -1408,7 +1414,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                               ),
                             ),
                             Text(
-                              'pairs',
+                              l10n.pairs,
                               style: AppTypography.labelSmall(context).copyWith(
                                 color: AppColors.white.withValues(alpha: 0.7),
                               ),
@@ -1469,12 +1475,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
   }
 
   List<Widget> _buildRematchButtons() {
+    final l10n = AppLocalizations.of(context)!;
     switch (_rematchState) {
       case _RematchState.idle:
         return [
           // Rematch button (primary)
           _buildButton(
-            label: 'Rematch',
+            label: l10n.rematch,
             icon: Icons.replay,
             onTap: _requestRematch,
             isPrimary: true,
@@ -1482,13 +1489,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
           const SizedBox(height: 12),
           // Find New Opponent
           _buildButton(
-            label: 'Find New Opponent',
+            label: l10n.findNewOpponent,
             icon: Icons.person_search,
             onTap: _navigateToFindOpponent,
           ),
           const SizedBox(height: 12),
           _buildButton(
-            label: 'Home',
+            label: l10n.home,
             icon: Icons.home,
             onTap: _navigateHome,
             isOutlined: true,
@@ -1499,7 +1506,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
         return [
           // Waiting spinner
           _buildButton(
-            label: 'Waiting for opponent...',
+            label: l10n.waitingForOpponentEllipsis,
             icon: null,
             onTap: () {},
             isPrimary: true,
@@ -1507,13 +1514,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
           ),
           const SizedBox(height: 12),
           _buildButton(
-            label: 'Cancel',
+            label: l10n.cancel,
             icon: Icons.close,
             onTap: _cancelRematch,
           ),
           const SizedBox(height: 12),
           _buildButton(
-            label: 'Home',
+            label: l10n.home,
             icon: Icons.home,
             onTap: _navigateHome,
             isOutlined: true,
@@ -1526,7 +1533,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
           ScaleTransition(
             scale: _pulseAnim,
             child: _buildButton(
-              label: 'Accept Rematch!',
+              label: l10n.acceptRematch,
               icon: Icons.check,
               onTap: _acceptRematch,
               isPrimary: true,
@@ -1534,13 +1541,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
           ),
           const SizedBox(height: 12),
           _buildButton(
-            label: 'Decline',
+            label: l10n.decline,
             icon: Icons.close,
             onTap: _declineRematch,
           ),
           const SizedBox(height: 12),
           _buildButton(
-            label: 'Home',
+            label: l10n.home,
             icon: Icons.home,
             onTap: _navigateHome,
             isOutlined: true,
@@ -1550,7 +1557,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
       case _RematchState.starting:
         return [
           _buildButton(
-            label: 'Starting rematch...',
+            label: l10n.startingRematch,
             icon: null,
             onTap: () {},
             isPrimary: true,
@@ -1563,14 +1570,14 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
         return [
           // Find New Opponent (primary)
           _buildButton(
-            label: 'Find New Opponent',
+            label: l10n.findNewOpponent,
             icon: Icons.person_search,
             onTap: _navigateToFindOpponent,
             isPrimary: true,
           ),
           const SizedBox(height: 12),
           _buildButton(
-            label: 'Home',
+            label: l10n.home,
             icon: Icons.home,
             onTap: _navigateHome,
             isOutlined: true,

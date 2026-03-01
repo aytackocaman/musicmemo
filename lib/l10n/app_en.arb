@@ -1,0 +1,383 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Music Memo",
+  "matchTheSoundsToWin": "Match the sounds to win!",
+  "playGame": "Play Game",
+  "subscription": "Subscription",
+  "statistics": "Statistics",
+  "highScore": "High Score",
+
+  "welcome": "Welcome!",
+  "welcomeBack": "Welcome Back",
+  "createAccountSubtitle": "Create an account or sign in to start playing",
+  "signInSubtitle": "Sign in to continue playing",
+  "byContinuing": "By continuing, you agree to our",
+  "termsOfService": "Terms of Service",
+  "andSeparator": " & ",
+  "privacyPolicy": "Privacy Policy",
+  "pleaseEnterEmail": "Please enter your email",
+  "pleaseEnterValidEmail": "Please enter a valid email",
+  "pleaseEnterPassword": "Please enter your password",
+  "passwordMinLength": "Password must be at least 6 characters",
+  "pleaseWait": "Please wait...",
+  "createAccount": "Create Account",
+  "signIn": "Sign In",
+  "signUp": "Sign Up",
+  "forgotPassword": "Forgot Password?",
+  "otherSignInOptions": "Other sign-in options",
+  "signInWithGoogle": "Sign in with Google",
+  "signInWithApple": "Sign in with Apple",
+  "signInWithEmail": "Sign in with Email",
+  "displayNameOptional": "Display Name (optional)",
+  "email": "Email",
+  "password": "Password",
+  "enterName": "Enter name",
+  "enterEmailToReset": "Enter your email to reset password.",
+  "passwordResetSent": "Password reset email sent!",
+
+  "selectGameMode": "Select Game Mode",
+  "chooseHowToPlay": "Choose how you want to play",
+  "singlePlayer": "Single Player",
+  "singlePlayerDescription": "Play solo and beat your high score",
+  "localMultiplayer": "Local Multiplayer",
+  "localMultiplayerDescription": "Play with a friend on this device",
+  "onlineMultiplayer": "Online Multiplayer",
+  "onlineMultiplayerDescription": "Challenge players worldwide",
+  "premiumOnly": "Premium only",
+  "premium": "Premium",
+  "premiumOn": "Premium ON",
+  "premiumOff": "Premium OFF",
+  "freeGamesLeftToday": "{remaining} of {limit} free games left today",
+  "@freeGamesLeftToday": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "limit": { "type": "int" }
+    }
+  },
+
+  "selectCategory": "Select Category",
+  "whatKindOfSounds": "What kind of sounds do you want to match?",
+  "music": "Music",
+  "musicDescription": "Match songs, beats and melodies",
+  "earTraining": "Ear Training",
+  "earTrainingDescription": "Intervals, chords, and scales",
+  "forKids": "For Kids",
+  "forKidsDescription": "Animals, toys, and fun sounds",
+  "funnyMemes": "Funny Memes",
+  "funnyMemesDescription": "Viral sounds and internet classics",
+  "soon": "Soon",
+  "browseByFeel": "Browse by Feel",
+  "collections": "Collections",
+  "searchCollections": "Search collections...",
+  "noCollectionsMatch": "No collections match \"{query}\"",
+  "@noCollectionsMatch": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "noCategoriesAvailable": "No categories available",
+  "trackCount": "{count} tracks",
+  "@trackCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pro": "PRO",
+  "searchTag": "Search {tagLabel}...",
+  "@searchTag": {
+    "placeholders": {
+      "tagLabel": { "type": "String" }
+    }
+  },
+  "noResults": "No results",
+  "premiumCategoryMessage": "{name} is a Premium category. Upgrade to unlock it and all other premium collections.",
+  "@premiumCategoryMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "tagMood": "Mood",
+  "tagGenre": "Genre",
+  "tagMovement": "Movement",
+  "tagTheme": "Theme",
+
+  "selectGridSize": "Select Grid Size",
+  "largerGridsMoreChallenging": "Larger grids are more challenging",
+  "debug": "Debug",
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "test": "Test",
+  "cardsPairs": "{cards} cards, {pairs} pairs",
+  "@cardsPairs": {
+    "placeholders": {
+      "cards": { "type": "int" },
+      "pairs": { "type": "int" }
+    }
+  },
+  "pleaseSelectGameModeAndCategory": "Please select a game mode and category",
+
+  "preparingGame": "Preparing Game",
+  "fetchingSoundList": "Fetching sound list...",
+  "downloadingSounds": "Downloading sounds...",
+  "downloadingSoundsProgress": "Downloading sounds ({completed}/{total})",
+  "@downloadingSoundsProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "failedToLoadSounds": "Failed to load sounds",
+  "retry": "Retry",
+  "goBack": "Go Back",
+
+  "playerSetup": "Player Setup",
+  "enterNamesAndPickColors": "Enter names and pick colors",
+  "vs": "VS",
+  "startGame": "Start Game",
+  "playerNumber": "Player {number}",
+  "@playerNumber": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "chooseColor": "Choose color",
+
+  "score": "Score",
+  "moves": "Moves",
+  "time": "Time",
+  "pairs": "Pairs",
+  "gamePaused": "Game Paused",
+  "tapToResume": "Tap anywhere to resume",
+  "resume": "Resume",
+  "quitGame": "Quit Game",
+  "goHomeTitle": "Go Home?",
+  "progressWillBeLost": "Your progress will be lost.",
+  "goHome": "Go Home",
+
+  "yourTurn": "Your Turn",
+  "itsATie": "It's a Tie!",
+  "playerWins": "{name} Wins!",
+  "@playerWins": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "greatMatchBothPlayers": "Great match, both players!",
+  "congratulations": "Congratulations!",
+  "playAgain": "Play Again",
+  "changeCategory": "Change Category",
+  "upgradeToPremium": "Upgrade to Premium",
+  "home": "Home",
+  "freeGamesLeftCount": "{count, plural, one{1 free game left today} other{{count} free games left today}}",
+  "@freeGamesLeftCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noFreeGamesLeft": "No free games left. Resets at 3:00 AM",
+
+  "onlineMultiplayerTitle": "Online Multiplayer",
+  "createOrJoinGame": "Create a game or join with a code",
+  "yourName": "Your Name",
+  "enterYourName": "Enter your name",
+  "createGame": "Create Game",
+  "getCodeToShare": "Get a code to share with a friend",
+  "or": "OR",
+  "joinGame": "Join Game",
+  "enterCodeFromFriend": "Enter a code from your friend",
+  "codePlaceholder": "000000",
+  "waitingForOpponent": "Waiting for opponent...",
+  "shareCodeWithFriend": "Share this code with a friend",
+  "tapToCopy": "Tap to copy",
+  "pleaseEnterYourName": "Please enter your name",
+  "pleaseEnterInviteCode": "Please enter the invite code",
+  "gameNotFound": "Game not found or already started",
+  "inviteCodeCopied": "Invite code copied!",
+  "failedToCreateGame": "Failed to create game. Please try again.",
+  "pleaseEnterValidCode": "Please enter a valid 6-digit code",
+  "opponentLeftTheGame": "Opponent left the game",
+
+  "settingUpGame": "Setting up game...",
+  "waitingForHost": "Waiting for host...",
+  "live": "LIVE",
+  "reconnecting": "Reconnecting...",
+  "offline": "Offline",
+  "opponent": "Opponent",
+  "forfeitMessage": "You will forfeit this game if you leave.",
+  "opponentLeftTitle": "Opponent Left",
+  "opponentLeftMessage": "Your opponent has left the game. You win!",
+  "opponentTimedOut": "Opponent Timed Out",
+  "opponentLeftTheRoom": "Opponent left the room",
+  "opponentDeclinedRematch": "Opponent declined the rematch",
+  "youWin": "You Win!",
+  "youLost": "You Lost",
+  "greatMatch": "Great match!",
+  "betterLuckNextTime": "Better luck next time!",
+  "rematch": "Rematch",
+  "findNewOpponent": "Find New Opponent",
+  "waitingForOpponentEllipsis": "Waiting for opponent...",
+  "cancel": "Cancel",
+  "acceptRematch": "Accept Rematch!",
+  "decline": "Decline",
+  "startingRematch": "Starting rematch...",
+
+  "statisticsTitle": "Statistics",
+  "byGameMode": "By Game Mode",
+  "overallStats": "Overall Stats",
+  "games": "Games",
+  "wins": "Wins",
+  "winRate": "Win Rate",
+  "twoPlayerLocal": "Two Player Local",
+  "twoPlayerOnline": "Two Player Online",
+  "gamesWinRate": "{games} games \u2022 {winRate}% win rate",
+  "@gamesWinRate": {
+    "placeholders": {
+      "games": { "type": "int" },
+      "winRate": { "type": "String" }
+    }
+  },
+
+  "subscriptionTitle": "Subscription",
+  "currentPlan": "Current Plan",
+  "free": "Free",
+  "active": "Active",
+  "unlimitedGames": "Unlimited games",
+  "singlePlayerToday": "Single player today",
+  "localMpToday": "Local MP today",
+  "monthly": "Monthly",
+  "monthlyPrice": "$4.99",
+  "perMonth": "/month",
+  "yearly": "Yearly",
+  "yearlyPrice": "$35.99",
+  "perYear": "/year",
+  "save40": "SAVE 40%",
+  "unlimitedSinglePlayerGames": "Unlimited single player games",
+  "unlimitedLocalMultiplayerGames": "Unlimited local multiplayer games",
+  "accessOnlineMultiplayer": "Access to online multiplayer",
+
+  "trialEnded": "Your Free Trial Has Ended",
+  "premiumFeature": "Premium Feature",
+  "reachedYourLimit": "You've Reached Your Limit!",
+  "subscribeMessage": "Subscribe to keep enjoying unlimited games and all premium features",
+  "onlineRequiresPremium": "Online multiplayer requires a Premium subscription",
+  "upgradeToPremiumToKeepPlaying": "Upgrade to Premium to keep playing",
+  "unlimitedSinglePlayer": "Unlimited single player games",
+  "unlimitedLocalMultiplayer": "Unlimited local multiplayer",
+  "onlineMultiplayerAccess": "Online multiplayer access",
+  "adFreeExperience": "Ad-free experience",
+  "getYearly": "Get Yearly \u2013 $35.99/year",
+  "getMonthly": "Get Monthly \u2013 $4.99/month",
+  "restorePurchase": "Restore Purchase",
+  "cancelAnytime": "Cancel anytime. Terms & Privacy apply.",
+
+  "perfect": "Perfect!",
+  "wellDone": "Well Done!",
+  "niceTry": "Nice Try!",
+
+  "settings": "Settings",
+  "appearance": "Appearance",
+  "gameplay": "Gameplay",
+  "account": "Account",
+  "displayName": "Display Name",
+  "signOut": "Sign Out",
+  "signOutTitle": "Sign Out",
+  "signOutConfirm": "Are you sure you want to sign out?",
+  "manageSubscription": "Manage Subscription",
+  "language": "Language",
+  "comingSoon": "Coming Soon",
+  "about": "About",
+  "version": "Version",
+  "nameUpdated": "Name updated",
+  "failedToUpdateName": "Failed to update name",
+  "noActivePurchasesFound": "No active purchases found.",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "yourNameHint": "Your name",
+  "save": "Save",
+  "confirm": "Confirm",
+  "cardTiming": "Card Timing",
+  "delayAfterFirstCard": "Delay after 1st card",
+  "delayAfterMismatch": "Delay after mismatch",
+  "delayAfterFirstCardDescription": "How long you must wait after tapping the first card before you can tap a second. The sound keeps playing regardless \u2014 this only controls when your next tap is accepted.",
+  "delayAfterMismatchDescription": "Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven't tapped yet.",
+  "gotIt": "Got it",
+
+  "authSignUpFailed": "Sign up failed. Please try again.",
+  "authUnexpectedError": "An unexpected error occurred.",
+  "authSignInFailed": "Sign in failed. Please try again.",
+  "authSignInCancelled": "Sign-in cancelled.",
+  "authGoogleNoIdToken": "Google Sign-In failed: no ID token.",
+  "authGoogleFailed": "Google Sign-In failed. Please try again.",
+  "authGoogleError": "Google Sign-In error: {error}",
+  "@authGoogleError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "authAppleNoIdentityToken": "Apple Sign-In failed: no identity token.",
+  "authAppleFailed": "Apple Sign-In failed. Please try again.",
+  "authAppleError": "Apple Sign-In error: {error}",
+  "@authAppleError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "authInvalidCredentials": "Invalid email or password.",
+  "authEmailNotConfirmed": "Please verify your email before signing in.",
+  "authUserAlreadyRegistered": "An account with this email already exists.",
+  "authPasswordTooShort": "Password must be at least 6 characters.",
+  "authInvalidEmail": "Please enter a valid email address.",
+
+  "findOpponent": "Find Opponent",
+  "findOpponentDescription": "Match with a random player",
+  "searching": "Searching...",
+  "opponentFound": "Opponent found!",
+  "cancelSearch": "Cancel Search",
+  "inviteFriend": "Invite a Friend",
+  "inviteFriendDescription": "Share a code with someone",
+  "joinWithCode": "Join with Code",
+  "joinWithCodeDescription": "Enter a friend's invite code",
+
+  "lobbyWaitingForOpponent": "Waiting for opponent...",
+  "lobbyShareCode": "Share this code with a friend",
+  "lobbyTapToCopy": "Tap to copy",
+
+  "playWithFriendsRealtime": "Play with friends in real-time",
+  "createPrivateGame": "Create Private Game",
+  "startNewGameInviteFriend": "Start a new game and invite a friend",
+  "joinPrivateGame": "Join Private Game",
+  "enterCodeToJoinFriend": "Enter a code to join your friend",
+  "searchingForPlayers": "Searching for available players...",
+  "noPlayersFoundCreateGame": "No players found. Create a game and wait for someone to join!",
+  "lookingForOpponents": "Looking for opponents...",
+  "gridSizeLabel": "Grid Size",
+  "createAndWaitForOpponent": "Create & Wait for Opponent",
+  "searchAgain": "Search Again",
+  "setupGameInviteFriend": "Set up the game and invite a friend",
+  "inviteCodeLabel": "Invite Code",
+  "someoneWillJoinSoon": "Someone will join your game soon",
+  "copy": "Copy",
+  "share": "Share",
+  "publicGame": "Public Game",
+  "anyoneCanJoinThisGame": "Anyone can find and join this game",
+  "opponentJoinedTitle": "Opponent Joined!",
+  "readyToPlay": "Ready to play",
+  "youFallbackName": "You",
+  "waitingForHostToStart": "Waiting for Host to Start the Game!",
+  "joinedSuccessfully": "You've joined successfully",
+  "leave": "Leave",
+  "hostCancelledGame": "Host cancelled the game",
+  "failedToStartGame": "Failed to start game. Please try again.",
+  "codeCopied": "Code copied!",
+  "gameNotFoundCheckCode": "Game not found or already started. Check the code and try again.",
+  "connectionLost": "Connection lost",
+  "opponentTimedOutMessage": "Your opponent hasn't made a move in 60 seconds. The game has been ended.",
+  "enterTheCodeFromFriend": "Enter the code from your friend",
+
+  "turkce": "T\u00fcrk\u00e7e",
+  "english": "English",
+  "languageSystem": "System"
+}

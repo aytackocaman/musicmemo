@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../services/database_service.dart';
 import '../widgets/game_button.dart';
 import 'mode_screen.dart';
@@ -100,14 +101,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // Title
                     Text(
-                      'Music Memo',
+                      AppLocalizations.of(context)!.appTitle,
                       style: AppTypography.headline2(context),
                     ),
                     const SizedBox(height: AppSpacing.sm),
 
                     // Subtitle
                     Text(
-                      'Match the sounds to win!',
+                      AppLocalizations.of(context)!.matchTheSoundsToWin,
                       style: AppTypography.body(context).copyWith(
                         color: context.colors.textSecondary,
                       ),
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         children: [
                           GameButton(
-                            label: 'Play Game',
+                            label: AppLocalizations.of(context)!.playGame,
                             icon: Icons.play_arrow,
                             onPressed: () {
                               Navigator.push(
@@ -133,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           GameButton(
-                            label: 'Subscription',
+                            label: AppLocalizations.of(context)!.subscription,
                             icon: Icons.workspace_premium,
                             variant: GameButtonVariant.secondary,
                             onPressed: () {
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           GameButton(
-                            label: 'Statistics',
+                            label: AppLocalizations.of(context)!.statistics,
                             icon: Icons.bar_chart,
                             variant: GameButtonVariant.secondary,
                             onPressed: () {
@@ -170,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Column(
                       children: [
                         Text(
-                          'High Score',
+                          AppLocalizations.of(context)!.highScore,
                           style: AppTypography.labelSmall(context),
                         ),
                         const SizedBox(height: AppSpacing.xs),

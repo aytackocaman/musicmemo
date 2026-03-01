@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../services/deep_link_service.dart';
 import '../services/supabase_service.dart';
 import 'home_screen.dart';
@@ -66,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // Title
             Text(
-              'Music Memo',
+              AppLocalizations.of(context)?.appTitle ?? 'Music Memo',
               style: AppTypography.headline2(context).copyWith(
                 color: AppColors.white,
               ),

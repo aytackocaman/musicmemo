@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/game_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
@@ -29,19 +30,25 @@ class PreloadScreen extends ConsumerStatefulWidget {
 
 class _PreloadScreenState extends ConsumerState<PreloadScreen> {
   double _progress = 0;
-  String _statusText = 'Loading sounds...';
+  String? _statusText;
   bool _hasError = false;
 
+  bool _started = false;
+
   @override
-  void initState() {
-    super.initState();
-    _preload();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_started) {
+      _started = true;
+      _preload();
+    }
   }
 
   Future<void> _preload() async {
     try {
       // 1. Fetch sound metadata — either by app category or by tag
-      setState(() => _statusText = 'Fetching sound list...');
+      final l10n = AppLocalizations.of(context)!;
+      setState(() => _statusText = l10n.fetchingSoundList);
 
       List<SoundModel> sounds;
       if (widget.category.startsWith('tag:')) {
@@ -79,7 +86,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
       // 3. Download / cache only those sounds.
       // Use the actual category the sounds belong to (may differ if falling back to piano)
       final actualCategoryId = sounds.first.categoryId;
-      setState(() => _statusText = 'Downloading sounds...');
+      setState(() => _statusText = l10n.downloadingSounds);
       final soundPaths = await AudioService.preloadCategory(
         categoryId: actualCategoryId,
         sounds: sounds,
@@ -87,7 +94,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
           if (!mounted) return;
           setState(() {
             _progress = completed / total;
-            _statusText = 'Downloading sounds ($completed/$total)';
+            _statusText = l10n.downloadingSoundsProgress(completed, total);
           });
         },
       );
@@ -103,7 +110,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
       if (!mounted) return;
       setState(() {
         _hasError = true;
-        _statusText = 'Failed to load sounds';
+        _statusText = AppLocalizations.of(context)!.failedToLoadSounds;
       });
     }
   }
@@ -150,6 +157,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
@@ -176,13 +184,13 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                 const SizedBox(height: 32),
 
                 Text(
-                  'Preparing Game',
+                  l10n.preparingGame,
                   style: AppTypography.headline3(context),
                 ),
                 const SizedBox(height: 8),
 
                 Text(
-                  _statusText,
+                  _statusText ?? l10n.fetchingSoundList,
                   style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -226,14 +234,14 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                           borderRadius: BorderRadius.circular(AppRadius.button),
                         ),
                       ),
-                      child: Text('Retry', style: AppTypography.button),
+                      child: Text(l10n.retry, style: AppTypography.button),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      'Go Back',
+                      l10n.goBack,
                       style: AppTypography.buttonSecondary(context).copyWith(
                         color: context.colors.textSecondary,
                       ),

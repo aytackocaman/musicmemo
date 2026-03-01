@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _kThemeModeKey = 'theme_mode';
+const _kLocaleKey = 'locale';
 
 // ─── Card Timing Settings ─────────────────────────────────────────────────────
 
@@ -108,4 +109,34 @@ final themeModeProvider =
     StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   // Overridden in main.dart with the value loaded from SharedPreferences.
   return ThemeModeNotifier(ThemeMode.system);
+});
+
+// ─── Locale Settings ─────────────────────────────────────────────────────────
+
+/// null = follow device locale, Locale('en') / Locale('tr') = manual override
+class LocaleNotifier extends StateNotifier<Locale?> {
+  LocaleNotifier(super.initial);
+
+  Future<void> setLocale(Locale? locale) async {
+    state = locale;
+    final prefs = await SharedPreferences.getInstance();
+    if (locale == null) {
+      await prefs.remove(_kLocaleKey);
+    } else {
+      await prefs.setString(_kLocaleKey, locale.languageCode);
+    }
+  }
+
+  static Locale? fromPrefs(SharedPreferences prefs) =>
+      switch (prefs.getString(_kLocaleKey)) {
+        'en' => const Locale('en'),
+        'tr' => const Locale('tr'),
+        _ => null,
+      };
+}
+
+final localeProvider =
+    StateNotifierProvider<LocaleNotifier, Locale?>((ref) {
+  // Overridden in main.dart with the value loaded from SharedPreferences.
+  return LocaleNotifier(null);
 });

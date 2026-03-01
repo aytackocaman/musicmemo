@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/auth_service.dart';
@@ -37,6 +38,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final themeMode = ref.watch(themeModeProvider);
     final profileAsync = ref.watch(userProfileNotifierProvider);
     final timings = ref.watch(cardTimingsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: context.colors.background,
@@ -67,19 +69,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const SizedBox(height: AppSpacing.xl),
 
-              Text('Settings', style: AppTypography.headline3(context)),
+              Text(l10n.settings, style: AppTypography.headline3(context)),
               const SizedBox(height: AppSpacing.xl),
 
               // ── Appearance ────────────────────────────────────────────────
               _Section(
-                title: 'Appearance',
+                title: l10n.appearance,
                 children: [_ThemeSelector(current: themeMode)],
               ),
               const SizedBox(height: AppSpacing.xl),
 
               // ── Gameplay ──────────────────────────────────────────────────
               _Section(
-                title: 'Gameplay',
+                title: l10n.gameplay,
                 trailing: GestureDetector(
                   onTap: () => _showGameplayInfo(context),
                   child: Icon(
@@ -89,10 +91,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 children: [
-                  _SubsectionHeader(label: 'Single Player'),
+                  _SubsectionHeader(label: l10n.singlePlayer),
                   _SliderRow(
                     icon: Icons.touch_app,
-                    label: 'Delay after 1st card',
+                    label: l10n.delayAfterFirstCard,
                     value: timings.spListenMs.toDouble(),
                     min: 300,
                     max: 2000,
@@ -104,7 +106,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _SectionDivider(),
                   _SliderRow(
                     icon: Icons.flip,
-                    label: 'Delay after mismatch',
+                    label: l10n.delayAfterMismatch,
                     value: timings.spNoMatchMs.toDouble(),
                     min: 400,
                     max: 2000,
@@ -114,10 +116,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         .setSpNoMatchMs(v.round()),
                   ),
                   _SectionDivider(),
-                  _SubsectionHeader(label: 'Local Multiplayer'),
+                  _SubsectionHeader(label: l10n.localMultiplayer),
                   _SliderRow(
                     icon: Icons.touch_app,
-                    label: 'Delay after 1st card',
+                    label: l10n.delayAfterFirstCard,
                     value: timings.lmpListenMs.toDouble(),
                     min: 300,
                     max: 2000,
@@ -129,7 +131,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _SectionDivider(),
                   _SliderRow(
                     icon: Icons.flip,
-                    label: 'Delay after mismatch',
+                    label: l10n.delayAfterMismatch,
                     value: timings.lmpNoMatchMs.toDouble(),
                     min: 400,
                     max: 2000,
@@ -144,12 +146,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // ── Account ───────────────────────────────────────────────────
               _Section(
-                title: 'Account',
+                title: l10n.account,
                 children: [
                   profileAsync.when(
                     data: (profile) => _Row(
                       icon: Icons.person_outline,
-                      label: 'Display Name',
+                      label: l10n.displayName,
                       value: profile?.displayName ?? '—',
                       showChevron: true,
                       onTap: () => _editDisplayName(profile?.displayName),
@@ -157,7 +159,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     loading: () => const _RowSkeleton(),
                     error: (_, _) => _Row(
                       icon: Icons.person_outline,
-                      label: 'Display Name',
+                      label: l10n.displayName,
                       showChevron: true,
                       onTap: () => _editDisplayName(null),
                     ),
@@ -166,7 +168,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _Row(
                     icon: Icons.logout,
                     iconColor: const Color(0xFFEF4444),
-                    label: 'Sign Out',
+                    label: l10n.signOut,
                     isDestructive: true,
                     onTap: _confirmSignOut,
                   ),
@@ -176,12 +178,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // ── Subscription ──────────────────────────────────────────────
               _Section(
-                title: 'Subscription',
+                title: l10n.subscription,
                 children: [
                   _Row(
                     icon: Icons.workspace_premium,
                     iconColor: AppColors.gold,
-                    label: 'Manage Subscription',
+                    label: l10n.manageSubscription,
                     showChevron: true,
                     onTap: () => Navigator.push(
                       context,
@@ -193,7 +195,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _SectionDivider(),
                   _Row(
                     icon: Icons.restore,
-                    label: 'Restore Purchase',
+                    label: l10n.restorePurchase,
                     onTap: _restorePurchase,
                   ),
                 ],
@@ -202,25 +204,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               // ── Language ──────────────────────────────────────────────────
               _Section(
-                title: 'Language',
-                children: [
-                  _Row(
-                    icon: Icons.language,
-                    label: 'Language',
-                    trailing: _ComingSoonBadge(),
-                    isDisabled: true,
-                  ),
-                ],
+                title: l10n.language,
+                children: [_LanguageSelector()],
               ),
               const SizedBox(height: AppSpacing.xl),
 
               // ── About ─────────────────────────────────────────────────────
               _Section(
-                title: 'About',
+                title: l10n.about,
                 children: [
                   _Row(
                     icon: Icons.info_outline,
-                    label: 'Version',
+                    label: l10n.version,
                     value: _version.isEmpty ? '—' : _version,
                   ),
                 ],
@@ -245,21 +240,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           .read(userProfileNotifierProvider.notifier)
           .updateDisplayName(newName.trim());
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         if (success) {
-          showAppSnackBar(context, 'Name updated');
+          showAppSnackBar(context, l10n.nameUpdated);
         } else {
-          showAppSnackBar(context, 'Failed to update name', isError: true);
+          showAppSnackBar(context, l10n.failedToUpdateName, isError: true);
         }
       }
     }
   }
 
   void _confirmSignOut() {
+    final l10n = AppLocalizations.of(context)!;
     showAppDialog(
       context: context,
-      title: 'Sign Out',
-      message: 'Are you sure you want to sign out?',
-      confirmLabel: 'Sign Out',
+      title: l10n.signOutTitle,
+      message: l10n.signOutConfirm,
+      confirmLabel: l10n.signOut,
       isDestructive: true,
       onConfirm: () async {
         await AuthService.signOut();
@@ -274,6 +271,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showGameplayInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -298,22 +296,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: const Icon(Icons.tune, size: 16, color: AppColors.purple),
                   ),
                   const SizedBox(width: 10),
-                  Text('Card Timing', style: AppTypography.bodyLarge(context)),
+                  Text(l10n.cardTiming, style: AppTypography.bodyLarge(context)),
                 ],
               ),
               const SizedBox(height: 20),
               _InfoItem(
                 icon: Icons.touch_app,
-                title: 'Delay after 1st card',
-                description:
-                    'How long you must wait after tapping the first card before you can tap a second. The sound keeps playing regardless — this only controls when your next tap is accepted.',
+                title: l10n.delayAfterFirstCard,
+                description: l10n.delayAfterFirstCardDescription,
               ),
               const SizedBox(height: 14),
               _InfoItem(
                 icon: Icons.flip,
-                title: 'Delay after mismatch',
-                description:
-                    'Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven\'t tapped yet.',
+                title: l10n.delayAfterMismatch,
+                description: l10n.delayAfterMismatchDescription,
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -328,7 +324,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        'Got it',
+                        l10n.gotIt,
                         style: AppTypography.label(context).copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.w700,
@@ -347,7 +343,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _restorePurchase() {
     // TODO: Implement via StoreKit when IAP is integrated
-    showAppSnackBar(context, 'No active purchases found.');
+    final l10n = AppLocalizations.of(context)!;
+    showAppSnackBar(context, l10n.noActivePurchasesFound);
   }
 }
 
@@ -486,13 +483,14 @@ class _ThemeSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
           _ThemeOption(
             icon: Icons.brightness_auto,
-            label: 'System',
+            label: l10n.system,
             isSelected: current == ThemeMode.system,
             onTap: () => ref
                 .read(themeModeProvider.notifier)
@@ -501,7 +499,7 @@ class _ThemeSelector extends ConsumerWidget {
           const SizedBox(width: 8),
           _ThemeOption(
             icon: Icons.light_mode,
-            label: 'Light',
+            label: l10n.light,
             isSelected: current == ThemeMode.light,
             onTap: () => ref
                 .read(themeModeProvider.notifier)
@@ -510,7 +508,7 @@ class _ThemeSelector extends ConsumerWidget {
           const SizedBox(width: 8),
           _ThemeOption(
             icon: Icons.dark_mode,
-            label: 'Dark',
+            label: l10n.dark,
             isSelected: current == ThemeMode.dark,
             onTap: () => ref
                 .read(themeModeProvider.notifier)
@@ -688,22 +686,99 @@ class _SliderRow extends StatelessWidget {
   }
 }
 
-// ─── Coming Soon badge ────────────────────────────────────────────────────────
+// ─── Language selector ────────────────────────────────────────────────────────
 
-class _ComingSoonBadge extends StatelessWidget {
+class _LanguageSelector extends ConsumerWidget {
+  const _LanguageSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(localeProvider);
+    final l10n = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          _LanguageOption(
+            icon: Icons.brightness_auto,
+            label: l10n.languageSystem,
+            isSelected: current == null,
+            onTap: () =>
+                ref.read(localeProvider.notifier).setLocale(null),
+          ),
+          const SizedBox(width: 8),
+          _LanguageOption(
+            icon: Icons.language,
+            label: l10n.english,
+            isSelected: current?.languageCode == 'en',
+            onTap: () => ref
+                .read(localeProvider.notifier)
+                .setLocale(const Locale('en')),
+          ),
+          const SizedBox(width: 8),
+          _LanguageOption(
+            icon: Icons.language,
+            label: l10n.turkce,
+            isSelected: current?.languageCode == 'tr',
+            onTap: () => ref
+                .read(localeProvider.notifier)
+                .setLocale(const Locale('tr')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _LanguageOption({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: context.colors.elevated,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        'Coming Soon',
-        style: AppTypography.labelSmall(context).copyWith(
-          fontSize: 11,
-          color: context.colors.textTertiary,
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.purple : context.colors.elevated,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected
+                    ? AppColors.white
+                    : context.colors.textSecondary,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: AppTypography.labelSmall(context).copyWith(
+                  color: isSelected
+                      ? AppColors.white
+                      : context.colors.textSecondary,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -753,6 +828,7 @@ class _EditNameDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       backgroundColor: context.colors.background,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -763,7 +839,7 @@ class _EditNameDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Display Name', style: AppTypography.bodyLarge(context)),
+            Text(l10n.displayName, style: AppTypography.bodyLarge(context)),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
@@ -771,7 +847,7 @@ class _EditNameDialog extends StatelessWidget {
               style: AppTypography.body(context),
               maxLength: 20,
               decoration: InputDecoration(
-                hintText: 'Your name',
+                hintText: l10n.yourNameHint,
                 hintStyle: AppTypography.body(context).copyWith(
                   color: context.colors.textTertiary,
                 ),
@@ -811,7 +887,7 @@ class _EditNameDialog extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Cancel',
+                          l10n.cancel,
                           style: AppTypography.buttonSecondary(context),
                         ),
                       ),
@@ -832,7 +908,7 @@ class _EditNameDialog extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Save',
+                          l10n.save,
                           style:
                               AppTypography.buttonSecondary(context).copyWith(
                             color: AppColors.white,

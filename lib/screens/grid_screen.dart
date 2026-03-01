@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
@@ -14,20 +15,18 @@ import 'game/online_lobby_screen.dart';
 class GridOption {
   final String id;
   final String label;
-  final String description;
   final int rows;
   final int cols;
   final Color badgeColor;
-  final String badgeText;
+  final String badgeKey;
 
   const GridOption({
     required this.id,
     required this.label,
-    required this.description,
     required this.rows,
     required this.cols,
     required this.badgeColor,
-    required this.badgeText,
+    required this.badgeKey,
   });
 
   int get totalCards => rows * cols;
@@ -38,47 +37,42 @@ final List<GridOption> _gridOptions = [
   if (kDebugMode) const GridOption(
     id: '2x1',
     label: '2 x 1',
-    description: '2 cards, 1 pair',
     rows: 2,
     cols: 1,
     badgeColor: Color(0xFFEF4444),
-    badgeText: 'Debug',
+    badgeKey: 'debug',
   ),
   if (kDebugMode) const GridOption(
     id: '2x3',
     label: '2 x 3',
-    description: '6 cards, 3 pairs',
     rows: 2,
     cols: 3,
     badgeColor: Color(0xFFEF4444),
-    badgeText: 'Debug',
+    badgeKey: 'debug',
   ),
   const GridOption(
     id: '4x5',
     label: '4 x 5',
-    description: '20 cards, 10 pairs',
     rows: 4,
     cols: 5,
     badgeColor: Color(0xFF14B8A6),
-    badgeText: 'Easy',
+    badgeKey: 'easy',
   ),
   const GridOption(
     id: '5x6',
     label: '5 x 6',
-    description: '30 cards, 15 pairs',
     rows: 5,
     cols: 6,
     badgeColor: Color(0xFF8B5CF6),
-    badgeText: 'Medium',
+    badgeKey: 'medium',
   ),
   const GridOption(
     id: '6x7',
     label: '6 x 7',
-    description: '42 cards, 21 pairs',
     rows: 6,
     cols: 7,
     badgeColor: Color(0xFFF472B6),
-    badgeText: 'Hard',
+    badgeKey: 'hard',
   ),
 ];
 
@@ -87,6 +81,7 @@ class GridScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
@@ -101,14 +96,14 @@ class GridScreen extends ConsumerWidget {
 
               // Title
               Text(
-                'Select Grid Size',
+                l10n.selectGridSize,
                 style: AppTypography.headline3(context),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // Description
               Text(
-                'Larger grids are more challenging',
+                l10n.largerGridsMoreChallenging,
                 style: AppTypography.body(context).copyWith(
                   color: context.colors.textSecondary,
                 ),
@@ -144,7 +139,7 @@ class GridScreen extends ConsumerWidget {
     final category = ref.read(selectedCategoryProvider);
 
     if (gameMode == null || category == null) {
-      showAppSnackBar(context, 'Please select a game mode and category', isError: true);
+      showAppSnackBar(context, AppLocalizations.of(context)!.pleaseSelectGameModeAndCategory, isError: true);
       return;
     }
 
@@ -228,8 +223,26 @@ class _GridOptionItem extends StatelessWidget {
     required this.onTap,
   });
 
+  String _localizedBadgeText(AppLocalizations l10n) {
+    switch (option.badgeKey) {
+      case 'debug':
+        return l10n.debug;
+      case 'easy':
+        return l10n.easy;
+      case 'medium':
+        return l10n.medium;
+      case 'hard':
+        return l10n.hard;
+      case 'test':
+        return l10n.test;
+      default:
+        return option.badgeKey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -272,7 +285,7 @@ class _GridOptionItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    option.description,
+                    l10n.cardsPairs(option.totalCards, option.totalPairs),
                     style: AppTypography.bodySmall(context).copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -289,7 +302,7 @@ class _GridOptionItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                option.badgeText,
+                _localizedBadgeText(l10n),
                 style: AppTypography.labelSmall(context).copyWith(
                   color: option.badgeColor,
                   fontWeight: FontWeight.w600,

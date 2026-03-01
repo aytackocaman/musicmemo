@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../utils/app_dialogs.dart';
 import '../services/deep_link_service.dart';
 import '../widgets/game_button.dart';
+import '../l10n/app_localizations.dart';
 import 'home_screen.dart';
 
 const _kHasLoggedInBefore = 'has_logged_in_before';
@@ -154,9 +155,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _resetPassword() async {
+    final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      setState(() => _errorMessage = 'Enter your email to reset password.');
+      setState(() => _errorMessage = l10n.enterEmailToReset);
       return;
     }
 
@@ -171,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result.success) {
       if (mounted) {
-        showAppSnackBar(context, 'Password reset email sent!');
+        showAppSnackBar(context, l10n.passwordResetSent);
       }
     } else {
       setState(() => _errorMessage = result.errorMessage);
@@ -180,6 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: GestureDetector(
@@ -222,14 +225,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Title
                 Text(
-                  _isFirstLaunch ? 'Welcome!' : 'Welcome Back',
+                  _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
                   style: AppTypography.headline2(context),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   _isFirstLaunch
-                      ? 'Create an account or sign in to start playing'
-                      : 'Sign in to continue playing',
+                      ? l10n.createAccountSubtitle
+                      : l10n.signInSubtitle,
                   style: AppTypography.body(context).copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -246,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Terms
                 Text(
-                  'By continuing, you agree to our',
+                  l10n.byContinuing,
                   style: AppTypography.labelSmall(context),
                 ),
                 Row(
@@ -260,14 +263,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Terms of Service',
+                        l10n.termsOfService,
                         style: AppTypography.labelSmall(context).copyWith(
                           color: AppColors.purple,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    Text(' & ', style: AppTypography.labelSmall(context)),
+                    Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
                     TextButton(
                       onPressed: () {},
                       style: TextButton.styleFrom(
@@ -276,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Privacy Policy',
+                        l10n.privacyPolicy,
                         style: AppTypography.labelSmall(context).copyWith(
                           color: AppColors.purple,
                           fontWeight: FontWeight.w600,
@@ -326,6 +329,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildEmailForm() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         // Tab switcher: Sign In / Sign Up
@@ -337,8 +341,8 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(4),
           child: Row(
             children: [
-              _buildTab('Sign In', !_isSignUp),
-              _buildTab('Sign Up', _isSignUp),
+              _buildTab(l10n.signIn, !_isSignUp, isSignUp: false),
+              _buildTab(l10n.signUp, _isSignUp, isSignUp: true),
             ],
           ),
         ),
@@ -354,27 +358,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (_isSignUp) ...[
                   _buildTextField(
                     controller: _nameController,
-                    hint: 'Display Name (optional)',
+                    hint: l10n.displayNameOptional,
                     icon: Icons.person_outline,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                 ],
                 _buildTextField(
                   controller: _emailController,
-                  hint: 'Email',
+                  hint: l10n.email,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please enter your email';
-                    if (!value.contains('@')) return 'Please enter a valid email';
+                    if (value == null || value.isEmpty) return l10n.pleaseEnterEmail;
+                    if (!value.contains('@')) return l10n.pleaseEnterValidEmail;
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _buildTextField(
                   controller: _passwordController,
-                  hint: 'Password',
+                  hint: l10n.password,
                   icon: Icons.lock_outline,
                   obscureText: _obscurePassword,
                   autofillHints: _isSignUp
@@ -390,8 +394,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please enter your password';
-                    if (_isSignUp && value.length < 6) return 'Password must be at least 6 characters';
+                    if (value == null || value.isEmpty) return l10n.pleaseEnterPassword;
+                    if (_isSignUp && value.length < 6) return l10n.passwordMinLength;
                     return null;
                   },
                 ),
@@ -433,8 +437,8 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           child: GameButton(
             label: _isLoading
-                ? 'Please wait...'
-                : (_isSignUp ? 'Create Account' : 'Sign In'),
+                ? l10n.pleaseWait
+                : (_isSignUp ? l10n.createAccount : l10n.signIn),
             icon: _isLoading ? null : Icons.arrow_forward,
             onPressed: _isLoading ? () {} : _submit,
           ),
@@ -454,7 +458,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               ),
               child: Text(
-                'Forgot Password?',
+                l10n.forgotPassword,
                 style: AppTypography.bodySmall(context).copyWith(
                   color: AppColors.purple,
                 ),
@@ -474,7 +478,7 @@ class _LoginScreenState extends State<LoginScreen> {
             });
           },
           child: Text(
-            '← Other sign-in options',
+            '← ${l10n.otherSignInOptions}',
             style: AppTypography.bodySmall(context).copyWith(
               color: context.colors.textTertiary,
             ),
@@ -484,12 +488,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTab(String label, bool active) {
+  Widget _buildTab(String label, bool active, {required bool isSignUp}) {
     return Expanded(
       child: GestureDetector(
         onTap: _isLoading ? null : () {
           setState(() {
-            _isSignUp = label == 'Sign Up';
+            _isSignUp = isSignUp;
             _errorMessage = null;
           });
         },
@@ -589,6 +593,7 @@ class _GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 56,
       child: OutlinedButton(
@@ -606,7 +611,7 @@ class _GoogleSignInButton extends StatelessWidget {
             const _GoogleG(),
             const SizedBox(width: 12),
             Text(
-              'Sign in with Google',
+              l10n.signInWithGoogle,
               style: AppTypography.body(context).copyWith(
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF3C4043),
@@ -639,6 +644,7 @@ class _AppleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
     final fgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
@@ -664,7 +670,7 @@ class _AppleSignInButton extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              'Sign in with Apple',
+              l10n.signInWithApple,
               style: AppTypography.body(context).copyWith(
                 fontWeight: FontWeight.w600,
                 color: fgColor,
@@ -684,6 +690,7 @@ class _EmailSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 56,
       child: OutlinedButton(
@@ -701,7 +708,7 @@ class _EmailSignInButton extends StatelessWidget {
             Icon(Icons.email_outlined, size: 20, color: context.colors.textPrimary),
             const SizedBox(width: 12),
             Text(
-              'Sign in with Email',
+              l10n.signInWithEmail,
               style: AppTypography.body(context).copyWith(
                 fontWeight: FontWeight.w600,
                 color: context.colors.textPrimary,

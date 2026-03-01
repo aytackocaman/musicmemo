@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/dev_config.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
@@ -11,18 +12,28 @@ import 'paywall_screen.dart';
 // ── Tag type config ───────────────────────────────────────────────────────────
 
 const _tagTypes = [
-  _TagType('mood',     'Mood',     Icons.sentiment_satisfied_alt, AppColors.purple),
-  _TagType('genre',    'Genre',    Icons.queue_music,             AppColors.teal),
-  _TagType('movement', 'Movement', Icons.speed,                   AppColors.pink),
-  _TagType('theme',    'Theme',    Icons.movie_outlined,          Color(0xFFFBBF24)),
+  _TagType('mood',     Icons.sentiment_satisfied_alt, AppColors.purple),
+  _TagType('genre',    Icons.queue_music,             AppColors.teal),
+  _TagType('movement', Icons.speed,                   AppColors.pink),
+  _TagType('theme',    Icons.movie_outlined,          Color(0xFFFBBF24)),
 ];
 
 class _TagType {
   final String id;
-  final String label;
   final IconData icon;
   final Color color;
-  const _TagType(this.id, this.label, this.icon, this.color);
+  const _TagType(this.id, this.icon, this.color);
+}
+
+String _localizedTagLabel(BuildContext context, String id) {
+  final l10n = AppLocalizations.of(context)!;
+  switch (id) {
+    case 'mood':     return l10n.tagMood;
+    case 'genre':    return l10n.tagGenre;
+    case 'movement': return l10n.tagMovement;
+    case 'theme':    return l10n.tagTheme;
+    default:         return id;
+  }
 }
 
 // ── Sub-group colors (cycle through brand palette) ────────────────────────────
@@ -128,12 +139,13 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
   void _selectCategory(SoundCategoryModel cat) {
     if (cat.isPremium && !_isPremium) {
+      final l10n = AppLocalizations.of(context)!;
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => PaywallScreen(
             isPremiumFeature: true,
-            subtitle: '${cat.name} is a Premium category. Upgrade to unlock it and all other premium collections.',
+            subtitle: l10n.premiumCategoryMessage(cat.name),
           ),
         ),
       );
@@ -152,6 +164,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: GestureDetector(
@@ -183,7 +196,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             // Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text('Select Category', style: AppTypography.headline3(context)),
+              child: Text(l10n.selectCategory, style: AppTypography.headline3(context)),
             ),
             const SizedBox(height: AppSpacing.lg),
 
@@ -208,7 +221,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         onChanged: (v) => setState(() => _searchQuery = v),
                         style: AppTypography.body(context),
                         decoration: InputDecoration(
-                          hintText: 'Search collections...',
+                          hintText: l10n.searchCollections,
                           hintStyle: AppTypography.body(context).copyWith(
                             color: context.colors.textSecondary,
                           ),
@@ -246,12 +259,13 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       children: [
         // ── Browse by Feel ───────────────────────────────────────────────────
         if (_searchQuery.isEmpty) ...[
-          _SectionHeader(title: 'Browse by Feel'),
+          _SectionHeader(title: l10n.browseByFeel),
           const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
@@ -271,7 +285,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         ],
 
         // ── Collections ──────────────────────────────────────────────────────
-        _SectionHeader(title: 'Collections'),
+        _SectionHeader(title: l10n.collections),
         const SizedBox(height: 12),
         ..._buildCollectionGroups(),
         const SizedBox(height: 24),
@@ -283,14 +297,15 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     final groups = _subGroups;
 
     if (groups.isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       return [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Center(
             child: Text(
               _searchQuery.isNotEmpty
-                  ? 'No collections match "$_searchQuery"'
-                  : 'No categories available',
+                  ? l10n.noCollectionsMatch(_searchQuery)
+                  : l10n.noCategoriesAvailable,
               style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
             ),
           ),
@@ -380,6 +395,7 @@ class _TagTypeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizedLabel = _localizedTagLabel(context, tagType.id);
     return LayoutBuilder(
       builder: (context, constraints) {
         final narrow = constraints.maxWidth < 162;
@@ -411,7 +427,7 @@ class _TagTypeButton extends StatelessWidget {
                 SizedBox(width: spacing),
                 Expanded(
                   child: Text(
-                    tagType.label,
+                    localizedLabel,
                     style: AppTypography.body(context).copyWith(
                       fontWeight: FontWeight.w600,
                       color: context.colors.textPrimary,
@@ -447,6 +463,7 @@ class _CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isLocked = category.isPremium && !isPremiumUser;
 
     return GestureDetector(
@@ -488,7 +505,7 @@ class _CategoryTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${category.soundCount} tracks',
+                    l10n.trackCount(category.soundCount),
                     style: AppTypography.labelSmall(context).copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -509,7 +526,7 @@ class _CategoryTile extends StatelessWidget {
                     const Icon(Icons.lock, size: 12, color: AppColors.purple),
                     const SizedBox(width: 4),
                     Text(
-                      'PRO',
+                      l10n.pro,
                       style: AppTypography.labelSmall(context).copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w700,
@@ -580,7 +597,9 @@ class _TagValueSheetState extends State<_TagValueSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final t = widget.tagType;
+    final localizedLabel = _localizedTagLabel(context, t.id);
     return DraggableScrollableSheet(
       initialChildSize: 0.75,
       minChildSize: 0.5,
@@ -622,7 +641,7 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      t.label,
+                      localizedLabel,
                       style: AppTypography.headline3(context),
                     ),
                     const Spacer(),
@@ -664,7 +683,7 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                           onChanged: (v) => setState(() => _searchQuery = v),
                           style: AppTypography.body(context),
                           decoration: InputDecoration(
-                            hintText: 'Search ${t.label.toLowerCase()}...',
+                            hintText: l10n.searchTag(localizedLabel.toLowerCase()),
                             hintStyle: AppTypography.body(context).copyWith(
                               color: context.colors.textSecondary,
                             ),
@@ -687,7 +706,7 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                     : _filtered.isEmpty
                         ? Center(
                             child: Text(
-                              'No results',
+                              l10n.noResults,
                               style: AppTypography.body(context).copyWith(
                                 color: context.colors.textSecondary,
                               ),
@@ -710,8 +729,7 @@ class _TagValueSheetState extends State<_TagValueSheet> {
                                           MaterialPageRoute(
                                             builder: (_) => PaywallScreen(
                                               isPremiumFeature: true,
-                                              subtitle:
-                                                  '${v.value} is a Premium category. Upgrade to unlock it and all other premium collections.',
+                                              subtitle: l10n.premiumCategoryMessage(v.value),
                                             ),
                                           ),
                                         )
@@ -746,6 +764,7 @@ class _TagValueTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -768,7 +787,7 @@ class _TagValueTile extends StatelessWidget {
               ),
             ),
             Text(
-              '${tagValue.soundCount} tracks',
+              l10n.trackCount(tagValue.soundCount),
               style: AppTypography.labelSmall(context).copyWith(color: context.colors.textSecondary),
             ),
             const SizedBox(width: 8),
@@ -785,7 +804,7 @@ class _TagValueTile extends StatelessWidget {
                     const Icon(Icons.lock, size: 12, color: AppColors.purple),
                     const SizedBox(width: 4),
                     Text(
-                      'PRO',
+                      l10n.pro,
                       style: AppTypography.labelSmall(context).copyWith(
                         color: AppColors.purple,
                         fontWeight: FontWeight.w700,

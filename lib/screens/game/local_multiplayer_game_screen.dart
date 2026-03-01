@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/dev_config.dart';
 import '../../config/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/user_provider.dart';
@@ -373,6 +374,7 @@ class _LocalMultiplayerGameScreenState
   }
 
   Widget _buildPlayerScores(GameState gameState) {
+    final l10n = AppLocalizations.of(context)!;
     final player1 = gameState.players.isNotEmpty ? gameState.players[0] : null;
     final player2 = gameState.players.length > 1 ? gameState.players[1] : null;
     final isPlayer1Turn = gameState.currentPlayerIndex == 0;
@@ -383,7 +385,7 @@ class _LocalMultiplayerGameScreenState
         children: [
           Expanded(
             child: _PlayerScoreCard(
-              name: player1?.name ?? 'Player 1',
+              name: player1?.name ?? l10n.playerNumber(1),
               color: player1 != null ? hexToColor(player1.color) : AppColors.purple,
               score: player1?.score ?? 0,
               isCurrentTurn: isPlayer1Turn,
@@ -392,7 +394,7 @@ class _LocalMultiplayerGameScreenState
           const SizedBox(width: 8),
           Expanded(
             child: _PlayerScoreCard(
-              name: player2?.name ?? 'Player 2',
+              name: player2?.name ?? l10n.playerNumber(2),
               color: player2 != null ? hexToColor(player2.color) : AppColors.teal,
               score: player2?.score ?? 0,
               isCurrentTurn: !isPlayer1Turn,
@@ -404,21 +406,22 @@ class _LocalMultiplayerGameScreenState
   }
 
   Widget _buildStatsRow(GameState gameState) {
+    final l10n = AppLocalizations.of(context)!;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: _buildStatCard('${gameState.moves}', 'Moves'),
+            child: _buildStatCard('${gameState.moves}', l10n.moves),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildStatCard(GameUtils.formatTime(_seconds), 'Time'),
+            child: _buildStatCard(GameUtils.formatTime(_seconds), l10n.time),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(
-                '${gameState.matchedPairs}/${gameState.totalPairs}', 'Pairs'),
+                '${gameState.matchedPairs}/${gameState.totalPairs}', l10n.pairs),
           ),
         ],
       ),
@@ -465,6 +468,7 @@ class _LocalMultiplayerGameScreenState
   }
 
   Widget _buildPauseOverlay() {
+    final l10n = AppLocalizations.of(context)!;
     return Positioned.fill(
       child: GestureDetector(
         onTap: _togglePause,
@@ -489,12 +493,12 @@ class _LocalMultiplayerGameScreenState
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Game Paused',
+                  l10n.gamePaused,
                   style: AppTypography.headline3(context),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Tap anywhere to resume',
+                  l10n.tapToResume,
                   style: AppTypography.body(context).copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -512,7 +516,7 @@ class _LocalMultiplayerGameScreenState
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
-                      'Resume',
+                      l10n.resume,
                       style: AppTypography.button,
                     ),
                   ),
@@ -521,7 +525,7 @@ class _LocalMultiplayerGameScreenState
                 GestureDetector(
                   onTap: () => _showHomeConfirmation(),
                   child: Text(
-                    'Quit Game',
+                    l10n.quitGame,
                     style: AppTypography.body(context).copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -546,11 +550,12 @@ class _LocalMultiplayerGameScreenState
   }
 
   void _showHomeConfirmation() {
+    final l10n = AppLocalizations.of(context)!;
     showAppDialog(
       context: context,
-      title: 'Go Home?',
-      message: 'Your progress will be lost.',
-      confirmLabel: 'Go Home',
+      title: l10n.goHomeTitle,
+      message: l10n.progressWillBeLost,
+      confirmLabel: l10n.goHome,
       isDestructive: true,
       onConfirm: () {
         _timer?.cancel();
@@ -651,7 +656,7 @@ class _PlayerScoreCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 14, top: 2),
                     child: Text(
-                      'Your Turn',
+                      AppLocalizations.of(context)!.yourTurn,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
@@ -720,6 +725,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
     final isPremium = _isPremium(ref);
     final hasGamesLeft = isPremium || counts.canPlayLocalMultiplayer;
 
+    final l10n = AppLocalizations.of(context)!;
+
     return PopScope(
       canPop: hasGamesLeft,
       child: Scaffold(
@@ -758,13 +765,13 @@ class _MultiplayerWinScreen extends ConsumerWidget {
 
                 // Result text
                 Text(
-                  isTie ? "It's a Tie!" : '${winner?.name ?? "Player"} Wins!',
+                  isTie ? l10n.itsATie : l10n.playerWins(winner?.name ?? 'Player'),
                   style: AppTypography.headline2(context),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  isTie ? 'Great match, both players!' : 'Congratulations!',
+                  isTie ? l10n.greatMatchBothPlayers : l10n.congratulations,
                   style: AppTypography.body(context).copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -777,7 +784,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: _ScoreColumn(
-                        name: player1?.name ?? 'Player 1',
+                        name: player1?.name ?? l10n.playerNumber(1),
                         color: player1 != null
                             ? hexToColor(player1.color)
                             : AppColors.purple,
@@ -788,7 +795,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
-                        'VS',
+                        l10n.vs,
                         style: AppTypography.bodyLarge(context).copyWith(
                           color: context.colors.textTertiary,
                         ),
@@ -796,7 +803,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     ),
                     Expanded(
                       child: _ScoreColumn(
-                        name: player2?.name ?? 'Player 2',
+                        name: player2?.name ?? l10n.playerNumber(2),
                         color: player2 != null
                             ? hexToColor(player2.color)
                             : AppColors.teal,
@@ -818,8 +825,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _StatItem(value: '$moves', label: 'Moves'),
-                      _StatItem(value: GameUtils.formatTime(timeSeconds), label: 'Time'),
+                      _StatItem(value: '$moves', label: l10n.moves),
+                      _StatItem(value: GameUtils.formatTime(timeSeconds), label: l10n.time),
                     ],
                   ),
                 ),
@@ -836,8 +843,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       counts.canPlayLocalMultiplayer
-                          ? '${counts.localMultiplayerRemaining} free game${counts.localMultiplayerRemaining == 1 ? '' : 's'} left today'
-                          : 'No free games left. Resets at 3:00 AM',
+                          ? l10n.freeGamesLeftCount(counts.localMultiplayerRemaining)
+                          : l10n.noFreeGamesLeft,
                       textAlign: TextAlign.center,
                       style: AppTypography.bodySmall(context).copyWith(
                         color: context.colors.textSecondary,
@@ -851,7 +858,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                 // Action buttons — vary based on whether free games remain
                 if (hasGamesLeft) ...[
                   _ActionButton(
-                    label: 'Play Again',
+                    label: l10n.playAgain,
                     isPrimary: true,
                     onTap: () {
                       DatabaseService.incrementGameCount('local_multiplayer');
@@ -869,7 +876,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   _ActionButton(
-                    label: 'Change Category',
+                    label: l10n.changeCategory,
                     onTap: () {
                       ref.read(selectedGameModeProvider.notifier).state =
                           GameMode.localMultiplayer;
@@ -884,7 +891,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                 ] else ...[
                   _ActionButton(
-                    label: 'Upgrade to Premium',
+                    label: l10n.upgradeToPremium,
                     isPrimary: true,
                     onTap: () {
                       Navigator.push(
@@ -898,7 +905,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                 ],
 
                 _ActionButton(
-                  label: 'Home',
+                  label: l10n.home,
                   isOutlined: true,
                   onTap: () {
                     ref.invalidate(dailyGameCountsProvider);
@@ -969,7 +976,7 @@ class _ScoreColumn extends StatelessWidget {
             ),
           ),
           Text(
-            'pairs',
+            AppLocalizations.of(context)!.pairs,
             style: AppTypography.labelSmall(context).copyWith(
               color: context.colors.textTertiary,
             ),

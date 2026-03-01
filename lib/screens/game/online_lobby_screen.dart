@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/user_provider.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
@@ -69,8 +70,9 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   }
 
   Future<void> _createGame() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = l10n.pleaseEnterYourName);
       return;
     }
 
@@ -88,7 +90,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
     if (session == null) {
       setState(() {
         _isCreating = false;
-        _errorMessage = 'Failed to create game. Please try again.';
+        _errorMessage = l10n.failedToCreateGame;
       });
       return;
     }
@@ -111,13 +113,14 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   }
 
   Future<void> _joinGame() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = l10n.pleaseEnterYourName);
       return;
     }
 
     if (_codeController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter the invite code');
+      setState(() => _errorMessage = l10n.pleaseEnterInviteCode);
       return;
     }
 
@@ -134,7 +137,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
     if (session == null) {
       setState(() {
         _isJoining = false;
-        _errorMessage = 'Game not found or already started';
+        _errorMessage = l10n.gameNotFound;
       });
       return;
     }
@@ -172,10 +175,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   void _copyInviteCode() {
     if (_inviteCode != null) {
       Clipboard.setData(ClipboardData(text: _inviteCode!));
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invite code copied!'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.inviteCodeCopied),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -195,6 +199,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   }
 
   Widget _buildLobbyScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(children: [Expanded(child: SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -206,13 +211,13 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
 
           // Title
           Text(
-            'Online Multiplayer',
+            l10n.onlineMultiplayerTitle,
             style: AppTypography.headline3(context),
           ),
           const SizedBox(height: AppSpacing.sm),
 
           Text(
-            'Create a game or join with a code',
+            l10n.createOrJoinGame,
             style: AppTypography.body(context).copyWith(
               color: context.colors.textSecondary,
             ),
@@ -221,7 +226,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
 
           // Name input
           Text(
-            'Your Name',
+            l10n.yourName,
             style: AppTypography.label(context),
           ),
           const SizedBox(height: 8),
@@ -236,7 +241,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
             maxLength: 20,
             style: AppTypography.body(context),
             decoration: InputDecoration(
-              hintText: 'Enter your name',
+              hintText: l10n.enterYourName,
               counterText: '',
               filled: true,
               fillColor: context.colors.surface,
@@ -308,11 +313,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Create Game',
+                            l10n.createGame,
                             style: AppTypography.bodyLarge(context),
                           ),
                           Text(
-                            'Get a code to share with a friend',
+                            l10n.getCodeToShare,
                             style: AppTypography.labelSmall(context),
                           ),
                         ],
@@ -342,7 +347,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                                   AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : Text('Create Game', style: AppTypography.button),
+                        : Text(l10n.createGame, style: AppTypography.button),
                   ),
                 ),
               ],
@@ -357,7 +362,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'OR',
+                  l10n.or,
                   style: AppTypography.labelSmall(context),
                 ),
               ),
@@ -395,11 +400,11 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Join Game',
+                            l10n.joinGame,
                             style: AppTypography.bodyLarge(context),
                           ),
                           Text(
-                            'Enter a code from your friend',
+                            l10n.enterCodeFromFriend,
                             style: AppTypography.labelSmall(context),
                           ),
                         ],
@@ -417,7 +422,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   keyboardType: TextInputType.number,
                   maxLength: 6,
                   decoration: InputDecoration(
-                    hintText: '000000',
+                    hintText: l10n.codePlaceholder,
                     counterText: '',
                     filled: true,
                     fillColor: context.colors.background,
@@ -460,7 +465,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : Text('Join Game', style: AppTypography.button),
+              : Text(l10n.joinGame, style: AppTypography.button),
         ),
       ),
     ),
@@ -468,6 +473,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
   }
 
   Widget _buildWaitingScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Stack(
@@ -508,7 +514,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   ),
                 ),
                 child: Text(
-                  'Cancel',
+                  l10n.cancel,
                   style: AppTypography.buttonSecondary(context),
                 ),
               ),
@@ -536,14 +542,14 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                 const SizedBox(height: 32),
 
                 Text(
-                  'Waiting for opponent...',
+                  l10n.waitingForOpponent,
                   style: AppTypography.headline3(context),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
 
                 Text(
-                  'Share this code with a friend',
+                  l10n.shareCodeWithFriend,
                   style: AppTypography.body(context).copyWith(
                     color: context.colors.textSecondary,
                   ),
@@ -582,7 +588,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                 const SizedBox(height: 12),
 
                 Text(
-                  'Tap to copy',
+                  l10n.tapToCopy,
                   style: AppTypography.labelSmall(context),
                 ),
               ],

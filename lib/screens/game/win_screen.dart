@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../services/database_service.dart';
+import '../../l10n/app_localizations.dart';
 import '../../utils/game_utils.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
@@ -47,6 +48,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final stars = GameUtils.calculateStars(
       score: widget.score,
       totalPairs: widget.totalPairs,
@@ -85,7 +87,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
 
                 // Title
                 Text(
-                  stars == 3 ? 'Perfect!' : stars == 2 ? 'Well Done!' : 'Nice Try!',
+                  stars == 3 ? l10n.perfect : stars == 2 ? l10n.wellDone : l10n.niceTry,
                   style: AppTypography.headline2(context).copyWith(
                     color: AppColors.white,
                   ),
@@ -127,10 +129,10 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStat('${widget.score}', 'Score'),
-                      _buildStat('${widget.moves}', 'Moves'),
+                      _buildStat('${widget.score}', l10n.score),
+                      _buildStat('${widget.moves}', l10n.moves),
                       _buildStat(
-                          GameUtils.formatTime(widget.timeSeconds), 'Time'),
+                          GameUtils.formatTime(widget.timeSeconds), l10n.time),
                     ],
                   ),
                 ),
@@ -150,8 +152,8 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                     ),
                     child: Text(
                       counts.canPlaySinglePlayer
-                          ? '${counts.singlePlayerRemaining} free game${counts.singlePlayerRemaining == 1 ? '' : 's'} left today'
-                          : 'No free games left. Resets at 3:00 AM',
+                          ? l10n.freeGamesLeftCount(counts.singlePlayerRemaining)
+                          : l10n.noFreeGamesLeft,
                       textAlign: TextAlign.center,
                       style: AppTypography.bodySmall(context).copyWith(
                         color: AppColors.white.withValues(alpha: 0.9),
@@ -164,21 +166,21 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                 // Buttons — vary based on whether free games remain
                 if (hasGamesLeft) ...[
                   _buildButton(
-                    label: 'Play Again',
+                    label: l10n.playAgain,
                     icon: Icons.replay,
                     isPrimary: true,
                     onTap: () => _playAgain(context),
                   ),
                   const SizedBox(height: 10),
                   _buildButton(
-                    label: 'Change Category',
+                    label: l10n.changeCategory,
                     icon: Icons.category,
                     onTap: () => _changeCategory(context),
                   ),
                   const SizedBox(height: 10),
                 ] else ...[
                   _buildButton(
-                    label: 'Upgrade to Premium',
+                    label: l10n.upgradeToPremium,
                     icon: Icons.workspace_premium,
                     isPrimary: true,
                     onTap: () => _goToPaywall(context),
@@ -187,7 +189,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                 ],
 
                 _buildButton(
-                  label: 'Home',
+                  label: l10n.home,
                   icon: Icons.home,
                   isOutlined: true,
                   onTap: () => _goHome(context),

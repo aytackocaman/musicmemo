@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 
 /// Full-screen paywall shown when free tier limit is reached,
 /// a premium-only feature is accessed, or the trial has expired.
@@ -23,6 +24,7 @@ class PaywallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.purple,
       body: SafeArea(
@@ -77,10 +79,10 @@ class PaywallScreen extends StatelessWidget {
                     // Title
                     Text(
                       isTrialExpired
-                          ? 'Your Free Trial Has Ended'
+                          ? l10n.trialEnded
                           : isPremiumFeature
-                              ? 'Premium Feature'
-                              : "You've Reached Your Limit!",
+                              ? l10n.premiumFeature
+                              : l10n.reachedYourLimit,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 28,
@@ -94,10 +96,10 @@ class PaywallScreen extends StatelessWidget {
                     Text(
                       subtitle ??
                           (isTrialExpired
-                              ? 'Subscribe to keep enjoying unlimited games and all premium features'
+                              ? l10n.subscribeMessage
                               : isPremiumFeature
-                                  ? 'Online multiplayer requires a Premium subscription'
-                                  : 'Upgrade to Premium to keep playing'),
+                                  ? l10n.onlineRequiresPremium
+                                  : l10n.upgradeToPremiumToKeepPlaying),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 16,
@@ -108,13 +110,13 @@ class PaywallScreen extends StatelessWidget {
                     const Spacer(),
 
                     // Benefits list
-                    _BenefitItem(text: 'Unlimited single player games'),
+                    _BenefitItem(text: l10n.unlimitedSinglePlayer),
                     const SizedBox(height: 10),
-                    _BenefitItem(text: 'Unlimited local multiplayer'),
+                    _BenefitItem(text: l10n.unlimitedLocalMultiplayer),
                     const SizedBox(height: 10),
-                    _BenefitItem(text: 'Online multiplayer access'),
+                    _BenefitItem(text: l10n.onlineMultiplayerAccess),
                     const SizedBox(height: 10),
-                    _BenefitItem(text: 'Ad-free experience'),
+                    _BenefitItem(text: l10n.adFreeExperience),
                     const Spacer(),
 
                     // Yearly CTA button
@@ -133,7 +135,7 @@ class PaywallScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Get Yearly – \$35.99/year',
+                              l10n.getYearly,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -141,7 +143,7 @@ class PaywallScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'Save 40%',
+                              l10n.save40,
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -169,7 +171,7 @@ class PaywallScreen extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            'Get Monthly – \$4.99/month',
+                            l10n.getMonthly,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -187,7 +189,7 @@ class PaywallScreen extends StatelessWidget {
                         // TODO: Restore purchases
                       },
                       child: Text(
-                        'Restore Purchase',
+                        l10n.restorePurchase,
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -199,7 +201,7 @@ class PaywallScreen extends StatelessWidget {
 
                     // Terms
                     Text(
-                      'Cancel anytime. Terms & Privacy apply.',
+                      l10n.cancelAnytime,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 12,

@@ -15,14 +15,25 @@ import '../../utils/app_dialogs.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import 'online_game_screen.dart';
+import '../../l10n/app_localizations.dart';
 
-/// Grid options
+/// Grid options — difficulty keys are resolved via l10n at render time.
 final List<Map<String, dynamic>> _gridOptions = [
-  if (kDebugMode) {'id': '2x3', 'label': '2x3', 'pairs': 3, 'difficulty': 'Test'},
-  {'id': '4x5', 'label': '4x5', 'pairs': 10, 'difficulty': 'Easy'},
-  {'id': '5x6', 'label': '5x6', 'pairs': 15, 'difficulty': 'Medium'},
-  {'id': '6x7', 'label': '6x7', 'pairs': 21, 'difficulty': 'Hard'},
+  if (kDebugMode) {'id': '2x3', 'label': '2x3', 'pairs': 3, 'difficultyKey': 'test'},
+  {'id': '4x5', 'label': '4x5', 'pairs': 10, 'difficultyKey': 'easy'},
+  {'id': '5x6', 'label': '5x6', 'pairs': 15, 'difficultyKey': 'medium'},
+  {'id': '6x7', 'label': '6x7', 'pairs': 21, 'difficultyKey': 'hard'},
 ];
+
+String _resolveDifficulty(AppLocalizations l10n, String key) {
+  switch (key) {
+    case 'test': return l10n.test;
+    case 'easy': return l10n.easy;
+    case 'medium': return l10n.medium;
+    case 'hard': return l10n.hard;
+    default: return key;
+  }
+}
 
 class OnlineModeScreen extends ConsumerStatefulWidget {
   final String? initialInviteCode;
@@ -165,7 +176,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   Future<void> _searchForOpponent() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
       return;
     }
 
@@ -217,7 +228,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   Future<void> _createPublicGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
       return;
     }
 
@@ -236,7 +247,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     if (session == null) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Failed to create game. Please try again.';
+        _errorMessage = AppLocalizations.of(context)!.failedToCreateGame;
       });
       return;
     }
@@ -270,7 +281,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   Future<void> _createGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
       return;
     }
 
@@ -288,7 +299,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     if (session == null) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Failed to create game. Please try again.';
+        _errorMessage = AppLocalizations.of(context)!.failedToCreateGame;
       });
       return;
     }
@@ -322,7 +333,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             _opponentName = null;
           });
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) showAppSnackBar(context, 'Opponent left the game');
+            if (mounted) showAppSnackBar(context, AppLocalizations.of(context)!.opponentLeftTheGame);
           });
         }
       },
@@ -332,13 +343,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   Future<void> _joinGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
       return;
     }
 
     final code = _codeController.text.trim();
     if (code.isEmpty || code.length != 6) {
-      setState(() => _errorMessage = 'Please enter a valid 6-digit code');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterValidCode);
       return;
     }
 
@@ -356,7 +367,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
     if (session == null) {
       setState(() {
-        _errorMessage = 'Game not found or already started. Check the code and try again.';
+        _errorMessage = AppLocalizations.of(context)!.gameNotFoundCheckCode;
       });
       return;
     }
@@ -380,7 +391,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           MultiplayerService.unsubscribeFromSession();
           setState(() => _isWaitingForHostToStart = false);
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) showAppSnackBar(context, 'Host cancelled the game');
+            if (mounted) showAppSnackBar(context, AppLocalizations.of(context)!.hostCancelledGame);
           });
           return;
         }
@@ -434,7 +445,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   void _copyInviteCode() {
     if (_inviteCode != null) {
       Clipboard.setData(ClipboardData(text: _inviteCode!));
-      showAppSnackBar(context, 'Code copied!');
+      showAppSnackBar(context, AppLocalizations.of(context)!.codeCopied);
     }
   }
 
@@ -485,7 +496,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     if (!success) {
       setState(() {
         _isStartingGame = false;
-        _errorMessage = 'Failed to start game. Please try again.';
+        _errorMessage = AppLocalizations.of(context)!.failedToStartGame;
       });
       return;
     }
@@ -530,6 +541,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildMainScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -538,10 +550,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Online Multiplayer', style: AppTypography.headline3(context)),
+          Text(l10n.onlineMultiplayerTitle, style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Play with friends in real-time',
+            l10n.playWithFriendsRealtime,
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xxl),
@@ -550,8 +562,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildOptionCard(
             icon: Icons.person_search,
             iconColor: AppColors.pink,
-            title: 'Find Opponent',
-            subtitle: 'Get matched with a random player',
+            title: l10n.findOpponent,
+            subtitle: l10n.findOpponentDescription,
             onTap: () async {
               ref.read(selectedGameModeProvider.notifier).state =
                   GameMode.onlineMultiplayer;
@@ -572,8 +584,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildOptionCard(
             icon: Icons.add_circle_outline,
             iconColor: AppColors.purple,
-            title: 'Create Private Game',
-            subtitle: 'Start a new game and invite a friend',
+            title: l10n.createPrivateGame,
+            subtitle: l10n.startNewGameInviteFriend,
             onTap: () {
               ref.read(selectedGameModeProvider.notifier).state =
                   GameMode.onlineMultiplayer;
@@ -601,8 +613,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildOptionCard(
             icon: Icons.login,
             iconColor: AppColors.teal,
-            title: 'Join Private Game',
-            subtitle: 'Enter a code to join your friend',
+            title: l10n.joinPrivateGame,
+            subtitle: l10n.enterCodeToJoinFriend,
             onTap: _showJoinOptions,
           ),
         ],
@@ -611,6 +623,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildFindOpponentScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -619,12 +632,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Find Opponent', style: AppTypography.headline3(context)),
+          Text(l10n.findOpponent, style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
             _isSearchingForOpponent
-                ? 'Searching for available players...'
-                : 'No players found. Create a game and wait for someone to join!',
+                ? l10n.searchingForPlayers
+                : l10n.noPlayersFoundCreateGame,
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -641,7 +654,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Looking for opponents...',
+                      l10n.lookingForOpponents,
                       style: AppTypography.body(context)
                           .copyWith(color: context.colors.textSecondary),
                     ),
@@ -653,13 +666,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             if (_errorMessage != null) _buildErrorMessage(),
 
             // Name input
-            _buildSectionTitle('Your Name'),
+            _buildSectionTitle(l10n.yourName),
             const SizedBox(height: 8),
-            _buildTextField(_nameController, 'Enter your name'),
+            _buildTextField(_nameController, l10n.enterYourName),
             const SizedBox(height: AppSpacing.xl),
 
             // Grid selection
-            _buildSectionTitle('Grid Size'),
+            _buildSectionTitle(l10n.gridSizeLabel),
             const SizedBox(height: 8),
             _buildGridSelector(),
             const SizedBox(height: AppSpacing.xxl),
@@ -686,7 +699,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : Text('Create & Wait for Opponent',
+                    : Text(l10n.createAndWaitForOpponent,
                         style: AppTypography.button),
               ),
             ),
@@ -705,7 +718,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   ),
                 ),
                 child:
-                    Text('Search Again', style: AppTypography.buttonSecondary(context)),
+                    Text(l10n.searchAgain, style: AppTypography.buttonSecondary(context)),
               ),
             ),
           ],
@@ -715,6 +728,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildCreateScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -723,10 +737,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text('Create Game', style: AppTypography.headline3(context)),
+          Text(l10n.createGame, style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Set up the game and invite a friend',
+            l10n.setupGameInviteFriend,
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -734,13 +748,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           if (_errorMessage != null) _buildErrorMessage(),
 
           // Name input
-          _buildSectionTitle('Your Name'),
+          _buildSectionTitle(l10n.yourName),
           const SizedBox(height: 8),
-          _buildTextField(_nameController, 'Enter your name'),
+          _buildTextField(_nameController, l10n.enterYourName),
           const SizedBox(height: AppSpacing.xl),
 
           // Grid selection
-          _buildSectionTitle('Grid Size'),
+          _buildSectionTitle(l10n.gridSizeLabel),
           const SizedBox(height: 8),
           _buildGridSelector(),
           const SizedBox(height: AppSpacing.xxl),
@@ -766,7 +780,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text('Create Game', style: AppTypography.button),
+                  : Text(l10n.createGame, style: AppTypography.button),
             ),
           ),
         ],
@@ -775,6 +789,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildJoinScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -787,10 +802,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 _buildBackButton(),
                 const SizedBox(height: AppSpacing.xl),
 
-                Text('Join Game', style: AppTypography.headline3(context)),
+                Text(l10n.joinGame, style: AppTypography.headline3(context)),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Enter the code from your friend',
+                  l10n.enterTheCodeFromFriend,
                   style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -798,13 +813,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 if (_errorMessage != null) _buildErrorMessage(),
 
                 // Name input
-                _buildSectionTitle('Your Name'),
+                _buildSectionTitle(l10n.yourName),
                 const SizedBox(height: 8),
-                _buildTextField(_nameController, 'Enter your name'),
+                _buildTextField(_nameController, l10n.enterYourName),
                 const SizedBox(height: AppSpacing.xl),
 
                 // Code input
-                _buildSectionTitle('Invite Code'),
+                _buildSectionTitle(l10n.inviteCodeLabel),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _codeController,
@@ -817,7 +832,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   keyboardType: TextInputType.number,
                   maxLength: 6,
                   decoration: InputDecoration(
-                    hintText: '000000',
+                    hintText: l10n.codePlaceholder,
                     hintStyle: AppTypography.body(context).copyWith(
                       letterSpacing: 8,
                       color: context.colors.textTertiary,
@@ -863,7 +878,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text('Join Game', style: AppTypography.button),
+                  : Text(l10n.joinGame, style: AppTypography.button),
             ),
           ),
         ),
@@ -872,6 +887,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildWaitingScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -909,15 +925,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(height: 32),
 
           Text(
-            'Waiting for opponent...',
+            l10n.waitingForOpponent,
             style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             _isPublicSession
-                ? 'Someone will join your game soon'
-                : 'Share this code with a friend',
+                ? l10n.someoneWillJoinSoon
+                : l10n.shareCodeWithFriend,
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 24),
@@ -958,7 +974,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                       children: [
                         Icon(Icons.copy, size: 18, color: context.colors.textSecondary),
                         const SizedBox(width: 8),
-                        Text('Copy', style: AppTypography.bodySmall(context)),
+                        Text(l10n.copy, style: AppTypography.bodySmall(context)),
                       ],
                     ),
                   ),
@@ -977,7 +993,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                       children: [
                         const Icon(Icons.share, size: 18, color: Colors.white),
                         const SizedBox(width: 8),
-                        Text('Share', style: AppTypography.bodySmall(context).copyWith(color: Colors.white)),
+                        Text(l10n.share, style: AppTypography.bodySmall(context).copyWith(color: Colors.white)),
                       ],
                     ),
                   ),
@@ -996,14 +1012,14 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   const Icon(Icons.public, size: 32, color: AppColors.pink),
                   const SizedBox(height: 8),
                   Text(
-                    'Public Game',
+                    l10n.publicGame,
                     style: AppTypography.bodyLarge(context).copyWith(
                       color: AppColors.pink,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Anyone can find and join this game',
+                    l10n.anyoneCanJoinThisGame,
                     style: AppTypography.bodySmall(context).copyWith(
                       color: context.colors.textSecondary,
                     ),
@@ -1026,7 +1042,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
+              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -1036,6 +1052,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   /// Screen shown to HOST when opponent joins - shows "Start Game" button
   Widget _buildOpponentJoinedScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -1043,20 +1060,20 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const Spacer(),
 
           Text(
-            'Opponent Joined!',
+            l10n.opponentJoinedTitle,
             style: AppTypography.headline3(context),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Ready to play',
+            l10n.readyToPlay,
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 40),
 
           _VsPlayersWidget(
-            player1Name: _nameController.text.isNotEmpty ? _nameController.text : 'You',
-            player2Name: _opponentName ?? 'Opponent',
+            player1Name: _nameController.text.isNotEmpty ? _nameController.text : l10n.youFallbackName,
+            player2Name: _opponentName ?? l10n.opponent,
           ),
           const SizedBox(height: 32),
 
@@ -1112,7 +1129,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text('Start Game', style: AppTypography.button),
+                  : Text(l10n.startGame, style: AppTypography.button),
             ),
           ),
           const SizedBox(height: 12),
@@ -1128,7 +1145,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
+              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -1138,8 +1155,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   /// Screen shown to JOINER while waiting for host to start the game
   Widget _buildWaitingForHostScreen() {
-    final hostName = _currentSession?.player1Name ?? 'Host';
-    final myName = _nameController.text.isNotEmpty ? _nameController.text : 'You';
+    final l10n = AppLocalizations.of(context)!;
+    final hostName = _currentSession?.player1Name ?? l10n.opponent;
+    final myName = _nameController.text.isNotEmpty ? _nameController.text : l10n.youFallbackName;
     final category = _currentSession?.category;
     final gridSize = _currentSession?.gridSize ?? '4x5';
 
@@ -1169,7 +1187,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                     borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                 ),
-                child: Text('Leave', style: AppTypography.buttonSecondary(context)),
+                child: Text(l10n.leave, style: AppTypography.buttonSecondary(context)),
               ),
             ),
           ),
@@ -1180,13 +1198,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Waiting for Host to Start the Game!',
+                  l10n.waitingForHostToStart,
                   style: AppTypography.headline3(context),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'You\'ve joined successfully',
+                  l10n.joinedSuccessfully,
                   style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -1335,6 +1353,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildGridSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: _gridOptions.map((grid) {
         final isSelected = _selectedGrid == grid['id'];
@@ -1363,7 +1382,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    grid['difficulty'],
+                    _resolveDifficulty(l10n, grid['difficultyKey']),
                     style: AppTypography.labelSmall(context).copyWith(
                       color: isSelected
                           ? Colors.white.withValues(alpha: 0.8)
@@ -1380,6 +1399,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   Widget _buildConnectionBanner() {
+    final l10n = AppLocalizations.of(context)!;
     if (_connectionState == MultiplayerConnectionState.connected) {
       return const SizedBox.shrink();
     }
@@ -1408,7 +1428,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            isDisconnected ? 'Connection lost' : 'Reconnecting...',
+            isDisconnected ? l10n.connectionLost : l10n.reconnecting,
             style: AppTypography.bodySmall(context).copyWith(
               color: isDisconnected ? Colors.red : Colors.orange,
             ),
@@ -1531,7 +1551,7 @@ class _CreatePrivateGameScreenState
 
   Future<void> _createGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
       return;
     }
     setState(() { _isLoading = true; _errorMessage = null; });
@@ -1543,7 +1563,7 @@ class _CreatePrivateGameScreenState
     );
 
     if (session == null) {
-      setState(() { _isLoading = false; _errorMessage = 'Failed to create game. Please try again.'; });
+      setState(() { _isLoading = false; _errorMessage = AppLocalizations.of(context)!.failedToCreateGame; });
       return;
     }
 
@@ -1572,7 +1592,7 @@ class _CreatePrivateGameScreenState
             _opponentName = null;
           });
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) showAppSnackBar(context, 'Opponent left the game');
+            if (mounted) showAppSnackBar(context, AppLocalizations.of(context)!.opponentLeftTheGame);
           });
         }
       },
@@ -1609,7 +1629,7 @@ class _CreatePrivateGameScreenState
     );
 
     if (!success) {
-      setState(() { _isStartingGame = false; _errorMessage = 'Failed to start game. Please try again.'; });
+      setState(() { _isStartingGame = false; _errorMessage = AppLocalizations.of(context)!.failedToStartGame; });
     }
   }
 
@@ -1646,7 +1666,7 @@ class _CreatePrivateGameScreenState
   void _copyInviteCode() {
     if (_inviteCode != null) {
       Clipboard.setData(ClipboardData(text: _inviteCode!));
-      showAppSnackBar(context, 'Code copied!');
+      showAppSnackBar(context, AppLocalizations.of(context)!.codeCopied);
     }
   }
 
@@ -1692,6 +1712,7 @@ class _CreatePrivateGameScreenState
   // ── Create form ─────────────────────────────────────────────────────────────
 
   Widget _buildCreateForm() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -1699,20 +1720,20 @@ class _CreatePrivateGameScreenState
         children: [
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
-          Text('Create Game', style: AppTypography.headline3(context)),
+          Text(l10n.createGame, style: AppTypography.headline3(context)),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Set up the game and invite a friend',
+            l10n.setupGameInviteFriend,
             style: AppTypography.body(context)
                 .copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
           if (_errorMessage != null) _buildErrorMessage(),
-          _buildSectionTitle('Your Name'),
+          _buildSectionTitle(l10n.yourName),
           const SizedBox(height: 8),
-          _buildTextField(_nameController, 'Enter your name'),
+          _buildTextField(_nameController, l10n.enterYourName),
           const SizedBox(height: AppSpacing.xl),
-          _buildSectionTitle('Grid Size'),
+          _buildSectionTitle(l10n.gridSizeLabel),
           const SizedBox(height: 8),
           _buildGridSelector(),
           const SizedBox(height: AppSpacing.xxl),
@@ -1734,7 +1755,7 @@ class _CreatePrivateGameScreenState
                           strokeWidth: 2,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text('Create Game', style: AppTypography.button),
+                  : Text(l10n.createGame, style: AppTypography.button),
             ),
           ),
         ],
@@ -1745,6 +1766,7 @@ class _CreatePrivateGameScreenState
   // ── Waiting for opponent ─────────────────────────────────────────────────────
 
   Widget _buildWaitingScreen() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -1774,9 +1796,9 @@ class _CreatePrivateGameScreenState
             ),
           ),
           const SizedBox(height: 32),
-          Text('Waiting for opponent...', style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          Text(l10n.waitingForOpponent, style: AppTypography.headline3(context), textAlign: TextAlign.center),
           const SizedBox(height: 8),
-          Text('Share this code with a friend',
+          Text(l10n.shareCodeWithFriend,
               style: AppTypography.body(context)
                   .copyWith(color: context.colors.textSecondary)),
           const SizedBox(height: 24),
@@ -1808,7 +1830,7 @@ class _CreatePrivateGameScreenState
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.copy, size: 18, color: context.colors.textSecondary),
                     const SizedBox(width: 8),
-                    Text('Copy', style: AppTypography.bodySmall(context)),
+                    Text(l10n.copy, style: AppTypography.bodySmall(context)),
                   ]),
                 ),
               ),
@@ -1823,7 +1845,7 @@ class _CreatePrivateGameScreenState
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(Icons.share, size: 18, color: Colors.white),
                     const SizedBox(width: 8),
-                    Text('Share',
+                    Text(l10n.share,
                         style: AppTypography.bodySmall(context)
                             .copyWith(color: Colors.white)),
                   ]),
@@ -1840,7 +1862,7 @@ class _CreatePrivateGameScreenState
                   side: BorderSide(color: context.colors.elevated),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.button))),
-              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
+              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -1851,6 +1873,7 @@ class _CreatePrivateGameScreenState
   // ── Opponent joined ──────────────────────────────────────────────────────────
 
   Widget _buildOpponentJoinedScreen() {
+    final l10n = AppLocalizations.of(context)!;
     final categoryName = _formatCategoryName(widget.category);
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -1858,17 +1881,17 @@ class _CreatePrivateGameScreenState
         children: [
           const Spacer(),
 
-          Text('Opponent Joined!', style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          Text(l10n.opponentJoinedTitle, style: AppTypography.headline3(context), textAlign: TextAlign.center),
           const SizedBox(height: 8),
           Text(
-            'Ready to play',
+            l10n.readyToPlay,
             style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 40),
 
           _VsPlayersWidget(
-            player1Name: _nameController.text.isNotEmpty ? _nameController.text : 'You',
-            player2Name: _opponentName ?? 'Opponent',
+            player1Name: _nameController.text.isNotEmpty ? _nameController.text : l10n.youFallbackName,
+            player2Name: _opponentName ?? l10n.opponent,
           ),
           const SizedBox(height: 32),
 
@@ -1917,7 +1940,7 @@ class _CreatePrivateGameScreenState
                       child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text('Start Game', style: AppTypography.button),
+                  : Text(l10n.startGame, style: AppTypography.button),
             ),
           ),
           const SizedBox(height: 12),
@@ -1929,7 +1952,7 @@ class _CreatePrivateGameScreenState
                   side: BorderSide(color: context.colors.elevated),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.button))),
-              child: Text('Cancel', style: AppTypography.buttonSecondary(context)),
+              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
             ),
           ),
         ],
@@ -2005,7 +2028,7 @@ class _CreatePrivateGameScreenState
                             ? Colors.white
                             : context.colors.textPrimary)),
                 const SizedBox(height: 2),
-                Text(grid['difficulty'],
+                Text(_resolveDifficulty(AppLocalizations.of(context)!, grid['difficultyKey']),
                     style: AppTypography.labelSmall(context).copyWith(
                         color: isSelected
                             ? Colors.white.withValues(alpha: 0.8)
@@ -2019,6 +2042,7 @@ class _CreatePrivateGameScreenState
   }
 
   Widget _buildConnectionBanner() {
+    final l10n = AppLocalizations.of(context)!;
     if (_connectionState == MultiplayerConnectionState.connected) {
       return const SizedBox.shrink();
     }
@@ -2041,7 +2065,7 @@ class _CreatePrivateGameScreenState
                   isDisconnected ? Colors.red : Colors.orange)),
         ),
         const SizedBox(width: 10),
-        Text(isDisconnected ? 'Connection lost' : 'Reconnecting...',
+        Text(isDisconnected ? l10n.connectionLost : l10n.reconnecting,
             style: AppTypography.bodySmall(context)
                 .copyWith(color: isDisconnected ? Colors.red : Colors.orange)),
       ]),

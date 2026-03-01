@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import 'category_screen.dart';
 
@@ -19,6 +20,7 @@ class GrandCategoryScreen extends ConsumerStatefulWidget {
 class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
@@ -48,14 +50,14 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
 
               // Title
               Text(
-                'Select Category',
+                l10n.selectCategory,
                 style: AppTypography.headline3(context),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // Description
               Text(
-                'What kind of sounds do you want to match?',
+                l10n.whatKindOfSounds,
                 style: AppTypography.body(context).copyWith(
                   color: context.colors.textSecondary,
                 ),
@@ -65,8 +67,8 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
               // Music — active
               _GrandCategoryCard(
                 icon: Icons.music_note,
-                title: 'Music',
-                subtitle: 'Match songs, beats and melodies',
+                title: l10n.music,
+                subtitle: l10n.musicDescription,
                 iconColor: AppColors.purple,
                 iconBackgroundColor: const Color(0x268B5CF6),
                 isPrimary: true,
@@ -91,34 +93,34 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
               const SizedBox(height: AppSpacing.md),
 
               // Ear Training — coming soon
-              const _GrandCategoryCard(
+              _GrandCategoryCard(
                 icon: Icons.hearing,
-                title: 'Ear Training',
-                subtitle: 'Intervals, chords, and scales',
+                title: l10n.earTraining,
+                subtitle: l10n.earTrainingDescription,
                 iconColor: AppColors.teal,
-                iconBackgroundColor: Color(0x2614B8A6),
+                iconBackgroundColor: const Color(0x2614B8A6),
                 comingSoon: true,
               ),
               const SizedBox(height: AppSpacing.md),
 
               // For Kids — coming soon
-              const _GrandCategoryCard(
+              _GrandCategoryCard(
                 icon: Icons.child_care,
-                title: 'For Kids',
-                subtitle: 'Animals, toys, and fun sounds',
+                title: l10n.forKids,
+                subtitle: l10n.forKidsDescription,
                 iconColor: AppColors.pink,
-                iconBackgroundColor: Color(0x26F472B6),
+                iconBackgroundColor: const Color(0x26F472B6),
                 comingSoon: true,
               ),
               const SizedBox(height: AppSpacing.md),
 
               // Funny Memes — coming soon
-              const _GrandCategoryCard(
+              _GrandCategoryCard(
                 icon: Icons.tag_faces,
-                title: 'Funny Memes',
-                subtitle: 'Viral sounds and internet classics',
-                iconColor: Color(0xFFFBBF24),
-                iconBackgroundColor: Color(0x26FBBF24),
+                title: l10n.funnyMemes,
+                subtitle: l10n.funnyMemesDescription,
+                iconColor: const Color(0xFFFBBF24),
+                iconBackgroundColor: const Color(0x26FBBF24),
                 comingSoon: true,
               ),
             ],
@@ -216,7 +218,7 @@ class _GrandCategoryCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Soon',
+                AppLocalizations.of(context)!.soon,
                 style: AppTypography.labelSmall(context).copyWith(
                   color: context.colors.textSecondary,
                   fontWeight: FontWeight.w600,

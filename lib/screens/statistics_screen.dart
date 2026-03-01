@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../services/database_service.dart';
 
 class StatisticsScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
@@ -48,7 +50,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
                       // Title
                       Text(
-                        'Statistics',
+                        l10n.statisticsTitle,
                         style: AppTypography.headline2(context),
                       ),
                       const SizedBox(height: 24),
@@ -59,7 +61,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
                       // By Game Mode label
                       Text(
-                        'By Game Mode',
+                        l10n.byGameMode,
                         style: AppTypography.headline3(context),
                       ),
                       const SizedBox(height: 12),
@@ -98,6 +100,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildOverallStatsCard() {
+    final l10n = AppLocalizations.of(context)!;
     final stats = _stats ?? UserStats.empty();
 
     return Container(
@@ -111,7 +114,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Overall Stats',
+            l10n.overallStats,
             style: AppTypography.label(context).copyWith(
               color: Colors.white.withValues(alpha: 0.8),
               fontWeight: FontWeight.w600,
@@ -123,19 +126,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             children: [
               _buildOverallStatItem(
                 value: '${stats.totalGames}',
-                label: 'Games',
+                label: l10n.games,
               ),
               _buildOverallStatItem(
                 value: '${stats.totalWins}',
-                label: 'Wins',
+                label: l10n.wins,
               ),
               _buildOverallStatItem(
                 value: '${stats.winRate.toStringAsFixed(0)}%',
-                label: 'Win Rate',
+                label: l10n.winRate,
               ),
               _buildOverallStatItem(
                 value: _formatNumber(stats.highScore),
-                label: 'High Score',
+                label: l10n.highScore,
               ),
             ],
           ),
@@ -169,6 +172,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildModeCards() {
+    final l10n = AppLocalizations.of(context)!;
     final stats = _stats ?? UserStats.empty();
 
     return Column(
@@ -177,7 +181,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           icon: Icons.person,
           iconColor: AppColors.purple,
           iconBgColor: AppColors.purple.withValues(alpha: 0.15),
-          title: 'Single Player',
+          title: l10n.singlePlayer,
           games: stats.spGames,
           winRate: stats.spWinRate,
         ),
@@ -186,7 +190,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           icon: Icons.people,
           iconColor: AppColors.teal,
           iconBgColor: AppColors.teal.withValues(alpha: 0.15),
-          title: 'Two Player Local',
+          title: l10n.twoPlayerLocal,
           games: stats.localMpGames,
           winRate: stats.localMpWinRate,
         ),
@@ -195,7 +199,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           icon: Icons.public,
           iconColor: AppColors.pink,
           iconBgColor: AppColors.pink.withValues(alpha: 0.15),
-          title: 'Two Player Online',
+          title: l10n.twoPlayerOnline,
           games: stats.onlineGames,
           winRate: stats.onlineWinRate,
         ),
@@ -211,6 +215,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     required int games,
     required double winRate,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -253,7 +258,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$games games • ${winRate.toStringAsFixed(0)}% win rate',
+                  l10n.gamesWinRate(games, winRate.toStringAsFixed(0)),
                   style: AppTypography.bodySmall(context).copyWith(
                     color: context.colors.textSecondary,
                   ),

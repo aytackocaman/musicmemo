@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 
 /// Shows a styled confirmation dialog matching the app design system.
 ///
-/// [confirmLabel] defaults to 'Confirm'. Set [isDestructive] to true
+/// [confirmLabel] defaults to localized 'Confirm'. Set [isDestructive] to true
 /// to tint the confirm button red instead of purple.
 Future<void> showAppDialog({
   required BuildContext context,
   required String title,
   required String message,
-  String confirmLabel = 'Confirm',
-  String cancelLabel = 'Cancel',
+  String? confirmLabel,
+  String? cancelLabel,
   bool isDestructive = false,
   bool showCancel = true,
   required VoidCallback onConfirm,
 }) {
+  final l10n = AppLocalizations.of(context)!;
+  final resolvedConfirmLabel = confirmLabel ?? l10n.confirm;
+  final resolvedCancelLabel = cancelLabel ?? l10n.cancel;
+
   return showDialog(
     context: context,
     builder: (dialogContext) => Dialog(
@@ -49,7 +54,7 @@ Future<void> showAppDialog({
                           border: Border.all(color: dialogContext.colors.elevated),
                         ),
                         child: Center(
-                          child: Text(cancelLabel, style: AppTypography.buttonSecondary(dialogContext)),
+                          child: Text(resolvedCancelLabel, style: AppTypography.buttonSecondary(dialogContext)),
                         ),
                       ),
                     ),
@@ -73,7 +78,7 @@ Future<void> showAppDialog({
                       ),
                       child: Center(
                         child: Text(
-                          confirmLabel,
+                          resolvedConfirmLabel,
                           style: AppTypography.buttonSecondary(dialogContext).copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.w700,
