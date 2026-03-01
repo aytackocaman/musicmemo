@@ -878,97 +878,224 @@ class _PlayerScoreCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final color = isMe ? const Color(0xFF3B82F6) : const Color(0xFFF97316);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: isCurrentTurn
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color,
-                  Color.lerp(color, Colors.white, 0.25) ?? color,
-                ],
-              )
-            : null,
-        color: isCurrentTurn ? null : context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isCurrentTurn
-              ? Color.lerp(color, Colors.white, 0.35) ?? color
-              : context.colors.elevated,
-          width: 2,
-        ),
-        boxShadow: isCurrentTurn
-            ? [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.4),
-                  blurRadius: 18,
-                  spreadRadius: 0,
-                ),
-              ]
-            : null,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isCurrentTurn ? Colors.white : color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        name,
-                        style: AppTypography.bodySmall(context).copyWith(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: isCurrentTurn
-                              ? Colors.white
-                              : context.colors.textPrimary,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+    return GestureDetector(
+      onTap: () {
+        final overlay = Overlay.of(context);
+        final renderBox = context.findRenderObject() as RenderBox;
+        final offset = renderBox.localToGlobal(Offset.zero);
+
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => _NameTooltip(
+            name: name,
+            color: color,
+            position: offset,
+            onDismiss: () => entry.remove(),
+          ),
+        );
+        overlay.insert(entry);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: isCurrentTurn
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color,
+                    Color.lerp(color, Colors.white, 0.25) ?? color,
                   ],
-                ),
-                if (isCurrentTurn)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 14, top: 2),
-                    child: Text(
-                      l10n.yourTurn,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.7),
+                )
+              : null,
+          color: isCurrentTurn ? null : context.colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isCurrentTurn
+                ? Color.lerp(color, Colors.white, 0.35) ?? color
+                : context.colors.elevated,
+            width: 2,
+          ),
+          boxShadow: isCurrentTurn
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.4),
+                    blurRadius: 18,
+                    spreadRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: isCurrentTurn ? Colors.white : color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          name,
+                          style: AppTypography.bodySmall(context).copyWith(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: isCurrentTurn
+                                ? Colors.white
+                                : context.colors.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (isCurrentTurn)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 2),
+                      child: Text(
+                        l10n.yourTurn,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Text(
+              '$score',
+              style: AppTypography.bodyLarge(context).copyWith(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: isCurrentTurn ? Colors.white : context.colors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NameTooltip extends StatefulWidget {
+  final String name;
+  final Color color;
+  final Offset position;
+  final VoidCallback onDismiss;
+
+  const _NameTooltip({
+    required this.name,
+    required this.color,
+    required this.position,
+    required this.onDismiss,
+  });
+
+  @override
+  State<_NameTooltip> createState() => _NameTooltipState();
+}
+
+class _NameTooltipState extends State<_NameTooltip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _scale = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+    _controller.forward();
+    Future.delayed(const Duration(seconds: 2), _dismiss);
+  }
+
+  void _dismiss() {
+    if (!mounted) return;
+    _controller.reverse().then((_) {
+      if (mounted) widget.onDismiss();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: _dismiss,
+            behavior: HitTestBehavior.translucent,
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: widget.position.dy - 44,
+          child: FadeTransition(
+            opacity: _opacity,
+            child: ScaleTransition(
+              scale: _scale,
+              alignment: Alignment.bottomCenter,
+              child: UnconstrainedBox(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        widget.color,
+                        Color.lerp(widget.color, Colors.white, 0.2) ?? widget.color,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.color.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    widget.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall(context).copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
                     ),
                   ),
-              ],
+                ),
+              ),
             ),
           ),
-          Text(
-            '$score',
-            style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: isCurrentTurn ? Colors.white : context.colors.textPrimary,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
