@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/dev_config.dart';
 import '../../config/theme.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../services/haptic_service.dart';
@@ -362,6 +363,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   bool get _isMyTurn => _currentSession.currentTurn == _myUserId;
 
+  /// My match color depends on accent so it contrasts with face-down cards.
+  String get _myMatchHexColor => switch (ref.read(accentColorProvider)) {
+        AccentColor.blue => '#8B5CF6',   // purple
+        AccentColor.purple => '#3B82F6', // blue
+        AccentColor.red => '#3B82F6',    // blue
+      };
+
   void _handleCardTap(String cardId) async {
     // IMMEDIATELY block if not my turn or already processing
     if (!_isMyTurn || _isProcessing) {
@@ -448,10 +456,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       if (isMatch) {
         HapticService.matchFound();
         // Match found! Update the specific flipped cards to matched
-        // Tag with blue (my color in online mode)
+        // Tag with accent-contrasting color (my matches in online mode)
         final updatedCards = _cards.map((c) {
           if (flippedCardIds.contains(c.id)) {
-            return c.copyWith(state: CardState.matched, matchedByColor: '#3B82F6');
+            return c.copyWith(state: CardState.matched, matchedByColor: _myMatchHexColor);
           }
           return c;
         }).toList();
@@ -622,8 +630,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent),
               ),
               const SizedBox(height: 16),
               Text(
@@ -934,7 +942,12 @@ class _PlayerScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final color = isMe ? const Color(0xFF3B82F6) : const Color(0xFFF97316);
+    // My color contrasts with the accent; opponent is always orange
+    final myColor = switch (context.colors.accent.toARGB32()) {
+      0xFF3B82F6 => const Color(0xFF8B5CF6), // blue accent → purple
+      _ => const Color(0xFF3B82F6),           // purple/red accent → blue
+    };
+    final color = isMe ? myColor : const Color(0xFFF97316);
 
     return GestureDetector(
       onTap: () {
@@ -1115,7 +1128,7 @@ class _EmojiPickerButtonState extends State<_EmojiPickerButton> {
                   color: bgColor,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: AppColors.purple.withValues(alpha: 0.2),
+                    color: context.colors.accent.withValues(alpha: 0.2),
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -1689,8 +1702,8 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     final iWon = myScore > opponentScore;
     final isTie = myScore == opponentScore;
 
-    final accentColor = isTie
-        ? AppColors.purple
+    final resultAccent = isTie
+        ? context.colors.accent
         : iWon
             ? AppColors.teal
             : AppColors.pink;
@@ -1698,7 +1711,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: accentColor,
+        backgroundColor: resultAccent,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -1781,7 +1794,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                             const SizedBox(height: 4),
                             Text(
                               '$myScore',
-                              style: AppTypography.metric.copyWith(
+                              style: AppTypography.metric(context).copyWith(
                                 color: AppColors.white,
                               ),
                             ),
@@ -1821,7 +1834,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                             const SizedBox(height: 4),
                             Text(
                               '$opponentScore',
-                              style: AppTypography.metric.copyWith(
+                              style: AppTypography.metric(context).copyWith(
                                 color: AppColors.white,
                               ),
                             ),
@@ -2066,7 +2079,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
         : isOutlined
             ? Colors.transparent
             : AppColors.white.withValues(alpha: 0.1);
-    final foregroundColor = isPrimary ? AppColors.purple : AppColors.white;
+    final foregroundColor = isPrimary ? context.colors.accent : AppColors.white;
 
     return GestureDetector(
       onTap: showSpinner ? null : onTap,

@@ -26,7 +26,7 @@ class PaywallScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.purple,
+      backgroundColor: context.colors.accent,
       body: SafeArea(
         child: Column(
           children: [
@@ -139,7 +139,7 @@ class PaywallScreen extends StatelessWidget {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.purple,
+                                color: context.colors.accent,
                               ),
                             ),
                             Text(

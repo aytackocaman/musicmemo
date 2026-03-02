@@ -388,7 +388,7 @@ class _LocalMultiplayerGameScreenState
           Expanded(
             child: _PlayerScoreCard(
               name: player1?.name ?? l10n.playerNumber(1),
-              color: player1 != null ? hexToColor(player1.color) : AppColors.purple,
+              color: player1 != null ? hexToColor(player1.color) : context.colors.accent,
               score: player1?.score ?? 0,
               isCurrentTurn: isPlayer1Turn,
             ),
@@ -484,13 +484,13 @@ class _LocalMultiplayerGameScreenState
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.1),
+                    color: context.colors.accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.pause_rounded,
                     size: 40,
-                    color: AppColors.purple,
+                    color: context.colors.accent,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -514,7 +514,7 @@ class _LocalMultiplayerGameScreenState
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.purple,
+                      color: context.colors.accent,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
@@ -890,7 +890,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                         ? context.colors.textSecondary
                         : winner != null
                             ? hexToColor(winner.color)
-                            : AppColors.purple,
+                            : context.colors.accent,
                   ),
                 ),
 
@@ -920,7 +920,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                         name: player1?.name ?? l10n.playerNumber(1),
                         color: player1 != null
                             ? hexToColor(player1.color)
-                            : AppColors.purple,
+                            : context.colors.accent,
                         score: player1Score,
                         isWinner: !isTie && player1Score > player2Score,
                       ),
@@ -971,7 +971,7 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.purple.withValues(alpha: 0.1),
+                      color: context.colors.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -1104,7 +1104,7 @@ class _ScoreColumn extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$score',
-            style: AppTypography.metric.copyWith(
+            style: AppTypography.metric(context).copyWith(
               color: color,
             ),
           ),
@@ -1171,7 +1171,7 @@ class _ActionButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.purple,
+            backgroundColor: context.colors.accent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.button),
             ),

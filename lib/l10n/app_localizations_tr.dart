@@ -658,6 +658,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings => 'Ayarlar';
 
   @override
+  String get accentColor => 'Vurgu Rengi';
+
+  @override
+  String get blue => 'Mavi';
+
+  @override
+  String get purple => 'Mor';
+
+  @override
+  String get red => 'Kırmızı';
+
+  @override
   String get appearance => 'Görünüm';
 
   @override

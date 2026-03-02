@@ -37,6 +37,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    final accentColor = ref.watch(accentColorProvider);
     final profileAsync = ref.watch(userProfileNotifierProvider);
     final timings = ref.watch(cardTimingsProvider);
     final hapticEnabled = ref.watch(hapticFeedbackProvider);
@@ -77,7 +78,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // ── Appearance ────────────────────────────────────────────────
               _Section(
                 title: l10n.appearance,
-                children: [_ThemeSelector(current: themeMode)],
+                children: [
+                  _ThemeSelector(current: themeMode),
+                  _SectionDivider(),
+                  _AccentColorSelector(current: accentColor),
+                ],
               ),
               const SizedBox(height: AppSpacing.xl),
 
@@ -98,7 +103,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     label: l10n.hapticFeedback,
                     trailing: Switch.adaptive(
                       value: hapticEnabled,
-                      activeTrackColor: AppColors.purple,
+                      activeTrackColor: context.colors.accent,
                       onChanged: (v) {
                         ref
                             .read(hapticFeedbackProvider.notifier)
@@ -307,10 +312,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: AppColors.purple.withValues(alpha: 0.12),
+                      color: context.colors.accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.tune, size: 16, color: AppColors.purple),
+                    child: Icon(Icons.tune, size: 16, color: context.colors.accent),
                   ),
                   const SizedBox(width: 10),
                   Text(l10n.cardTiming, style: AppTypography.bodyLarge(context)),
@@ -336,7 +341,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: Container(
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.purple,
+                      color: context.colors.accent,
                       borderRadius: BorderRadius.circular(AppRadius.button),
                     ),
                     child: Center(
@@ -440,7 +445,7 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveIconColor = isDestructive
         ? const Color(0xFFEF4444)
-        : (iconColor ?? AppColors.purple);
+        : (iconColor ?? context.colors.accent);
     final labelColor = isDestructive
         ? const Color(0xFFEF4444)
         : (isDisabled
@@ -559,7 +564,7 @@ class _ThemeOption extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.purple : context.colors.elevated,
+            color: isSelected ? context.colors.accent : context.colors.elevated,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -571,6 +576,122 @@ class _ThemeOption extends StatelessWidget {
                 color: isSelected
                     ? AppColors.white
                     : context.colors.textSecondary,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: AppTypography.labelSmall(context).copyWith(
+                  color: isSelected
+                      ? AppColors.white
+                      : context.colors.textSecondary,
+                  fontWeight:
+                      isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Accent color selector ────────────────────────────────────────────────────
+
+class _AccentColorSelector extends ConsumerWidget {
+  final AccentColor current;
+
+  const _AccentColorSelector({required this.current});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              l10n.accentColor,
+              style: AppTypography.labelSmall(context),
+            ),
+          ),
+          Row(
+            children: [
+              _AccentOption(
+                color: AccentColorData.blue.primary,
+                label: l10n.blue,
+                isSelected: current == AccentColor.blue,
+                onTap: () => ref
+                    .read(accentColorProvider.notifier)
+                    .setAccentColor(AccentColor.blue),
+              ),
+              const SizedBox(width: 8),
+              _AccentOption(
+                color: AccentColorData.purple.primary,
+                label: l10n.purple,
+                isSelected: current == AccentColor.purple,
+                onTap: () => ref
+                    .read(accentColorProvider.notifier)
+                    .setAccentColor(AccentColor.purple),
+              ),
+              const SizedBox(width: 8),
+              _AccentOption(
+                color: AccentColorData.red.primary,
+                label: l10n.red,
+                isSelected: current == AccentColor.red,
+                onTap: () => ref
+                    .read(accentColorProvider.notifier)
+                    .setAccentColor(AccentColor.red),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AccentOption extends StatelessWidget {
+  final Color color;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AccentOption({
+    required this.color,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? color : context.colors.elevated,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.white : color,
+                  shape: BoxShape.circle,
+                  border: isSelected
+                      ? Border.all(color: AppColors.white, width: 2)
+                      : null,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -617,7 +738,7 @@ class _SubsectionHeader extends StatelessWidget {
       child: Text(
         label.toUpperCase(),
         style: AppTypography.labelSmall(context).copyWith(
-          color: AppColors.purple,
+          color: context.colors.accent,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -661,10 +782,10 @@ class _SliderRow extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.purple.withValues(alpha: 0.12),
+                  color: context.colors.accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, size: 16, color: AppColors.purple),
+                child: Icon(icon, size: 16, color: context.colors.accent),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -673,7 +794,7 @@ class _SliderRow extends StatelessWidget {
               Text(
                 _fmt(value),
                 style: AppTypography.label(context).copyWith(
-                  color: AppColors.purple,
+                  color: context.colors.accent,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -684,10 +805,10 @@ class _SliderRow extends StatelessWidget {
               trackHeight: 3,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-              activeTrackColor: AppColors.purple,
-              inactiveTrackColor: AppColors.purple.withValues(alpha: 0.15),
-              thumbColor: AppColors.purple,
-              overlayColor: AppColors.purple.withValues(alpha: 0.12),
+              activeTrackColor: context.colors.accent,
+              inactiveTrackColor: context.colors.accent.withValues(alpha: 0.15),
+              thumbColor: context.colors.accent,
+              overlayColor: context.colors.accent.withValues(alpha: 0.12),
             ),
             child: Slider(
               value: value,
@@ -770,7 +891,7 @@ class _LanguageOption extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.purple : context.colors.elevated,
+            color: isSelected ? context.colors.accent : context.colors.elevated,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -878,7 +999,7 @@ class _EditNameDialog extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
                   borderSide:
-                      const BorderSide(color: AppColors.purple, width: 2),
+                      BorderSide(color: context.colors.accent, width: 2),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
@@ -919,7 +1040,7 @@ class _EditNameDialog extends StatelessWidget {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.purple,
+                        color: context.colors.accent,
                         borderRadius:
                             BorderRadius.circular(AppRadius.button),
                       ),
@@ -967,10 +1088,10 @@ class _InfoItem extends StatelessWidget {
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: AppColors.purple.withValues(alpha: 0.10),
+            color: context.colors.accent.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(7),
           ),
-          child: Icon(icon, size: 14, color: AppColors.purple),
+          child: Icon(icon, size: 14, color: context.colors.accent),
         ),
         const SizedBox(width: 10),
         Expanded(

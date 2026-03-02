@@ -21,7 +21,7 @@ class GameButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = switch (variant) {
-      GameButtonVariant.primary => AppColors.purple,
+      GameButtonVariant.primary => context.colors.accent,
       GameButtonVariant.secondary => context.colors.surface,
       GameButtonVariant.ghost => Colors.transparent,
     };

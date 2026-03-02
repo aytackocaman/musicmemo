@@ -583,7 +583,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           // Create Game option
           _buildOptionCard(
             icon: Icons.add_circle_outline,
-            iconColor: AppColors.purple,
+            iconColor: context.colors.accent,
             title: l10n.createPrivateGame,
             subtitle: l10n.startNewGameInviteFriend,
             onTap: () {
@@ -766,7 +766,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _createGame,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.purple,
+                backgroundColor: context.colors.accent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
@@ -913,12 +913,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.1),
+              color: context.colors.accent.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Center(
+            child: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+                valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent),
               ),
             ),
           ),
@@ -952,7 +952,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 _inviteCode ?? '',
                 style: AppTypography.headline2(context).copyWith(
                   letterSpacing: 8,
-                  color: AppColors.purple,
+                  color: context.colors.accent,
                 ),
               ),
             ),
@@ -985,7 +985,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.purple,
+                      color: context.colors.accent,
                       borderRadius: BorderRadius.circular(AppRadius.button),
                     ),
                     child: Row(
@@ -1368,10 +1368,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.purple : context.colors.surface,
+                color: isSelected ? context.colors.accent : context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? AppColors.purple : context.colors.elevated,
+                  color: isSelected ? context.colors.accent : context.colors.elevated,
                 ),
               ),
               child: Column(
@@ -1745,7 +1745,7 @@ class _CreatePrivateGameScreenState
             child: ElevatedButton(
               onPressed: _isLoading ? null : _createGame,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.purple,
+                backgroundColor: context.colors.accent,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppRadius.button)),
               ),
@@ -1790,11 +1790,11 @@ class _CreatePrivateGameScreenState
           Container(
             width: 100, height: 100,
             decoration: BoxDecoration(
-                color: AppColors.purple.withValues(alpha: 0.1),
+                color: context.colors.accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle),
-            child: const Center(
+            child: Center(
               child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple)),
+                  valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent)),
             ),
           ),
           const SizedBox(height: 32),
@@ -1814,7 +1814,7 @@ class _CreatePrivateGameScreenState
             child: Text(
               _inviteCode ?? '',
               style: AppTypography.headline2(context)
-                  .copyWith(letterSpacing: 8, color: AppColors.purple),
+                  .copyWith(letterSpacing: 8, color: context.colors.accent),
             ),
           ),
           const SizedBox(height: 16),
@@ -1842,7 +1842,7 @@ class _CreatePrivateGameScreenState
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
-                      color: AppColors.purple,
+                      color: context.colors.accent,
                       borderRadius: BorderRadius.circular(AppRadius.button)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(Icons.share, size: 18, color: Colors.white),
@@ -2016,11 +2016,11 @@ class _CreatePrivateGameScreenState
               margin: EdgeInsets.only(right: grid != _gridOptions.last ? 8 : 0),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.purple : context.colors.surface,
+                color: isSelected ? context.colors.accent : context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                     color: isSelected
-                        ? AppColors.purple
+                        ? context.colors.accent
                         : context.colors.elevated),
               ),
               child: Column(children: [
@@ -2142,7 +2142,7 @@ class _VsPlayersWidgetState extends State<_VsPlayersWidget>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildAvatar(widget.player1Name, AppColors.purple, context),
+        _buildAvatar(widget.player1Name, context.colors.accent, context),
         const SizedBox(width: 20),
         ScaleTransition(
           scale: _scaleAnim,
@@ -2150,11 +2150,11 @@ class _VsPlayersWidgetState extends State<_VsPlayersWidget>
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.purple,
+              color: context.colors.accent,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.purple.withValues(alpha: 0.45),
+                  color: context.colors.accent.withValues(alpha: 0.45),
                   blurRadius: 14,
                   spreadRadius: 2,
                 ),

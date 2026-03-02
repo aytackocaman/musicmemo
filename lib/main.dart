@@ -28,6 +28,7 @@ void main() async {
   // Load persisted preferences
   final prefs = await SharedPreferences.getInstance();
   final initialThemeMode = ThemeModeNotifier.fromPrefs(prefs);
+  final initialAccent = AccentColorNotifier.fromPrefs(prefs);
   final initialCardTimings = CardTimingsNotifier.fromPrefs(prefs);
   final initialLocale = LocaleNotifier.fromPrefs(prefs);
   final initialHaptic = HapticFeedbackNotifier.fromPrefs(prefs);
@@ -37,6 +38,9 @@ void main() async {
       overrides: [
         themeModeProvider.overrideWith(
           (ref) => ThemeModeNotifier(initialThemeMode),
+        ),
+        accentColorProvider.overrideWith(
+          (ref) => AccentColorNotifier(initialAccent),
         ),
         cardTimingsProvider.overrideWith(
           (ref) => CardTimingsNotifier(initialCardTimings),
@@ -62,13 +66,14 @@ class MusicMemoApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     DeepLinkService.navigatorKey = navigatorKey;
     final themeMode = ref.watch(themeModeProvider);
+    final accent = ref.watch(accentColorProvider);
     final locale = ref.watch(localeProvider);
     return MaterialApp(
       title: 'Music Memo',
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme(accent),
+      darkTheme: AppTheme.darkTheme(accent),
       themeMode: themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

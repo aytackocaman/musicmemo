@@ -107,7 +107,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.purple,
+        color: context.colors.accent,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -155,7 +155,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       children: [
         Text(
           value,
-          style: AppTypography.metric.copyWith(
+          style: AppTypography.metric(context).copyWith(
             color: Colors.white,
             fontSize: 28,
           ),
@@ -179,8 +179,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       children: [
         _buildModeCard(
           icon: Icons.person,
-          iconColor: AppColors.purple,
-          iconBgColor: AppColors.purple.withValues(alpha: 0.15),
+          iconColor: context.colors.accent,
+          iconBgColor: context.colors.accent.withValues(alpha: 0.15),
           title: l10n.singlePlayer,
           games: stats.spGames,
           winRate: stats.spWinRate,

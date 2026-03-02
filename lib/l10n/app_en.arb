@@ -278,6 +278,10 @@
   "niceTry": "Nice Try!",
 
   "settings": "Settings",
+  "accentColor": "Accent Color",
+  "blue": "Blue",
+  "purple": "Purple",
+  "red": "Red",
   "appearance": "Appearance",
   "gameplay": "Gameplay",
   "hapticFeedback": "Haptic Feedback",

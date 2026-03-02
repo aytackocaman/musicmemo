@@ -69,7 +69,7 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
                 icon: Icons.music_note,
                 title: l10n.music,
                 subtitle: l10n.musicDescription,
-                iconColor: AppColors.purple,
+                iconColor: context.colors.accent,
                 iconBackgroundColor: const Color(0x268B5CF6),
                 isPrimary: true,
                 onTap: () async {
@@ -157,7 +157,7 @@ class _GrandCategoryCard extends StatelessWidget {
     final card = Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: isPrimary ? AppColors.purple : context.colors.surface,
+        color: isPrimary ? context.colors.accent : context.colors.surface,
         borderRadius: BorderRadius.circular(20),
         border: isPrimary
             ? null

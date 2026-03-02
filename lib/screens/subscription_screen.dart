@@ -282,7 +282,7 @@ class _UpgradeSection extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.purple,
+                          color: context.colors.accent,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -310,7 +310,7 @@ class _UpgradeSection extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.purple,
+                    color: context.colors.accent,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(

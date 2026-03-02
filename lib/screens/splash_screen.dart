@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.purple,
+      backgroundColor: context.colors.accent,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -57,10 +57,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(AppRadius.logo),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.music_note,
                 size: 56,
-                color: AppColors.purple,
+                color: context.colors.accent,
               ),
             ),
             const SizedBox(height: AppSpacing.xl),

@@ -285,10 +285,10 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.purple.withValues(alpha: 0.1),
+              color: context.colors.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.purple.withValues(alpha: 0.3),
+                color: context.colors.accent.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -299,12 +299,12 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.purple.withValues(alpha: 0.2),
+                        color: context.colors.accent.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.add_circle_outline,
-                        color: AppColors.purple,
+                        color: context.colors.accent,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -332,7 +332,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   child: ElevatedButton(
                     onPressed: _isCreating ? null : _createGame,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.purple,
+                      backgroundColor: context.colors.accent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -531,12 +531,12 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.1),
+                    color: context.colors.accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.purple),
+                      valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent),
                     ),
                   ),
                 ),
@@ -574,7 +574,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                           _inviteCode ?? '',
                           style: AppTypography.headline2(context).copyWith(
                             letterSpacing: 8,
-                            color: AppColors.purple,
+                            color: context.colors.accent,
                           ),
                         ),
                         const SizedBox(width: 16),

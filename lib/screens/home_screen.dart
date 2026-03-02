@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: AppColors.purple,
+                        color: context.colors.accent,
                         borderRadius: BorderRadius.circular(AppRadius.logo),
                       ),
                       child: const Icon(

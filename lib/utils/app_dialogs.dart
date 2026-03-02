@@ -73,7 +73,7 @@ Future<void> showAppDialog({
                       decoration: BoxDecoration(
                         color: isDestructive
                             ? const Color(0xFFEF4444)
-                            : AppColors.purple,
+                            : dialogContext.colors.accent,
                         borderRadius: BorderRadius.circular(AppRadius.button),
                       ),
                       child: Center(

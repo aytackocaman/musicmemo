@@ -192,6 +192,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
                     cardWidth: widget.size,
                     cardHeight: widget.size * 1.25,
                     matchedColor: widget.matchedColor,
+                    accentColor: context.colors.accent,
                   ),
                 ),
               ),
@@ -207,12 +208,12 @@ class _GameCardWidgetState extends State<GameCardWidget>
       width: widget.size,
       height: widget.size * 1.25,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF9B6FF7), // lighter purple
-            Color(0xFF7C3AED), // deeper purple
+            context.colors.accentGradientLight,
+            context.colors.accentGradientDark,
           ],
         ),
         borderRadius: radius,
@@ -222,7 +223,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple.withValues(alpha: 0.35),
+            color: context.colors.accent.withValues(alpha: 0.35),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -286,12 +287,12 @@ class _GameCardWidgetState extends State<GameCardWidget>
         color: context.colors.background,
         borderRadius: radius,
         border: Border.all(
-          color: AppColors.purple,
+          color: context.colors.accent,
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple.withValues(alpha: 0.2),
+            color: context.colors.accent.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -313,8 +314,8 @@ class _GameCardWidgetState extends State<GameCardWidget>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.purple.withValues(alpha: 0.06),
-                      AppColors.purple.withValues(alpha: 0.0),
+                      context.colors.accent.withValues(alpha: 0.06),
+                      context.colors.accent.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -323,7 +324,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
             Icon(
               Icons.volume_up,
               size: widget.size * 0.4,
-              color: AppColors.purple,
+              color: context.colors.accent,
             ),
             // Countdown ring overlay
             if (_countdownController != null)
@@ -339,8 +340,8 @@ class _GameCardWidgetState extends State<GameCardWidget>
                     child: CircularProgressIndicator(
                       value: progress,
                       strokeWidth: 3,
-                      color: AppColors.purple.withValues(alpha: 0.6),
-                      backgroundColor: AppColors.purple.withValues(alpha: 0.1),
+                      color: context.colors.accent.withValues(alpha: 0.6),
+                      backgroundColor: context.colors.accent.withValues(alpha: 0.1),
                     ),
                   );
                 },
@@ -420,6 +421,7 @@ class _ParticlePainter extends CustomPainter {
   final double cardWidth;
   final double cardHeight;
   final Color? matchedColor;
+  final Color accentColor;
 
   static const int _particleCount = 20;
   static List<Offset>? _cachedDirections;
@@ -432,18 +434,12 @@ class _ParticlePainter extends CustomPainter {
     }
     return _cachedDirections!;
   }
-  static const List<Color> _defaultColors = [
-    Color(0xFF14B8A6), // teal
-    Color(0xFF8B5CF6), // purple
-    Color(0xFFF472B6), // pink
-    Color(0xFFFBBF24), // gold
-    Color(0xFF10B981), // green
-  ];
 
   _ParticlePainter({
     required this.progress,
     required this.cardWidth,
     required this.cardHeight,
+    required this.accentColor,
     this.matchedColor,
   });
 
@@ -456,15 +452,22 @@ class _ParticlePainter extends CustomPainter {
 
     // When a matched color is provided, use it as the dominant particle color
     // with white and a lighter variant for variety.
+    final defaultColors = [
+      const Color(0xFF14B8A6), // teal
+      accentColor,
+      const Color(0xFFF472B6), // pink
+      const Color(0xFFFBBF24), // gold
+      const Color(0xFF10B981), // green
+    ];
     final colors = matchedColor != null
         ? [
             matchedColor!,
             matchedColor!,
             Colors.white,
             HSLColor.fromColor(matchedColor!).withLightness(0.75).toColor(),
-            Color(0xFFFBBF24), // gold accent
+            const Color(0xFFFBBF24), // gold accent
           ]
-        : _defaultColors;
+        : defaultColors;
 
     for (int i = 0; i < _particleCount; i++) {
       final dir = _directions[i];

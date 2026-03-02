@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/theme.dart';
 import '../services/haptic_service.dart';
 
 const _kThemeModeKey = 'theme_mode';
+const _kAccentColorKey = 'accent_color';
 const _kLocaleKey = 'locale';
 const _kHapticFeedbackKey = 'haptic_feedback';
 
@@ -111,6 +113,31 @@ final themeModeProvider =
     StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   // Overridden in main.dart with the value loaded from SharedPreferences.
   return ThemeModeNotifier(ThemeMode.system);
+});
+
+// ─── Accent Color ────────────────────────────────────────────────────────────
+
+class AccentColorNotifier extends StateNotifier<AccentColor> {
+  AccentColorNotifier(super.initial);
+
+  Future<void> setAccentColor(AccentColor accent) async {
+    state = accent;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kAccentColorKey, accent.name);
+  }
+
+  static AccentColor fromPrefs(SharedPreferences prefs) =>
+      switch (prefs.getString(_kAccentColorKey)) {
+        'purple' => AccentColor.purple,
+        'red' => AccentColor.red,
+        _ => AccentColor.blue,
+      };
+}
+
+final accentColorProvider =
+    StateNotifierProvider<AccentColorNotifier, AccentColor>((ref) {
+  // Overridden in main.dart with the value loaded from SharedPreferences.
+  return AccentColorNotifier(AccentColor.blue);
 });
 
 // ─── Locale Settings ─────────────────────────────────────────────────────────

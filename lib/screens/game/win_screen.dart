@@ -61,7 +61,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     return PopScope(
       canPop: hasGamesLeft,
       child: Scaffold(
-        backgroundColor: AppColors.purple,
+        backgroundColor: context.colors.accent,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -263,7 +263,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
             ? Colors.transparent
             : AppColors.white.withValues(alpha: 0.1);
 
-    final foregroundColor = isPrimary ? AppColors.purple : AppColors.white;
+    final foregroundColor = isPrimary ? context.colors.accent : AppColors.white;
 
     return GestureDetector(
       onTap: onTap,

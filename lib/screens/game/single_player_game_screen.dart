@@ -372,7 +372,7 @@ class _SinglePlayerGameScreenState
         children: [
           Expanded(
             child: _buildStatCard(
-                '${gameState.score}', l10n.score, AppColors.purple),
+                '${gameState.score}', l10n.score, context.colors.accent),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -452,13 +452,13 @@ class _SinglePlayerGameScreenState
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.1),
+                    color: context.colors.accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.pause_rounded,
                     size: 40,
-                    color: AppColors.purple,
+                    color: context.colors.accent,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -482,7 +482,7 @@ class _SinglePlayerGameScreenState
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.purple,
+                      color: context.colors.accent,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(

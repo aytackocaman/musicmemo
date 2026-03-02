@@ -3,11 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/game_provider.dart';
+import '../../providers/settings_provider.dart';
 import 'preload_screen.dart';
 
-/// Available player colors (purple excluded — too similar to face-down cards)
-const List<Color> playerColors = [
+/// Full 8-color palette. The one matching the current accent is filtered out
+/// at runtime so face-down cards remain visually distinct from player matches.
+const List<Color> _allPlayerColors = [
   Color(0xFF3B82F6), // Blue
+  Color(0xFF8B5CF6), // Purple
   Color(0xFFF97316), // Orange
   Color(0xFF14B8A6), // Teal
   Color(0xFFF472B6), // Pink
@@ -15,6 +18,14 @@ const List<Color> playerColors = [
   Color(0xFFEAB308), // Yellow
   Color(0xFF22C55E), // Green
 ];
+
+/// Returns player colors with the current accent color excluded.
+List<Color> _playerColorsFor(AccentColor accent) {
+  final excluded = AccentColorData.fromEnum(accent).primary;
+  return _allPlayerColors
+      .where((c) => c.toARGB32() != excluded.toARGB32())
+      .toList();
+}
 
 String colorToHex(Color color) {
   final r = (color.r * 255).round().toRadixString(16).padLeft(2, '0');
@@ -42,8 +53,8 @@ class _LocalPlayerSetupScreenState
     extends ConsumerState<LocalPlayerSetupScreen> {
   final _player1Controller = TextEditingController();
   final _player2Controller = TextEditingController();
-  Color _player1Color = playerColors[0]; // Purple
-  Color _player2Color = playerColors[1]; // Teal
+  late Color _player1Color;
+  late Color _player2Color;
   bool _initialized = false;
 
   @override
@@ -54,6 +65,9 @@ class _LocalPlayerSetupScreenState
       final l10n = AppLocalizations.of(context)!;
       _player1Controller.text = l10n.playerNumber(1);
       _player2Controller.text = l10n.playerNumber(2);
+      final colors = _playerColorsFor(ref.read(accentColorProvider));
+      _player1Color = colors[0];
+      _player2Color = colors[1];
     }
   }
 
@@ -186,7 +200,7 @@ class _LocalPlayerSetupScreenState
                             child: ElevatedButton(
                               onPressed: _startGame,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.purple,
+                                backgroundColor: context.colors.accent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.circular(AppRadius.button),
@@ -305,7 +319,7 @@ class _LocalPlayerSetupScreenState
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: playerColors.map((color) {
+            children: _playerColorsFor(ref.watch(accentColorProvider)).map((color) {
               final isSelected = color == selectedColor;
               final isDisabled = color == disabledColor;
 

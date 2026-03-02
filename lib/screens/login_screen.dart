@@ -198,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildDot(AppColors.purple),
+                    _buildDot(context.colors.accent),
                     const SizedBox(width: 8),
                     _buildDot(AppColors.teal),
                     const SizedBox(width: 8),
@@ -212,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppColors.purple,
+                    color: context.colors.accent,
                     borderRadius: BorderRadius.circular(28),
                   ),
                   child: const Icon(
@@ -265,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         l10n.termsOfService,
                         style: AppTypography.labelSmall(context).copyWith(
-                          color: AppColors.purple,
+                          color: context.colors.accent,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -281,7 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         l10n.privacyPolicy,
                         style: AppTypography.labelSmall(context).copyWith(
-                          color: AppColors.purple,
+                          color: context.colors.accent,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -460,7 +460,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(
                 l10n.forgotPassword,
                 style: AppTypography.bodySmall(context).copyWith(
-                  color: AppColors.purple,
+                  color: context.colors.accent,
                 ),
               ),
             ),
@@ -511,7 +511,7 @@ class _LoginScreenState extends State<LoginScreen> {
             label,
             textAlign: TextAlign.center,
             style: AppTypography.label(context).copyWith(
-              color: active ? AppColors.purple : context.colors.textTertiary,
+              color: active ? context.colors.accent : context.colors.textTertiary,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
@@ -567,7 +567,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),
-          borderSide: const BorderSide(color: AppColors.purple, width: 2),
+          borderSide: BorderSide(color: context.colors.accent, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),

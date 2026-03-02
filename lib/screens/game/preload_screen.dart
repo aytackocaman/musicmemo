@@ -172,13 +172,13 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.purple.withValues(alpha: 0.12),
+                    color: context.colors.accent.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.headphones,
                     size: 40,
-                    color: AppColors.purple,
+                    color: context.colors.accent,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -203,7 +203,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                     child: LinearProgressIndicator(
                       value: _progress > 0 ? _progress : null,
                       backgroundColor: context.colors.surface,
-                      color: AppColors.purple,
+                      color: context.colors.accent,
                       minHeight: 8,
                     ),
                   ),
@@ -229,7 +229,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                         _preload();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.purple,
+                        backgroundColor: context.colors.accent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppRadius.button),
                         ),

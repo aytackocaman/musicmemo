@@ -224,7 +224,7 @@ class _ModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isPrimary ? AppColors.purple : context.colors.surface;
+    final backgroundColor = isPrimary ? context.colors.accent : context.colors.surface;
     final textColor = isPrimary ? AppColors.white : context.colors.textPrimary;
     final subtitleColor =
         isPrimary ? AppColors.white.withValues(alpha: 0.8) : context.colors.textSecondary;
@@ -259,7 +259,7 @@ class _ModeButton extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 22,
-                color: isPrimary ? AppColors.white : AppColors.purple,
+                color: isPrimary ? AppColors.white : context.colors.accent,
               ),
             ),
             const SizedBox(width: 14),

@@ -11,11 +11,11 @@ import 'paywall_screen.dart';
 
 // ── Tag type config ───────────────────────────────────────────────────────────
 
-const _tagTypes = [
-  _TagType('mood',     Icons.sentiment_satisfied_alt, AppColors.purple),
+List<_TagType> _tagTypes(BuildContext context) => [
+  _TagType('mood',     Icons.sentiment_satisfied_alt, context.colors.accent),
   _TagType('genre',    Icons.queue_music,             AppColors.teal),
   _TagType('movement', Icons.speed,                   AppColors.pink),
-  _TagType('theme',    Icons.movie_outlined,          Color(0xFFFBBF24)),
+  _TagType('theme',    Icons.movie_outlined,          const Color(0xFFFBBF24)),
 ];
 
 class _TagType {
@@ -38,19 +38,22 @@ String _localizedTagLabel(BuildContext context, String id) {
 
 // ── Sub-group colors (cycle through brand palette) ────────────────────────────
 
-const _subGroupColors = [
-  AppColors.purple,
+List<Color> _subGroupColors(BuildContext context) => [
+  context.colors.accent,
   AppColors.teal,
   AppColors.pink,
-  Color(0xFFFBBF24), // amber
-  Color(0xFF3B82F6), // blue
-  Color(0xFFEF4444), // red
-  Color(0xFF10B981), // emerald
-  Color(0xFF6366F1), // indigo
-  Color(0xFFF59E0B), // orange
+  const Color(0xFFFBBF24), // amber
+  const Color(0xFF3B82F6), // blue
+  const Color(0xFFEF4444), // red
+  const Color(0xFF10B981), // emerald
+  const Color(0xFF6366F1), // indigo
+  const Color(0xFFF59E0B), // orange
 ];
 
-Color _subGroupColor(int index) => _subGroupColors[index % _subGroupColors.length];
+Color _subGroupColor(BuildContext context, int index) {
+  final colors = _subGroupColors(context);
+  return colors[index % colors.length];
+}
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
@@ -274,7 +277,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
             childAspectRatio: 2.4,
-            children: _tagTypes
+            children: _tagTypes(context)
                 .map((t) => _TagTypeButton(
                       tagType: t,
                       onTap: () => _openTagSheet(context, t),
@@ -316,7 +319,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     final widgets = <Widget>[];
     var groupIndex = 0;
     for (final entry in groups.entries) {
-      final color = _subGroupColor(groupIndex++);
+      final color = _subGroupColor(context, groupIndex++);
       widgets.add(_SubGroupHeader(title: entry.key, color: color));
       widgets.add(const SizedBox(height: 8));
       for (final cat in entry.value) {
@@ -517,18 +520,18 @@ class _CategoryTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.purple.withValues(alpha: 0.12),
+                  color: context.colors.accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock, size: 12, color: AppColors.purple),
+                    Icon(Icons.lock, size: 12, color: context.colors.accent),
                     const SizedBox(width: 4),
                     Text(
                       l10n.pro,
                       style: AppTypography.labelSmall(context).copyWith(
-                        color: AppColors.purple,
+                        color: context.colors.accent,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                       ),
@@ -795,18 +798,18 @@ class _TagValueTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.purple.withValues(alpha: 0.12),
+                  color: context.colors.accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock, size: 12, color: AppColors.purple),
+                    Icon(Icons.lock, size: 12, color: context.colors.accent),
                     const SizedBox(width: 4),
                     Text(
                       l10n.pro,
                       style: AppTypography.labelSmall(context).copyWith(
-                        color: AppColors.purple,
+                        color: context.colors.accent,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                       ),

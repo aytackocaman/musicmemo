@@ -278,6 +278,10 @@
   "niceTry": "İyi Deneme!",
 
   "settings": "Ayarlar",
+  "accentColor": "Vurgu Rengi",
+  "blue": "Mavi",
+  "purple": "Mor",
+  "red": "Kırmızı",
   "appearance": "Görünüm",
   "gameplay": "Oynanış",
   "hapticFeedback": "Dokunsal Geri Bildirim",
