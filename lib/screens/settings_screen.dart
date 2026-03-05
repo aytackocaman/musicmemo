@@ -7,6 +7,7 @@ import '../providers/settings_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/auth_service.dart';
 import '../services/haptic_service.dart';
+import '../services/purchase_service.dart';
 import '../utils/app_dialogs.dart';
 import 'login_screen.dart';
 import 'subscription_screen.dart';
@@ -363,10 +364,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _restorePurchase() {
-    // TODO: Implement via StoreKit when IAP is integrated
+  Future<void> _restorePurchase() async {
     final l10n = AppLocalizations.of(context)!;
-    showAppSnackBar(context, l10n.noActivePurchasesFound);
+    final success = await PurchaseService.restorePurchases();
+    if (!mounted) return;
+    if (success) {
+      ref.invalidate(subscriptionProvider);
+      showAppSnackBar(context, l10n.purchaseRestored);
+    } else {
+      showAppSnackBar(context, l10n.noActivePurchasesFound);
+    }
   }
 }
 

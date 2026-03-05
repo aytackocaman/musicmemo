@@ -10,7 +10,7 @@ class DevConfig {
 
   /// Toggle this at runtime via the debug banner on the mode screen.
   /// Defaults to true in debug mode, always false in release.
-  static bool _bypassPaywall = kDebugMode;
+  static bool _bypassPaywall = false;
 
   static bool get bypassPaywall => kDebugMode && _bypassPaywall;
 

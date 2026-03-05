@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/user_provider.dart';
+import '../services/purchase_service.dart';
+import '../utils/app_dialogs.dart';
 
 /// Full-screen paywall shown when free tier limit is reached,
 /// a premium-only feature is accessed, or the trial has expired.
-class PaywallScreen extends StatelessWidget {
-  /// If true, shows "Premium Feature" messaging instead of "Reached Your Limit".
+///
+/// Always uses the custom Flutter UI. Purchases go through RevenueCat
+/// when configured, with real prices fetched from offerings.
+class PaywallScreen extends ConsumerStatefulWidget {
   final bool isPremiumFeature;
-
-  /// If true, shows "Trial Ended" messaging.
   final bool isTrialExpired;
-
-  /// Overrides the default subtitle when set.
   final String? subtitle;
 
   const PaywallScreen({
@@ -23,14 +26,80 @@ class PaywallScreen extends StatelessWidget {
   });
 
   @override
+  ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
+}
+
+class _PaywallScreenState extends ConsumerState<PaywallScreen> {
+  Package? _monthlyPackage;
+  Package? _yearlyPackage;
+  bool _isPurchasing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOfferings();
+  }
+
+  Future<void> _loadOfferings() async {
+    final offerings = await PurchaseService.getOfferings();
+    if (!mounted) return;
+    final current = offerings?.current;
+    if (current != null) {
+      setState(() {
+        _monthlyPackage = current.monthly;
+        _yearlyPackage = current.annual;
+      });
+    }
+  }
+
+  Future<void> _handlePurchase(Package? package) async {
+    if (package == null || _isPurchasing) return;
+    setState(() => _isPurchasing = true);
+    try {
+      final success = await PurchaseService.purchase(package);
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      if (success) {
+        ref.invalidate(subscriptionProvider);
+        showAppSnackBar(context, l10n.purchaseSuccessful);
+        Navigator.pop(context, true);
+      } else {
+        showAppSnackBar(context, l10n.purchaseFailed, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _isPurchasing = false);
+    }
+  }
+
+  Future<void> _handleRestore() async {
+    if (_isPurchasing) return;
+    setState(() => _isPurchasing = true);
+    try {
+      final success = await PurchaseService.restorePurchases();
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      if (success) {
+        ref.invalidate(subscriptionProvider);
+        showAppSnackBar(context, l10n.purchaseRestored);
+        Navigator.pop(context, true);
+      } else {
+        showAppSnackBar(context, l10n.noActivePurchasesFound);
+      }
+    } finally {
+      if (mounted) setState(() => _isPurchasing = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: context.colors.accent,
       body: SafeArea(
         child: Column(
           children: [
-            // Fixed close button at top
+            // Close button
             Padding(
               padding: const EdgeInsets.fromLTRB(32, 22, 32, 0),
               child: Align(
@@ -54,7 +123,6 @@ class PaywallScreen extends StatelessWidget {
               ),
             ),
 
-            // Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
@@ -78,9 +146,9 @@ class PaywallScreen extends StatelessWidget {
 
                     // Title
                     Text(
-                      isTrialExpired
+                      widget.isTrialExpired
                           ? l10n.trialEnded
-                          : isPremiumFeature
+                          : widget.isPremiumFeature
                               ? l10n.premiumFeature
                               : l10n.reachedYourLimit,
                       textAlign: TextAlign.center,
@@ -94,10 +162,10 @@ class PaywallScreen extends StatelessWidget {
 
                     // Subtitle
                     Text(
-                      subtitle ??
-                          (isTrialExpired
+                      widget.subtitle ??
+                          (widget.isTrialExpired
                               ? l10n.subscribeMessage
-                              : isPremiumFeature
+                              : widget.isPremiumFeature
                                   ? l10n.onlineRequiresPremium
                                   : l10n.upgradeToPremiumToKeepPlaying),
                       textAlign: TextAlign.center,
@@ -109,7 +177,7 @@ class PaywallScreen extends StatelessWidget {
                     ),
                     const Spacer(),
 
-                    // Benefits list
+                    // Benefits
                     _BenefitItem(text: l10n.unlimitedSinglePlayer),
                     const SizedBox(height: 10),
                     _BenefitItem(text: l10n.unlimitedLocalMultiplayer),
@@ -119,11 +187,9 @@ class PaywallScreen extends StatelessWidget {
                     _BenefitItem(text: l10n.adFreeExperience),
                     const Spacer(),
 
-                    // Yearly CTA button
+                    // Yearly CTA
                     GestureDetector(
-                      onTap: () {
-                        // TODO: Trigger yearly subscription purchase
-                      },
+                      onTap: () => _handlePurchase(_yearlyPackage),
                       child: Container(
                         width: double.infinity,
                         height: 56,
@@ -131,36 +197,45 @@ class PaywallScreen extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(28),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              l10n.getYearly,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: context.colors.accent,
+                        child: _isPurchasing
+                            ? Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: context.colors.accent,
+                                  ),
+                                ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    l10n.getYearly,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: context.colors.accent,
+                                    ),
+                                  ),
+                                  Text(
+                                    l10n.save40,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.teal,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              l10n.save40,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.teal,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Monthly CTA button
+                    // Monthly CTA
                     GestureDetector(
-                      onTap: () {
-                        // TODO: Trigger monthly subscription purchase
-                      },
+                      onTap: () => _handlePurchase(_monthlyPackage),
                       child: Container(
                         width: double.infinity,
                         height: 52,
@@ -183,11 +258,9 @@ class PaywallScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    // Restore purchase
+                    // Restore
                     GestureDetector(
-                      onTap: () {
-                        // TODO: Restore purchases
-                      },
+                      onTap: _handleRestore,
                       child: Text(
                         l10n.restorePurchase,
                         style: GoogleFonts.inter(
@@ -229,11 +302,7 @@ class _BenefitItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(
-          Icons.check,
-          size: 20,
-          color: Colors.white,
-        ),
+        const Icon(Icons.check, size: 20, color: Colors.white),
         const SizedBox(width: 12),
         Text(
           text,

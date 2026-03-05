@@ -712,6 +712,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noActivePurchasesFound => 'No active purchases found.';
 
   @override
+  String get purchaseSuccessful => 'Welcome to Premium!';
+
+  @override
+  String get purchaseFailed => 'Purchase could not be completed.';
+
+  @override
+  String get purchaseRestored => 'Purchase restored successfully!';
+
+  @override
+  String get loadingPurchases => 'Loading...';
+
+  @override
   String get system => 'System';
 
   @override

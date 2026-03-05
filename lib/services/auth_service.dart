@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'purchase_service.dart';
 import 'supabase_service.dart';
 
 /// Authentication result wrapper
@@ -51,6 +52,7 @@ class AuthService {
       );
 
       if (response.user != null) {
+        await PurchaseService.login(response.user!.id);
         return AuthResult.success(response.user!);
       }
 
@@ -76,6 +78,7 @@ class AuthService {
       if (response.user != null) {
         // Update last login
         await _updateLastLogin(response.user!.id);
+        await PurchaseService.login(response.user!.id);
         return AuthResult.success(response.user!);
       }
 
@@ -89,6 +92,7 @@ class AuthService {
 
   /// Sign out current user
   static Future<void> signOut() async {
+    await PurchaseService.logout();
     await _client.auth.signOut();
   }
 
@@ -165,6 +169,7 @@ class AuthService {
       );
 
       if (response.user != null) {
+        await PurchaseService.login(response.user!.id);
         return AuthResult.success(response.user!);
       }
 
@@ -215,6 +220,7 @@ class AuthService {
             'display_name': displayName,
           }).eq('id', response.user!.id);
         }
+        await PurchaseService.login(response.user!.id);
         return AuthResult.success(response.user!);
       }
 

@@ -46,6 +46,7 @@ client_*.plist
 .env
 .env.local
 .env.*.local
+env/
 
 # Site (deployed separately via musicmemo-site repo)
 site/

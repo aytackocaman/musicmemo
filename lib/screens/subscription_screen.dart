@@ -5,12 +5,40 @@ import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
+import '../services/purchase_service.dart';
+import 'paywall_screen.dart';
 
-class SubscriptionScreen extends ConsumerWidget {
+class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SubscriptionScreen> createState() =>
+      _SubscriptionScreenState();
+}
+
+class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
+  final bool _isPurchasing = false;
+
+  Future<void> _openPaywall() async {
+    final purchased = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const PaywallScreen()),
+    );
+    if (purchased == true && mounted) {
+      ref.invalidate(subscriptionProvider);
+    }
+  }
+
+  Future<void> _openCustomerCenter() async {
+    await PurchaseService.presentCustomerCenter(
+      onRestoreCompleted: (_) {
+        if (mounted) ref.invalidate(subscriptionProvider);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final subscriptionAsync = ref.watch(subscriptionProvider);
     final countsAsync = ref.watch(dailyGameCountsProvider);
@@ -42,8 +70,8 @@ class SubscriptionScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.xl),
 
-              // Title
-              Text(l10n.subscriptionTitle, style: AppTypography.headline3(context)),
+              Text(l10n.subscriptionTitle,
+                  style: AppTypography.headline3(context)),
               const SizedBox(height: AppSpacing.xl),
 
               // Current Plan card
@@ -53,13 +81,20 @@ class SubscriptionScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.xl),
 
-              // Upgrade section (only for free users)
+              // Actions based on subscription status
               subscriptionAsync.when(
                 data: (subscription) {
                   if (subscription.canAccessPremiumFeatures) {
-                    return const SizedBox.shrink();
+                    // Premium users: Customer Center for subscription mgmt
+                    return _PremiumActions(
+                      onManage: _openCustomerCenter,
+                    );
                   }
-                  return _UpgradeSection();
+                  // Free users: upgrade via paywall
+                  return _FreeActions(
+                    onUpgrade: _openPaywall,
+                    isPurchasing: _isPurchasing,
+                  );
                 },
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
@@ -71,6 +106,8 @@ class SubscriptionScreen extends ConsumerWidget {
     );
   }
 }
+
+// ─── Current Plan Card ────────────────────────────────────────────────
 
 class _CurrentPlanCard extends StatelessWidget {
   final AsyncValue<UserSubscription> subscriptionAsync;
@@ -150,7 +187,7 @@ class _CurrentPlanCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Daily limits (only for free users)
+          // Daily limits or unlimited
           subscriptionAsync.when(
             data: (sub) {
               if (sub.canAccessPremiumFeatures) {
@@ -233,7 +270,52 @@ class _LimitCounter extends StatelessWidget {
   }
 }
 
-class _UpgradeSection extends StatelessWidget {
+// ─── Premium user actions ─────────────────────────────────────────────
+
+class _PremiumActions extends StatelessWidget {
+  final VoidCallback onManage;
+
+  const _PremiumActions({required this.onManage});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return GestureDetector(
+      onTap: onManage,
+      child: Container(
+        width: double.infinity,
+        height: 52,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: context.colors.elevated, width: 1),
+        ),
+        child: Center(
+          child: Text(
+            l10n.manageSubscription,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: context.colors.textPrimary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Free user actions ────────────────────────────────────────────────
+
+class _FreeActions extends StatelessWidget {
+  final VoidCallback onUpgrade;
+  final bool isPurchasing;
+
+  const _FreeActions({
+    required this.onUpgrade,
+    required this.isPurchasing,
+  });
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -250,120 +332,36 @@ class _UpgradeSection extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Plan options
-        Row(
-          children: [
-            // Monthly
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Trigger monthly subscription purchase
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: context.colors.elevated, width: 1),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        l10n.monthly,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.monthlyPrice,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: context.colors.accent,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.perMonth,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: context.colors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+        // Upgrade button — opens RC paywall
+        GestureDetector(
+          onTap: isPurchasing ? null : onUpgrade,
+          child: Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              color: context.colors.accent,
+              borderRadius: BorderRadius.circular(28),
             ),
-            const SizedBox(width: 12),
-
-            // Yearly
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Trigger yearly subscription purchase
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: context.colors.accent,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.gold,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          l10n.save40,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: context.colors.textPrimary,
-                          ),
-                        ),
+            child: Center(
+              child: isPurchasing
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.yearly,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                    )
+                  : Text(
+                      l10n.upgradeToPremium,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.yearlyPrice,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.perYear,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withValues(alpha: 0.8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ),
-          ],
+          ),
         ),
         const SizedBox(height: 24),
 

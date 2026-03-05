@@ -7,6 +7,7 @@ import 'l10n/app_localizations.dart';
 import 'providers/settings_provider.dart';
 import 'services/audio_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/purchase_service.dart';
 import 'services/supabase_service.dart';
 import 'screens/splash_screen.dart';
 
@@ -24,6 +25,11 @@ void main() async {
 
   // Initialize deep link handling
   await DeepLinkService.init();
+
+  // Initialize RevenueCat (no-op if key is empty)
+  const rcApiKey = String.fromEnvironment('REVENUECAT_API_KEY');
+  final currentUser = SupabaseService.client.auth.currentUser;
+  await PurchaseService.init(rcApiKey, appUserId: currentUser?.id);
 
   // Load persisted preferences
   final prefs = await SharedPreferences.getInstance();

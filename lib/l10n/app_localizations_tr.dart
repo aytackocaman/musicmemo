@@ -718,6 +718,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get noActivePurchasesFound => 'Aktif satın alım bulunamadı.';
 
   @override
+  String get purchaseSuccessful => 'Premium\'a hoş geldiniz!';
+
+  @override
+  String get purchaseFailed => 'Satın alma tamamlanamadı.';
+
+  @override
+  String get purchaseRestored => 'Satın alma başarıyla geri yüklendi!';
+
+  @override
+  String get loadingPurchases => 'Yükleniyor...';
+
+  @override
   String get system => 'Sistem';
 
   @override

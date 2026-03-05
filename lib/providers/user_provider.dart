@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database_service.dart';
+import '../services/purchase_service.dart';
 import 'auth_provider.dart';
 
 /// Provider for user profile
@@ -14,7 +15,8 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
   return DatabaseService.getProfile();
 });
 
-/// Provider for user subscription
+/// Provider for user subscription.
+/// Checks RevenueCat first (if configured), falls back to Supabase.
 final subscriptionProvider = FutureProvider<UserSubscription>((ref) async {
   final authState = ref.watch(authProvider);
 
@@ -23,6 +25,19 @@ final subscriptionProvider = FutureProvider<UserSubscription>((ref) async {
     return UserSubscription.free();
   }
 
+  // RevenueCat is the source of truth when configured
+  if (PurchaseService.isConfigured) {
+    final premium = await PurchaseService.isPremium();
+    if (premium) {
+      return UserSubscription(
+        id: '',
+        plan: 'yearly', // RevenueCat doesn't distinguish — just mark premium
+        status: 'active',
+      );
+    }
+  }
+
+  // Fallback to Supabase (works offline / without RevenueCat key)
   return DatabaseService.getSubscription();
 });
 

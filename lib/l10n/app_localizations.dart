@@ -1436,6 +1436,30 @@ abstract class AppLocalizations {
   /// **'No active purchases found.'**
   String get noActivePurchasesFound;
 
+  /// No description provided for @purchaseSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Premium!'**
+  String get purchaseSuccessful;
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase could not be completed.'**
+  String get purchaseFailed;
+
+  /// No description provided for @purchaseRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase restored successfully!'**
+  String get purchaseRestored;
+
+  /// No description provided for @loadingPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loadingPurchases;
+
   /// No description provided for @system.
   ///
   /// In en, this message translates to:

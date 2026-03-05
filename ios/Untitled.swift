@@ -1,0 +1,7 @@
+//
+//  Untitled.swift
+//  Runner
+//
+//  Created by aytac on 5.03.2026.
+//
+

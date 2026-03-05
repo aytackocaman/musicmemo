@@ -1,0 +1,117 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "D3F7E6B5",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6760133833",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "2QF39UZMSW",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 794431826.55773497,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21963139",
+      "localizations" : [
+
+      ],
+      "name" : "monthly",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6760140134",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited games & online multiplayer  ",
+              "displayName" : "Music Memo Pro",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Sınırsız oyun ve çevrimiçi maçlar",
+              "displayName" : "Music Memo Pro",
+              "locale" : "ar"
+            }
+          ],
+          "productID" : "musicmemo_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "MusicMemo Pro Monthly",
+          "subscriptionGroupID" : "21963139",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "19.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6760140871",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited games & online multiplayer  ",
+              "displayName" : "Music Memo Pro",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Sınırsız oyun ve çevrimiçi maçlar",
+              "displayName" : "Music Memo Pro",
+              "locale" : "tr"
+            }
+          ],
+          "productID" : "musicmemo_pro_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "MusicMemo Pro Yearly",
+          "subscriptionGroupID" : "21963139",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
