@@ -1439,19 +1439,19 @@ abstract class AppLocalizations {
   /// No description provided for @purchaseSuccessful.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Premium!'**
+  /// **'You\'re now Premium! Enjoy unlimited games.'**
   String get purchaseSuccessful;
 
   /// No description provided for @purchaseFailed.
   ///
   /// In en, this message translates to:
-  /// **'Purchase could not be completed.'**
+  /// **'Something went wrong. Please try again.'**
   String get purchaseFailed;
 
   /// No description provided for @purchaseRestored.
   ///
   /// In en, this message translates to:
-  /// **'Purchase restored successfully!'**
+  /// **'Your subscription has been restored!'**
   String get purchaseRestored;
 
   /// No description provided for @loadingPurchases.

@@ -61,7 +61,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       final l10n = AppLocalizations.of(context)!;
       if (success) {
         ref.invalidate(subscriptionProvider);
-        showAppSnackBar(context, l10n.purchaseSuccessful);
+        showAppSnackBar(context, l10n.purchaseSuccessful, isSuccess: true);
         Navigator.pop(context, true);
       } else {
         showAppSnackBar(context, l10n.purchaseFailed, isError: true);
@@ -80,7 +80,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       final l10n = AppLocalizations.of(context)!;
       if (success) {
         ref.invalidate(subscriptionProvider);
-        showAppSnackBar(context, l10n.purchaseRestored);
+        showAppSnackBar(context, l10n.purchaseRestored, isSuccess: true);
         Navigator.pop(context, true);
       } else {
         showAppSnackBar(context, l10n.noActivePurchasesFound);

@@ -370,9 +370,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (!mounted) return;
     if (success) {
       ref.invalidate(subscriptionProvider);
-      showAppSnackBar(context, l10n.purchaseRestored);
+      showAppSnackBar(context, l10n.purchaseRestored, isSuccess: true);
     } else {
-      showAppSnackBar(context, l10n.noActivePurchasesFound);
+      showAppSnackBar(context, l10n.noActivePurchasesFound, isError: true);
     }
   }
 }

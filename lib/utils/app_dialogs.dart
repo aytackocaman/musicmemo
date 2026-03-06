@@ -102,16 +102,44 @@ void showAppSnackBar(
   BuildContext context,
   String message, {
   bool isError = false,
+  bool isSuccess = false,
   Duration duration = const Duration(seconds: 2),
 }) {
+  final Color bgColor;
+  final Color textColor;
+  final IconData? icon;
+
+  if (isError) {
+    bgColor = const Color(0xFFEF4444);
+    textColor = AppColors.white;
+    icon = Icons.error_outline;
+  } else if (isSuccess) {
+    bgColor = AppColors.teal;
+    textColor = AppColors.white;
+    icon = Icons.check_circle_outline;
+  } else {
+    bgColor = context.colors.surface;
+    textColor = context.colors.textPrimary;
+    icon = null;
+  }
+
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(
-        message,
-        style: AppTypography.bodySmall(context).copyWith(color: AppColors.white),
+      content: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, color: textColor, size: 20),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Text(
+              message,
+              style: AppTypography.bodySmall(context).copyWith(color: textColor),
+            ),
+          ),
+        ],
       ),
-      backgroundColor:
-          isError ? const Color(0xFFEF4444) : const Color(0xFF27272A),
+      backgroundColor: bgColor,
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
