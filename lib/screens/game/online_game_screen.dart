@@ -167,18 +167,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
     // Session finished — check if it's a normal game end or opponent left
     if (updatedSession.status == 'finished') {
-      final totalPairs = _cards.isEmpty ? 0 : _cards.length ~/ 2;
-      final p1 = updatedSession.player1Score;
-      final p2 = updatedSession.player2Score;
-      final allMatched = _cards.isNotEmpty &&
-          (_cards.every((c) => c.state == CardState.matched) ||
-              (updatedSession.gameState != null &&
-                  MultiplayerService.parseCardsFromGameState(updatedSession.gameState)
-                      .every((c) => c.state == CardState.matched)));
-      final decisiveWin = totalPairs > 0 &&
-          (p1 > totalPairs / 2 || p2 > totalPairs / 2);
+      // Use the opponent's "left" flag as the primary indicator.
+      // Fall back to score/card checks only when the flag isn't set.
+      final opponentLeft = updatedSession.opponentHasLeft(_myUserId);
 
-      if (allMatched || decisiveWin) {
+      if (opponentLeft) {
+        _handleOpponentLeft();
+      } else {
         // Normal game end — update session and go to win screen
         setState(() {
           _currentSession = updatedSession;
@@ -188,9 +183,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           }
         });
         _handleGameComplete();
-      } else {
-        // Opponent left mid-game
-        _handleOpponentLeft();
       }
       return;
     }
@@ -482,6 +474,30 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         final decisiveWin = newPlayer1Score > totalPairs / 2 ||
             newPlayer2Score > totalPairs / 2;
         final gameOver = allMatched || decisiveWin;
+
+        // Update local session with new scores immediately so
+        // _handleGameComplete sees the correct final scores (not stale ones).
+        _currentSession = OnlineSession(
+          id: _currentSession.id,
+          player1Id: _currentSession.player1Id,
+          player2Id: _currentSession.player2Id,
+          player1Name: _currentSession.player1Name,
+          player2Name: _currentSession.player2Name,
+          inviteCode: _currentSession.inviteCode,
+          status: gameOver ? 'finished' : _currentSession.status,
+          category: _currentSession.category,
+          gridSize: _currentSession.gridSize,
+          currentTurn: _currentSession.currentTurn,
+          player1Score: newPlayer1Score,
+          player2Score: newPlayer2Score,
+          gameState: _currentSession.gameState,
+          createdAt: _currentSession.createdAt,
+          isPublic: _currentSession.isPublic,
+          rematchPlayer1: _currentSession.rematchPlayer1,
+          rematchPlayer2: _currentSession.rematchPlayer2,
+          player1Left: _currentSession.player1Left,
+          player2Left: _currentSession.player2Left,
+        );
 
         await MultiplayerService.updateGameState(
           sessionId: widget.session.id,

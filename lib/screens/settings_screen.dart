@@ -284,6 +284,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       onConfirm: () async {
         await AuthService.signOut();
         if (!mounted) return;
+        ref.invalidate(userProfileProvider);
+        ref.invalidate(userProfileNotifierProvider);
+        ref.invalidate(subscriptionProvider);
+        ref.invalidate(dailyGameCountsProvider);
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const LoginScreen()),
