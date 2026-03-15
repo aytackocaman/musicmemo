@@ -12,11 +12,15 @@ import '../../services/database_service.dart';
 import '../../services/haptic_service.dart';
 import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
+import '../../widgets/fuse_timer_border.dart';
 import '../../widgets/game_board.dart';
 import '../grand_category_screen.dart';
 import 'preload_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
+
+const _turnTimeLimitMs = 15000; // 15 seconds per turn
+const _firstFlipBonusMs = 3000; // 3 extra seconds after first flip
 
 class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final String category;
@@ -50,6 +54,10 @@ class _LocalMultiplayerGameScreenState
   final Set<String> _heardCardIds = {};
   String? _countdownCardId;
   int _countdownDurationMs = 0;
+
+  // Turn timer
+  Timer? _turnTimer;
+  int _turnTimeRemainingMs = _turnTimeLimitMs;
 
   @override
   void initState() {
@@ -95,6 +103,70 @@ class _LocalMultiplayerGameScreenState
         ref.read(gameProvider.notifier).updateTime(_seconds);
       }
     });
+    _startTurnTimer();
+  }
+
+  void _startTurnTimer() {
+    _turnTimer?.cancel();
+    setState(() => _turnTimeRemainingMs = _turnTimeLimitMs);
+    _turnTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (_isPaused) return;
+      final remaining = _turnTimeRemainingMs - 50;
+      if (remaining <= 0) {
+        _handleTurnTimeout();
+      } else {
+        setState(() => _turnTimeRemainingMs = remaining);
+      }
+    });
+  }
+
+  void _resetTurnTimer() {
+    _turnTimer?.cancel();
+    setState(() => _turnTimeRemainingMs = _turnTimeLimitMs);
+    _turnTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (_isPaused) return;
+      final remaining = _turnTimeRemainingMs - 50;
+      if (remaining <= 0) {
+        _handleTurnTimeout();
+      } else {
+        setState(() => _turnTimeRemainingMs = remaining);
+      }
+    });
+  }
+
+  void _handleTurnTimeout() {
+    _turnTimer?.cancel();
+    if (!mounted) return;
+
+    // If cards are flipped, flip them back first
+    if (_pendingFlipBack) {
+      _flipBackTimer?.cancel();
+      ref.read(gameProvider.notifier).flipCardsBack(switchTurn: false);
+      _pendingFlipBack = false;
+    } else {
+      // If first card is showing, flip it back
+      final gameState = ref.read(gameProvider);
+      if (gameState != null) {
+        final hasFlipped = gameState.cards.any((c) => c.state == CardState.flipped);
+        if (hasFlipped) {
+          ref.read(gameProvider.notifier).flipCardsBack(switchTurn: false);
+        }
+      }
+    }
+
+    // Switch turn
+    ref.read(gameProvider.notifier).switchTurn();
+    HapticService.turnSwitch();
+
+    setState(() {
+      _isProcessing = false;
+      _pendingFlipBack = false;
+      _countdownCardId = null;
+      _countdownDurationMs = 0;
+    });
+
+    // Start fresh timer for the next player
+    _startTurnTimer();
   }
 
   void _togglePause() {
@@ -161,6 +233,11 @@ class _LocalMultiplayerGameScreenState
         newState.cards.where((c) => c.state == CardState.flipped).length;
 
     if (newFlippedCards == 1) {
+      // Add bonus time after first flip, but cap at the base limit
+      setState(() {
+        _turnTimeRemainingMs = (_turnTimeRemainingMs + _firstFlipBonusMs)
+            .clamp(0, _turnTimeLimitMs);
+      });
       // First card flipped - longer delay if never heard, shorter if already heard
       final t = ref.read(cardTimingsProvider);
       final firstTime = !_heardCardIds.contains(cardId);
@@ -189,6 +266,7 @@ class _LocalMultiplayerGameScreenState
       ref.read(gameProvider.notifier).switchTurn();
       HapticService.noMatch();
       HapticService.turnSwitch();
+      _resetTurnTimer();
 
       // Derive upper bound from the second card's sound duration
       const autoFlipMs = 2100;
@@ -211,7 +289,8 @@ class _LocalMultiplayerGameScreenState
     } else {
       // Second card, MATCH found (provider already set cards to matched, 0 flipped)
       HapticService.matchFound();
-      // Player keeps their turn on a match — unlock immediately
+      // Player keeps their turn on a match — reset timer for next pair
+      _resetTurnTimer();
       setState(() {
         _isProcessing = false;
       });
@@ -226,6 +305,7 @@ class _LocalMultiplayerGameScreenState
 
   Future<void> _handleGameComplete() async {
     _timer?.cancel();
+    _turnTimer?.cancel();
 
     final gameState = ref.read(gameProvider);
     if (gameState == null) return;
@@ -266,6 +346,7 @@ class _LocalMultiplayerGameScreenState
   @override
   void dispose() {
     _timer?.cancel();
+    _turnTimer?.cancel();
     _flipBackTimer?.cancel();
     AudioService.stop();
     super.dispose();
@@ -380,26 +461,39 @@ class _LocalMultiplayerGameScreenState
     final player1 = gameState.players.isNotEmpty ? gameState.players[0] : null;
     final player2 = gameState.players.length > 1 ? gameState.players[1] : null;
     final isPlayer1Turn = gameState.currentPlayerIndex == 0;
+    final turnProgress = _turnTimeRemainingMs / _turnTimeLimitMs;
+    final p1Color = player1 != null ? hexToColor(player1.color) : context.colors.accent;
+    final p2Color = player2 != null ? hexToColor(player2.color) : AppColors.teal;
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: _PlayerScoreCard(
-              name: player1?.name ?? l10n.playerNumber(1),
-              color: player1 != null ? hexToColor(player1.color) : context.colors.accent,
-              score: player1?.score ?? 0,
-              isCurrentTurn: isPlayer1Turn,
+            child: FuseTimerBorder(
+              progress: isPlayer1Turn ? turnProgress : 0.0,
+              color: p1Color,
+              showFuse: isPlayer1Turn,
+              child: _PlayerScoreCard(
+                name: player1?.name ?? l10n.playerNumber(1),
+                color: p1Color,
+                score: player1?.score ?? 0,
+                isCurrentTurn: isPlayer1Turn,
+              ),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _PlayerScoreCard(
-              name: player2?.name ?? l10n.playerNumber(2),
-              color: player2 != null ? hexToColor(player2.color) : AppColors.teal,
-              score: player2?.score ?? 0,
-              isCurrentTurn: !isPlayer1Turn,
+            child: FuseTimerBorder(
+              progress: !isPlayer1Turn ? turnProgress : 0.0,
+              color: p2Color,
+              showFuse: !isPlayer1Turn,
+              child: _PlayerScoreCard(
+                name: player2?.name ?? l10n.playerNumber(2),
+                color: p2Color,
+                score: player2?.score ?? 0,
+                isCurrentTurn: !isPlayer1Turn,
+              ),
             ),
           ),
         ],

@@ -13,10 +13,14 @@ import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/app_dialogs.dart';
 import '../../utils/game_utils.dart';
+import '../../widgets/fuse_timer_border.dart';
 import '../../widgets/game_board.dart';
 import '../home_screen.dart';
 import '../../l10n/app_localizations.dart';
 import 'online_mode_screen.dart';
+
+const _onlineTurnTimeLimitMs = 15000; // 15 seconds per turn
+const _onlineFirstFlipBonusMs = 3000; // 3 extra seconds after first flip
 
 class OnlineGameScreen extends ConsumerStatefulWidget {
   final OnlineSession session;
@@ -49,6 +53,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   late OnlineSession _currentSession;
   List<GameCard> _cards = [];
   Map<String, String> _soundPaths = {};
+
+  // Turn timer
+  Timer? _turnTimer;
+  int _turnTimeRemainingMs = _onlineTurnTimeLimitMs;
 
   // Track the first flipped card in this turn to avoid race conditions
   // with server echoes overwriting _cards during async processing.
@@ -242,6 +250,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         _isProcessing = false;
         _firstFlippedCardId = null;
         _firstFlippedSoundId = null;
+        _turnTimeRemainingMs = _onlineTurnTimeLimitMs;
       }
     });
 
@@ -273,6 +282,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     if (_gameEnded) return;
     _gameEnded = true;
     _timer?.cancel();
+    _turnTimer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
 
@@ -294,6 +304,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     if (_gameEnded) return;
     _gameEnded = true;
     _timer?.cancel();
+    _turnTimer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
 
@@ -320,6 +331,88 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           _seconds++;
         });
       }
+    });
+    _startTurnTimer();
+  }
+
+  void _startTurnTimer() {
+    _turnTimer?.cancel();
+    setState(() => _turnTimeRemainingMs = _onlineTurnTimeLimitMs);
+    _turnTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (!mounted || _gameEnded) {
+        _turnTimer?.cancel();
+        return;
+      }
+      final remaining = _turnTimeRemainingMs - 50;
+      if (remaining <= 0) {
+        if (_isMyTurn) {
+          _handleTurnTimeout();
+        }
+        // Opponent's timeout is handled by the existing _opponentTimeout (60s)
+        // Just stop the visual fuse at 0
+      } else {
+        setState(() => _turnTimeRemainingMs = remaining);
+      }
+    });
+  }
+
+  void _resetTurnTimer() {
+    _turnTimer?.cancel();
+    setState(() => _turnTimeRemainingMs = _onlineTurnTimeLimitMs);
+    _turnTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (!mounted || _gameEnded) {
+        _turnTimer?.cancel();
+        return;
+      }
+      final remaining = _turnTimeRemainingMs - 50;
+      if (remaining <= 0) {
+        if (_isMyTurn) {
+          _handleTurnTimeout();
+        }
+      } else {
+        setState(() => _turnTimeRemainingMs = remaining);
+      }
+    });
+  }
+
+  void _handleTurnTimeout() {
+    _turnTimer?.cancel();
+    if (!mounted || _gameEnded) return;
+
+    // If first card is flipped, flip it back
+    final hasFlipped = _cards.any((c) => c.state == CardState.flipped);
+    if (hasFlipped) {
+      final updatedCards = _cards.map((c) {
+        if (c.state == CardState.flipped) {
+          return c.copyWith(state: CardState.faceDown);
+        }
+        return c;
+      }).toList();
+      setState(() {
+        _cards = updatedCards;
+        _firstFlippedCardId = null;
+        _firstFlippedSoundId = null;
+        _isProcessing = false;
+      });
+    }
+
+    // Switch turn to opponent
+    final opponentId =
+        _amIPlayer1 ? widget.session.player2Id : widget.session.player1Id;
+
+    HapticService.turnSwitch();
+
+    MultiplayerService.updateGameState(
+      sessionId: widget.session.id,
+      cards: _cards,
+      player1Score: _currentSession.player1Score,
+      player2Score: _currentSession.player2Score,
+      currentTurn: opponentId!,
+    );
+
+    setState(() {
+      _isProcessing = false;
+      _turnTimeRemainingMs = _onlineTurnTimeLimitMs;
     });
   }
 
@@ -418,6 +511,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       // ── FIRST CARD ──
       _firstFlippedCardId = cardId;
       _firstFlippedSoundId = card.soundId;
+      // Add bonus time after first flip, but cap at the base limit
+      setState(() {
+        _turnTimeRemainingMs = (_turnTimeRemainingMs + _onlineFirstFlipBonusMs)
+            .clamp(0, _onlineTurnTimeLimitMs);
+      });
       // Longer delay if card never heard before, shorter if already heard
       final firstTime = !_heardCardIds.contains(cardId);
       _heardCardIds.add(cardId);
@@ -518,6 +616,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         // Brief pause so the player registers the match before next tap
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
+        _resetTurnTimer();
         setState(() {
           _isProcessing = false;
         });
@@ -578,6 +677,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     if (_gameEnded) return;
     _gameEnded = true;
     _timer?.cancel();
+    _turnTimer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
     HapticService.gameWin();
@@ -624,6 +724,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   void dispose() {
     _pulseController.dispose();
     _timer?.cancel();
+    _turnTimer?.cancel();
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
     _connectionSubscription?.cancel();
@@ -799,25 +900,43 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         ? _currentSession.player2Name
         : _currentSession.player1Name;
 
+    // Color logic matches _PlayerScoreCard
+    final myColor = switch (context.colors.accent.toARGB32()) {
+      0xFF3B82F6 => const Color(0xFF8B5CF6),
+      _ => const Color(0xFF3B82F6),
+    };
+    const opponentColor = Color(0xFFF97316);
+    final turnProgress = _turnTimeRemainingMs / _onlineTurnTimeLimitMs;
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: _PlayerScoreCard(
-              name: myName ?? widget.playerName,
-              score: myScore,
-              isCurrentTurn: _isMyTurn,
-              isMe: true,
+            child: FuseTimerBorder(
+              progress: _isMyTurn ? turnProgress : 0.0,
+              color: myColor,
+              showFuse: _isMyTurn,
+              child: _PlayerScoreCard(
+                name: myName ?? widget.playerName,
+                score: myScore,
+                isCurrentTurn: _isMyTurn,
+                isMe: true,
+              ),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _PlayerScoreCard(
-              name: opponentName ?? AppLocalizations.of(context)!.opponent,
-              score: opponentScore,
-              isCurrentTurn: !_isMyTurn,
-              isMe: false,
+            child: FuseTimerBorder(
+              progress: !_isMyTurn ? turnProgress : 0.0,
+              color: opponentColor,
+              showFuse: !_isMyTurn,
+              child: _PlayerScoreCard(
+                name: opponentName ?? AppLocalizations.of(context)!.opponent,
+                score: opponentScore,
+                isCurrentTurn: !_isMyTurn,
+                isMe: false,
+              ),
             ),
           ),
         ],
