@@ -136,7 +136,7 @@ class _LocalMultiplayerGameScreenState
 
   void _handleTurnTimeout() {
     _turnTimer?.cancel();
-    if (!mounted) return;
+    if (!mounted || _isProcessing) return;
 
     // If cards are flipped, flip them back first
     if (_pendingFlipBack) {

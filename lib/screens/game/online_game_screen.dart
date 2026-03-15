@@ -377,7 +377,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   void _handleTurnTimeout() {
     _turnTimer?.cancel();
-    if (!mounted || _gameEnded) return;
+    if (!mounted || _gameEnded || _isProcessing) return;
 
     // If first card is flipped, flip it back
     final hasFlipped = _cards.any((c) => c.state == CardState.flipped);
