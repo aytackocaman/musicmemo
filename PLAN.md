@@ -144,7 +144,7 @@
 - [x] Reset counts daily (automatic via date-based query + 3AM local time rollover)
 
 ### 5.2 Subscription System
-- [ ] Integrate RevenueCat or in-app purchases
+- [ ] Integrate RevenueCat or in-app purchases,
 - [ ] Wire purchase buttons in PaywallScreen and SubscriptionScreen
 - [ ] Handle subscription status
 - [ ] Sync with Supabase
