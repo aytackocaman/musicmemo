@@ -4,10 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/dev_config.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
+import '../models/daily_challenge.dart';
+import '../providers/daily_challenge_provider.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
+import '../services/daily_challenge_service.dart';
 import '../services/database_service.dart';
 import 'grand_category_screen.dart';
+import 'game/daily_challenge_preload_screen.dart';
+import 'game/daily_challenge_win_screen.dart';
 import 'game/online_mode_screen.dart';
 import 'paywall_screen.dart';
 
@@ -19,6 +24,67 @@ class ModeScreen extends ConsumerStatefulWidget {
 }
 
 class _ModeScreenState extends ConsumerState<ModeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(dailyChallengeScoreProvider);
+      ref.invalidate(dailyChallengeProvider);
+    });
+  }
+
+  void _onDailyChallengePlay(DailyChallenge challenge) {
+    final isPremium = DevConfig.bypassPaywall ||
+        ref.read(subscriptionProvider).when(
+              data: (sub) => sub.canAccessPremiumFeatures,
+              loading: () => false,
+              error: (_, __) => false,
+            );
+    final counts = ref.read(dailyGameCountsProvider).valueOrNull ??
+        DailyGameCounts.zero();
+
+    if (!isPremium && !counts.canPlaySinglePlayer) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PaywallScreen()),
+      );
+      return;
+    }
+
+    DatabaseService.incrementGameCount('single_player');
+    ref.invalidate(dailyGameCountsProvider);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DailyChallengePreloadScreen(
+          categoryId: challenge.categoryId,
+          gridSize: challenge.gridSize,
+          seed: challenge.seed,
+          date: challenge.date,
+        ),
+      ),
+    );
+  }
+
+  void _onDailyChallengeViewLeaderboard(DailyChallenge challenge, DailyChallengeScore score) {
+    ref.invalidate(dailyChallengeLeaderboardProvider);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DailyChallengeWinScreen(
+          score: score.score,
+          moves: score.moves,
+          timeSeconds: score.timeSeconds,
+          totalPairs: DailyChallengeService.pairsForGridSize(challenge.gridSize),
+          date: challenge.date,
+          categoryId: challenge.categoryId,
+          gridSize: challenge.gridSize,
+        ),
+      ),
+    );
+  }
+
   void _showPaywall(BuildContext context, {bool isPremiumFeature = false, bool isTrialExpired = false}) {
     Navigator.push(
       context,
@@ -94,6 +160,10 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
+
+              // Daily Challenge
+              _buildDailyChallengeCard(l10n, isPremium, counts),
+              const SizedBox(height: AppSpacing.md),
 
               // Single Player
               _ModeButton(
@@ -174,6 +244,233 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildDailyChallengeCard(AppLocalizations l10n, bool isPremium, DailyGameCounts counts) {
+    final challengeAsync = ref.watch(dailyChallengeProvider);
+    final scoreAsync = ref.watch(dailyChallengeScoreProvider);
+    final canPlay = isPremium || counts.canPlaySinglePlayer;
+
+    return challengeAsync.when(
+      data: (challenge) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                context.colors.accent,
+                context.colors.accentGradientDark,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.calendar_today,
+                      size: 20, color: AppColors.white.withValues(alpha: 0.9)),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.dailyChallenge,
+                    style: AppTypography.bodyLarge(context).copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      challenge.gridSize.replaceAll('x', '×'),
+                      style: AppTypography.labelSmall(context).copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _formatCategoryName(challenge.categoryName),
+                style: AppTypography.body(context).copyWith(
+                  color: AppColors.white.withValues(alpha: 0.85),
+                ),
+              ),
+              const SizedBox(height: 12),
+              scoreAsync.when(
+                data: (score) {
+                  if (score != null) {
+                    return Row(
+                      children: [
+                        Text(
+                          '${l10n.score}: ${score.score}',
+                          style: AppTypography.bodyLarge(context).copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () => _onDailyChallengeViewLeaderboard(
+                            challenge,
+                            score,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              l10n.viewLeaderboard,
+                              style: AppTypography.bodySmall(context).copyWith(
+                                color: context.colors.accent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (canPlay) {
+                    return GestureDetector(
+                      onTap: () => _onDailyChallengePlay(challenge),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.play_arrow,
+                                size: 20, color: context.colors.accent),
+                            const SizedBox(width: 6),
+                            Text(
+                              l10n.playNow,
+                              style: AppTypography.bodyLarge(context).copyWith(
+                                color: context.colors.accent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PaywallScreen()),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.lock,
+                                size: 18,
+                                color:
+                                    AppColors.white.withValues(alpha: 0.8)),
+                            const SizedBox(width: 6),
+                            Text(
+                              l10n.upgradeToPlay,
+                              style:
+                                  AppTypography.bodyLarge(context).copyWith(
+                                color:
+                                    AppColors.white.withValues(alpha: 0.9),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                },
+                loading: () => const Center(
+                  child: SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: AppColors.white,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ),
+                error: (_, __) {
+                  if (canPlay) {
+                    return GestureDetector(
+                      onTap: () => _onDailyChallengePlay(challenge),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.play_arrow,
+                                size: 20, color: context.colors.accent),
+                            const SizedBox(width: 6),
+                            Text(
+                              l10n.playNow,
+                              style: AppTypography.bodyLarge(context).copyWith(
+                                color: context.colors.accent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => Container(
+        width: double.infinity,
+        height: 100,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  String _formatCategoryName(String name) {
+    return name
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
   }
 }
 

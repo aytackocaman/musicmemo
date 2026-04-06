@@ -1880,6 +1880,96 @@ abstract class AppLocalizations {
   /// **'Enter the code from your friend'**
   String get enterTheCodeFromFriend;
 
+  /// No description provided for @dailyChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Challenge'**
+  String get dailyChallenge;
+
+  /// No description provided for @dailyChallengeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Same puzzle for everyone, every day'**
+  String get dailyChallengeSubtitle;
+
+  /// No description provided for @playNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Now'**
+  String get playNow;
+
+  /// No description provided for @alreadyPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Already Played'**
+  String get alreadyPlayed;
+
+  /// No description provided for @viewLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'View Leaderboard'**
+  String get viewLeaderboard;
+
+  /// No description provided for @leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get leaderboard;
+
+  /// No description provided for @rank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get rank;
+
+  /// No description provided for @yourRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Rank'**
+  String get yourRank;
+
+  /// No description provided for @rankOutOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'#{rank} of {total}'**
+  String rankOutOfTotal(int rank, int total);
+
+  /// No description provided for @noScoresYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No scores yet. Be the first!'**
+  String get noScoresYet;
+
+  /// No description provided for @giveUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Give Up?'**
+  String get giveUpTitle;
+
+  /// No description provided for @giveUpMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your attempt will be used and your current score will be saved.'**
+  String get giveUpMessage;
+
+  /// No description provided for @giveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Give Up'**
+  String get giveUp;
+
+  /// No description provided for @challengeComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge Complete!'**
+  String get challengeComplete;
+
+  /// No description provided for @upgradeToPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Play'**
+  String get upgradeToPlay;
+
   /// No description provided for @turkce.
   ///
   /// In en, this message translates to:

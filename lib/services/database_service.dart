@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/game_config.dart';
+import '../models/daily_challenge.dart';
 import 'supabase_service.dart';
 
 /// User profile model
@@ -675,6 +676,141 @@ class DatabaseService {
     } catch (e) {
       print('Error fetching game history: $e');
       return [];
+    }
+  }
+
+  // ─── Daily Challenge ─────────────────────────────────────────
+
+  /// Check if user already played the daily challenge for [date].
+  static Future<DailyChallengeScore?> getDailyChallengeScore(String date) async {
+    final user = _client.auth.currentUser;
+    print('[DailyChallenge] getDailyChallengeScore date=$date user=${user?.id}');
+    if (user == null) return null;
+
+    try {
+      final response = await _client
+          .from('daily_challenge_scores')
+          .select('*, profiles(display_name)')
+          .eq('user_id', user.id)
+          .eq('date', date)
+          .maybeSingle();
+
+      print('[DailyChallenge] response=$response');
+      if (response == null) return null;
+      return DailyChallengeScore.fromJson(response);
+    } catch (e) {
+      print('[DailyChallenge] ERROR fetching score: $e');
+      return null;
+    }
+  }
+
+  /// Save a daily challenge score. Returns true on success, false on
+  /// unique-violation (already played) or other error.
+  static Future<bool> saveDailyChallengeScore({
+    required String date,
+    required int score,
+    required int moves,
+    required int timeSeconds,
+    required String category,
+    required String gridSize,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      print('[DailyChallenge] saving score: date=$date score=$score moves=$moves time=$timeSeconds');
+      await _client.from('daily_challenge_scores').insert({
+        'user_id': user.id,
+        'date': date,
+        'score': score,
+        'moves': moves,
+        'time_seconds': timeSeconds,
+        'category': category,
+        'grid_size': gridSize,
+      });
+      print('[DailyChallenge] save SUCCESS');
+
+      // Also count towards user stats
+      await _updateUserStats(score: score, won: true);
+      await _updateCategoryStats(category: category, won: true);
+
+      return true;
+    } catch (e) {
+      print('[DailyChallenge] save ERROR: $e');
+      return false;
+    }
+  }
+
+  /// Get leaderboard for a given date.
+  static Future<DailyChallengeLeaderboard> getDailyChallengeLeaderboard(
+    String date, {
+    int limit = 50,
+  }) async {
+    final user = _client.auth.currentUser;
+
+    try {
+      // Top scores
+      final topResponse = await _client
+          .from('daily_challenge_scores')
+          .select('*, profiles(display_name)')
+          .eq('date', date)
+          .order('score', ascending: false)
+          .limit(limit);
+
+      final topScores = (topResponse as List)
+          .map((json) => DailyChallengeScore.fromJson(json))
+          .toList();
+
+      // Total player count
+      final countResponse = await _client
+          .from('daily_challenge_scores')
+          .select('id')
+          .eq('date', date);
+      final totalPlayers = (countResponse as List).length;
+
+      // User's score and rank
+      DailyChallengeScore? myScore;
+      int? myRank;
+      if (user != null) {
+        // Find user in top scores first
+        final topIndex = topScores.indexWhere((s) => s.userId == user.id);
+        if (topIndex >= 0) {
+          myScore = topScores[topIndex];
+          myRank = topIndex + 1;
+        } else {
+          // User not in top N — fetch separately
+          final myResponse = await _client
+              .from('daily_challenge_scores')
+              .select('*, profiles(display_name)')
+              .eq('user_id', user.id)
+              .eq('date', date)
+              .maybeSingle();
+
+          if (myResponse != null) {
+            myScore = DailyChallengeScore.fromJson(myResponse);
+            // Count how many have higher score
+            final rankResponse = await _client
+                .from('daily_challenge_scores')
+                .select('id')
+                .eq('date', date)
+                .gt('score', myScore.score);
+            myRank = (rankResponse as List).length + 1;
+          }
+        }
+      }
+
+      return DailyChallengeLeaderboard(
+        topScores: topScores,
+        myScore: myScore,
+        myRank: myRank,
+        totalPlayers: totalPlayers,
+      );
+    } catch (e) {
+      print('Error fetching daily challenge leaderboard: $e');
+      return const DailyChallengeLeaderboard(
+        topScores: [],
+        totalPlayers: 0,
+      );
     }
   }
 

@@ -387,6 +387,28 @@
   "opponentTimedOutMessage": "Rakibiniz 60 saniyedir hamle yapmadı. Oyun sonlandırıldı.",
   "enterTheCodeFromFriend": "Arkadaşınızdan aldığınız kodu girin",
 
+  "dailyChallenge": "Günlük Meydan Okuma",
+  "dailyChallengeSubtitle": "Her gün herkes için aynı bulmaca",
+  "playNow": "Şimdi Oyna",
+  "alreadyPlayed": "Zaten Oynadınız",
+  "viewLeaderboard": "Sıralamayı Gör",
+  "leaderboard": "Sıralama",
+  "rank": "Sıra",
+  "yourRank": "Sıralamanız",
+  "rankOutOfTotal": "{total} kişiden #{rank}.",
+  "@rankOutOfTotal": {
+    "placeholders": {
+      "rank": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "noScoresYet": "Henüz skor yok. İlk sen ol!",
+  "giveUpTitle": "Pes Et?",
+  "giveUpMessage": "Hakkınız kullanılacak ve mevcut skorunuz kaydedilecek.",
+  "giveUp": "Pes Et",
+  "challengeComplete": "Meydan Okuma Tamamlandı!",
+  "upgradeToPlay": "Oynamak İçin Yükselt",
+
   "turkce": "Türkçe",
   "english": "English",
   "languageSystem": "Sistem"

@@ -947,6 +947,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterTheCodeFromFriend => 'Enter the code from your friend';
 
   @override
+  String get dailyChallenge => 'Daily Challenge';
+
+  @override
+  String get dailyChallengeSubtitle => 'Same puzzle for everyone, every day';
+
+  @override
+  String get playNow => 'Play Now';
+
+  @override
+  String get alreadyPlayed => 'Already Played';
+
+  @override
+  String get viewLeaderboard => 'View Leaderboard';
+
+  @override
+  String get leaderboard => 'Leaderboard';
+
+  @override
+  String get rank => 'Rank';
+
+  @override
+  String get yourRank => 'Your Rank';
+
+  @override
+  String rankOutOfTotal(int rank, int total) {
+    return '#$rank of $total';
+  }
+
+  @override
+  String get noScoresYet => 'No scores yet. Be the first!';
+
+  @override
+  String get giveUpTitle => 'Give Up?';
+
+  @override
+  String get giveUpMessage =>
+      'Your attempt will be used and your current score will be saved.';
+
+  @override
+  String get giveUp => 'Give Up';
+
+  @override
+  String get challengeComplete => 'Challenge Complete!';
+
+  @override
+  String get upgradeToPlay => 'Upgrade to Play';
+
+  @override
   String get turkce => 'Türkçe';
 
   @override

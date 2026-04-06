@@ -387,6 +387,28 @@
   "opponentTimedOutMessage": "Your opponent hasn't made a move in 60 seconds. The game has been ended.",
   "enterTheCodeFromFriend": "Enter the code from your friend",
 
+  "dailyChallenge": "Daily Challenge",
+  "dailyChallengeSubtitle": "Same puzzle for everyone, every day",
+  "playNow": "Play Now",
+  "alreadyPlayed": "Already Played",
+  "viewLeaderboard": "View Leaderboard",
+  "leaderboard": "Leaderboard",
+  "rank": "Rank",
+  "yourRank": "Your Rank",
+  "rankOutOfTotal": "#{rank} of {total}",
+  "@rankOutOfTotal": {
+    "placeholders": {
+      "rank": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "noScoresYet": "No scores yet. Be the first!",
+  "giveUpTitle": "Give Up?",
+  "giveUpMessage": "Your attempt will be used and your current score will be saved.",
+  "giveUp": "Give Up",
+  "challengeComplete": "Challenge Complete!",
+  "upgradeToPlay": "Upgrade to Play",
+
   "turkce": "T\u00fcrk\u00e7e",
   "english": "English",
   "languageSystem": "System"

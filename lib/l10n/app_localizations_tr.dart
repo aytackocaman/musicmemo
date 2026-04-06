@@ -958,6 +958,54 @@ class AppLocalizationsTr extends AppLocalizations {
   String get enterTheCodeFromFriend => 'Arkadaşınızdan aldığınız kodu girin';
 
   @override
+  String get dailyChallenge => 'Günlük Meydan Okuma';
+
+  @override
+  String get dailyChallengeSubtitle => 'Her gün herkes için aynı bulmaca';
+
+  @override
+  String get playNow => 'Şimdi Oyna';
+
+  @override
+  String get alreadyPlayed => 'Zaten Oynadınız';
+
+  @override
+  String get viewLeaderboard => 'Sıralamayı Gör';
+
+  @override
+  String get leaderboard => 'Sıralama';
+
+  @override
+  String get rank => 'Sıra';
+
+  @override
+  String get yourRank => 'Sıralamanız';
+
+  @override
+  String rankOutOfTotal(int rank, int total) {
+    return '$total kişiden #$rank.';
+  }
+
+  @override
+  String get noScoresYet => 'Henüz skor yok. İlk sen ol!';
+
+  @override
+  String get giveUpTitle => 'Pes Et?';
+
+  @override
+  String get giveUpMessage =>
+      'Hakkınız kullanılacak ve mevcut skorunuz kaydedilecek.';
+
+  @override
+  String get giveUp => 'Pes Et';
+
+  @override
+  String get challengeComplete => 'Meydan Okuma Tamamlandı!';
+
+  @override
+  String get upgradeToPlay => 'Oynamak İçin Yükselt';
+
+  @override
   String get turkce => 'Türkçe';
 
   @override

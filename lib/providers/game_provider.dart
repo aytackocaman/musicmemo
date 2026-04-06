@@ -39,6 +39,7 @@ enum GameMode {
   singlePlayer,
   localMultiplayer,
   onlineMultiplayer,
+  dailyChallenge,
 }
 
 extension GameModeExtension on GameMode {
@@ -50,6 +51,8 @@ extension GameModeExtension on GameMode {
         return 'local_multiplayer';
       case GameMode.onlineMultiplayer:
         return 'online_multiplayer';
+      case GameMode.dailyChallenge:
+        return 'daily_challenge';
     }
   }
 }
@@ -121,13 +124,17 @@ class GameState {
   bool get allMatched => matchedPairs == totalPairs && totalPairs > 0;
 
   int get score {
-    if (mode == GameMode.singlePlayer) {
+    if (mode == GameMode.singlePlayer || mode == GameMode.dailyChallenge) {
       return rawScore;
     }
     return currentPlayer?.score ?? 0;
   }
 
   int get finalScore {
+    if (mode == GameMode.dailyChallenge) {
+      // Daily challenge: raw score only, no time multiplier
+      return rawScore;
+    }
     if (mode == GameMode.singlePlayer) {
       final multiplier = GameUtils.calculateTimeMultiplier(
         timeSeconds: timeSeconds,
@@ -243,18 +250,19 @@ class GameNotifier extends StateNotifier<GameState?> {
     if (state == null) return;
 
     // Determine the color of the player who found this match
-    final matchColor = (state!.mode != GameMode.singlePlayer && state!.players.isNotEmpty)
+    final isMultiplayer = state!.mode == GameMode.localMultiplayer || state!.mode == GameMode.onlineMultiplayer;
+    final matchColor = (isMultiplayer && state!.players.isNotEmpty)
         ? state!.players[state!.currentPlayerIndex].color
-        : '#14B8A6'; // teal (success color) for single player
+        : '#14B8A6'; // teal (success color) for single player / daily challenge
 
     final updatedCards = List<GameCard>.from(state!.cards);
     updatedCards[firstIndex] = updatedCards[firstIndex].copyWith(state: CardState.matched, matchedByColor: matchColor);
     updatedCards[secondIndex] = updatedCards[secondIndex].copyWith(state: CardState.matched, matchedByColor: matchColor);
 
-    // Streak-based scoring for single player
+    // Streak-based scoring for single player and daily challenge
     int? newConsecutiveMatches;
     int? newRawScore;
-    if (state!.mode == GameMode.singlePlayer) {
+    if (state!.mode == GameMode.singlePlayer || state!.mode == GameMode.dailyChallenge) {
       newConsecutiveMatches = state!.consecutiveMatches + 1;
       final matchPoints = 100 + max(0, newConsecutiveMatches - 1) * 50;
       newRawScore = state!.rawScore + matchPoints;
@@ -262,7 +270,7 @@ class GameNotifier extends StateNotifier<GameState?> {
 
     // Update player score in multiplayer
     List<Player>? updatedPlayers;
-    if (state!.mode != GameMode.singlePlayer && state!.players.isNotEmpty) {
+    if (isMultiplayer && state!.players.isNotEmpty) {
       updatedPlayers = List<Player>.from(state!.players);
       final currentPlayer = updatedPlayers[state!.currentPlayerIndex];
       updatedPlayers[state!.currentPlayerIndex] = currentPlayer.copyWith(
@@ -274,7 +282,7 @@ class GameNotifier extends StateNotifier<GameState?> {
 
     // Early win: a player has matched more than half the pairs
     bool decisiveWin = false;
-    if (!allMatched && state!.mode != GameMode.singlePlayer && updatedPlayers != null) {
+    if (!allMatched && isMultiplayer && updatedPlayers != null) {
       final totalPairs = updatedCards.length ~/ 2;
       for (final player in updatedPlayers) {
         if (player.score > totalPairs / 2) {
