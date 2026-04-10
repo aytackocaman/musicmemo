@@ -208,8 +208,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     List<GameCard>? serverCards;
     if (updatedSession.gameState != null) {
       serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
-      // Play sound for opponent's newly flipped card
+      // Play sound for opponent's newly flipped card and mirror the
+      // first-flip bonus, so the spectator's fuse matches the active player's.
       if (!_isMyTurn) {
+        final prevFlippedCount =
+            _cards.where((c) => c.state == CardState.flipped).length;
+        final newFlippedCount =
+            serverCards.where((c) => c.state == CardState.flipped).length;
         for (final sc in serverCards) {
           final existing = _cards.where((c) => c.id == sc.id).firstOrNull;
           if (existing != null &&
@@ -220,6 +225,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
               AudioService.play(path);
             }
           }
+        }
+        // Opponent just flipped their first card of the turn (0 → 1 flipped).
+        // Extend our local fuse by the same bonus they added on their side.
+        if (prevFlippedCount == 0 && newFlippedCount == 1) {
+          _turnTimeRemainingMs =
+              (_turnTimeRemainingMs + _onlineFirstFlipBonusMs)
+                  .clamp(0, _onlineTurnTimeLimitMs);
         }
       }
     }
@@ -250,9 +262,15 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         _isProcessing = false;
         _firstFlippedCardId = null;
         _firstFlippedSoundId = null;
-        _turnTimeRemainingMs = _onlineTurnTimeLimitMs;
       }
     });
+
+    // Restart the turn fuse whenever the turn flips. _handleTurnTimeout
+    // cancels _turnTimer, so without restarting it the fuse would freeze
+    // once the owning player's turn comes back around.
+    if (turnChanged) {
+      _resetTurnTimer();
+    }
 
     // Check for game complete (all matched or decisive win)
     if (_cards.isNotEmpty) {
@@ -286,16 +304,22 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     _opponentTimeout?.cancel();
     _sessionSubscription?.cancel();
 
-    showAppDialog(
-      context: context,
-      title: AppLocalizations.of(context)!.opponentLeftTitle,
-      message: AppLocalizations.of(context)!.opponentLeftMessage,
-      confirmLabel: AppLocalizations.of(context)!.goHome,
-      showCancel: false,
-      onConfirm: () => Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (route) => false,
+    // Route to the win screen with the "opponent left" flag set, so the user
+    // sees the win page ("Opponent Left — You Win!") instead of a dialog.
+    // Keep the global subscription alive so the win screen can reuse it.
+    final totalPairs = _cards.isEmpty ? 0 : _cards.length ~/ 2;
+    _navigatingToWinScreen = true;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _OnlineWinScreen(
+          session: _currentSession,
+          myUserId: _myUserId,
+          playerName: widget.playerName,
+          timeSeconds: _seconds,
+          totalPairs: totalPairs,
+          opponentLeftAtStart: true,
+        ),
       ),
     );
   }
@@ -345,11 +369,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       }
       final remaining = _turnTimeRemainingMs - 50;
       if (remaining <= 0) {
+        setState(() => _turnTimeRemainingMs = 0);
         if (_isMyTurn) {
           _handleTurnTimeout();
         }
         // Opponent's timeout is handled by the existing _opponentTimeout (60s)
-        // Just stop the visual fuse at 0
       } else {
         setState(() => _turnTimeRemainingMs = remaining);
       }
@@ -366,6 +390,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       }
       final remaining = _turnTimeRemainingMs - 50;
       if (remaining <= 0) {
+        setState(() => _turnTimeRemainingMs = 0);
         if (_isMyTurn) {
           _handleTurnTimeout();
         }
@@ -593,8 +618,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           isPublic: _currentSession.isPublic,
           rematchPlayer1: _currentSession.rematchPlayer1,
           rematchPlayer2: _currentSession.rematchPlayer2,
-          player1Left: _currentSession.player1Left,
-          player2Left: _currentSession.player2Left,
+          // Clear stale left flags when finishing — mirrors the server-side
+          // reset in updateGameState so the win screen starts clean and can
+          // detect a genuine post-game leave.
+          player1Left: gameOver ? false : _currentSession.player1Left,
+          player2Left: gameOver ? false : _currentSession.player2Left,
         );
 
         await MultiplayerService.updateGameState(
@@ -1049,7 +1077,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       onConfirm: () {
         _timer?.cancel();
         _sessionSubscription?.cancel();
-        MultiplayerService.endSession(widget.session.id);
+        MultiplayerService.forfeitSession(widget.session.id);
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -1602,6 +1630,9 @@ class _OnlineWinScreen extends StatefulWidget {
   final String playerName;
   final int timeSeconds;
   final int totalPairs;
+  // True when the opponent forfeited mid-game: show "Opponent Left — You Win!"
+  // immediately on mount and hide the rematch button.
+  final bool opponentLeftAtStart;
 
   const _OnlineWinScreen({
     required this.session,
@@ -1609,6 +1640,7 @@ class _OnlineWinScreen extends StatefulWidget {
     required this.playerName,
     required this.timeSeconds,
     required this.totalPairs,
+    this.opponentLeftAtStart = false,
   });
 
   @override
@@ -1626,6 +1658,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
   // Ignore opponentHasLeft if it was already true when the win screen opened
   // (stale flag from a previous game / rematch that wasn't cleaned up).
   late bool _opponentWasAlreadyLeft;
+  // True once we detect the opponent leaving the post-game screen. When set,
+  // the big result title flips to "Opponent Left — You Win!" and rematch is
+  // hidden (replaced with Find New Opponent / Home).
+  bool _opponentLeftPostGame = false;
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnim;
@@ -1636,6 +1672,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     WidgetsBinding.instance.addObserver(this);
     _latestSession = widget.session;
     _opponentWasAlreadyLeft = widget.session.opponentHasLeft(widget.myUserId);
+    // Mid-game forfeit: start in the "opponent left" state so the build shows
+    // the win page and _buildRematchButtons returns the declined branch
+    // (Find New Opponent / Home, no rematch).
+    if (widget.opponentLeftAtStart) {
+      _opponentLeftPostGame = true;
+      _rematchState = _RematchState.declined;
+    }
 
     _pulseController = AnimationController(
       vsync: this,
@@ -1669,14 +1712,12 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     // (stale value from a previous game that wasn't reset on rematch).
     if (updatedSession.opponentHasLeft(widget.myUserId) &&
         !_opponentWasAlreadyLeft &&
-        _rematchState != _RematchState.declined) {
+        !_opponentLeftPostGame) {
       _timeoutTimer?.cancel();
-      setState(() => _rematchState = _RematchState.declined);
-      showAppSnackBar(
-        context,
-        AppLocalizations.of(context)!.opponentLeftTheRoom,
-        duration: const Duration(seconds: 3),
-      );
+      setState(() {
+        _opponentLeftPostGame = true;
+        _rematchState = _RematchState.declined;
+      });
       return;
     }
 
@@ -1834,8 +1875,11 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
         : widget.session.player1Name;
     final category = widget.session.category ?? 'unknown';
 
-    final iWon = myScore > opponentScore;
-    final isTie = myScore == opponentScore;
+    // When opponent leaves the post-game screen, treat it as a forfeit win
+    // regardless of the legit scores — the big title and icon flip to
+    // "Opponent Left — You Win!", and rematch is hidden.
+    final iWon = _opponentLeftPostGame || myScore > opponentScore;
+    final isTie = !_opponentLeftPostGame && myScore == opponentScore;
 
     final resultAccent = isTie
         ? context.colors.accent
@@ -1885,11 +1929,13 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
                 // Result text
                 Text(
-                  isTie
-                      ? l10n.itsATie
-                      : iWon
-                          ? l10n.youWin
-                          : l10n.youLost,
+                  _opponentLeftPostGame
+                      ? l10n.opponentLeftTitle
+                      : isTie
+                          ? l10n.itsATie
+                          : iWon
+                              ? l10n.youWin
+                              : l10n.youLost,
                   style: AppTypography.headline2(context).copyWith(
                     color: AppColors.white,
                   ),
@@ -1897,7 +1943,9 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                 const SizedBox(height: 8),
 
                 Text(
-                  isTie
+                  _opponentLeftPostGame
+                      ? l10n.opponentLeftMessage
+                      : isTie
                       ? l10n.greatMatch
                       : iWon
                           ? l10n.congratulations

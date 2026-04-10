@@ -577,6 +577,13 @@ class MultiplayerService {
 
       if (status != null) {
         updates['status'] = status;
+        // When the game ends naturally, clear any stale "left" flags so the
+        // win screen starts fresh and can detect a genuine post-game leave.
+        // Forfeits go through forfeitSession() which sets these explicitly.
+        if (status == 'finished') {
+          updates['player1_left'] = false;
+          updates['player2_left'] = false;
+        }
       }
 
       await _client
@@ -665,6 +672,26 @@ class MultiplayerService {
       }).eq('id', sessionId);
     } catch (e) {
       debugPrint('Error ending session: $e');
+    }
+  }
+
+  /// Forfeit mid-game: mark the current user as "left" AND finish the session
+  /// in a single update, so the remaining player's realtime handler routes to
+  /// the "opponent left — you win" path instead of the normal game-end flow.
+  static Future<void> forfeitSession(String sessionId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      final session = await getSession(sessionId);
+      if (session == null) return;
+      final column = session.amIPlayer1(user.id) ? 'player1_left' : 'player2_left';
+      await _client.from('online_sessions').update({
+        column: true,
+        'status': 'finished',
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', sessionId);
+    } catch (e) {
+      debugPrint('Error forfeiting session: $e');
     }
   }
 
