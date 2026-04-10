@@ -413,12 +413,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         }
         return c;
       }).toList();
-      setState(() {
-        _cards = updatedCards;
-        _firstFlippedCardId = null;
-        _firstFlippedSoundId = null;
-        _isProcessing = false;
-      });
+      _cards = updatedCards;
+      _firstFlippedCardId = null;
+      _firstFlippedSoundId = null;
     }
 
     // Switch turn to opponent
@@ -427,6 +424,40 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
     HapticService.turnSwitch();
 
+    // Flip the turn in local session state BEFORE the async DB update so
+    // _isMyTurn returns false immediately — otherwise the player could sneak
+    // a tap in during the server roundtrip and break the turn mechanism.
+    setState(() {
+      _currentSession = OnlineSession(
+        id: _currentSession.id,
+        player1Id: _currentSession.player1Id,
+        player2Id: _currentSession.player2Id,
+        player1Name: _currentSession.player1Name,
+        player2Name: _currentSession.player2Name,
+        inviteCode: _currentSession.inviteCode,
+        status: _currentSession.status,
+        category: _currentSession.category,
+        gridSize: _currentSession.gridSize,
+        currentTurn: opponentId,
+        player1Score: _currentSession.player1Score,
+        player2Score: _currentSession.player2Score,
+        gameState: _currentSession.gameState,
+        createdAt: _currentSession.createdAt,
+        isPublic: _currentSession.isPublic,
+        rematchPlayer1: _currentSession.rematchPlayer1,
+        rematchPlayer2: _currentSession.rematchPlayer2,
+        player1Left: _currentSession.player1Left,
+        player2Left: _currentSession.player2Left,
+      );
+      _isProcessing = false;
+    });
+
+    // Pre-updating the turn above means _handleSessionUpdate won't see a
+    // turnChanged when the server echo arrives, so it won't call
+    // _resetTurnTimer() for us. Restart the fuse explicitly here so the
+    // opponent's countdown bar ticks on this device.
+    _resetTurnTimer();
+
     MultiplayerService.updateGameState(
       sessionId: widget.session.id,
       cards: _cards,
@@ -434,11 +465,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       player2Score: _currentSession.player2Score,
       currentTurn: opponentId!,
     );
-
-    setState(() {
-      _isProcessing = false;
-      _turnTimeRemainingMs = _onlineTurnTimeLimitMs;
-    });
   }
 
   /// Merge matchedByColor info: keep local tags for cards we already matched,

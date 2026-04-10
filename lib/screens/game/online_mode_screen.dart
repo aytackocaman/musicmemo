@@ -517,25 +517,43 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       }
     });
 
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: SafeArea(
-        child: _isWaitingForHostToStart
-            ? _buildWaitingForHostScreen()
-            : _isOpponentJoined
-                ? _buildOpponentJoinedScreen()
-                : _isWaitingForOpponent
-                    ? _buildWaitingScreen()
-                    : _isFindOpponentMode
-                        ? _buildFindOpponentScreen()
-                        : _isCreateMode
-                            ? _buildCreateScreen()
-                            : _isJoinMode
-                                ? _buildJoinScreen()
-                                : _buildMainScreen(),
-      ),
+    // System back (iOS swipe, Android hardware back) should dismiss the
+    // current sub-mode instead of popping the whole screen — same behavior
+    // as the in-screen back button. Only let the route pop when we're on
+    // the main view with no sub-mode active.
+    final inSubMode = _isCreateMode ||
+        _isJoinMode ||
+        _isFindOpponentMode ||
+        _isWaitingForOpponent ||
+        _isWaitingForHostToStart ||
+        _isOpponentJoined;
+
+    return PopScope(
+      canPop: !inSubMode,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _goBack();
+      },
+      child: Scaffold(
+        backgroundColor: context.colors.background,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SafeArea(
+          child: _isWaitingForHostToStart
+              ? _buildWaitingForHostScreen()
+              : _isOpponentJoined
+                  ? _buildOpponentJoinedScreen()
+                  : _isWaitingForOpponent
+                      ? _buildWaitingScreen()
+                      : _isFindOpponentMode
+                          ? _buildFindOpponentScreen()
+                          : _isCreateMode
+                              ? _buildCreateScreen()
+                              : _isJoinMode
+                                  ? _buildJoinScreen()
+                                  : _buildMainScreen(),
+        ),
+        ),
       ),
     );
   }
