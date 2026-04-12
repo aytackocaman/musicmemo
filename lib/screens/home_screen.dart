@@ -70,8 +70,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       borderRadius: BorderRadius.circular(AppRadius.logo),
                       child: Image.asset(
                         'assets/icon/app_icon.png',
-                        width: 100,
-                        height: 100,
+                        width: 200,
+                        height: 200,
                         fit: BoxFit.cover,
                       ),
                     ),
