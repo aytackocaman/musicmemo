@@ -759,6 +759,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Short vibrations on card flips, matches, mismatches, and turn changes. Lets you feel the rhythm of the game without looking. Toggle it off below if you prefer silence or want to save a bit of battery.';
 
   @override
+  String get turnTimeLimit => 'Turn Time';
+
+  @override
+  String get firstCardBonus => 'First Card Bonus';
+
+  @override
   String get gotIt => 'Got it';
 
   @override

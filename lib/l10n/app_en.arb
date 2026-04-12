@@ -307,6 +307,8 @@
   "delayAfterFirstCardDescription": "How long you must wait after tapping the first card before you can tap a second. The sound keeps playing regardless \u2014 this only controls when your next tap is accepted.",
   "delayAfterMismatchDescription": "Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven't tapped yet.",
   "hapticFeedbackInfoDescription": "Short vibrations on card flips, matches, mismatches, and turn changes. Lets you feel the rhythm of the game without looking. Toggle it off below if you prefer silence or want to save a bit of battery.",
+  "turnTimeLimit": "Turn Time",
+  "firstCardBonus": "First Card Bonus",
   "gotIt": "Got it",
 
   "authSignUpFailed": "Sign up failed. Please try again.",

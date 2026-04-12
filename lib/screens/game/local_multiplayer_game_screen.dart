@@ -19,8 +19,8 @@ import 'preload_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
 
-const _turnTimeLimitMs = 15000; // 15 seconds per turn
-const _firstFlipBonusMs = 3000; // 3 extra seconds after first flip
+const _defaultTurnTimeLimitMs = 15000;
+const _defaultFirstFlipBonusMs = 3000;
 
 class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final String category;
@@ -28,6 +28,9 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final List<String>? soundIds;
   final Map<String, String> soundPaths;
   final Map<String, int> soundDurations;
+  /// Turn time limit in ms. Null means no limit (infinite).
+  final int? turnTimeLimitMs;
+  final int firstFlipBonusMs;
 
   const LocalMultiplayerGameScreen({
     super.key,
@@ -36,6 +39,8 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
     this.soundIds,
     this.soundPaths = const {},
     this.soundDurations = const {},
+    this.turnTimeLimitMs = _defaultTurnTimeLimitMs,
+    this.firstFlipBonusMs = _defaultFirstFlipBonusMs,
   });
 
   @override
@@ -57,11 +62,13 @@ class _LocalMultiplayerGameScreenState
 
   // Turn timer
   Timer? _turnTimer;
-  int _turnTimeRemainingMs = _turnTimeLimitMs;
+  late int _turnTimeRemainingMs;
+  bool get _hasTimeLimit => widget.turnTimeLimitMs != null;
 
   @override
   void initState() {
     super.initState();
+    _turnTimeRemainingMs = widget.turnTimeLimitMs ?? 0;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _initializeGame();
@@ -108,7 +115,8 @@ class _LocalMultiplayerGameScreenState
 
   void _startTurnTimer() {
     _turnTimer?.cancel();
-    setState(() => _turnTimeRemainingMs = _turnTimeLimitMs);
+    if (!_hasTimeLimit) return;
+    setState(() => _turnTimeRemainingMs = widget.turnTimeLimitMs!);
     _turnTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
       if (_isPaused) return;
       final remaining = _turnTimeRemainingMs - 50;
@@ -122,7 +130,8 @@ class _LocalMultiplayerGameScreenState
 
   void _resetTurnTimer() {
     _turnTimer?.cancel();
-    setState(() => _turnTimeRemainingMs = _turnTimeLimitMs);
+    if (!_hasTimeLimit) return;
+    setState(() => _turnTimeRemainingMs = widget.turnTimeLimitMs!);
     _turnTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
       if (_isPaused) return;
       final remaining = _turnTimeRemainingMs - 50;
@@ -234,10 +243,12 @@ class _LocalMultiplayerGameScreenState
 
     if (newFlippedCards == 1) {
       // Add bonus time after first flip, but cap at the base limit
-      setState(() {
-        _turnTimeRemainingMs = (_turnTimeRemainingMs + _firstFlipBonusMs)
-            .clamp(0, _turnTimeLimitMs);
-      });
+      if (_hasTimeLimit) {
+        setState(() {
+          _turnTimeRemainingMs = (_turnTimeRemainingMs + widget.firstFlipBonusMs)
+              .clamp(0, widget.turnTimeLimitMs!);
+        });
+      }
       // First card flipped - longer delay if never heard, shorter if already heard
       final t = ref.read(cardTimingsProvider);
       final firstTime = !_heardCardIds.contains(cardId);
@@ -461,7 +472,9 @@ class _LocalMultiplayerGameScreenState
     final player1 = gameState.players.isNotEmpty ? gameState.players[0] : null;
     final player2 = gameState.players.length > 1 ? gameState.players[1] : null;
     final isPlayer1Turn = gameState.currentPlayerIndex == 0;
-    final turnProgress = _turnTimeRemainingMs / _turnTimeLimitMs;
+    final turnProgress = _hasTimeLimit
+        ? _turnTimeRemainingMs / widget.turnTimeLimitMs!
+        : 1.0;
     final p1Color = player1 != null ? hexToColor(player1.color) : context.colors.accent;
     final p2Color = player2 != null ? hexToColor(player2.color) : AppColors.teal;
 
@@ -473,7 +486,7 @@ class _LocalMultiplayerGameScreenState
             child: FuseTimerBorder(
               progress: isPlayer1Turn ? turnProgress : 0.0,
               color: p1Color,
-              showFuse: isPlayer1Turn,
+              showFuse: _hasTimeLimit && isPlayer1Turn,
               child: _PlayerScoreCard(
                 name: player1?.name ?? l10n.playerNumber(1),
                 color: p1Color,
@@ -487,7 +500,7 @@ class _LocalMultiplayerGameScreenState
             child: FuseTimerBorder(
               progress: !isPlayer1Turn ? turnProgress : 0.0,
               color: p2Color,
-              showFuse: !isPlayer1Turn,
+              showFuse: _hasTimeLimit && !isPlayer1Turn,
               child: _PlayerScoreCard(
                 name: player2?.name ?? l10n.playerNumber(2),
                 color: p2Color,

@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.colors.accent,
+      backgroundColor: context.colors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -54,8 +54,8 @@ class _SplashScreenState extends State<SplashScreen> {
               borderRadius: BorderRadius.circular(AppRadius.logo),
               child: Image.asset(
                 'assets/icon/app_icon.png',
-                width: 120,
-                height: 120,
+                width: 200,
+                height: 200,
                 fit: BoxFit.cover,
               ),
             ),
@@ -64,15 +64,13 @@ class _SplashScreenState extends State<SplashScreen> {
             // Title
             Text(
               AppLocalizations.of(context)?.appTitle ?? 'Music Memo',
-              style: AppTypography.headline2(context).copyWith(
-                color: AppColors.white,
-              ),
+              style: AppTypography.headline2(context),
             ),
             const SizedBox(height: AppSpacing.xl),
 
             // Loading indicator
-            const CircularProgressIndicator(
-              color: AppColors.white,
+            CircularProgressIndicator(
+              color: context.colors.accent,
               strokeWidth: 2.5,
             ),
           ],

@@ -56,6 +56,8 @@ class _LocalPlayerSetupScreenState
   late Color _player1Color;
   late Color _player2Color;
   bool _initialized = false;
+  int? _selectedTurnTimeMs = 15000;
+  int _selectedBonusMs = 3000;
 
   @override
   void didChangeDependencies() {
@@ -99,6 +101,8 @@ class _LocalPlayerSetupScreenState
         builder: (context) => PreloadScreen(
           category: widget.category,
           gridSize: widget.gridSize,
+          turnTimeLimitMs: _selectedTurnTimeMs,
+          firstFlipBonusMs: _selectedBonusMs,
         ),
       ),
     );
@@ -189,6 +193,49 @@ class _LocalPlayerSetupScreenState
                           ),
                         ),
 
+                        // ── Timer settings ───────────────────────
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(l10n.turnTimeLimit,
+                                  style: AppTypography.bodyLarge(context)
+                                      .copyWith(fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 8),
+                              _buildTimerOptionRow(
+                                options: const [
+                                  {'ms': null, 'label': '∞'},
+                                  {'ms': 12000, 'label': '12s'},
+                                  {'ms': 15000, 'label': '15s'},
+                                  {'ms': 18000, 'label': '18s'},
+                                  {'ms': 21000, 'label': '21s'},
+                                ],
+                                selectedValue: _selectedTurnTimeMs,
+                                onSelect: (v) =>
+                                    setState(() => _selectedTurnTimeMs = v),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(l10n.firstCardBonus,
+                                  style: AppTypography.bodyLarge(context)
+                                      .copyWith(fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 8),
+                              _buildTimerOptionRow(
+                                options: const [
+                                  {'ms': 0, 'label': '0s'},
+                                  {'ms': 3000, 'label': '3s'},
+                                  {'ms': 4000, 'label': '4s'},
+                                  {'ms': 5000, 'label': '5s'},
+                                ],
+                                selectedValue: _selectedBonusMs,
+                                onSelect: (v) =>
+                                    setState(() => _selectedBonusMs = v as int),
+                              ),
+                            ],
+                          ),
+                        ),
+
                         const Spacer(),
 
                         // ── Button (always at bottom) ────────────────
@@ -219,6 +266,45 @@ class _LocalPlayerSetupScreenState
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTimerOptionRow({
+    required List<Map<String, dynamic>> options,
+    required dynamic selectedValue,
+    required ValueChanged<dynamic> onSelect,
+  }) {
+    return Row(
+      children: options.map((opt) {
+        final ms = opt['ms'];
+        final isSelected = selectedValue == ms;
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => onSelect(ms),
+            child: Container(
+              margin: EdgeInsets.only(
+                right: opt != options.last ? 6 : 0,
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected ? context.colors.accent : context.colors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? context.colors.accent : context.colors.elevated,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  opt['label'] as String,
+                  style: AppTypography.body(context).copyWith(
+                    color: isSelected ? Colors.white : context.colors.textPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 

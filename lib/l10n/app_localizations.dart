@@ -1526,6 +1526,18 @@ abstract class AppLocalizations {
   /// **'Short vibrations on card flips, matches, mismatches, and turn changes. Lets you feel the rhythm of the game without looking. Toggle it off below if you prefer silence or want to save a bit of battery.'**
   String get hapticFeedbackInfoDescription;
 
+  /// No description provided for @turnTimeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Time'**
+  String get turnTimeLimit;
+
+  /// No description provided for @firstCardBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'First Card Bonus'**
+  String get firstCardBonus;
+
   /// No description provided for @gotIt.
   ///
   /// In en, this message translates to:

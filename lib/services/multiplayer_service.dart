@@ -234,6 +234,8 @@ class MultiplayerService {
     required String gridSize,
     required String playerName,
     bool isPublic = false,
+    int turnTimeLimitMs = 15000,
+    int firstFlipBonusMs = 3000,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
@@ -252,6 +254,10 @@ class MultiplayerService {
         'player1_score': 0,
         'player2_score': 0,
         'is_public': isPublic,
+        'game_state': {
+          'turnTimeLimitMs': turnTimeLimitMs,
+          'firstFlipBonusMs': firstFlipBonusMs,
+        },
       }).select().single();
 
       return OnlineSession.fromJson(response);
@@ -551,6 +557,8 @@ class MultiplayerService {
     required int player2Score,
     required String currentTurn,
     String? status,
+    int? turnTimeLimitMs,
+    int? firstFlipBonusMs,
   }) async {
     try {
       if (DevConfig.simulateDisconnect) {
@@ -567,8 +575,12 @@ class MultiplayerService {
       final matchedCards = cards.where((c) => c.state == CardState.matched).map((c) => c.id).toList();
       debugPrint('Updating game state: turn=$currentTurn, flipped=$flippedCards, matched=$matchedCards');
 
+      final gameState = <String, dynamic>{'cards': cardData};
+      if (turnTimeLimitMs != null) gameState['turnTimeLimitMs'] = turnTimeLimitMs;
+      if (firstFlipBonusMs != null) gameState['firstFlipBonusMs'] = firstFlipBonusMs;
+
       final updates = <String, dynamic>{
-        'game_state': {'cards': cardData},
+        'game_state': gameState,
         'player1_score': player1Score,
         'player2_score': player2Score,
         'current_turn': currentTurn,
@@ -620,8 +632,16 @@ class MultiplayerService {
         if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
+      final gameState = <String, dynamic>{'cards': cardData};
+      // Preserve timer settings from session creation
+      final existingState = session?.gameState;
+      if (existingState != null) {
+        if (existingState['turnTimeLimitMs'] != null) gameState['turnTimeLimitMs'] = existingState['turnTimeLimitMs'];
+        if (existingState['firstFlipBonusMs'] != null) gameState['firstFlipBonusMs'] = existingState['firstFlipBonusMs'];
+      }
+
       await _client.from('online_sessions').update({
-        'game_state': {'cards': cardData},
+        'game_state': gameState,
         'current_turn': firstTurn,
         'status': 'playing',
         'updated_at': DateTime.now().toIso8601String(),
@@ -640,6 +660,8 @@ class MultiplayerService {
     required String sessionId,
     required List<GameCard> cards,
     required String firstTurn,
+    int? turnTimeLimitMs,
+    int? firstFlipBonusMs,
   }) async {
     try {
       final cardData = cards.map((c) => {
@@ -649,8 +671,12 @@ class MultiplayerService {
         if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
+      final gameState = <String, dynamic>{'cards': cardData};
+      if (turnTimeLimitMs != null) gameState['turnTimeLimitMs'] = turnTimeLimitMs;
+      if (firstFlipBonusMs != null) gameState['firstFlipBonusMs'] = firstFlipBonusMs;
+
       await _client.from('online_sessions').update({
-        'game_state': {'cards': cardData},
+        'game_state': gameState,
         'current_turn': firstTurn,
         'status': 'playing',
         'updated_at': DateTime.now().toIso8601String(),
@@ -846,8 +872,16 @@ class MultiplayerService {
         if (c.matchedByColor != null) 'matchedByColor': c.matchedByColor,
       }).toList();
 
+      final gameState = <String, dynamic>{'cards': cardData};
+      // Preserve timer settings from original session
+      final existingState = session?.gameState;
+      if (existingState != null) {
+        if (existingState['turnTimeLimitMs'] != null) gameState['turnTimeLimitMs'] = existingState['turnTimeLimitMs'];
+        if (existingState['firstFlipBonusMs'] != null) gameState['firstFlipBonusMs'] = existingState['firstFlipBonusMs'];
+      }
+
       await _client.from('online_sessions').update({
-        'game_state': {'cards': cardData},
+        'game_state': gameState,
         'player1_score': 0,
         'player2_score': 0,
         'current_turn': firstTurn,

@@ -307,6 +307,8 @@
   "delayAfterFirstCardDescription": "İlk karta dokunduktan sonra ikinci karta dokunmadan önce ne kadar beklemeniz gerektiği. Ses ne olursa olsun çalmaya devam eder \u2014 bu yalnızca bir sonraki dokunmanızın ne zaman kabul edileceğini kontrol eder.",
   "delayAfterMismatchDescription": "Bir eşleşmemeden sonra tekrar dokunmadan önce beklemeniz gereken minimum süre. Eşleşmeyen kartlar görünür kalır ve henüz dokunmadıysanız 2,1 saniyede kendiliğinden geri döner.",
   "hapticFeedbackInfoDescription": "Kart çevirme, eşleşme, eşleşmeme ve sıra değişikliklerinde kısa titreşimler. Ekrana bakmadan oyunun ritmini hissetmenizi sağlar. Sessiz bir deneyim istiyorsanız veya biraz pil tasarrufu yapmak istiyorsanız aşağıdan kapatabilirsiniz.",
+  "turnTimeLimit": "Hamle Süresi",
+  "firstCardBonus": "İlk Kart Bonusu",
   "gotIt": "Anlaşıldı",
 
   "authSignUpFailed": "Kayıt başarısız. Lütfen tekrar deneyin.",

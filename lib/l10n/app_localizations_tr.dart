@@ -765,6 +765,12 @@ class AppLocalizationsTr extends AppLocalizations {
       'Kart çevirme, eşleşme, eşleşmeme ve sıra değişikliklerinde kısa titreşimler. Ekrana bakmadan oyunun ritmini hissetmenizi sağlar. Sessiz bir deneyim istiyorsanız veya biraz pil tasarrufu yapmak istiyorsanız aşağıdan kapatabilirsiniz.';
 
   @override
+  String get turnTimeLimit => 'Hamle Süresi';
+
+  @override
+  String get firstCardBonus => 'İlk Kart Bonusu';
+
+  @override
   String get gotIt => 'Anlaşıldı';
 
   @override

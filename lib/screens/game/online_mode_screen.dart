@@ -25,6 +25,62 @@ final List<Map<String, dynamic>> _gridOptions = [
   {'id': '6x7', 'label': '6x7', 'pairs': 21, 'difficultyKey': 'hard'},
 ];
 
+/// Turn time options (ms → label).
+const List<Map<String, dynamic>> _turnTimeOptions = [
+  {'ms': 12000, 'label': '12s'},
+  {'ms': 15000, 'label': '15s'},
+  {'ms': 18000, 'label': '18s'},
+  {'ms': 21000, 'label': '21s'},
+];
+
+/// First-card bonus options (ms → label).
+const List<Map<String, dynamic>> _bonusTimeOptions = [
+  {'ms': 0, 'label': '0s'},
+  {'ms': 3000, 'label': '3s'},
+  {'ms': 4000, 'label': '4s'},
+  {'ms': 5000, 'label': '5s'},
+];
+
+Widget _buildOptionRow({
+  required BuildContext context,
+  required List<Map<String, dynamic>> options,
+  required int selectedValue,
+  required ValueChanged<int> onSelect,
+}) {
+  return Row(
+    children: options.map((opt) {
+      final ms = opt['ms'] as int;
+      final isSelected = selectedValue == ms;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onSelect(ms),
+          child: Container(
+            margin: EdgeInsets.only(
+              right: opt != options.last ? 8 : 0,
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: isSelected ? context.colors.accent : context.colors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? context.colors.accent : context.colors.elevated,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                opt['label'] as String,
+                style: AppTypography.bodyLarge(context).copyWith(
+                  color: isSelected ? Colors.white : context.colors.textPrimary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList(),
+  );
+}
+
 String _resolveDifficulty(AppLocalizations l10n, String key) {
   switch (key) {
     case 'test': return l10n.test;
@@ -64,6 +120,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   // Selections
   String _selectedCategory = 'piano';
   String _selectedGrid = '4x5';
+  int _selectedTurnTimeMs = 15000;
+  int _selectedBonusMs = 3000;
 
   // Session data
   String? _inviteCode;
@@ -231,6 +289,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       gridSize: _selectedGrid,
       playerName: _nameController.text.trim(),
       isPublic: true,
+      turnTimeLimitMs: _selectedTurnTimeMs,
+      firstFlipBonusMs: _selectedBonusMs,
     );
 
     if (session == null) {
@@ -283,6 +343,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       category: _selectedCategory,
       gridSize: _selectedGrid,
       playerName: _nameController.text.trim(),
+      turnTimeLimitMs: _selectedTurnTimeMs,
+      firstFlipBonusMs: _selectedBonusMs,
     );
 
     if (session == null) {
@@ -689,6 +751,28 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             _buildSectionTitle(l10n.gridSizeLabel),
             const SizedBox(height: 8),
             _buildGridSelector(),
+            const SizedBox(height: AppSpacing.xl),
+
+            // Turn time
+            _buildSectionTitle(l10n.turnTimeLimit),
+            const SizedBox(height: 8),
+            _buildOptionRow(
+              context: context,
+              options: _turnTimeOptions,
+              selectedValue: _selectedTurnTimeMs,
+              onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            // First card bonus
+            _buildSectionTitle(l10n.firstCardBonus),
+            const SizedBox(height: 8),
+            _buildOptionRow(
+              context: context,
+              options: _bonusTimeOptions,
+              selectedValue: _selectedBonusMs,
+              onSelect: (v) => setState(() => _selectedBonusMs = v),
+            ),
             const SizedBox(height: AppSpacing.xxl),
 
             // Create public game button
@@ -771,6 +855,28 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildSectionTitle(l10n.gridSizeLabel),
           const SizedBox(height: 8),
           _buildGridSelector(),
+          const SizedBox(height: AppSpacing.xl),
+
+          // Turn time
+          _buildSectionTitle(l10n.turnTimeLimit),
+          const SizedBox(height: 8),
+          _buildOptionRow(
+            context: context,
+            options: _turnTimeOptions,
+            selectedValue: _selectedTurnTimeMs,
+            onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          // First card bonus
+          _buildSectionTitle(l10n.firstCardBonus),
+          const SizedBox(height: 8),
+          _buildOptionRow(
+            context: context,
+            options: _bonusTimeOptions,
+            selectedValue: _selectedBonusMs,
+            onSelect: (v) => setState(() => _selectedBonusMs = v),
+          ),
           const SizedBox(height: AppSpacing.xxl),
 
           // Create button
@@ -1507,6 +1613,8 @@ class _CreatePrivateGameScreenState
   final _nameController = TextEditingController();
   bool _nameSetFromProfile = false;
   String _selectedGrid = '4x5';
+  int _selectedTurnTimeMs = 15000;
+  int _selectedBonusMs = 3000;
 
   bool _isLoading = false;
   bool _isWaiting = false;
@@ -1576,6 +1684,8 @@ class _CreatePrivateGameScreenState
       category: widget.category,
       gridSize: _selectedGrid,
       playerName: _nameController.text.trim(),
+      turnTimeLimitMs: _selectedTurnTimeMs,
+      firstFlipBonusMs: _selectedBonusMs,
     );
 
     if (session == null) {
@@ -1752,6 +1862,24 @@ class _CreatePrivateGameScreenState
           _buildSectionTitle(l10n.gridSizeLabel),
           const SizedBox(height: 8),
           _buildGridSelector(),
+          const SizedBox(height: AppSpacing.xl),
+          _buildSectionTitle(l10n.turnTimeLimit),
+          const SizedBox(height: 8),
+          _buildOptionRow(
+            context: context,
+            options: _turnTimeOptions,
+            selectedValue: _selectedTurnTimeMs,
+            onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          _buildSectionTitle(l10n.firstCardBonus),
+          const SizedBox(height: 8),
+          _buildOptionRow(
+            context: context,
+            options: _bonusTimeOptions,
+            selectedValue: _selectedBonusMs,
+            onSelect: (v) => setState(() => _selectedBonusMs = v),
+          ),
           const SizedBox(height: AppSpacing.xxl),
           SizedBox(
             width: double.infinity,
@@ -2138,6 +2266,8 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
   final _nameController = TextEditingController();
   bool _nameSetFromProfile = false;
   String _selectedGrid = '4x5';
+  int _selectedTurnTimeMs = 15000;
+  int _selectedBonusMs = 3000;
 
   _FindPhase _phase = _FindPhase.searching;
   bool _isLoading = false;
@@ -2275,6 +2405,8 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
       gridSize: _selectedGrid,
       playerName: _nameController.text.trim(),
       isPublic: true,
+      turnTimeLimitMs: _selectedTurnTimeMs,
+      firstFlipBonusMs: _selectedBonusMs,
     );
     if (!mounted) return;
 
@@ -2455,6 +2587,24 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
           _buildSectionTitle(l10n.gridSizeLabel),
           const SizedBox(height: 8),
           _buildGridSelector(),
+          const SizedBox(height: AppSpacing.xl),
+          _buildSectionTitle(l10n.turnTimeLimit),
+          const SizedBox(height: 8),
+          _buildOptionRow(
+            context: context,
+            options: _turnTimeOptions,
+            selectedValue: _selectedTurnTimeMs,
+            onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          _buildSectionTitle(l10n.firstCardBonus),
+          const SizedBox(height: 8),
+          _buildOptionRow(
+            context: context,
+            options: _bonusTimeOptions,
+            selectedValue: _selectedBonusMs,
+            onSelect: (v) => setState(() => _selectedBonusMs = v),
+          ),
           const SizedBox(height: AppSpacing.xxl),
           SizedBox(
             width: double.infinity,
