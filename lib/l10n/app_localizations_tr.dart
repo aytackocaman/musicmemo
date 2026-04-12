@@ -271,7 +271,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get fetchingSoundList => 'Ses listesi alınıyor...';
 
   @override
-  String get downloadingSounds => 'Oyununuz hazırlanıyor...';
+  String get downloadingSounds => 'Hazırlanıyor...';
 
   @override
   String get failedToLoadSounds => 'Sesler yüklenemedi';

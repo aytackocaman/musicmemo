@@ -593,7 +593,7 @@ abstract class AppLocalizations {
   /// No description provided for @downloadingSounds.
   ///
   /// In en, this message translates to:
-  /// **'Preparing your game...'**
+  /// **'Getting ready...'**
   String get downloadingSounds;
 
   /// No description provided for @failedToLoadSounds.

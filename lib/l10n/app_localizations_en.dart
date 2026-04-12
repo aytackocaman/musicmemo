@@ -269,7 +269,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fetchingSoundList => 'Fetching sound list...';
 
   @override
-  String get downloadingSounds => 'Preparing your game...';
+  String get downloadingSounds => 'Getting ready...';
 
   @override
   String get failedToLoadSounds => 'Failed to load sounds';

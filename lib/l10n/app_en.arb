@@ -120,7 +120,7 @@
 
   "preparingGame": "Preparing Game",
   "fetchingSoundList": "Fetching sound list...",
-  "downloadingSounds": "Preparing your game...",
+  "downloadingSounds": "Getting ready...",
   "failedToLoadSounds": "Failed to load sounds",
   "retry": "Retry",
   "goBack": "Go Back",

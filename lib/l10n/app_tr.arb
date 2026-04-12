@@ -120,7 +120,7 @@
 
   "preparingGame": "Oyun Hazırlanıyor",
   "fetchingSoundList": "Ses listesi alınıyor...",
-  "downloadingSounds": "Oyununuz hazırlanıyor...",
+  "downloadingSounds": "Hazırlanıyor...",
   "failedToLoadSounds": "Sesler yüklenemedi",
   "retry": "Tekrar Dene",
   "goBack": "Geri Dön",

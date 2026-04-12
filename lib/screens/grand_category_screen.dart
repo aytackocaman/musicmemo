@@ -71,7 +71,7 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
                 subtitle: l10n.musicDescription,
                 iconColor: context.colors.accent,
                 iconBackgroundColor: const Color(0x268B5CF6),
-                isPrimary: true,
+                isPrimary: false,
                 onTap: () async {
                 final isOnline =
                     ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer;

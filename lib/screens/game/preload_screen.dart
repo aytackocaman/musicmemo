@@ -86,7 +86,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
       // 3. Download / cache only those sounds.
       // Use the actual category the sounds belong to (may differ if falling back to piano)
       final actualCategoryId = sounds.first.categoryId;
-      setState(() => _statusText = l10n.downloadingSounds);
+      setState(() => _statusText = l10n.pleaseWait);
       final soundPaths = await AudioService.preloadCategory(
         categoryId: actualCategoryId,
         sounds: sounds,

@@ -14,8 +14,6 @@ import 'paywall_screen.dart';
 List<_TagType> _tagTypes(BuildContext context) => [
   _TagType('mood',     Icons.sentiment_satisfied_alt, context.colors.accent),
   _TagType('genre',    Icons.queue_music,             AppColors.teal),
-  _TagType('movement', Icons.speed,                   AppColors.pink),
-  _TagType('theme',    Icons.movie_outlined,          const Color(0xFFFBBF24)),
 ];
 
 class _TagType {
@@ -350,8 +348,8 @@ class _SectionHeader extends StatelessWidget {
     return Text(
       title,
       style: AppTypography.bodyLarge(context).copyWith(
+        fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: context.colors.textPrimary,
       ),
     );
   }

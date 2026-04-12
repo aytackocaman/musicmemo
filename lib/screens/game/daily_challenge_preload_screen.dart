@@ -91,7 +91,7 @@ class _DailyChallengePreloadScreenState
 
       // Preload audio files
       final actualCategoryId = pickedSounds.first.categoryId;
-      setState(() => _statusText = l10n.downloadingSounds);
+      setState(() => _statusText = l10n.pleaseWait);
       final soundPaths = await AudioService.preloadCategory(
         categoryId: actualCategoryId,
         sounds: pickedSounds,
