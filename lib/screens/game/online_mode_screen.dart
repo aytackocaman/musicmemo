@@ -956,7 +956,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
           if (!_isPublicSession) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               decoration: BoxDecoration(
                 color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16),
@@ -964,8 +964,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               ),
               child: Text(
                 _inviteCode ?? '',
-                style: AppTypography.headline2(context).copyWith(
-                  letterSpacing: 8,
+                style: AppTypography.headline3(context).copyWith(
+                  letterSpacing: 6,
                   color: context.colors.accent,
                 ),
               ),
@@ -1820,15 +1820,15 @@ class _CreatePrivateGameScreenState
           const SizedBox(height: 24),
           _buildConnectionBanner(),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             decoration: BoxDecoration(
                 color: context.colors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: context.colors.elevated)),
             child: Text(
               _inviteCode ?? '',
-              style: AppTypography.headline2(context)
-                  .copyWith(letterSpacing: 8, color: context.colors.accent),
+              style: AppTypography.headline3(context)
+                  .copyWith(letterSpacing: 6, color: context.colors.accent),
             ),
           ),
           const SizedBox(height: 16),
