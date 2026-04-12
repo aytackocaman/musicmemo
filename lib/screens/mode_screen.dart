@@ -162,6 +162,32 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               _buildDailyChallengeCard(l10n, isPremium, counts),
               const SizedBox(height: AppSpacing.md),
 
+              // Online Multiplayer
+              _ModeButton(
+                icon: Icons.public,
+                title: l10n.onlineMultiplayer,
+                subtitle: isPremium
+                    ? l10n.onlineMultiplayerDescription
+                    : l10n.premiumOnly,
+                iconBackgroundColor: const Color(0x2614B8A6),
+                badge: isPremium ? null : _PremiumBadge(),
+                onTap: () {
+                  if (!isPremium) {
+                    _showPaywall(context, isPremiumFeature: true, isTrialExpired: isTrialExpired);
+                    return;
+                  }
+                  ref.read(selectedGameModeProvider.notifier).state =
+                      GameMode.onlineMultiplayer;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OnlineModeScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.md),
+
               // Single Player
               _ModeButton(
                 icon: Icons.person,
@@ -209,32 +235,6 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.md),
-
-              // Online Multiplayer
-              _ModeButton(
-                icon: Icons.public,
-                title: l10n.onlineMultiplayer,
-                subtitle: isPremium
-                    ? l10n.onlineMultiplayerDescription
-                    : l10n.premiumOnly,
-                iconBackgroundColor: const Color(0x2614B8A6),
-                badge: isPremium ? null : _PremiumBadge(),
-                onTap: () {
-                  if (!isPremium) {
-                    _showPaywall(context, isPremiumFeature: true, isTrialExpired: isTrialExpired);
-                    return;
-                  }
-                  ref.read(selectedGameModeProvider.notifier).state =
-                      GameMode.onlineMultiplayer;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OnlineModeScreen(),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
         ),
@@ -253,15 +253,12 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                context.colors.accent,
-                context.colors.accentGradientDark,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: context.colors.elevated,
+              width: 1,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,12 +266,12 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               Row(
                 children: [
                   Icon(Icons.calendar_today,
-                      size: 20, color: AppColors.white.withValues(alpha: 0.9)),
+                      size: 20, color: context.colors.accent),
                   const SizedBox(width: 8),
                   Text(
                     l10n.dailyChallenge,
                     style: AppTypography.bodyLarge(context).copyWith(
-                      color: AppColors.white,
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -283,13 +280,13 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.2),
+                      color: context.colors.elevated,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       challenge.gridSize.replaceAll('x', '×'),
                       style: AppTypography.labelSmall(context).copyWith(
-                        color: AppColors.white,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -299,7 +296,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
               Text(
                 _formatCategoryName(challenge.categoryName),
                 style: AppTypography.body(context).copyWith(
-                  color: AppColors.white.withValues(alpha: 0.85),
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -311,7 +308,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                         Text(
                           '${l10n.score}: ${score.score}',
                           style: AppTypography.bodyLarge(context).copyWith(
-                            color: AppColors.white,
+                            color: context.colors.textPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -325,13 +322,13 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.white,
+                              color: context.colors.accent,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               l10n.viewLeaderboard,
                               style: AppTypography.bodySmall(context).copyWith(
-                                color: context.colors.accent,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -346,19 +343,19 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                          color: context.colors.accent,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.play_arrow,
-                                size: 20, color: context.colors.accent),
+                                size: 20, color: AppColors.white),
                             const SizedBox(width: 6),
                             Text(
                               l10n.playNow,
                               style: AppTypography.bodyLarge(context).copyWith(
-                                color: context.colors.accent,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -377,7 +374,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.white.withValues(alpha: 0.2),
+                          color: context.colors.elevated,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -385,15 +382,13 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                           children: [
                             Icon(Icons.lock,
                                 size: 18,
-                                color:
-                                    AppColors.white.withValues(alpha: 0.8)),
+                                color: context.colors.textTertiary),
                             const SizedBox(width: 6),
                             Text(
                               l10n.upgradeToPlay,
                               style:
                                   AppTypography.bodyLarge(context).copyWith(
-                                color:
-                                    AppColors.white.withValues(alpha: 0.9),
+                                color: context.colors.textSecondary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -403,17 +398,17 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                     );
                   }
                 },
-                loading: () => const Center(
+                loading: () => Center(
                   child: SizedBox(
                     height: 24,
                     width: 24,
                     child: CircularProgressIndicator(
-                      color: AppColors.white,
+                      color: context.colors.accent,
                       strokeWidth: 2,
                     ),
                   ),
                 ),
-                error: (_, __) {
+                error: (_, _) {
                   if (canPlay) {
                     return GestureDetector(
                       onTap: () => _onDailyChallengePlay(challenge),
@@ -421,19 +416,19 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                          color: context.colors.accent,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.play_arrow,
-                                size: 20, color: context.colors.accent),
+                                size: 20, color: AppColors.white),
                             const SizedBox(width: 6),
                             Text(
                               l10n.playNow,
                               style: AppTypography.bodyLarge(context).copyWith(
-                                color: context.colors.accent,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
