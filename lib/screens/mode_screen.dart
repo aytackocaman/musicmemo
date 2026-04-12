@@ -156,7 +156,8 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                   color: context.colors.textSecondary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xl),
+
+              const SizedBox(height: 2.1* AppSpacing.xl),
 
               // Daily Challenge
               _buildDailyChallengeCard(l10n, isPremium, counts),
