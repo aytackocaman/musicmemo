@@ -206,15 +206,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       Column(
                         children: [
                           const SizedBox(height: AppSpacing.xxl),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(32),
-                            child: Image.asset(
-                              'assets/icon/app_icon.png',
-                              width: 120,
-                              height: 120,
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeInOut,
+                            width: _showEmailForm ? 120 : 200,
+                            height: _showEmailForm ? 120 : 200,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(32),
+                              child: Image.asset(
+                                'assets/icon/app_icon.png',
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xl),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeInOut,
+                            height: _showEmailForm ? AppSpacing.xl : AppSpacing.xxl,
+                          ),
                           Text(
                             _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
                             style: AppTypography.headline2(context),
