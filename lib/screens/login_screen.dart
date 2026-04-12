@@ -191,6 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
+                physics: _showEmailForm
+                    ? const NeverScrollableScrollPhysics()
+                    : null,
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
@@ -235,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ] else ...[
                             _buildSocialButtons(),
                           ],
-                          const SizedBox(height: AppSpacing.xxl),
+                          SizedBox(height: _showEmailForm ? AppSpacing.sm : AppSpacing.xxl),
                           Text(
                             l10n.byContinuing,
                             style: AppTypography.labelSmall(context),
@@ -459,7 +462,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.sm),
 
         // Back to sign-in options
         TextButton(
