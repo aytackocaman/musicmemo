@@ -51,9 +51,6 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
       return;
     }
 
-    DatabaseService.incrementGameCount('single_player');
-    ref.invalidate(dailyGameCountsProvider);
-
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -172,7 +169,6 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 subtitle: isPremium
                     ? l10n.singlePlayerDescription
                     : l10n.freeGamesLeftToday(counts.singlePlayerRemaining, DailyGameCounts.singlePlayerLimit),
-                isPrimary: true,
                 onTap: () {
                   if (!isPremium && !counts.canPlaySinglePlayer) {
                     _showPaywall(context, isTrialExpired: isTrialExpired);
