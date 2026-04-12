@@ -249,198 +249,74 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
 
     return challengeAsync.when(
       data: (challenge) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: context.colors.elevated,
-              width: 1,
+        final score = scoreAsync.valueOrNull;
+        return GestureDetector(
+          onTap: () {
+            if (score != null) {
+              _onDailyChallengeViewLeaderboard(challenge, score);
+            } else if (canPlay) {
+              _onDailyChallengePlay(challenge);
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PaywallScreen()),
+              );
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: context.colors.elevated,
+                width: 1,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.calendar_today,
-                      size: 20, color: context.colors.accent),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.dailyChallenge,
-                    style: AppTypography.bodyLarge(context).copyWith(
-                      color: context.colors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0x26FF9500),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: context.colors.elevated,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      challenge.gridSize.replaceAll('x', '×'),
-                      style: AppTypography.labelSmall(context).copyWith(
-                        color: context.colors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _formatCategoryName(challenge.categoryName),
-                style: AppTypography.body(context).copyWith(
-                  color: context.colors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 12),
-              scoreAsync.when(
-                data: (score) {
-                  if (score != null) {
-                    return Row(
-                      children: [
-                        Text(
-                          '${l10n.score}: ${score.score}',
-                          style: AppTypography.bodyLarge(context).copyWith(
-                            color: context.colors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () => _onDailyChallengeViewLeaderboard(
-                            challenge,
-                            score,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: context.colors.accent,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              l10n.viewLeaderboard,
-                              style: AppTypography.bodySmall(context).copyWith(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  } else if (canPlay) {
-                    return GestureDetector(
-                      onTap: () => _onDailyChallengePlay(challenge),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: context.colors.accent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.play_arrow,
-                                size: 20, color: AppColors.white),
-                            const SizedBox(width: 6),
-                            Text(
-                              l10n.playNow,
-                              style: AppTypography.bodyLarge(context).copyWith(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  } else {
-                    return GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const PaywallScreen()),
-                      ),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: context.colors.elevated,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.lock,
-                                size: 18,
-                                color: context.colors.textTertiary),
-                            const SizedBox(width: 6),
-                            Text(
-                              l10n.upgradeToPlay,
-                              style:
-                                  AppTypography.bodyLarge(context).copyWith(
-                                color: context.colors.textSecondary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-                },
-                loading: () => Center(
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: context.colors.accent,
-                      strokeWidth: 2,
-                    ),
+                  child: Icon(
+                    Icons.calendar_today,
+                    size: 22,
+                    color: context.colors.accent,
                   ),
                 ),
-                error: (_, _) {
-                  if (canPlay) {
-                    return GestureDetector(
-                      onTap: () => _onDailyChallengePlay(challenge),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: context.colors.accent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.play_arrow,
-                                size: 20, color: AppColors.white),
-                            const SizedBox(width: 6),
-                            Text(
-                              l10n.playNow,
-                              style: AppTypography.bodyLarge(context).copyWith(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.dailyChallenge,
+                        style: AppTypography.body(context).copyWith(
+                          color: context.colors.textPrimary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ],
+                      const SizedBox(height: 2),
+                      Text(
+                        score != null
+                            ? '${l10n.score}: ${score.score} · ${l10n.viewLeaderboard}'
+                            : '${_formatCategoryName(challenge.categoryName)} · ${challenge.gridSize.replaceAll('x', '×')}',
+                        style: AppTypography.labelSmall(context).copyWith(
+                          color: context.colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!canPlay && score == null)
+                  Icon(Icons.lock, size: 18, color: context.colors.textTertiary),
+              ],
+            ),
           ),
         );
       },
