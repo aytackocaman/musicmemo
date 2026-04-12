@@ -13,67 +13,85 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeOut;
+
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _fadeOut = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
+    );
     _checkAuthAndNavigate();
   }
 
-  Future<void> _checkAuthAndNavigate() async {
-    // Brief delay for splash screen visibility
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
-    // Check if user is logged in
-    if (SupabaseService.isLoggedIn) {
-      if (DeepLinkService.consumePendingInviteCode(context)) return;
-      _navigateTo(const HomeScreen());
-    } else {
-      _navigateTo(const LoginScreen());
-    }
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
   }
 
-  void _navigateTo(Widget screen) {
+  Future<void> _checkAuthAndNavigate() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (!mounted) return;
+
+    final destination = SupabaseService.isLoggedIn
+        ? const HomeScreen()
+        : const LoginScreen();
+
+    // Fade out splash, then navigate
+    await _fadeController.forward();
+    if (!mounted) return;
+
+    if (SupabaseService.isLoggedIn) {
+      if (DeepLinkService.consumePendingInviteCode(context)) return;
+    }
+
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => screen),
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => destination,
+        transitionDuration: Duration.zero,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo — app icon
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.logo),
-              child: Image.asset(
-                'assets/icon/app_icon.png',
-                width: 200,
-                height: 200,
-                fit: BoxFit.cover,
+    return FadeTransition(
+      opacity: _fadeOut,
+      child: Scaffold(
+        backgroundColor: context.colors.background,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.logo),
+                child: Image.asset(
+                  'assets/icon/app_icon.png',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            // Title
-            Text(
-              AppLocalizations.of(context)?.appTitle ?? 'Music Memo',
-              style: AppTypography.headline2(context),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            // Loading indicator
-            CircularProgressIndicator(
-              color: context.colors.accent,
-              strokeWidth: 2.5,
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xl),
+              Text(
+                AppLocalizations.of(context)?.appTitle ?? 'Music Memo',
+                style: AppTypography.headline2(context),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              CircularProgressIndicator(
+                color: context.colors.accent,
+                strokeWidth: 2.5,
+              ),
+            ],
+          ),
         ),
       ),
     );

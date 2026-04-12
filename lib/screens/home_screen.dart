@@ -17,8 +17,20 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with SingleTickerProviderStateMixin {
   int _highScore = 0;
+
+  late AnimationController _animController;
+  late Animation<double> _iconFade;
+  late Animation<double> _titleFade;
+  late Animation<Offset> _titleSlide;
+  late Animation<double> _subtitleFade;
+  late Animation<Offset> _subtitleSlide;
+  late Animation<double> _buttonsFade;
+  late Animation<Offset> _buttonsSlide;
+  late Animation<double> _scoreFade;
+  late Animation<double> _settingsFade;
 
   @override
   void initState() {
@@ -27,6 +39,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.invalidate(dailyGameCountsProvider);
     });
+
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _iconFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.0, 0.3, curve: Curves.easeOut)),
+    );
+    _titleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.15, 0.45, curve: Curves.easeOut)),
+    );
+    _titleSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.15, 0.45, curve: Curves.easeOut)),
+    );
+    _subtitleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.25, 0.55, curve: Curves.easeOut)),
+    );
+    _subtitleSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.25, 0.55, curve: Curves.easeOut)),
+    );
+    _buttonsFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.4, 0.75, curve: Curves.easeOut)),
+    );
+    _buttonsSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.4, 0.75, curve: Curves.easeOut)),
+    );
+    _scoreFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.6, 0.9, curve: Curves.easeOut)),
+    );
+    _settingsFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.5, 0.8, curve: Curves.easeOut)),
+    );
+
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadHighScore() async {
@@ -66,128 +119,155 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   children: [
                     const SizedBox(height: 48),
                     // Logo — app icon
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadius.logo),
-                      child: Image.asset(
-                        'assets/icon/app_icon.png',
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
+                    FadeTransition(
+                      opacity: _iconFade,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.logo),
+                        child: Image.asset(
+                          'assets/icon/app_icon.png',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
                     // Title
-                    Text(
-                      l10n.appTitle,
-                      style: AppTypography.headline2(context),
+                    SlideTransition(
+                      position: _titleSlide,
+                      child: FadeTransition(
+                        opacity: _titleFade,
+                        child: Text(
+                          l10n.appTitle,
+                          style: AppTypography.headline2(context),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
 
                     // Subtitle
-                    Text(
-                      l10n.matchTheSoundsToWin,
-                      style: AppTypography.body(context).copyWith(
-                        color: context.colors.textSecondary,
+                    SlideTransition(
+                      position: _subtitleSlide,
+                      child: FadeTransition(
+                        opacity: _subtitleFade,
+                        child: Text(
+                          l10n.matchTheSoundsToWin,
+                          style: AppTypography.body(context).copyWith(
+                            color: context.colors.textSecondary,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
 
                     // Buttons
-                    SizedBox(
-                      width: 280,
-                      child: Column(
-                        children: [
-                          GameButton(
-                            label: l10n.playGame,
-                            icon: Icons.play_arrow,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ModeScreen(),
-                                ),
-                              );
-                            },
+                    SlideTransition(
+                      position: _buttonsSlide,
+                      child: FadeTransition(
+                        opacity: _buttonsFade,
+                        child: SizedBox(
+                          width: 280,
+                          child: Column(
+                            children: [
+                              GameButton(
+                                label: l10n.playGame,
+                                icon: Icons.play_arrow,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const ModeScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
+                              GameButton(
+                                label: l10n.subscription,
+                                icon: Icons.workspace_premium,
+                                variant: GameButtonVariant.secondary,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SubscriptionScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
+                              GameButton(
+                                label: l10n.statistics,
+                                icon: Icons.bar_chart,
+                                variant: GameButtonVariant.secondary,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const StatisticsScreen(),
+                                    ),
+                                  ).then((_) => _loadHighScore());
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: AppSpacing.lg),
-                          GameButton(
-                            label: l10n.subscription,
-                            icon: Icons.workspace_premium,
-                            variant: GameButtonVariant.secondary,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const SubscriptionScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          GameButton(
-                            label: l10n.statistics,
-                            icon: Icons.bar_chart,
-                            variant: GameButtonVariant.secondary,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const StatisticsScreen(),
-                                ),
-                              ).then((_) => _loadHighScore());
-                            },
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xxl),
 
                     // High Score
-                    Column(
-                      children: [
-                        Text(
-                          l10n.highScore,
-                          style: AppTypography.labelSmall(context),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          _formatHighScore(_highScore),
-                          style: AppTypography.headline3(context).copyWith(
-                            color: AppColors.teal,
+                    FadeTransition(
+                      opacity: _scoreFade,
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.highScore,
+                            style: AppTypography.labelSmall(context),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            _formatHighScore(_highScore),
+                            style: AppTypography.headline3(context).copyWith(
+                              color: AppColors.teal,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 32),
                   ],
                 ),
               ),
             ),
-            // Settings button (top-right, above scroll view)
+            // Settings button (top-right)
             Positioned(
               top: 12,
               right: 16,
-              child: GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const SettingsScreen(),
+              child: FadeTransition(
+                opacity: _settingsFade,
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SettingsScreen(),
+                    ),
                   ),
-                ),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    Icons.settings_outlined,
-                    size: 20,
-                    color: context.colors.textSecondary,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      Icons.settings_outlined,
+                      size: 20,
+                      color: context.colors.textSecondary,
+                    ),
                   ),
                 ),
               ),
@@ -197,5 +277,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
 }
