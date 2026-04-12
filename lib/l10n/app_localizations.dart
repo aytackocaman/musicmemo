@@ -1532,12 +1532,6 @@ abstract class AppLocalizations {
   /// **'Turn Time'**
   String get turnTimeLimit;
 
-  /// No description provided for @firstCardBonus.
-  ///
-  /// In en, this message translates to:
-  /// **'First Card Bonus'**
-  String get firstCardBonus;
-
   /// No description provided for @gotIt.
   ///
   /// In en, this message translates to:

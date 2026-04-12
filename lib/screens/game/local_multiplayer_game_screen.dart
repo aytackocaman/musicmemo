@@ -20,7 +20,6 @@ import '../home_screen.dart';
 import '../paywall_screen.dart';
 
 const _defaultTurnTimeLimitMs = 15000;
-const _defaultFirstFlipBonusMs = 3000;
 
 class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final String category;
@@ -30,7 +29,6 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final Map<String, int> soundDurations;
   /// Turn time limit in ms. Null means no limit (infinite).
   final int? turnTimeLimitMs;
-  final int firstFlipBonusMs;
 
   const LocalMultiplayerGameScreen({
     super.key,
@@ -40,7 +38,6 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
     this.soundPaths = const {},
     this.soundDurations = const {},
     this.turnTimeLimitMs = _defaultTurnTimeLimitMs,
-    this.firstFlipBonusMs = _defaultFirstFlipBonusMs,
   });
 
   @override
@@ -242,13 +239,6 @@ class _LocalMultiplayerGameScreenState
         newState.cards.where((c) => c.state == CardState.flipped).length;
 
     if (newFlippedCards == 1) {
-      // Add bonus time after first flip, but cap at the base limit
-      if (_hasTimeLimit) {
-        setState(() {
-          _turnTimeRemainingMs = (_turnTimeRemainingMs + widget.firstFlipBonusMs)
-              .clamp(0, widget.turnTimeLimitMs!);
-        });
-      }
       // First card flipped - longer delay if never heard, shorter if already heard
       final t = ref.read(cardTimingsProvider);
       final firstTime = !_heardCardIds.contains(cardId);

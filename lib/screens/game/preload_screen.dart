@@ -19,14 +19,12 @@ class PreloadScreen extends ConsumerStatefulWidget {
   final String gridSize;
   /// Local MP turn time limit in ms. Null = no limit.
   final int? turnTimeLimitMs;
-  final int firstFlipBonusMs;
 
   const PreloadScreen({
     super.key,
     required this.category,
     required this.gridSize,
     this.turnTimeLimitMs = 15000,
-    this.firstFlipBonusMs = 3000,
   });
 
   @override
@@ -151,7 +149,6 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
             soundPaths: soundPaths,
             soundDurations: soundDurations,
             turnTimeLimitMs: widget.turnTimeLimitMs,
-            firstFlipBonusMs: widget.firstFlipBonusMs,
           ),
         ),
       );

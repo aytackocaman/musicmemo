@@ -235,7 +235,6 @@ class MultiplayerService {
     required String playerName,
     bool isPublic = false,
     int turnTimeLimitMs = 15000,
-    int firstFlipBonusMs = 3000,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
@@ -256,7 +255,6 @@ class MultiplayerService {
         'is_public': isPublic,
         'game_state': {
           'turnTimeLimitMs': turnTimeLimitMs,
-          'firstFlipBonusMs': firstFlipBonusMs,
         },
       }).select().single();
 
@@ -558,7 +556,6 @@ class MultiplayerService {
     required String currentTurn,
     String? status,
     int? turnTimeLimitMs,
-    int? firstFlipBonusMs,
   }) async {
     try {
       if (DevConfig.simulateDisconnect) {
@@ -577,7 +574,6 @@ class MultiplayerService {
 
       final gameState = <String, dynamic>{'cards': cardData};
       if (turnTimeLimitMs != null) gameState['turnTimeLimitMs'] = turnTimeLimitMs;
-      if (firstFlipBonusMs != null) gameState['firstFlipBonusMs'] = firstFlipBonusMs;
 
       final updates = <String, dynamic>{
         'game_state': gameState,
@@ -637,7 +633,6 @@ class MultiplayerService {
       final existingState = session?.gameState;
       if (existingState != null) {
         if (existingState['turnTimeLimitMs'] != null) gameState['turnTimeLimitMs'] = existingState['turnTimeLimitMs'];
-        if (existingState['firstFlipBonusMs'] != null) gameState['firstFlipBonusMs'] = existingState['firstFlipBonusMs'];
       }
 
       await _client.from('online_sessions').update({
@@ -661,7 +656,6 @@ class MultiplayerService {
     required List<GameCard> cards,
     required String firstTurn,
     int? turnTimeLimitMs,
-    int? firstFlipBonusMs,
   }) async {
     try {
       final cardData = cards.map((c) => {
@@ -673,7 +667,6 @@ class MultiplayerService {
 
       final gameState = <String, dynamic>{'cards': cardData};
       if (turnTimeLimitMs != null) gameState['turnTimeLimitMs'] = turnTimeLimitMs;
-      if (firstFlipBonusMs != null) gameState['firstFlipBonusMs'] = firstFlipBonusMs;
 
       await _client.from('online_sessions').update({
         'game_state': gameState,
@@ -877,7 +870,6 @@ class MultiplayerService {
       final existingState = session?.gameState;
       if (existingState != null) {
         if (existingState['turnTimeLimitMs'] != null) gameState['turnTimeLimitMs'] = existingState['turnTimeLimitMs'];
-        if (existingState['firstFlipBonusMs'] != null) gameState['firstFlipBonusMs'] = existingState['firstFlipBonusMs'];
       }
 
       await _client.from('online_sessions').update({

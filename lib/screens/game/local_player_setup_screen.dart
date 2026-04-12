@@ -57,7 +57,6 @@ class _LocalPlayerSetupScreenState
   late Color _player2Color;
   bool _initialized = false;
   int? _selectedTurnTimeMs = 15000;
-  int _selectedBonusMs = 3000;
 
   @override
   void didChangeDependencies() {
@@ -102,7 +101,6 @@ class _LocalPlayerSetupScreenState
           category: widget.category,
           gridSize: widget.gridSize,
           turnTimeLimitMs: _selectedTurnTimeMs,
-          firstFlipBonusMs: _selectedBonusMs,
         ),
       ),
     );
@@ -215,22 +213,6 @@ class _LocalPlayerSetupScreenState
                                 selectedValue: _selectedTurnTimeMs,
                                 onSelect: (v) =>
                                     setState(() => _selectedTurnTimeMs = v),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(l10n.firstCardBonus,
-                                  style: AppTypography.bodyLarge(context)
-                                      .copyWith(fontWeight: FontWeight.w600)),
-                              const SizedBox(height: 8),
-                              _buildTimerOptionRow(
-                                options: const [
-                                  {'ms': 0, 'label': '0s'},
-                                  {'ms': 3000, 'label': '3s'},
-                                  {'ms': 4000, 'label': '4s'},
-                                  {'ms': 5000, 'label': '5s'},
-                                ],
-                                selectedValue: _selectedBonusMs,
-                                onSelect: (v) =>
-                                    setState(() => _selectedBonusMs = v as int),
                               ),
                             ],
                           ),

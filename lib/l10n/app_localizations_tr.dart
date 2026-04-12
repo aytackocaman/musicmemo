@@ -768,9 +768,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get turnTimeLimit => 'Hamle Süresi';
 
   @override
-  String get firstCardBonus => 'İlk Kart Bonusu';
-
-  @override
   String get gotIt => 'Anlaşıldı';
 
   @override

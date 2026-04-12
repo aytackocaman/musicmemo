@@ -762,9 +762,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get turnTimeLimit => 'Turn Time';
 
   @override
-  String get firstCardBonus => 'First Card Bonus';
-
-  @override
   String get gotIt => 'Got it';
 
   @override

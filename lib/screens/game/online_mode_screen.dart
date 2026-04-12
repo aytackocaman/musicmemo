@@ -33,13 +33,6 @@ const List<Map<String, dynamic>> _turnTimeOptions = [
   {'ms': 21000, 'label': '21s'},
 ];
 
-/// First-card bonus options (ms → label).
-const List<Map<String, dynamic>> _bonusTimeOptions = [
-  {'ms': 0, 'label': '0s'},
-  {'ms': 3000, 'label': '3s'},
-  {'ms': 4000, 'label': '4s'},
-  {'ms': 5000, 'label': '5s'},
-];
 
 Widget _buildOptionRow({
   required BuildContext context,
@@ -121,7 +114,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   String _selectedCategory = 'piano';
   String _selectedGrid = '4x5';
   int _selectedTurnTimeMs = 15000;
-  int _selectedBonusMs = 3000;
 
   // Session data
   String? _inviteCode;
@@ -290,7 +282,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       playerName: _nameController.text.trim(),
       isPublic: true,
       turnTimeLimitMs: _selectedTurnTimeMs,
-      firstFlipBonusMs: _selectedBonusMs,
     );
 
     if (session == null) {
@@ -344,7 +335,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       gridSize: _selectedGrid,
       playerName: _nameController.text.trim(),
       turnTimeLimitMs: _selectedTurnTimeMs,
-      firstFlipBonusMs: _selectedBonusMs,
     );
 
     if (session == null) {
@@ -762,17 +752,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               selectedValue: _selectedTurnTimeMs,
               onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
             ),
-            const SizedBox(height: AppSpacing.xl),
-
-            // First card bonus
-            _buildSectionTitle(l10n.firstCardBonus),
-            const SizedBox(height: 8),
-            _buildOptionRow(
-              context: context,
-              options: _bonusTimeOptions,
-              selectedValue: _selectedBonusMs,
-              onSelect: (v) => setState(() => _selectedBonusMs = v),
-            ),
             const SizedBox(height: AppSpacing.xxl),
 
             // Create public game button
@@ -865,17 +844,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             options: _turnTimeOptions,
             selectedValue: _selectedTurnTimeMs,
             onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-
-          // First card bonus
-          _buildSectionTitle(l10n.firstCardBonus),
-          const SizedBox(height: 8),
-          _buildOptionRow(
-            context: context,
-            options: _bonusTimeOptions,
-            selectedValue: _selectedBonusMs,
-            onSelect: (v) => setState(() => _selectedBonusMs = v),
           ),
           const SizedBox(height: AppSpacing.xxl),
 
@@ -1614,7 +1582,6 @@ class _CreatePrivateGameScreenState
   bool _nameSetFromProfile = false;
   String _selectedGrid = '4x5';
   int _selectedTurnTimeMs = 15000;
-  int _selectedBonusMs = 3000;
 
   bool _isLoading = false;
   bool _isWaiting = false;
@@ -1685,7 +1652,6 @@ class _CreatePrivateGameScreenState
       gridSize: _selectedGrid,
       playerName: _nameController.text.trim(),
       turnTimeLimitMs: _selectedTurnTimeMs,
-      firstFlipBonusMs: _selectedBonusMs,
     );
 
     if (session == null) {
@@ -1870,15 +1836,6 @@ class _CreatePrivateGameScreenState
             options: _turnTimeOptions,
             selectedValue: _selectedTurnTimeMs,
             onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          _buildSectionTitle(l10n.firstCardBonus),
-          const SizedBox(height: 8),
-          _buildOptionRow(
-            context: context,
-            options: _bonusTimeOptions,
-            selectedValue: _selectedBonusMs,
-            onSelect: (v) => setState(() => _selectedBonusMs = v),
           ),
           const SizedBox(height: AppSpacing.xxl),
           SizedBox(
@@ -2267,7 +2224,6 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
   bool _nameSetFromProfile = false;
   String _selectedGrid = '4x5';
   int _selectedTurnTimeMs = 15000;
-  int _selectedBonusMs = 3000;
 
   _FindPhase _phase = _FindPhase.searching;
   bool _isLoading = false;
@@ -2406,7 +2362,6 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
       playerName: _nameController.text.trim(),
       isPublic: true,
       turnTimeLimitMs: _selectedTurnTimeMs,
-      firstFlipBonusMs: _selectedBonusMs,
     );
     if (!mounted) return;
 
@@ -2595,15 +2550,6 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
             options: _turnTimeOptions,
             selectedValue: _selectedTurnTimeMs,
             onSelect: (v) => setState(() => _selectedTurnTimeMs = v),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          _buildSectionTitle(l10n.firstCardBonus),
-          const SizedBox(height: 8),
-          _buildOptionRow(
-            context: context,
-            options: _bonusTimeOptions,
-            selectedValue: _selectedBonusMs,
-            onSelect: (v) => setState(() => _selectedBonusMs = v),
           ),
           const SizedBox(height: AppSpacing.xxl),
           SizedBox(

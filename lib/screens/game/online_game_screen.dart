@@ -20,7 +20,6 @@ import '../../l10n/app_localizations.dart';
 import 'online_mode_screen.dart';
 
 const _defaultTurnTimeLimitMs = 15000;
-const _defaultFirstFlipBonusMs = 3000;
 
 class OnlineGameScreen extends ConsumerStatefulWidget {
   final OnlineSession session;
@@ -57,7 +56,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   // Turn timer (configurable per session)
   Timer? _turnTimer;
   int _turnTimeLimitMs = _defaultTurnTimeLimitMs;
-  int _firstFlipBonusMs = _defaultFirstFlipBonusMs;
   int _turnTimeRemainingMs = _defaultTurnTimeLimitMs;
 
   // Track the first flipped card in this turn to avoid race conditions
@@ -148,7 +146,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         _currentSession = session;
         _cards = MultiplayerService.parseCardsFromGameState(session.gameState);
         _turnTimeLimitMs = (gs['turnTimeLimitMs'] as int?) ?? _defaultTurnTimeLimitMs;
-        _firstFlipBonusMs = (gs['firstFlipBonusMs'] as int?) ?? _defaultFirstFlipBonusMs;
         _turnTimeRemainingMs = _turnTimeLimitMs;
         _isInitialized = true;
       });
@@ -214,13 +211,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     List<GameCard>? serverCards;
     if (updatedSession.gameState != null) {
       serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
-      // Play sound for opponent's newly flipped card and mirror the
-      // first-flip bonus, so the spectator's fuse matches the active player's.
+      // Play sound for opponent's newly flipped card.
       if (!_isMyTurn) {
-        final prevFlippedCount =
-            _cards.where((c) => c.state == CardState.flipped).length;
-        final newFlippedCount =
-            serverCards.where((c) => c.state == CardState.flipped).length;
         for (final sc in serverCards) {
           final existing = _cards.where((c) => c.id == sc.id).firstOrNull;
           if (existing != null &&
@@ -231,13 +223,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
               AudioService.play(path);
             }
           }
-        }
-        // Opponent just flipped their first card of the turn (0 → 1 flipped).
-        // Extend our local fuse by the same bonus they added on their side.
-        if (prevFlippedCount == 0 && newFlippedCount == 1) {
-          _turnTimeRemainingMs =
-              (_turnTimeRemainingMs + _firstFlipBonusMs)
-                  .clamp(0, _turnTimeLimitMs);
         }
       }
     }
@@ -471,7 +456,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       player2Score: _currentSession.player2Score,
       currentTurn: opponentId!,
       turnTimeLimitMs: _turnTimeLimitMs,
-      firstFlipBonusMs: _firstFlipBonusMs,
     );
   }
 
@@ -570,11 +554,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       // ── FIRST CARD ──
       _firstFlippedCardId = cardId;
       _firstFlippedSoundId = card.soundId;
-      // Add bonus time after first flip, but cap at the base limit
-      setState(() {
-        _turnTimeRemainingMs = (_turnTimeRemainingMs + _firstFlipBonusMs)
-            .clamp(0, _turnTimeLimitMs);
-      });
       // Longer delay if card never heard before, shorter if already heard
       final firstTime = !_heardCardIds.contains(cardId);
       _heardCardIds.add(cardId);
@@ -667,8 +646,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           currentTurn: _myUserId, // Keep turn on match
           status: gameOver ? 'finished' : null,
           turnTimeLimitMs: _turnTimeLimitMs,
-          firstFlipBonusMs: _firstFlipBonusMs,
-        );
+            );
 
         if (gameOver) {
           // Go to win screen immediately — no pause needed
@@ -717,8 +695,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           player2Score: _currentSession.player2Score,
           currentTurn: opponentId!,
           turnTimeLimitMs: _turnTimeLimitMs,
-          firstFlipBonusMs: _firstFlipBonusMs,
-        );
+            );
 
         // Keep processing=true - turn switched, player can't act anymore
         // _isProcessing will be reset when session update comes with new turn
@@ -736,7 +713,6 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       player2Score: _currentSession.player2Score,
       currentTurn: _currentSession.currentTurn!,
       turnTimeLimitMs: _turnTimeLimitMs,
-      firstFlipBonusMs: _firstFlipBonusMs,
     );
     debugPrint('Game state synced');
   }
