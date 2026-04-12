@@ -80,7 +80,7 @@ class MusicMemoApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(accent),
       darkTheme: AppTheme.darkTheme(accent),
-      themeMode: themeMode,
+      themeMode: ThemeMode.dark, // Dark-only for now; light theme code kept for future use
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,

@@ -80,8 +80,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _Section(
                 title: l10n.appearance,
                 children: [
-                  _ThemeSelector(current: themeMode),
-                  _SectionDivider(),
                   _AccentColorSelector(current: accentColor),
                 ],
               ),
