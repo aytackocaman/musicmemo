@@ -300,21 +300,21 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(
           width: double.infinity,
           child: _AppleSignInButton(
-            onPressed: _isLoading ? null : _signInWithApple,
+            onPressed: _isLoading ? () {} : _signInWithApple,
           ),
         ),
         const SizedBox(height: AppSpacing.md),
         SizedBox(
           width: double.infinity,
           child: _GoogleSignInButton(
-            onPressed: _isLoading ? null : _signInWithGoogle,
+            onPressed: _isLoading ? () {} : _signInWithGoogle,
           ),
         ),
         const SizedBox(height: AppSpacing.md),
         SizedBox(
           width: double.infinity,
           child: _EmailSignInButton(
-            onPressed: _isLoading ? null : () {
+            onPressed: _isLoading ? () {} : () {
               setState(() {
                 _showEmailForm = true;
                 _errorMessage = null;
