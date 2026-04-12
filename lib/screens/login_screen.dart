@@ -188,108 +188,101 @@ class _LoginScreenState extends State<LoginScreen> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              children: [
-                const SizedBox(height: AppSpacing.xxl),
-
-                // Decorative dots
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildDot(context.colors.accent),
-                    const SizedBox(width: 8),
-                    _buildDot(AppColors.teal),
-                    const SizedBox(width: 8),
-                    _buildDot(AppColors.pink),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-
-                // Logo
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: context.colors.accent,
-                    borderRadius: BorderRadius.circular(28),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 2 * AppSpacing.xl,
                   ),
-                  child: const Icon(
-                    Icons.music_note,
-                    size: 48,
-                    color: AppColors.white,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Top section
+                      Column(
+                        children: [
+                          const SizedBox(height: AppSpacing.xxl),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(32),
+                            child: Image.asset(
+                              'assets/icon/app_icon.png',
+                              width: 120,
+                              height: 120,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xl),
+                          Text(
+                            _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
+                            style: AppTypography.headline2(context),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            _isFirstLaunch
+                                ? l10n.createAccountSubtitle
+                                : l10n.signInSubtitle,
+                            style: AppTypography.body(context).copyWith(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Bottom section
+                      Column(
+                        children: [
+                          if (_showEmailForm) ...[
+                            _buildEmailForm(),
+                          ] else ...[
+                            _buildSocialButtons(),
+                          ],
+                          const SizedBox(height: AppSpacing.xxl),
+                          Text(
+                            l10n.byContinuing,
+                            style: AppTypography.labelSmall(context),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  l10n.termsOfService,
+                                  style: AppTypography.labelSmall(context).copyWith(
+                                    color: context.colors.accent,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
+                              TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  l10n.privacyPolicy,
+                                  style: AppTypography.labelSmall(context).copyWith(
+                                    color: context.colors.accent,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Title
-                Text(
-                  _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
-                  style: AppTypography.headline2(context),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  _isFirstLaunch
-                      ? l10n.createAccountSubtitle
-                      : l10n.signInSubtitle,
-                  style: AppTypography.body(context).copyWith(
-                    color: context.colors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-
-                if (_showEmailForm) ...[
-                  _buildEmailForm(),
-                ] else ...[
-                  _buildSocialButtons(),
-                ],
-
-                const SizedBox(height: AppSpacing.xxl),
-
-                // Terms
-                Text(
-                  l10n.byContinuing,
-                  style: AppTypography.labelSmall(context),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        l10n.termsOfService,
-                        style: AppTypography.labelSmall(context).copyWith(
-                          color: context.colors.accent,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        l10n.privacyPolicy,
-                        style: AppTypography.labelSmall(context).copyWith(
-                          color: context.colors.accent,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -516,17 +509,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDot(Color color) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
       ),
     );
   }
