@@ -219,15 +219,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
                             style: AppTypography.headline2(context),
                           ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            _isFirstLaunch
-                                ? l10n.createAccountSubtitle
-                                : l10n.signInSubtitle,
-                            style: AppTypography.body(context).copyWith(
-                              color: context.colors.textSecondary,
+                          if (!_showEmailForm) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              _isFirstLaunch
+                                  ? l10n.createAccountSubtitle
+                                  : l10n.signInSubtitle,
+                              style: AppTypography.body(context).copyWith(
+                                color: context.colors.textSecondary,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                       // Bottom section
