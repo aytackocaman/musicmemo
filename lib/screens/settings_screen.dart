@@ -338,6 +338,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: l10n.delayAfterMismatch,
                 description: l10n.delayAfterMismatchDescription,
               ),
+              const SizedBox(height: 14),
+              _InfoItem(
+                icon: Icons.vibration,
+                title: l10n.hapticFeedback,
+                description: l10n.hapticFeedbackInfoDescription,
+              ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,

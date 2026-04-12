@@ -64,6 +64,10 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     required this.accentSoft,
     required this.accentGradientLight,
     required this.accentGradientDark,
+    required this.cardColor,
+    required this.cardColorSoft,
+    required this.cardGradientLight,
+    required this.cardGradientDark,
   });
 
   final Color background;
@@ -73,12 +77,22 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   final Color textSecondary;
   final Color textTertiary;
   final Color textMuted;
+  // `accent` is the fixed brand color used for buttons, highlights, and UI
+  // chrome. It does not change with the user's card-color selection.
   final Color accent;
   final Color accentSoft;
   final Color accentGradientLight;
   final Color accentGradientDark;
+  // `cardColor` is the user-selectable color used only for the face-down
+  // game card (and its flipped / countdown variants). Independent from the
+  // brand accent so users can personalise the card without repainting the
+  // whole app.
+  final Color cardColor;
+  final Color cardColorSoft;
+  final Color cardGradientLight;
+  final Color cardGradientDark;
 
-  static AppColorsTheme light({AccentColorData accentData = AccentColorData.blue}) =>
+  static AppColorsTheme light({AccentColorData cardColorData = AccentColorData.blue}) =>
       AppColorsTheme(
         background: const Color(0xFFFFFFFF),
         surface: const Color(0xFFF4F4F5),
@@ -87,13 +101,17 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
         textSecondary: const Color(0xFF71717A),
         textTertiary: const Color(0xFFA1A1AA),
         textMuted: const Color(0xFFD4D4D8),
-        accent: accentData.primary,
-        accentSoft: accentData.primarySoft,
-        accentGradientLight: accentData.gradientLight,
-        accentGradientDark: accentData.gradientDark,
+        accent: AccentColorData.blue.primary,
+        accentSoft: AccentColorData.blue.primarySoft,
+        accentGradientLight: AccentColorData.blue.gradientLight,
+        accentGradientDark: AccentColorData.blue.gradientDark,
+        cardColor: cardColorData.primary,
+        cardColorSoft: cardColorData.primarySoft,
+        cardGradientLight: cardColorData.gradientLight,
+        cardGradientDark: cardColorData.gradientDark,
       );
 
-  static AppColorsTheme dark({AccentColorData accentData = AccentColorData.blue}) =>
+  static AppColorsTheme dark({AccentColorData cardColorData = AccentColorData.blue}) =>
       AppColorsTheme(
         background: const Color(0xFF1C1C1E),
         surface: const Color(0xFF2C2C2E),
@@ -102,10 +120,14 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
         textSecondary: const Color(0xFFAEAEB2),
         textTertiary: const Color(0xFF8E8E93),
         textMuted: const Color(0xFF636366),
-        accent: accentData.primary,
-        accentSoft: accentData.primarySoft,
-        accentGradientLight: accentData.gradientLight,
-        accentGradientDark: accentData.gradientDark,
+        accent: AccentColorData.blue.primary,
+        accentSoft: AccentColorData.blue.primarySoft,
+        accentGradientLight: AccentColorData.blue.gradientLight,
+        accentGradientDark: AccentColorData.blue.gradientDark,
+        cardColor: cardColorData.primary,
+        cardColorSoft: cardColorData.primarySoft,
+        cardGradientLight: cardColorData.gradientLight,
+        cardGradientDark: cardColorData.gradientDark,
       );
 
   @override
@@ -121,6 +143,10 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     Color? accentSoft,
     Color? accentGradientLight,
     Color? accentGradientDark,
+    Color? cardColor,
+    Color? cardColorSoft,
+    Color? cardGradientLight,
+    Color? cardGradientDark,
   }) {
     return AppColorsTheme(
       background: background ?? this.background,
@@ -134,6 +160,10 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
       accentSoft: accentSoft ?? this.accentSoft,
       accentGradientLight: accentGradientLight ?? this.accentGradientLight,
       accentGradientDark: accentGradientDark ?? this.accentGradientDark,
+      cardColor: cardColor ?? this.cardColor,
+      cardColorSoft: cardColorSoft ?? this.cardColorSoft,
+      cardGradientLight: cardGradientLight ?? this.cardGradientLight,
+      cardGradientDark: cardGradientDark ?? this.cardGradientDark,
     );
   }
 
@@ -152,6 +182,10 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
       accentSoft: Color.lerp(accentSoft, other.accentSoft, t)!,
       accentGradientLight: Color.lerp(accentGradientLight, other.accentGradientLight, t)!,
       accentGradientDark: Color.lerp(accentGradientDark, other.accentGradientDark, t)!,
+      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardColorSoft: Color.lerp(cardColorSoft, other.cardColorSoft, t)!,
+      cardGradientLight: Color.lerp(cardGradientLight, other.cardGradientLight, t)!,
+      cardGradientDark: Color.lerp(cardGradientDark, other.cardGradientDark, t)!,
     );
   }
 }
@@ -284,16 +318,20 @@ class AppRadius {
 
 /// App theme configuration
 class AppTheme {
-  static ThemeData lightTheme([AccentColor accent = AccentColor.blue]) {
-    final accentData = AccentColorData.fromEnum(accent);
-    final colors = AppColorsTheme.light(accentData: accentData);
+  // The brand accent — used for buttons, highlights, and UI chrome — is
+  // pinned to blue. Only the card color follows the user's selection.
+  static const AccentColorData _fixedAccentData = AccentColorData.blue;
+
+  static ThemeData lightTheme([AccentColor cardColor = AccentColor.blue]) {
+    final cardData = AccentColorData.fromEnum(cardColor);
+    final colors = AppColorsTheme.light(cardColorData: cardData);
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: colors.background,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: accentData.primary,
+        seedColor: _fixedAccentData.primary,
         brightness: Brightness.light,
-        primary: accentData.primary,
+        primary: _fixedAccentData.primary,
         secondary: AppColors.teal,
         tertiary: AppColors.pink,
         surface: colors.surface,
@@ -303,16 +341,16 @@ class AppTheme {
     );
   }
 
-  static ThemeData darkTheme([AccentColor accent = AccentColor.blue]) {
-    final accentData = AccentColorData.fromEnum(accent);
-    final colors = AppColorsTheme.dark(accentData: accentData);
+  static ThemeData darkTheme([AccentColor cardColor = AccentColor.blue]) {
+    final cardData = AccentColorData.fromEnum(cardColor);
+    final colors = AppColorsTheme.dark(cardColorData: cardData);
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: colors.background,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: accentData.primary,
+        seedColor: _fixedAccentData.primary,
         brightness: Brightness.dark,
-        primary: accentData.primary,
+        primary: _fixedAccentData.primary,
         secondary: AppColors.teal,
         tertiary: AppColors.pink,
         surface: colors.surface,

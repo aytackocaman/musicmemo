@@ -271,12 +271,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get fetchingSoundList => 'Ses listesi alınıyor...';
 
   @override
-  String get downloadingSounds => 'Sesler indiriliyor...';
-
-  @override
-  String downloadingSoundsProgress(int completed, int total) {
-    return 'Sesler indiriliyor ($completed/$total)';
-  }
+  String get downloadingSounds => 'Oyununuz hazırlanıyor...';
 
   @override
   String get failedToLoadSounds => 'Sesler yüklenemedi';
@@ -658,7 +653,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings => 'Ayarlar';
 
   @override
-  String get accentColor => 'Vurgu Rengi';
+  String get accentColor => 'Kart Rengi';
 
   @override
   String get blue => 'Mavi';
@@ -764,6 +759,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get delayAfterMismatchDescription =>
       'Bir eşleşmemeden sonra tekrar dokunmadan önce beklemeniz gereken minimum süre. Eşleşmeyen kartlar görünür kalır ve henüz dokunmadıysanız 2,1 saniyede kendiliğinden geri döner.';
+
+  @override
+  String get hapticFeedbackInfoDescription =>
+      'Kart çevirme, eşleşme, eşleşmeme ve sıra değişikliklerinde kısa titreşimler. Ekrana bakmadan oyunun ritmini hissetmenizi sağlar. Sessiz bir deneyim istiyorsanız veya biraz pil tasarrufu yapmak istiyorsanız aşağıdan kapatabilirsiniz.';
 
   @override
   String get gotIt => 'Anlaşıldı';

@@ -65,18 +65,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 48),
-                    // Logo
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: context.colors.accent,
-                        borderRadius: BorderRadius.circular(AppRadius.logo),
-                      ),
-                      child: const Icon(
-                        Icons.music_note,
-                        size: 48,
-                        color: AppColors.white,
+                    // Logo — app icon
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.logo),
+                      child: Image.asset(
+                        'assets/icon/app_icon.png',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),

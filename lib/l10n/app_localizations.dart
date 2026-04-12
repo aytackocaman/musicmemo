@@ -593,14 +593,8 @@ abstract class AppLocalizations {
   /// No description provided for @downloadingSounds.
   ///
   /// In en, this message translates to:
-  /// **'Downloading sounds...'**
+  /// **'Preparing your game...'**
   String get downloadingSounds;
-
-  /// No description provided for @downloadingSoundsProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'Downloading sounds ({completed}/{total})'**
-  String downloadingSoundsProgress(int completed, int total);
 
   /// No description provided for @failedToLoadSounds.
   ///
@@ -1319,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @accentColor.
   ///
   /// In en, this message translates to:
-  /// **'Accent Color'**
+  /// **'Card Color'**
   String get accentColor;
 
   /// No description provided for @blue.
@@ -1525,6 +1519,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven\'t tapped yet.'**
   String get delayAfterMismatchDescription;
+
+  /// No description provided for @hapticFeedbackInfoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Short vibrations on card flips, matches, mismatches, and turn changes. Lets you feel the rhythm of the game without looking. Toggle it off below if you prefer silence or want to save a bit of battery.'**
+  String get hapticFeedbackInfoDescription;
 
   /// No description provided for @gotIt.
   ///

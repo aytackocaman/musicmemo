@@ -120,14 +120,7 @@
 
   "preparingGame": "Oyun Hazırlanıyor",
   "fetchingSoundList": "Ses listesi alınıyor...",
-  "downloadingSounds": "Sesler indiriliyor...",
-  "downloadingSoundsProgress": "Sesler indiriliyor ({completed}/{total})",
-  "@downloadingSoundsProgress": {
-    "placeholders": {
-      "completed": { "type": "int" },
-      "total": { "type": "int" }
-    }
-  },
+  "downloadingSounds": "Oyununuz hazırlanıyor...",
   "failedToLoadSounds": "Sesler yüklenemedi",
   "retry": "Tekrar Dene",
   "goBack": "Geri Dön",
@@ -278,7 +271,7 @@
   "niceTry": "İyi Deneme!",
 
   "settings": "Ayarlar",
-  "accentColor": "Vurgu Rengi",
+  "accentColor": "Kart Rengi",
   "blue": "Mavi",
   "purple": "Mor",
   "red": "Kırmızı",
@@ -313,6 +306,7 @@
   "delayAfterMismatch": "Eşleşmeme sonrası bekleme",
   "delayAfterFirstCardDescription": "İlk karta dokunduktan sonra ikinci karta dokunmadan önce ne kadar beklemeniz gerektiği. Ses ne olursa olsun çalmaya devam eder \u2014 bu yalnızca bir sonraki dokunmanızın ne zaman kabul edileceğini kontrol eder.",
   "delayAfterMismatchDescription": "Bir eşleşmemeden sonra tekrar dokunmadan önce beklemeniz gereken minimum süre. Eşleşmeyen kartlar görünür kalır ve henüz dokunmadıysanız 2,1 saniyede kendiliğinden geri döner.",
+  "hapticFeedbackInfoDescription": "Kart çevirme, eşleşme, eşleşmeme ve sıra değişikliklerinde kısa titreşimler. Ekrana bakmadan oyunun ritmini hissetmenizi sağlar. Sessiz bir deneyim istiyorsanız veya biraz pil tasarrufu yapmak istiyorsanız aşağıdan kapatabilirsiniz.",
   "gotIt": "Anlaşıldı",
 
   "authSignUpFailed": "Kayıt başarısız. Lütfen tekrar deneyin.",

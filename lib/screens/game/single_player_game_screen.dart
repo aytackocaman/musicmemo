@@ -416,7 +416,7 @@ class _SinglePlayerGameScreenState
             Text(
               label,
               style: AppTypography.labelSmall(context).copyWith(
-                fontSize: 11,
+                fontSize: 14,
                 color: context.colors.textTertiary,
               ),
               textAlign: TextAlign.center,

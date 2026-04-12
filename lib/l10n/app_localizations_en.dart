@@ -269,12 +269,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fetchingSoundList => 'Fetching sound list...';
 
   @override
-  String get downloadingSounds => 'Downloading sounds...';
-
-  @override
-  String downloadingSoundsProgress(int completed, int total) {
-    return 'Downloading sounds ($completed/$total)';
-  }
+  String get downloadingSounds => 'Preparing your game...';
 
   @override
   String get failedToLoadSounds => 'Failed to load sounds';
@@ -652,7 +647,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get accentColor => 'Accent Color';
+  String get accentColor => 'Card Color';
 
   @override
   String get blue => 'Blue';
@@ -758,6 +753,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get delayAfterMismatchDescription =>
       'Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven\'t tapped yet.';
+
+  @override
+  String get hapticFeedbackInfoDescription =>
+      'Short vibrations on card flips, matches, mismatches, and turn changes. Lets you feel the rhythm of the game without looking. Toggle it off below if you prefer silence or want to save a bit of battery.';
 
   @override
   String get gotIt => 'Got it';

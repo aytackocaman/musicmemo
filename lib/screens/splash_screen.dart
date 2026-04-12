@@ -49,18 +49,14 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(AppRadius.logo),
-              ),
-              child: Icon(
-                Icons.music_note,
-                size: 56,
-                color: context.colors.accent,
+            // Logo — app icon
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.logo),
+              child: Image.asset(
+                'assets/icon/app_icon.png',
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: AppSpacing.xl),

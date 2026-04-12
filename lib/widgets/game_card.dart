@@ -192,7 +192,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
                     cardWidth: widget.size,
                     cardHeight: widget.size * 1.25,
                     matchedColor: widget.matchedColor,
-                    accentColor: context.colors.accent,
+                    accentColor: context.colors.cardColor,
                   ),
                 ),
               ),
@@ -212,8 +212,8 @@ class _GameCardWidgetState extends State<GameCardWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            context.colors.accentGradientLight,
-            context.colors.accentGradientDark,
+            context.colors.cardGradientLight,
+            context.colors.cardGradientDark,
           ],
         ),
         borderRadius: radius,
@@ -223,7 +223,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
         ),
         boxShadow: [
           BoxShadow(
-            color: context.colors.accent.withValues(alpha: 0.35),
+            color: context.colors.cardColor.withValues(alpha: 0.35),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -287,12 +287,12 @@ class _GameCardWidgetState extends State<GameCardWidget>
         color: context.colors.background,
         borderRadius: radius,
         border: Border.all(
-          color: context.colors.accent,
+          color: context.colors.cardColor,
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: context.colors.accent.withValues(alpha: 0.2),
+            color: context.colors.cardColor.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -314,8 +314,8 @@ class _GameCardWidgetState extends State<GameCardWidget>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      context.colors.accent.withValues(alpha: 0.06),
-                      context.colors.accent.withValues(alpha: 0.0),
+                      context.colors.cardColor.withValues(alpha: 0.06),
+                      context.colors.cardColor.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -324,7 +324,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
             Icon(
               Icons.volume_up,
               size: widget.size * 0.4,
-              color: context.colors.accent,
+              color: context.colors.cardColor,
             ),
             // Countdown ring overlay
             if (_countdownController != null)
@@ -340,8 +340,8 @@ class _GameCardWidgetState extends State<GameCardWidget>
                     child: CircularProgressIndicator(
                       value: progress,
                       strokeWidth: 3,
-                      color: context.colors.accent.withValues(alpha: 0.6),
-                      backgroundColor: context.colors.accent.withValues(alpha: 0.1),
+                      color: context.colors.cardColor.withValues(alpha: 0.6),
+                      backgroundColor: context.colors.cardColor.withValues(alpha: 0.1),
                     ),
                   );
                 },

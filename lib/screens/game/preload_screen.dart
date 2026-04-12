@@ -94,7 +94,6 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
           if (!mounted) return;
           setState(() {
             _progress = completed / total;
-            _statusText = l10n.downloadingSoundsProgress(completed, total);
           });
         },
       );

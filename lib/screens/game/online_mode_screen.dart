@@ -163,17 +163,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     }
   }
 
-  void _showFindOpponent() {
-    setState(() {
-      _isFindOpponentMode = true;
-      _isCreateMode = false;
-      _isJoinMode = false;
-      _errorMessage = null;
-    });
-    // Immediately search for an available public session
-    _searchForOpponent();
-  }
-
   Future<void> _searchForOpponent() async {
     if (_nameController.text.trim().isEmpty) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
@@ -582,18 +571,25 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             iconColor: AppColors.pink,
             title: l10n.findOpponent,
             subtitle: l10n.findOpponentDescription,
-            onTap: () async {
+            onTap: () {
               ref.read(selectedGameModeProvider.notifier).state =
                   GameMode.onlineMultiplayer;
-              final navigator = Navigator.of(context);
-              await navigator.push(
-                MaterialPageRoute(builder: (_) => const GrandCategoryScreen()),
+              ref.read(selectedCategoryProvider.notifier).state = null;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GrandCategoryScreen(
+                    onCategoryPicked: (ctx, category) {
+                      Navigator.of(ctx).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              _FindOpponentScreen(category: category),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               );
-              final picked = ref.read(selectedCategoryProvider);
-              if (picked != null && mounted) {
-                setState(() => _selectedCategory = picked);
-                _showFindOpponent();
-              }
             },
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -2079,6 +2075,735 @@ class _CreatePrivateGameScreenState
       child: Row(children: [
         SizedBox(
           width: 14, height: 14,
+          child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  isDisconnected ? Colors.red : Colors.orange)),
+        ),
+        const SizedBox(width: 10),
+        Text(isDisconnected ? l10n.connectionLost : l10n.reconnecting,
+            style: AppTypography.bodySmall(context)
+                .copyWith(color: isDisconnected ? Colors.red : Colors.orange)),
+      ]),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8)),
+      child: Row(children: [
+        const Icon(Icons.error_outline, color: Colors.red, size: 20),
+        const SizedBox(width: 8),
+        Expanded(
+            child: Text(_errorMessage!,
+                style: AppTypography.bodySmall(context)
+                    .copyWith(color: Colors.red))),
+      ]),
+    );
+  }
+
+  String _formatCategoryName(String category) {
+    final raw = category.startsWith('tag:')
+        ? (category.split(':').elementAtOrNull(2) ?? category)
+        : category;
+    return raw
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Find Opponent screen — pushed on top of GrandCategoryScreen after a category
+// is picked. Handles the public-session flow: auto-search on entry, then
+// either join a waiting public session, or show a form to create one.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum _FindPhase { searching, form, waitingForOpponent, waitingForHost }
+
+class _FindOpponentScreen extends ConsumerStatefulWidget {
+  final String category;
+  const _FindOpponentScreen({required this.category});
+
+  @override
+  ConsumerState<_FindOpponentScreen> createState() =>
+      _FindOpponentScreenState();
+}
+
+class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
+  final _nameController = TextEditingController();
+  bool _nameSetFromProfile = false;
+  String _selectedGrid = '4x5';
+
+  _FindPhase _phase = _FindPhase.searching;
+  bool _isLoading = false;
+  bool _navigatingToGame = false;
+
+  String? _sessionId;
+  OnlineSession? _currentSession;
+  String? _errorMessage;
+
+  StreamSubscription<OnlineSession>? _sessionSubscription;
+  StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
+  MultiplayerConnectionState _connectionState =
+      MultiplayerConnectionState.connected;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final profile = ref.read(userProfileNotifierProvider).valueOrNull;
+      if (profile?.displayName != null && profile!.displayName!.isNotEmpty) {
+        final dn = profile.displayName!;
+        _nameController.text = dn.substring(0, dn.length.clamp(0, 20));
+      } else {
+        final user = SupabaseService.currentUser;
+        if (user?.email != null) {
+          final prefix = user!.email!.split('@').first;
+          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
+        }
+      }
+      // Auto-search as soon as the screen opens.
+      _searchForOpponent();
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _sessionSubscription?.cancel();
+    _connectionSubscription?.cancel();
+    if (!_navigatingToGame && _sessionId != null &&
+        _phase == _FindPhase.waitingForOpponent) {
+      MultiplayerService.deleteSession(_sessionId!);
+      MultiplayerService.unsubscribeFromSession();
+    }
+    super.dispose();
+  }
+
+  void _startConnectionListener() {
+    _connectionSubscription?.cancel();
+    _connectionSubscription =
+        MultiplayerService.connectionStateStream.listen((state) {
+      if (!mounted) return;
+      setState(() => _connectionState = state);
+    });
+  }
+
+  Future<void> _searchForOpponent() async {
+    if (_nameController.text.trim().isEmpty) {
+      setState(() {
+        _phase = _FindPhase.form;
+        _errorMessage =
+            AppLocalizations.of(context)!.pleaseEnterYourName;
+      });
+      return;
+    }
+
+    setState(() {
+      _phase = _FindPhase.searching;
+      _errorMessage = null;
+    });
+
+    final publicSession = await MultiplayerService.findPublicSession();
+    if (!mounted) return;
+
+    if (publicSession != null) {
+      final joined = await MultiplayerService.joinSessionById(
+        sessionId: publicSession.id,
+        playerName: _nameController.text.trim(),
+      );
+      if (!mounted) return;
+
+      if (joined != null) {
+        _currentSession = joined;
+        _sessionId = joined.id;
+        setState(() => _phase = _FindPhase.waitingForHost);
+
+        _sessionSubscription =
+            MultiplayerService.subscribeToSession(joined.id).listen(
+          (updatedSession) {
+            if (updatedSession.isCancelled) {
+              _sessionSubscription?.cancel();
+              _connectionSubscription?.cancel();
+              MultiplayerService.unsubscribeFromSession();
+              if (!mounted) return;
+              setState(() => _phase = _FindPhase.form);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  showAppSnackBar(
+                      context,
+                      AppLocalizations.of(context)!.hostCancelledGame);
+                }
+              });
+              return;
+            }
+            _currentSession = updatedSession;
+            if (updatedSession.isPlaying) {
+              _navigateToGame(updatedSession);
+            }
+          },
+        );
+        _startConnectionListener();
+        return;
+      }
+    }
+
+    // No public session found — drop to form so the user can create one.
+    setState(() => _phase = _FindPhase.form);
+  }
+
+  Future<void> _createPublicGame() async {
+    if (_nameController.text.trim().isEmpty) {
+      setState(() => _errorMessage =
+          AppLocalizations.of(context)!.pleaseEnterYourName);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final session = await MultiplayerService.createSession(
+      category: widget.category,
+      gridSize: _selectedGrid,
+      playerName: _nameController.text.trim(),
+      isPublic: true,
+    );
+    if (!mounted) return;
+
+    if (session == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage =
+            AppLocalizations.of(context)!.failedToCreateGame;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+      _phase = _FindPhase.waitingForOpponent;
+      _sessionId = session.id;
+    });
+
+    _sessionSubscription =
+        MultiplayerService.subscribeToSession(session.id).listen(
+      (updatedSession) {
+        _currentSession = updatedSession;
+        if (updatedSession.isReady && updatedSession.hasOpponent) {
+          // Someone joined — auto-start the game.
+          _hostStartGame();
+        } else if (updatedSession.isPlaying) {
+          _navigateToGame(updatedSession);
+        }
+      },
+    );
+    _startConnectionListener();
+  }
+
+  Future<void> _hostStartGame() async {
+    if (_currentSession == null || _sessionId == null) return;
+
+    List<SoundModel> sounds;
+    if (widget.category.startsWith('tag:')) {
+      final parts = widget.category.split(':');
+      sounds = await DatabaseService.getSoundsByTag(
+          parts[1], parts.sublist(2).join(':'));
+    } else {
+      sounds = await DatabaseService.getSoundsForCategory(widget.category);
+    }
+    if (sounds.isEmpty && widget.category != 'piano') {
+      sounds = await DatabaseService.getSoundsForCategory('piano');
+    }
+
+    final cards = GameUtils.generateCards(
+      gridSize: _selectedGrid,
+      category: widget.category,
+      soundIds: sounds.isNotEmpty ? sounds.map((s) => s.id).toList() : null,
+    );
+
+    await MultiplayerService.startGame(
+      sessionId: _sessionId!,
+      cards: cards,
+      hostId: SupabaseService.currentUser?.id ?? '',
+    );
+    // Navigation happens via the subscription when status becomes 'playing'.
+  }
+
+  void _navigateToGame(OnlineSession session) {
+    _navigatingToGame = true;
+    _sessionSubscription?.cancel();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OnlineGameScreen(
+          session: session,
+          playerName: _nameController.text.trim(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _cancelAndPop() async {
+    _sessionSubscription?.cancel();
+    if (_sessionId != null && _phase == _FindPhase.waitingForOpponent) {
+      await MultiplayerService.deleteSession(_sessionId!);
+    } else if (_sessionId != null && _phase == _FindPhase.waitingForHost) {
+      await MultiplayerService.removeJoiner(_sessionId!);
+    }
+    MultiplayerService.unsubscribeFromSession();
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider,
+        (prev, next) {
+      if (!_nameSetFromProfile) {
+        final name = next.valueOrNull?.displayName;
+        if (name != null && name.isNotEmpty) {
+          _nameController.text =
+              name.substring(0, name.length.clamp(0, 20));
+          _nameSetFromProfile = true;
+        }
+      }
+    });
+
+    return PopScope(
+      canPop: _phase == _FindPhase.form || _phase == _FindPhase.searching,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _cancelAndPop();
+      },
+      child: Scaffold(
+        backgroundColor: context.colors.background,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SafeArea(
+            child: switch (_phase) {
+              _FindPhase.searching => _buildSearchingView(),
+              _FindPhase.form => _buildForm(),
+              _FindPhase.waitingForOpponent => _buildWaitingForOpponent(),
+              _FindPhase.waitingForHost => _buildWaitingForHost(),
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchingView() {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBackButton(),
+          const Spacer(),
+          Center(
+            child: Column(
+              children: [
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.pink),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.lookingForOpponents,
+                  style: AppTypography.body(context)
+                      .copyWith(color: context.colors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    final l10n = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBackButton(),
+          const SizedBox(height: AppSpacing.xl),
+          Text(l10n.findOpponent, style: AppTypography.headline3(context)),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l10n.noPlayersFoundCreateGame,
+            style: AppTypography.body(context)
+                .copyWith(color: context.colors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          if (_errorMessage != null) _buildErrorMessage(),
+          _buildSectionTitle(l10n.yourName),
+          const SizedBox(height: 8),
+          _buildTextField(_nameController, l10n.enterYourName),
+          const SizedBox(height: AppSpacing.xl),
+          _buildSectionTitle(l10n.gridSizeLabel),
+          const SizedBox(height: 8),
+          _buildGridSelector(),
+          const SizedBox(height: AppSpacing.xxl),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _createPublicGame,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.pink,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(l10n.createAndWaitForOpponent,
+                      style: AppTypography.button),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              onPressed: _searchForOpponent,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: context.colors.elevated),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: Text(l10n.searchAgain,
+                  style: AppTypography.buttonSecondary(context)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWaitingForOpponent() {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: _cancelAndPop,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Icon(Icons.close,
+                    size: 24, color: context.colors.textPrimary),
+              ),
+            ),
+          ),
+          const Spacer(),
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: context.colors.accent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(context.colors.accent),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            l10n.waitingForOpponent,
+            style: AppTypography.headline3(context),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.someoneWillJoinSoon,
+            style: AppTypography.body(context)
+                .copyWith(color: context.colors.textSecondary),
+          ),
+          const SizedBox(height: 24),
+          _buildConnectionBanner(),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.pink.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.public, size: 32, color: AppColors.pink),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.publicGame,
+                  style: AppTypography.bodyLarge(context).copyWith(
+                    color: AppColors.pink,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.anyoneCanJoinThisGame,
+                  style: AppTypography.bodySmall(context)
+                      .copyWith(color: context.colors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              onPressed: _cancelAndPop,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: context.colors.elevated),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: Text(l10n.cancel,
+                  style: AppTypography.buttonSecondary(context)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWaitingForHost() {
+    final l10n = AppLocalizations.of(context)!;
+    final hostName = _currentSession?.player1Name ?? l10n.opponent;
+    final myName = _nameController.text.isNotEmpty
+        ? _nameController.text
+        : l10n.youFallbackName;
+    final category = _currentSession?.category;
+    final gridSize = _currentSession?.gridSize ?? '4x5';
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton(
+                onPressed: _cancelAndPop,
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.elevated),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                  ),
+                ),
+                child: Text(l10n.leave,
+                    style: AppTypography.buttonSecondary(context)),
+              ),
+            ),
+          ),
+          Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.waitingForHostToStart,
+                    style: AppTypography.headline3(context),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.joinedSuccessfully,
+                    style: AppTypography.body(context)
+                        .copyWith(color: context.colors.textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  _VsPlayersWidget(
+                      player1Name: hostName, player2Name: myName),
+                  const SizedBox(height: 32),
+                  if (category != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: context.colors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _formatCategoryName(category),
+                            style: AppTypography.bodySmall(context).copyWith(
+                                color: context.colors.textSecondary),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10),
+                            child: Container(
+                              width: 4,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: context.colors.textSecondary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            gridSize,
+                            style: AppTypography.bodySmall(context).copyWith(
+                                color: context.colors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  _buildConnectionBanner(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Helpers (duplicated from _CreatePrivateGameScreen for isolation) ─────
+
+  Widget _buildBackButton() {
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child:
+            Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) =>
+      Text(title, style: AppTypography.label(context));
+
+  Widget _buildTextField(TextEditingController controller, String hint) {
+    return TextField(
+      controller: controller,
+      maxLength: 20,
+      onTap: () {
+        controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: controller.text.length,
+        );
+      },
+      style: AppTypography.body(context),
+      decoration: InputDecoration(
+        hintText: hint,
+        counterText: '',
+        filled: true,
+        fillColor: context.colors.surface,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+    );
+  }
+
+  Widget _buildGridSelector() {
+    return Row(
+      children: _gridOptions.map((grid) {
+        final isSelected = _selectedGrid == grid['id'];
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => setState(() => _selectedGrid = grid['id']),
+            child: Container(
+              margin: EdgeInsets.only(right: grid != _gridOptions.last ? 8 : 0),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color:
+                    isSelected ? context.colors.accent : context.colors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: isSelected
+                        ? context.colors.accent
+                        : context.colors.elevated),
+              ),
+              child: Column(children: [
+                Text(grid['label'],
+                    style: AppTypography.bodyLarge(context).copyWith(
+                        color: isSelected
+                            ? Colors.white
+                            : context.colors.textPrimary)),
+                const SizedBox(height: 2),
+                Text(
+                    _resolveDifficulty(
+                        AppLocalizations.of(context)!, grid['difficultyKey']),
+                    style: AppTypography.labelSmall(context).copyWith(
+                        color: isSelected
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : context.colors.textTertiary)),
+              ]),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildConnectionBanner() {
+    final l10n = AppLocalizations.of(context)!;
+    if (_connectionState == MultiplayerConnectionState.connected) {
+      return const SizedBox.shrink();
+    }
+    final isDisconnected =
+        _connectionState == MultiplayerConnectionState.disconnected;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+          color: (isDisconnected ? Colors.red : Colors.orange)
+              .withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10)),
+      child: Row(children: [
+        SizedBox(
+          width: 14,
+          height: 14,
           child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
