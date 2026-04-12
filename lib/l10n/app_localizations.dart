@@ -725,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @opponentsTurn.
   ///
   /// In en, this message translates to:
-  /// **'Opponent\'s Turn'**
+  /// **'Their Turn'**
   String get opponentsTurn;
 
   /// No description provided for @itsATie.

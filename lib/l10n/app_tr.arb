@@ -150,7 +150,7 @@
   "goHome": "Ana Sayfa",
 
   "yourTurn": "Senin Sıran",
-  "opponentsTurn": "Rakibin Sırası",
+  "opponentsTurn": "Onun Sırası",
   "itsATie": "Berabere!",
   "playerWins": "{name} Kazandı!",
   "@playerWins": {
