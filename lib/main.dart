@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +15,18 @@ import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock orientation: landscape on iPad, portrait on iPhone
+  final isTablet = Platform.isIOS &&
+      MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first)
+              .size
+              .shortestSide >=
+          600;
+  await SystemChrome.setPreferredOrientations(
+    isTablet
+        ? [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]
+        : [DeviceOrientation.portraitUp],
+  );
 
   // Load environment variables
   await dotenv.load(fileName: '.env');
