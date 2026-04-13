@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/daily_challenge_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
 import '../utils/responsive.dart';
+import '../widgets/animated_app_icon.dart';
 import '../widgets/game_button.dart';
 import 'mode_screen.dart';
 import 'settings_screen.dart';
@@ -39,6 +41,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     _loadHighScore();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.invalidate(dailyGameCountsProvider);
+      // Pre-fetch daily challenge in background so it's ready on the mode screen
+      ref.read(dailyChallengeProvider);
+      ref.read(dailyChallengeScoreProvider);
     });
 
     _animController = AnimationController(
@@ -122,15 +127,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     // Logo — app icon
                     FadeTransition(
                       opacity: _iconFade,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.logo),
-                        child: Image.asset(
-                          'assets/icon/app_icon.png',
-                          width: 200 * Responsive.scale(context),
-                          height: 200 * Responsive.scale(context),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      child: AnimatedAppIcon(size: 200 * Responsive.scale(context)),
                     ),
                     const SizedBox(height: AppSpacing.md),
 

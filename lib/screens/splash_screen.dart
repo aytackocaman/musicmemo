@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/responsive.dart';
+import '../widgets/animated_app_icon.dart';
 import '../services/deep_link_service.dart';
 import '../services/supabase_service.dart';
 import 'home_screen.dart';
@@ -72,15 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.logo),
-                child: Image.asset(
-                  'assets/icon/app_icon.png',
-                  width: 200 * Responsive.scale(context),
-                  height: 200 * Responsive.scale(context),
-                  fit: BoxFit.cover,
-                ),
-              ),
+              AnimatedAppIcon(size: 200 * Responsive.scale(context)),
               const SizedBox(height: AppSpacing.xl),
               Text(
                 AppLocalizations.of(context)?.appTitle ?? 'Music Memo',

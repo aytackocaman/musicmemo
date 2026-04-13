@@ -9,6 +9,7 @@ import '../services/deep_link_service.dart';
 import '../widgets/game_button.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/responsive.dart';
+import '../widgets/animated_app_icon.dart';
 import 'home_screen.dart';
 
 const _kHasLoggedInBefore = 'has_logged_in_before';
@@ -213,12 +214,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               curve: Curves.easeInOut,
                               width: _showEmailForm ? 120 : 200,
                               height: _showEmailForm ? 120 : 200,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(32),
-                                child: Image.asset(
-                                  'assets/icon/app_icon.png',
-                                  fit: BoxFit.cover,
-                                ),
+                              child: AnimatedAppIcon(
+                                size: _showEmailForm ? 120 : 200,
                               ),
                             ),
                             AnimatedContainer(
