@@ -86,9 +86,9 @@ class GridScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: ResponsiveBody(
+        child: ResponsiveBody(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

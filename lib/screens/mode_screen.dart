@@ -126,9 +126,10 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
       backgroundColor: context.colors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
           child: ResponsiveBody(
-            child: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back button
@@ -239,6 +240,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 },
               ),
             ],
+          ),
           ),
           ),
         ),
