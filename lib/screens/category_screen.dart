@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
+import '../utils/responsive.dart';
 import 'grid_screen.dart';
 import 'paywall_screen.dart';
 
@@ -171,14 +172,15 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
+        child: ResponsiveBody(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
 
-            // Back button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              // Back button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
@@ -246,13 +248,14 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // Scrollable body
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildBody(context),
-            ),
-          ],
+              // Scrollable body
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _buildBody(context),
+              ),
+            ],
+          ),
         ),
       ),
       ),

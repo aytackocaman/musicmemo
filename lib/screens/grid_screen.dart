@@ -7,6 +7,7 @@ import '../providers/game_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
 import '../utils/app_dialogs.dart';
+import '../utils/responsive.dart';
 import 'game/preload_screen.dart';
 import 'game/local_player_setup_screen.dart';
 import 'game/online_lobby_screen.dart';
@@ -87,11 +88,12 @@ class GridScreen extends ConsumerWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              _BackButton(onPressed: () => Navigator.pop(context)),
+          child: ResponsiveBody(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back button
+                _BackButton(onPressed: () => Navigator.pop(context)),
               const SizedBox(height: AppSpacing.xl),
 
               // Title
@@ -128,6 +130,7 @@ class GridScreen extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

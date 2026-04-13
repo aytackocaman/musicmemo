@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../utils/responsive.dart';
 import 'preload_screen.dart';
 
 /// Full 8-color palette. The one matching the current accent is filtered out
@@ -120,9 +121,10 @@ class _LocalPlayerSetupScreenState
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                    child: ResponsiveBody(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                         // ── Header (always at top) ──────────────────
                         Padding(
                           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
@@ -235,11 +237,12 @@ class _LocalPlayerSetupScreenState
                                       BorderRadius.circular(AppRadius.button),
                                 ),
                               ),
-                              child: Text(l10n.startGame, style: AppTypography.button),
+                              child: Text(l10n.startGame, style: AppTypography.button(context)),
                             ),
                           ),
                         ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

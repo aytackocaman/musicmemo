@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../utils/responsive.dart';
 
 // ─── Accent Color ──────────────────────────────────────────────────────────────
 
@@ -220,78 +221,77 @@ class AppColors {
 class AppTypography {
   // ── Headlines ──────────────────────────────────────────────────────────────
   static TextStyle headline1(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 40,
+        fontSize: 40 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
       );
 
   static TextStyle headline2(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 34,
+        fontSize: 34 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
       );
 
   static TextStyle headline3(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 28,
+        fontSize: 28 * Responsive.scale(context),
         fontWeight: FontWeight.w700,
         color: context.colors.textPrimary,
       );
 
   // ── Metrics ─────────────────────────────────────────────────────────────────
   static TextStyle metric(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 32,
+        fontSize: 32 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.accent,
       );
 
   static TextStyle metricSmall(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 28,
+        fontSize: 28 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
       );
 
   // ── Body ────────────────────────────────────────────────────────────────────
   static TextStyle bodyLarge(BuildContext context) => GoogleFonts.inter(
-        fontSize: 18,
+        fontSize: 18 * Responsive.scale(context),
         fontWeight: FontWeight.w600,
         color: context.colors.textPrimary,
       );
 
   static TextStyle body(BuildContext context) => GoogleFonts.inter(
-        fontSize: 16,
+        fontSize: 16 * Responsive.scale(context),
         fontWeight: FontWeight.w400,
         color: context.colors.textPrimary,
       );
 
   static TextStyle bodySmall(BuildContext context) => GoogleFonts.inter(
-        fontSize: 14,
+        fontSize: 14 * Responsive.scale(context),
         fontWeight: FontWeight.w500,
         color: context.colors.textSecondary,
       );
 
   // ── Labels ──────────────────────────────────────────────────────────────────
   static TextStyle label(BuildContext context) => GoogleFonts.inter(
-        fontSize: 14,
+        fontSize: 14 * Responsive.scale(context),
         fontWeight: FontWeight.w600,
         color: context.colors.textPrimary,
       );
 
   static TextStyle labelSmall(BuildContext context) => GoogleFonts.inter(
-        fontSize: 13,
+        fontSize: 13 * Responsive.scale(context),
         fontWeight: FontWeight.w500,
         color: context.colors.textTertiary,
       );
 
   // ── Buttons ─────────────────────────────────────────────────────────────────
-  // Always white (on purple buttons) — no context needed
-  static final TextStyle button = GoogleFonts.plusJakartaSans(
-    fontSize: 18,
-    fontWeight: FontWeight.w700,
-    color: AppColors.white,
-  );
+  static TextStyle button(BuildContext context) => GoogleFonts.plusJakartaSans(
+        fontSize: 18 * Responsive.scale(context),
+        fontWeight: FontWeight.w700,
+        color: AppColors.white,
+      );
 
   static TextStyle buttonSecondary(BuildContext context) => GoogleFonts.inter(
-        fontSize: 16,
+        fontSize: 16 * Responsive.scale(context),
         fontWeight: FontWeight.w600,
         color: context.colors.textPrimary,
       );

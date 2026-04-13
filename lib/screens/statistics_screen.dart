@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/database_service.dart';
+import '../utils/responsive.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -41,34 +42,36 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header
-                      _buildHeader(),
-                      const SizedBox(height: 24),
+                  child: ResponsiveBody(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header
+                        _buildHeader(),
+                        const SizedBox(height: 24),
 
-                      // Title
-                      Text(
-                        l10n.statisticsTitle,
-                        style: AppTypography.headline2(context),
-                      ),
-                      const SizedBox(height: 24),
+                        // Title
+                        Text(
+                          l10n.statisticsTitle,
+                          style: AppTypography.headline2(context),
+                        ),
+                        const SizedBox(height: 24),
 
-                      // Overall Stats Card
-                      _buildOverallStatsCard(),
-                      const SizedBox(height: 24),
+                        // Overall Stats Card
+                        _buildOverallStatsCard(),
+                        const SizedBox(height: 24),
 
-                      // By Game Mode label
-                      Text(
-                        l10n.byGameMode,
-                        style: AppTypography.headline3(context),
-                      ),
-                      const SizedBox(height: 12),
+                        // By Game Mode label
+                        Text(
+                          l10n.byGameMode,
+                          style: AppTypography.headline3(context),
+                        ),
+                        const SizedBox(height: 12),
 
-                      // Mode cards
-                      _buildModeCards(),
-                    ],
+                        // Mode cards
+                        _buildModeCards(),
+                      ],
+                    ),
                   ),
                 ),
               ),

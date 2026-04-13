@@ -347,7 +347,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                                   AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : Text(l10n.createGame, style: AppTypography.button),
+                        : Text(l10n.createGame, style: AppTypography.button(context)),
                   ),
                 ),
               ],
@@ -465,7 +465,7 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : Text(l10n.joinGame, style: AppTypography.button),
+              : Text(l10n.joinGame, style: AppTypography.button(context)),
         ),
       ),
     ),

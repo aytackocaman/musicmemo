@@ -616,7 +616,7 @@ class _LocalMultiplayerGameScreenState
                     ),
                     child: Text(
                       l10n.resume,
-                      style: AppTypography.button,
+                      style: AppTypography.button(context),
                     ),
                   ),
                 ),
@@ -1273,7 +1273,7 @@ class _ActionButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.button),
             ),
           ),
-          child: Text(label, style: AppTypography.button),
+          child: Text(label, style: AppTypography.button(context)),
         ),
       );
     }

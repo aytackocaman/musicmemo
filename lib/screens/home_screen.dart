@@ -4,6 +4,7 @@ import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
+import '../utils/responsive.dart';
 import '../widgets/game_button.dart';
 import 'mode_screen.dart';
 import 'settings_screen.dart';
@@ -125,8 +126,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         borderRadius: BorderRadius.circular(AppRadius.logo),
                         child: Image.asset(
                           'assets/icon/app_icon.png',
-                          width: 200,
-                          height: 200,
+                          width: 200 * Responsive.scale(context),
+                          height: 200 * Responsive.scale(context),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -167,7 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       child: FadeTransition(
                         opacity: _buttonsFade,
                         child: SizedBox(
-                          width: 280,
+                          width: Responsive.isTablet(context) ? 380 : 280,
                           child: Column(
                             children: [
                               GameButton(

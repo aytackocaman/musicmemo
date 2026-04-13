@@ -8,6 +8,7 @@ import '../utils/app_dialogs.dart';
 import '../services/deep_link_service.dart';
 import '../widgets/game_button.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/responsive.dart';
 import 'home_screen.dart';
 
 const _kHasLoggedInBefore = 'has_logged_in_before';
@@ -199,100 +200,102 @@ class _LoginScreenState extends State<LoginScreen> {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight - 2 * AppSpacing.xl,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Top section
-                      Column(
-                        children: [
-                          const SizedBox(height: AppSpacing.xxl),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 350),
-                            curve: Curves.easeInOut,
-                            width: _showEmailForm ? 120 : 200,
-                            height: _showEmailForm ? 120 : 200,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(32),
-                              child: Image.asset(
-                                'assets/icon/app_icon.png',
-                                fit: BoxFit.cover,
+                  child: ResponsiveBody(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Top section
+                        Column(
+                          children: [
+                            const SizedBox(height: AppSpacing.xxl),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeInOut,
+                              width: _showEmailForm ? 120 : 200,
+                              height: _showEmailForm ? 120 : 200,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(32),
+                                child: Image.asset(
+                                  'assets/icon/app_icon.png',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 350),
-                            curve: Curves.easeInOut,
-                            height: _showEmailForm ? AppSpacing.xl : AppSpacing.xxl,
-                          ),
-                          Text(
-                            _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
-                            style: AppTypography.headline2(context),
-                          ),
-                          if (!_showEmailForm) ...[
-                            const SizedBox(height: AppSpacing.sm),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeInOut,
+                              height: _showEmailForm ? AppSpacing.xl : AppSpacing.xxl,
+                            ),
                             Text(
-                              _isFirstLaunch
-                                  ? l10n.createAccountSubtitle
-                                  : l10n.signInSubtitle,
-                              style: AppTypography.body(context).copyWith(
-                                color: context.colors.textSecondary,
-                              ),
+                              _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
+                              style: AppTypography.headline2(context),
                             ),
-                          ],
-                        ],
-                      ),
-                      // Bottom section
-                      Column(
-                        children: [
-                          if (_showEmailForm) ...[
-                            _buildEmailForm(),
-                          ] else ...[
-                            _buildSocialButtons(),
-                          ],
-                          SizedBox(height: _showEmailForm ? AppSpacing.sm : AppSpacing.xxl),
-                          Text(
-                            l10n.byContinuing,
-                            style: AppTypography.labelSmall(context),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () {},
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  l10n.termsOfService,
-                                  style: AppTypography.labelSmall(context).copyWith(
-                                    color: context.colors.accent,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
-                              TextButton(
-                                onPressed: () {},
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  l10n.privacyPolicy,
-                                  style: AppTypography.labelSmall(context).copyWith(
-                                    color: context.colors.accent,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                            if (!_showEmailForm) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
+                                _isFirstLaunch
+                                    ? l10n.createAccountSubtitle
+                                    : l10n.signInSubtitle,
+                                style: AppTypography.body(context).copyWith(
+                                  color: context.colors.textSecondary,
                                 ),
                               ),
                             ],
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                        // Bottom section
+                        Column(
+                          children: [
+                            if (_showEmailForm) ...[
+                              _buildEmailForm(),
+                            ] else ...[
+                              _buildSocialButtons(),
+                            ],
+                            SizedBox(height: _showEmailForm ? AppSpacing.sm : AppSpacing.xxl),
+                            Text(
+                              l10n.byContinuing,
+                              style: AppTypography.labelSmall(context),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: () {},
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    l10n.termsOfService,
+                                    style: AppTypography.labelSmall(context).copyWith(
+                                      color: context.colors.accent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
+                                TextButton(
+                                  onPressed: () {},
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    l10n.privacyPolicy,
+                                    style: AppTypography.labelSmall(context).copyWith(
+                                      color: context.colors.accent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../utils/responsive.dart';
 import '../config/dev_config.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
@@ -126,8 +127,9 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ResponsiveBody(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back button
               Row(
@@ -237,6 +239,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                 },
               ),
             ],
+          ),
           ),
         ),
       ),

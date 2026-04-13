@@ -216,7 +216,7 @@ class _DailyChallengePreloadScreenState
                               BorderRadius.circular(AppRadius.button),
                         ),
                       ),
-                      child: Text(l10n.retry, style: AppTypography.button),
+                      child: Text(l10n.retry, style: AppTypography.button(context)),
                     ),
                   ),
                   const SizedBox(height: 12),

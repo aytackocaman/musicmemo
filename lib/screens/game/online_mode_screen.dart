@@ -777,7 +777,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         ),
                       )
                     : Text(l10n.createAndWaitForOpponent,
-                        style: AppTypography.button),
+                        style: AppTypography.button(context)),
               ),
             ),
             const SizedBox(height: 12),
@@ -868,7 +868,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text(l10n.createGame, style: AppTypography.button),
+                  : Text(l10n.createGame, style: AppTypography.button(context)),
             ),
           ),
         ],
@@ -966,7 +966,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text(l10n.joinGame, style: AppTypography.button),
+                  : Text(l10n.joinGame, style: AppTypography.button(context)),
             ),
           ),
         ),
@@ -1217,7 +1217,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text(l10n.startGame, style: AppTypography.button),
+                  : Text(l10n.startGame, style: AppTypography.button(context)),
             ),
           ),
           const SizedBox(height: 12),
@@ -1856,7 +1856,7 @@ class _CreatePrivateGameScreenState
                           strokeWidth: 2,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text(l10n.createGame, style: AppTypography.button),
+                  : Text(l10n.createGame, style: AppTypography.button(context)),
             ),
           ),
         ],
@@ -2041,7 +2041,7 @@ class _CreatePrivateGameScreenState
                       child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text(l10n.startGame, style: AppTypography.button),
+                  : Text(l10n.startGame, style: AppTypography.button(context)),
             ),
           ),
           const SizedBox(height: 12),
@@ -2574,7 +2574,7 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                       ),
                     )
                   : Text(l10n.createAndWaitForOpponent,
-                      style: AppTypography.button),
+                      style: AppTypography.button(context)),
             ),
           ),
           const SizedBox(height: 12),

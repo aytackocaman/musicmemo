@@ -487,7 +487,7 @@ class _SinglePlayerGameScreenState
                     ),
                     child: Text(
                       l10n.resume,
-                      style: AppTypography.button,
+                      style: AppTypography.button(context),
                     ),
                   ),
                 ),

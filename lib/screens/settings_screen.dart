@@ -9,6 +9,7 @@ import '../services/auth_service.dart';
 import '../services/haptic_service.dart';
 import '../services/purchase_service.dart';
 import '../utils/app_dialogs.dart';
+import '../utils/responsive.dart';
 import 'login_screen.dart';
 import 'subscription_screen.dart';
 
@@ -51,198 +52,200 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back,
-                    size: 24,
-                    color: context.colors.textPrimary,
+          child: ResponsiveBody(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back button
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xl),
 
-              Text(l10n.settings, style: AppTypography.headline3(context)),
-              const SizedBox(height: AppSpacing.xl),
+                Text(l10n.settings, style: AppTypography.headline3(context)),
+                const SizedBox(height: AppSpacing.xl),
 
-              // ── Appearance ────────────────────────────────────────────────
-              _Section(
-                title: l10n.appearance,
-                children: [
-                  _AccentColorSelector(current: accentColor),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-
-              // ── Gameplay ──────────────────────────────────────────────────
-              _Section(
-                title: l10n.gameplay,
-                trailing: GestureDetector(
-                  onTap: () => _showGameplayInfo(context),
-                  child: Icon(
-                    Icons.info_outline,
-                    size: 15,
-                    color: context.colors.textTertiary,
-                  ),
+                // ── Appearance ────────────────────────────────────────────────
+                _Section(
+                  title: l10n.appearance,
+                  children: [
+                    _AccentColorSelector(current: accentColor),
+                  ],
                 ),
-                children: [
-                  _Row(
-                    icon: Icons.vibration,
-                    label: l10n.hapticFeedback,
-                    trailing: Switch.adaptive(
-                      value: hapticEnabled,
-                      activeTrackColor: context.colors.accent,
-                      onChanged: (v) {
-                        ref
-                            .read(hapticFeedbackProvider.notifier)
-                            .setEnabled(v);
-                        if (v) HapticService.buttonTap();
-                      },
-                    ),
-                  ),
-                  _SectionDivider(),
-                  _SubsectionHeader(label: l10n.singlePlayer),
-                  _SliderRow(
-                    icon: Icons.touch_app,
-                    label: l10n.delayAfterFirstCard,
-                    value: timings.spListenMs.toDouble(),
-                    min: 300,
-                    max: 2000,
-                    divisions: 17,
-                    onChanged: (v) => ref
-                        .read(cardTimingsProvider.notifier)
-                        .setSpListenMs(v.round()),
-                  ),
-                  _SectionDivider(),
-                  _SliderRow(
-                    icon: Icons.flip,
-                    label: l10n.delayAfterMismatch,
-                    value: timings.spNoMatchMs.toDouble(),
-                    min: 400,
-                    max: 2000,
-                    divisions: 16,
-                    onChanged: (v) => ref
-                        .read(cardTimingsProvider.notifier)
-                        .setSpNoMatchMs(v.round()),
-                  ),
-                  _SectionDivider(),
-                  _SubsectionHeader(label: l10n.localMultiplayer),
-                  _SliderRow(
-                    icon: Icons.touch_app,
-                    label: l10n.delayAfterFirstCard,
-                    value: timings.lmpListenMs.toDouble(),
-                    min: 300,
-                    max: 2000,
-                    divisions: 17,
-                    onChanged: (v) => ref
-                        .read(cardTimingsProvider.notifier)
-                        .setLmpListenMs(v.round()),
-                  ),
-                  _SectionDivider(),
-                  _SliderRow(
-                    icon: Icons.flip,
-                    label: l10n.delayAfterMismatch,
-                    value: timings.lmpNoMatchMs.toDouble(),
-                    min: 400,
-                    max: 2000,
-                    divisions: 16,
-                    onChanged: (v) => ref
-                        .read(cardTimingsProvider.notifier)
-                        .setLmpNoMatchMs(v.round()),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xl),
 
-              // ── Account ───────────────────────────────────────────────────
-              _Section(
-                title: l10n.account,
-                children: [
-                  profileAsync.when(
-                    data: (profile) => _Row(
-                      icon: Icons.person_outline,
-                      label: l10n.displayName,
-                      value: profile?.displayName ?? '—',
-                      showChevron: true,
-                      onTap: () => _editDisplayName(profile?.displayName),
-                    ),
-                    loading: () => const _RowSkeleton(),
-                    error: (_, _) => _Row(
-                      icon: Icons.person_outline,
-                      label: l10n.displayName,
-                      showChevron: true,
-                      onTap: () => _editDisplayName(null),
+                // ── Gameplay ──────────────────────────────────────────────────
+                _Section(
+                  title: l10n.gameplay,
+                  trailing: GestureDetector(
+                    onTap: () => _showGameplayInfo(context),
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 15,
+                      color: context.colors.textTertiary,
                     ),
                   ),
-                  _SectionDivider(),
-                  _Row(
-                    icon: Icons.logout,
-                    iconColor: const Color(0xFFEF4444),
-                    label: l10n.signOut,
-                    isDestructive: true,
-                    onTap: _confirmSignOut,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
-
-              // ── Subscription ──────────────────────────────────────────────
-              _Section(
-                title: l10n.subscription,
-                children: [
-                  _Row(
-                    icon: Icons.workspace_premium,
-                    iconColor: AppColors.gold,
-                    label: l10n.manageSubscription,
-                    showChevron: true,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SubscriptionScreen(),
+                  children: [
+                    _Row(
+                      icon: Icons.vibration,
+                      label: l10n.hapticFeedback,
+                      trailing: Switch.adaptive(
+                        value: hapticEnabled,
+                        activeTrackColor: context.colors.accent,
+                        onChanged: (v) {
+                          ref
+                              .read(hapticFeedbackProvider.notifier)
+                              .setEnabled(v);
+                          if (v) HapticService.buttonTap();
+                        },
                       ),
                     ),
-                  ),
-                  _SectionDivider(),
-                  _Row(
-                    icon: Icons.restore,
-                    label: l10n.restorePurchase,
-                    onTap: _restorePurchase,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                    _SectionDivider(),
+                    _SubsectionHeader(label: l10n.singlePlayer),
+                    _SliderRow(
+                      icon: Icons.touch_app,
+                      label: l10n.delayAfterFirstCard,
+                      value: timings.spListenMs.toDouble(),
+                      min: 300,
+                      max: 2000,
+                      divisions: 17,
+                      onChanged: (v) => ref
+                          .read(cardTimingsProvider.notifier)
+                          .setSpListenMs(v.round()),
+                    ),
+                    _SectionDivider(),
+                    _SliderRow(
+                      icon: Icons.flip,
+                      label: l10n.delayAfterMismatch,
+                      value: timings.spNoMatchMs.toDouble(),
+                      min: 400,
+                      max: 2000,
+                      divisions: 16,
+                      onChanged: (v) => ref
+                          .read(cardTimingsProvider.notifier)
+                          .setSpNoMatchMs(v.round()),
+                    ),
+                    _SectionDivider(),
+                    _SubsectionHeader(label: l10n.localMultiplayer),
+                    _SliderRow(
+                      icon: Icons.touch_app,
+                      label: l10n.delayAfterFirstCard,
+                      value: timings.lmpListenMs.toDouble(),
+                      min: 300,
+                      max: 2000,
+                      divisions: 17,
+                      onChanged: (v) => ref
+                          .read(cardTimingsProvider.notifier)
+                          .setLmpListenMs(v.round()),
+                    ),
+                    _SectionDivider(),
+                    _SliderRow(
+                      icon: Icons.flip,
+                      label: l10n.delayAfterMismatch,
+                      value: timings.lmpNoMatchMs.toDouble(),
+                      min: 400,
+                      max: 2000,
+                      divisions: 16,
+                      onChanged: (v) => ref
+                          .read(cardTimingsProvider.notifier)
+                          .setLmpNoMatchMs(v.round()),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-              // ── Language ──────────────────────────────────────────────────
-              _Section(
-                title: l10n.language,
-                children: [_LanguageSelector()],
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                // ── Account ───────────────────────────────────────────────────
+                _Section(
+                  title: l10n.account,
+                  children: [
+                    profileAsync.when(
+                      data: (profile) => _Row(
+                        icon: Icons.person_outline,
+                        label: l10n.displayName,
+                        value: profile?.displayName ?? '—',
+                        showChevron: true,
+                        onTap: () => _editDisplayName(profile?.displayName),
+                      ),
+                      loading: () => const _RowSkeleton(),
+                      error: (_, _) => _Row(
+                        icon: Icons.person_outline,
+                        label: l10n.displayName,
+                        showChevron: true,
+                        onTap: () => _editDisplayName(null),
+                      ),
+                    ),
+                    _SectionDivider(),
+                    _Row(
+                      icon: Icons.logout,
+                      iconColor: const Color(0xFFEF4444),
+                      label: l10n.signOut,
+                      isDestructive: true,
+                      onTap: _confirmSignOut,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-              // ── About ─────────────────────────────────────────────────────
-              _Section(
-                title: l10n.about,
-                children: [
-                  _Row(
-                    icon: Icons.info_outline,
-                    label: l10n.version,
-                    value: _version.isEmpty ? '—' : _version,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-            ],
+                // ── Subscription ──────────────────────────────────────────────
+                _Section(
+                  title: l10n.subscription,
+                  children: [
+                    _Row(
+                      icon: Icons.workspace_premium,
+                      iconColor: AppColors.gold,
+                      label: l10n.manageSubscription,
+                      showChevron: true,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SubscriptionScreen(),
+                        ),
+                      ),
+                    ),
+                    _SectionDivider(),
+                    _Row(
+                      icon: Icons.restore,
+                      label: l10n.restorePurchase,
+                      onTap: _restorePurchase,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+
+                // ── Language ──────────────────────────────────────────────────
+                _Section(
+                  title: l10n.language,
+                  children: [_LanguageSelector()],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+
+                // ── About ─────────────────────────────────────────────────────
+                _Section(
+                  title: l10n.about,
+                  children: [
+                    _Row(
+                      icon: Icons.info_outline,
+                      label: l10n.version,
+                      value: _version.isEmpty ? '—' : _version,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+              ],
+            ),
           ),
         ),
       ),

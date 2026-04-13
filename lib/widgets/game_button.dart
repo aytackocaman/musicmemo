@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../services/haptic_service.dart';
+import '../utils/responsive.dart';
 
 enum GameButtonVariant { primary, secondary, ghost }
 
@@ -31,9 +32,10 @@ class GameButton extends StatelessWidget {
       GameButtonVariant.ghost => context.colors.textSecondary,
     };
 
+    final s = Responsive.scale(context);
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 56 * s,
       child: ElevatedButton(
         onPressed: () {
           HapticService.buttonTap();
@@ -51,13 +53,13 @@ class GameButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 24),
-              const SizedBox(width: 10),
+              Icon(icon, size: 24 * s),
+              SizedBox(width: 10 * s),
             ],
             Text(
               label,
               style: variant == GameButtonVariant.primary
-                  ? AppTypography.button
+                  ? AppTypography.button(context)
                   : AppTypography.buttonSecondary(context).copyWith(
                       color: foregroundColor,
                     ),

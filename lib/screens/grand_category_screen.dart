@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/theme.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
+import '../utils/responsive.dart';
 import 'category_screen.dart';
 
 class GrandCategoryScreen extends ConsumerStatefulWidget {
@@ -26,104 +27,106 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back,
-                    size: 24,
-                    color: context.colors.textPrimary,
+          child: ResponsiveBody(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back button
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xl),
 
-              // Title
-              Text(
-                l10n.selectCategory,
-                style: AppTypography.headline3(context),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-
-              // Description
-              Text(
-                l10n.whatKindOfSounds,
-                style: AppTypography.body(context).copyWith(
-                  color: context.colors.textSecondary,
+                // Title
+                Text(
+                  l10n.selectCategory,
+                  style: AppTypography.headline3(context),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.sm),
 
-              // Music — active
-              _GrandCategoryCard(
-                icon: Icons.music_note,
-                title: l10n.music,
-                subtitle: l10n.musicDescription,
-                iconColor: context.colors.accent,
-                iconBackgroundColor: const Color(0x268B5CF6),
-                isPrimary: false,
-                onTap: () async {
-                final isOnline =
-                    ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer;
-                final navigator = Navigator.of(context);
-                await navigator.push(
-                  MaterialPageRoute(builder: (_) => const CategoryScreen()),
-                );
-                final picked = ref.read(selectedCategoryProvider);
-                if (!mounted || picked == null) return;
-                if (widget.onCategoryPicked != null) {
-                  // Caller handles forward navigation
-                  widget.onCategoryPicked!(context, picked); // ignore: use_build_context_synchronously
-                } else if (isOnline) {
-                  // Default online behaviour: pop so the caller can resume
-                  navigator.pop();
-                }
-              },
-              ),
-              const SizedBox(height: AppSpacing.md),
+                // Description
+                Text(
+                  l10n.whatKindOfSounds,
+                  style: AppTypography.body(context).copyWith(
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-              // Ear Training — coming soon
-              _GrandCategoryCard(
-                icon: Icons.hearing,
-                title: l10n.earTraining,
-                subtitle: l10n.earTrainingDescription,
-                iconColor: AppColors.teal,
-                iconBackgroundColor: const Color(0x2614B8A6),
-                comingSoon: true,
-              ),
-              const SizedBox(height: AppSpacing.md),
+                // Music — active
+                _GrandCategoryCard(
+                  icon: Icons.music_note,
+                  title: l10n.music,
+                  subtitle: l10n.musicDescription,
+                  iconColor: context.colors.accent,
+                  iconBackgroundColor: const Color(0x268B5CF6),
+                  isPrimary: false,
+                  onTap: () async {
+                  final isOnline =
+                      ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer;
+                  final navigator = Navigator.of(context);
+                  await navigator.push(
+                    MaterialPageRoute(builder: (_) => const CategoryScreen()),
+                  );
+                  final picked = ref.read(selectedCategoryProvider);
+                  if (!mounted || picked == null) return;
+                  if (widget.onCategoryPicked != null) {
+                    // Caller handles forward navigation
+                    widget.onCategoryPicked!(context, picked); // ignore: use_build_context_synchronously
+                  } else if (isOnline) {
+                    // Default online behaviour: pop so the caller can resume
+                    navigator.pop();
+                  }
+                },
+                ),
+                const SizedBox(height: AppSpacing.md),
 
-              // For Kids — coming soon
-              _GrandCategoryCard(
-                icon: Icons.child_care,
-                title: l10n.forKids,
-                subtitle: l10n.forKidsDescription,
-                iconColor: AppColors.pink,
-                iconBackgroundColor: const Color(0x26F472B6),
-                comingSoon: true,
-              ),
-              const SizedBox(height: AppSpacing.md),
+                // Ear Training — coming soon
+                _GrandCategoryCard(
+                  icon: Icons.hearing,
+                  title: l10n.earTraining,
+                  subtitle: l10n.earTrainingDescription,
+                  iconColor: AppColors.teal,
+                  iconBackgroundColor: const Color(0x2614B8A6),
+                  comingSoon: true,
+                ),
+                const SizedBox(height: AppSpacing.md),
 
-              // Funny Memes — coming soon
-              _GrandCategoryCard(
-                icon: Icons.tag_faces,
-                title: l10n.funnyMemes,
-                subtitle: l10n.funnyMemesDescription,
-                iconColor: const Color(0xFFFBBF24),
-                iconBackgroundColor: const Color(0x26FBBF24),
-                comingSoon: true,
-              ),
-            ],
+                // For Kids — coming soon
+                _GrandCategoryCard(
+                  icon: Icons.child_care,
+                  title: l10n.forKids,
+                  subtitle: l10n.forKidsDescription,
+                  iconColor: AppColors.pink,
+                  iconBackgroundColor: const Color(0x26F472B6),
+                  comingSoon: true,
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                // Funny Memes — coming soon
+                _GrandCategoryCard(
+                  icon: Icons.tag_faces,
+                  title: l10n.funnyMemes,
+                  subtitle: l10n.funnyMemesDescription,
+                  iconColor: const Color(0xFFFBBF24),
+                  iconBackgroundColor: const Color(0x26FBBF24),
+                  comingSoon: true,
+                ),
+              ],
+            ),
           ),
         ),
       ),

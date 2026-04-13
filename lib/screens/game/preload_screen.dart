@@ -8,6 +8,7 @@ import '../../providers/game_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/database_service.dart';
 import '../../utils/game_utils.dart';
+import '../../utils/responsive.dart';
 import 'single_player_game_screen.dart';
 import 'local_multiplayer_game_screen.dart';
 
@@ -165,9 +166,10 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
       backgroundColor: context.colors.background,
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48),
-            child: Column(
+          child: ResponsiveBody(
+            child: Padding(
+              padding: const EdgeInsets.all(48),
+              child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Music icon
@@ -237,7 +239,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                           borderRadius: BorderRadius.circular(AppRadius.button),
                         ),
                       ),
-                      child: Text(l10n.retry, style: AppTypography.button),
+                      child: Text(l10n.retry, style: AppTypography.button(context)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -253,6 +255,7 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
                 ],
               ],
             ),
+          ),
           ),
         ),
       ),
