@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/user_provider.dart';
 import '../../services/multiplayer_service.dart';
 import '../../services/supabase_service.dart';
+import '../../utils/responsive.dart';
 import 'online_game_screen.dart';
 
 class OnlineLobbyScreen extends ConsumerStatefulWidget {
@@ -192,7 +193,9 @@ class _OnlineLobbyScreenState extends ConsumerState<OnlineLobbyScreen> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: _isWaiting ? _buildWaitingScreen() : _buildLobbyScreen(),
+          child: ResponsiveBody(
+            child: _isWaiting ? _buildWaitingScreen() : _buildLobbyScreen(),
+          ),
         ),
       ),
     );

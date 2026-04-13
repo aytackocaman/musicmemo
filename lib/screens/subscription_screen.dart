@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/user_provider.dart';
 import '../services/database_service.dart';
 import '../services/purchase_service.dart';
+import '../utils/responsive.dart';
 import 'paywall_screen.dart';
 
 class SubscriptionScreen extends ConsumerStatefulWidget {
@@ -46,9 +47,10 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
+        child: ResponsiveBody(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back button
@@ -101,6 +103,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

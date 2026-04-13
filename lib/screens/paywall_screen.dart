@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/user_provider.dart';
 import '../services/purchase_service.dart';
 import '../utils/app_dialogs.dart';
+import '../utils/responsive.dart';
 
 /// Full-screen paywall shown when free tier limit is reached,
 /// a premium-only feature is accessed, or the trial has expired.
@@ -97,9 +98,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     return Scaffold(
       backgroundColor: context.colors.accent,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Close button
+        child: ResponsiveBody(
+          child: Column(
+            children: [
+              // Close button
             Padding(
               padding: const EdgeInsets.fromLTRB(32, 22, 32, 0),
               child: Align(
@@ -287,6 +289,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

@@ -16,6 +16,7 @@ import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import 'online_game_screen.dart';
 import '../../l10n/app_localizations.dart';
+import '../../utils/responsive.dart';
 
 /// Grid options — difficulty keys are resolved via l10n at render time.
 final List<Map<String, dynamic>> _gridOptions = [
@@ -580,19 +581,21 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
-          child: _isWaitingForHostToStart
-              ? _buildWaitingForHostScreen()
-              : _isOpponentJoined
-                  ? _buildOpponentJoinedScreen()
-                  : _isWaitingForOpponent
-                      ? _buildWaitingScreen()
-                      : _isFindOpponentMode
-                          ? _buildFindOpponentScreen()
-                          : _isCreateMode
-                              ? _buildCreateScreen()
-                              : _isJoinMode
-                                  ? _buildJoinScreen()
-                                  : _buildMainScreen(),
+          child: ResponsiveBody(
+            child: _isWaitingForHostToStart
+                ? _buildWaitingForHostScreen()
+                : _isOpponentJoined
+                    ? _buildOpponentJoinedScreen()
+                    : _isWaitingForOpponent
+                        ? _buildWaitingScreen()
+                        : _isFindOpponentMode
+                            ? _buildFindOpponentScreen()
+                            : _isCreateMode
+                                ? _buildCreateScreen()
+                                : _isJoinMode
+                                    ? _buildJoinScreen()
+                                    : _buildMainScreen(),
+          ),
         ),
         ),
       ),
@@ -1791,11 +1794,13 @@ class _CreatePrivateGameScreenState
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: _isOpponentJoined
-              ? _buildOpponentJoinedScreen()
-              : _isWaiting
-                  ? _buildWaitingScreen()
-                  : _buildCreateForm(),
+          child: ResponsiveBody(
+            child: _isOpponentJoined
+                ? _buildOpponentJoinedScreen()
+                : _isWaiting
+                    ? _buildWaitingScreen()
+                    : _buildCreateForm(),
+          ),
         ),
       ),
     );
@@ -2475,12 +2480,14 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
-            child: switch (_phase) {
-              _FindPhase.searching => _buildSearchingView(),
-              _FindPhase.form => _buildForm(),
-              _FindPhase.waitingForOpponent => _buildWaitingForOpponent(),
-              _FindPhase.waitingForHost => _buildWaitingForHost(),
-            },
+            child: ResponsiveBody(
+              child: switch (_phase) {
+                _FindPhase.searching => _buildSearchingView(),
+                _FindPhase.form => _buildForm(),
+                _FindPhase.waitingForOpponent => _buildWaitingForOpponent(),
+                _FindPhase.waitingForHost => _buildWaitingForHost(),
+              },
+            ),
           ),
         ),
       ),

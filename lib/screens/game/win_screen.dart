@@ -10,6 +10,7 @@ import '../../utils/game_utils.dart';
 import '../grand_category_screen.dart';
 import '../home_screen.dart';
 import '../paywall_screen.dart';
+import '../../utils/responsive.dart';
 import 'preload_screen.dart';
 
 class WinScreen extends ConsumerStatefulWidget {
@@ -66,12 +67,13 @@ class _WinScreenState extends ConsumerState<WinScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final isCompact = constraints.maxHeight < 700;
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: isCompact ? 12 : 24,
-                ),
-                child: Column(
+              return ResponsiveBody(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: isCompact ? 12 : 24,
+                  ),
+                  child: Column(
                   children: [
                     const Spacer(flex: 1),
 
@@ -211,6 +213,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
 
                     const Spacer(flex: 1),
                   ],
+                ),
                 ),
               );
             },

@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/audio_service.dart';
 import '../../services/daily_challenge_service.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive.dart';
 import 'daily_challenge_game_screen.dart';
 
 /// Preload screen for the daily challenge.
@@ -149,9 +150,10 @@ class _DailyChallengePreloadScreenState
       backgroundColor: context.colors.background,
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(48),
-            child: Column(
+          child: ResponsiveBody(
+            child: Padding(
+              padding: const EdgeInsets.all(48),
+              child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
@@ -231,6 +233,7 @@ class _DailyChallengePreloadScreenState
                 ],
               ],
             ),
+          ),
           ),
         ),
       ),

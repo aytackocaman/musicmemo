@@ -6,6 +6,7 @@ import '../../models/daily_challenge.dart';
 import '../../providers/daily_challenge_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/game_utils.dart';
+import '../../utils/responsive.dart';
 import '../home_screen.dart';
 
 class DailyChallengeWinScreen extends ConsumerStatefulWidget {
@@ -48,12 +49,13 @@ class _DailyChallengeWinScreenState
           child: LayoutBuilder(
             builder: (context, constraints) {
               final isCompact = constraints.maxHeight < 700;
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: isCompact ? 8 : 16,
-                ),
-                child: Column(
+              return ResponsiveBody(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: isCompact ? 8 : 16,
+                  ),
+                  child: Column(
                   children: [
                     SizedBox(height: isCompact ? 8 : 16),
 
@@ -156,6 +158,7 @@ class _DailyChallengeWinScreenState
                     ),
                     SizedBox(height: isCompact ? 8 : 12),
                   ],
+                ),
                 ),
               );
             },
