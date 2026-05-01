@@ -24,7 +24,7 @@ void main() async {
           600;
   await SystemChrome.setPreferredOrientations(
     isTablet
-        ? [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]
+        ? [DeviceOrientation.landscapeRight]
         : [DeviceOrientation.portraitUp],
   );
 

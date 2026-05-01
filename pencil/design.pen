@@ -8147,6 +8147,270 @@
           "cornerRadius": 224
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "uG66q",
+      "x": 438,
+      "y": 906,
+      "name": "Login Screen (Current)",
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Mrrm1",
+          "name": "content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "#212020ff",
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "2i6PZ",
+              "x": 31,
+              "y": 90,
+              "name": "topGroup",
+              "width": "fill_container(328)",
+              "height": 189,
+              "layout": "vertical",
+              "gap": 40,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "3YiaB",
+                  "name": "appIcon",
+                  "clip": true,
+                  "width": 210,
+                  "height": 210,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "../assets/icon/app_icon.png",
+                    "mode": "fill"
+                  },
+                  "cornerRadius": 32
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "up4p1",
+              "x": 24,
+              "y": 558,
+              "name": "buttonsGroup",
+              "width": "fill_container(342)",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "WGDcI",
+                  "name": "appleBtn",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#1C1C1E",
+                  "cornerRadius": 24,
+                  "gap": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "7C9Rr",
+                      "name": "appleIcon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "apple",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FFFFFF"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ahvJ9",
+                      "name": "appleText",
+                      "fill": "#FFFFFF",
+                      "content": "Sign in with Apple",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sKlMt",
+                  "name": "googleBtn",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 24,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#D4D4D8"
+                  },
+                  "gap": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ren1x",
+                      "name": "googleG",
+                      "fill": "#4285F4",
+                      "content": "G",
+                      "fontFamily": "Plus Jakarta Sans",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "eXkhC",
+                      "name": "googleText",
+                      "fill": "#3C4043",
+                      "content": "Sign in with Google",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "3kW5V",
+                  "name": "emailBtn",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "$surface",
+                  "cornerRadius": 24,
+                  "gap": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "hw2bQ",
+                      "name": "emailIcon",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "mail",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-primary"
+                    },
+                    {
+                      "type": "text",
+                      "id": "12x1W",
+                      "name": "emailText",
+                      "fill": "$text-primary",
+                      "content": "Sign in with Email",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "aYahm",
+              "x": 24,
+              "y": 767,
+              "name": "termsGroup",
+              "width": "fill_container(342)",
+              "height": 39,
+              "layout": "vertical",
+              "gap": 2,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "5Mwsx",
+                  "name": "termsLine1",
+                  "fill": "$text-muted",
+                  "content": "By continuing, you agree to our",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "0Unse",
+                  "name": "termsLine2",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zIpWz",
+                      "name": "termsLink",
+                      "fill": "#3B82F6",
+                      "content": "Terms of Service",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "p55pr",
+                      "name": "termsSep",
+                      "fill": "$text-muted",
+                      "content": " and ",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "I5q4F",
+                      "name": "privacyLink",
+                      "fill": "#3B82F6",
+                      "content": "Privacy Policy",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "zHLRh",
+              "x": 45,
+              "y": 422,
+              "name": "subtitle",
+              "fill": "$text-muted",
+              "textGrowth": "fixed-width-height",
+              "width": 300,
+              "height": 42,
+              "content": "Create an account to track your scores and compete with friends",
+              "textAlign": "center",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "lsBv2",
+              "x": 56,
+              "y": 364,
+              "name": "title",
+              "fill": "#ffffffff",
+              "content": "Welcome Back",
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": 38,
+              "fontWeight": "700"
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
