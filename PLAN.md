@@ -117,7 +117,7 @@ The game is feature-complete. The only goal now is **shipping v1.0**. Work in th
 1. **Fix `env/production.json` key name** (5 min) — malformed `REVENUECAT_API_KEY_` means prod builds silently ignore RevenueCat; without this, everything below is pointless
 2. **Read real plan + expiry from `EntitlementInfo`** (~half day) — fixes flaws.md #1: premium is synthesized as `plan: 'yearly'` with no expiry, so a lapsed subscription never downgrades
 3. **Client-side sync RevenueCat → Supabase after purchase/restore/login** (~half day) — closes audit BUG 1: `subscriptions` table stays `free` forever after someone pays
-4. **Commit DB schema to `supabase/migrations/`** (one session via Supabase MCP) — schema currently exists only in the dashboard; one accidental deletion = unrecoverable
+4. **Commit DB schema to `supabase/migrations/`** ✅ Done 2026-08-01 — `0000_baseline_schema.sql` recreates the full live schema (13 tables, indexes, functions, triggers, RLS, storage bucket, cron jobs); validated via rollback test against live DB. Superseded `daily_challenge_scores.sql` + `subscriptions_client_sync_rls.sql` were consolidated into it.
 5. **Privacy policy + terms** (few hours, no code) — hard App Store requirement for IAP; host on the `site/` deployment, link from app + listing
 6. **Sandbox test the 10-item checklist from `iap-payment-plan.md`, then submit**
 

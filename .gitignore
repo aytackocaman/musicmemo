@@ -56,3 +56,9 @@ site/
 
 # Private notes & credentials
 zz_notes_credentials/
+
+# Agent tooling (vendored skills, restorable from skills-lock.json)
+.agents/
+
+# Local leftover assets
+assets/icon/app_icon_animated_deleted.mp4

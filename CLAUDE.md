@@ -160,12 +160,18 @@ Home → Mode (Online) → [Paywall if no subscription] → Matchmaking/Invite �
 ### Login Methods
 - **Email/Password** - Primary auth method via Supabase Auth
 - **Google Sign-In** - Integrated via Supabase Auth
-- **Guest Mode** - Play without account (anonymous), can link account later
+- **Sign in with Apple** - Integrated via Supabase Auth
+- **Guest mode was removed** — email/Google/Apple only
 
 ### Supabase Data Model (PostgreSQL)
 
+> **Source of truth:** `supabase/migrations/0000_baseline_schema.sql` recreates the
+> full live schema (13 tables, indexes, functions, triggers, RLS, storage bucket,
+> cron jobs). The summary below is a readable view, not the full DDL.
+> Regenerate the baseline from the dashboard when the schema changes.
+
 ```sql
--- Users table (extends Supabase auth.users)
+-- User profiles (extends auth.users)
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name TEXT,
@@ -174,11 +180,12 @@ CREATE TABLE profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Subscriptions
+-- Subscriptions (cache of premium state; RevenueCat is the source of truth,
+-- client syncs plan + expires_at after purchase/restore/login)
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  plan TEXT NOT NULL DEFAULT 'free',  -- 'free', 'monthly', 'yearly'
+  plan TEXT NOT NULL DEFAULT 'free',  -- 'free', 'monthly', 'yearly', 'trial'
   status TEXT NOT NULL DEFAULT 'active',  -- 'active', 'cancelled', 'expired'
   started_at TIMESTAMPTZ DEFAULT NOW(),
   expires_at TIMESTAMPTZ,
@@ -200,37 +207,23 @@ CREATE TABLE daily_game_counts (
   UNIQUE(user_id, date)
 );
 
--- User statistics (updated to include mode-specific stats)
+-- Aggregate user statistics (no per-mode columns in the live schema)
 CREATE TABLE user_stats (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  -- Overall stats
   total_games INTEGER DEFAULT 0,
   total_wins INTEGER DEFAULT 0,
   total_score INTEGER DEFAULT 0,
   high_score INTEGER DEFAULT 0,
   current_streak INTEGER DEFAULT 0,
   best_streak INTEGER DEFAULT 0,
-  -- Single player stats
-  sp_games INTEGER DEFAULT 0,
-  sp_wins INTEGER DEFAULT 0,
-  sp_best_time INTEGER,  -- seconds
-  sp_best_moves INTEGER,
-  -- Local multiplayer stats
-  local_mp_games INTEGER DEFAULT 0,
-  local_mp_wins INTEGER DEFAULT 0,
-  -- Online multiplayer stats
-  online_games INTEGER DEFAULT 0,
-  online_wins INTEGER DEFAULT 0,
-  online_rating INTEGER DEFAULT 1000,  -- ELO-style rating
-  -- Meta
   favorite_category TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id)
 );
 
--- Category statistics (per user per category)
+-- Per-category statistics
 CREATE TABLE category_stats (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -241,59 +234,136 @@ CREATE TABLE category_stats (
   UNIQUE(user_id, category)
 );
 
--- Game history (updated for multiplayer)
+-- Game history (no opponent columns in the live schema)
 CREATE TABLE games (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  opponent_id UUID REFERENCES profiles(id),  -- NULL for single player
-  game_mode TEXT NOT NULL,  -- 'single', 'local_mp', 'online_mp'
   category TEXT NOT NULL,
   score INTEGER NOT NULL,
-  opponent_score INTEGER,  -- For multiplayer games
   moves INTEGER NOT NULL,
   time_seconds INTEGER NOT NULL,
   won BOOLEAN NOT NULL,
   grid_size TEXT NOT NULL,  -- e.g., "4x5"
-  played_at TIMESTAMPTZ DEFAULT NOW()
+  played_at TIMESTAMPTZ DEFAULT NOW(),
+  game_mode TEXT DEFAULT 'single_player'  -- 'single_player', 'local_multiplayer', 'online_multiplayer', 'daily_challenge'
 );
 
--- Online game sessions (for real-time multiplayer)
+-- Online game sessions (real-time multiplayer)
 CREATE TABLE online_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  player1_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  player2_id UUID REFERENCES profiles(id),
-  invite_code TEXT UNIQUE,  -- For friend invites
-  status TEXT NOT NULL DEFAULT 'waiting',  -- 'waiting', 'playing', 'finished'
-  category TEXT,
-  grid_size TEXT,
-  current_turn UUID,  -- Which player's turn
+  player1_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  player2_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  player1_name TEXT,
+  player2_name TEXT,
   player1_score INTEGER DEFAULT 0,
   player2_score INTEGER DEFAULT 0,
-  game_state JSONB,  -- Card positions, matched pairs, etc.
+  category TEXT NOT NULL,
+  grid_size TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'waiting',  -- 'waiting', 'playing', 'finished'
+  current_turn UUID,
+  game_state JSONB,
+  invite_code TEXT UNIQUE,
+  winner_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  started_at TIMESTAMPTZ,
+  finished_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  is_public BOOLEAN NOT NULL DEFAULT false,
+  rematch_player1 BOOLEAN NOT NULL DEFAULT false,
+  rematch_player2 BOOLEAN NOT NULL DEFAULT false,
+  player1_left BOOLEAN NOT NULL DEFAULT false,
+  player2_left BOOLEAN NOT NULL DEFAULT false
 );
 
--- Row Level Security (RLS)
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE daily_game_counts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_stats ENABLE ROW LEVEL SECURITY;
-ALTER TABLE category_stats ENABLE ROW LEVEL SECURITY;
-ALTER TABLE games ENABLE ROW LEVEL SECURITY;
-ALTER TABLE online_sessions ENABLE ROW LEVEL SECURITY;
+-- Daily challenge leaderboard (deterministic daily puzzle)
+CREATE TABLE daily_challenge_scores (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  score INTEGER NOT NULL,
+  moves INTEGER NOT NULL,
+  time_seconds INTEGER NOT NULL,
+  category TEXT NOT NULL,
+  grid_size TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, date)
+);
 
--- Users can only access their own data
-CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Users can view own subscription" ON subscriptions FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can view own daily counts" ON daily_game_counts FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Users can view own stats" ON user_stats FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Users can view own category stats" ON category_stats FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Users can view own games" ON games FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Users can view sessions they participate in" ON online_sessions FOR ALL
-  USING (auth.uid() = player1_id OR auth.uid() = player2_id);
+-- Sound system (category browsing, tags, and audio clips)
+CREATE TABLE category_groups (
+  id TEXT PRIMARY KEY,             -- top-level collections ("Feel", ...)
+  name TEXT NOT NULL,
+  icon TEXT,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  group_type TEXT NOT NULL DEFAULT 'collection'
+);
+
+CREATE TABLE sound_categories (
+  id TEXT PRIMARY KEY,             -- category slug
+  group_id TEXT NOT NULL REFERENCES category_groups(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  icon TEXT,
+  sound_count INTEGER DEFAULT 0,
+  is_premium BOOLEAN DEFAULT false,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  pixabay_slug TEXT,
+  show_in_ui BOOLEAN NOT NULL DEFAULT true,
+  sub_group TEXT
+);
+
+CREATE TABLE sounds (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category_id TEXT NOT NULL REFERENCES sound_categories(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  file_path TEXT NOT NULL,         -- path in the 'sounds' storage bucket
+  duration_ms INTEGER DEFAULT 2000,
+  file_size_bytes INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  pixabay_id TEXT,
+  author TEXT,
+  UNIQUE(pixabay_id, category_id)
+);
+
+CREATE TABLE sound_tags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sound_id UUID NOT NULL REFERENCES sounds(id) ON DELETE CASCADE,
+  tag_type TEXT NOT NULL,
+  tag_value TEXT NOT NULL,
+  UNIQUE(sound_id, tag_type, tag_value)
+);
+
+CREATE TABLE tag_values (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tag_type TEXT NOT NULL,
+  value TEXT NOT NULL,
+  sound_count INTEGER NOT NULL DEFAULT 0,
+  is_premium BOOLEAN NOT NULL DEFAULT false,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(tag_type, value)
+);
+
+-- Functions (SECURITY DEFINER) + trigger
+-- handle_new_user(): on auth.users insert → creates profile + user_stats +
+--   a 7-day 'trial' subscription
+-- can_play_game(user_id, game_mode): free-tier check (hardcoded 5 SP / 3 LMP,
+--   premium = monthly/yearly; NOTE: ignores 'trial' — Dart-side check is authoritative)
+-- increment_game_count(user_id, game_mode): upserts today's counters
+CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- Row Level Security (RLS): enabled on ALL 13 tables.
+-- Sound/category/tag tables + daily_challenge_scores SELECT: public.
+-- User-owned tables (profiles, subscriptions, daily_game_counts, user_stats,
+-- category_stats, games): restricted to auth.uid() = own row.
+-- online_sessions: participants can view/update own sessions; waiting sessions
+-- with no player2 are visible (matchmaking); hosts can delete waiting sessions.
+-- storage.objects: "Public read access for sounds" policy (bucket_id = 'sounds').
 ```
+
+### Storage
+- Bucket `sounds` (public, no size/mime limits) — served audio clips; metadata in `sounds` table.
 
 ### Supabase Packages
 ```yaml
@@ -324,7 +394,7 @@ INSERT INTO subscriptions (user_id, plan, status, expires_at)
 VALUES ('<user-uuid>', 'monthly', 'active', NOW() + INTERVAL '1 month');
 ```
 
-Valid plan values: `'free'`, `'monthly'`, `'yearly'` (must match exactly — app checks `plan == 'monthly' || plan == 'yearly'`).
+Valid plan values: `'free'`, `'trial'`, `'monthly'`, `'yearly'` (must match exactly — app treats `monthly`/`yearly`/`trial` as premium via `UserSubscription.isPremium`, subject to `expires_at`).
 
 ### Database Maintenance — Cron Jobs
 Enable the `pg_cron` extension first: Dashboard → Database → Extensions → enable `pg_cron`.
