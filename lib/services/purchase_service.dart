@@ -2,9 +2,30 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'database_service.dart';
 
 /// Entitlement identifier configured in RevenueCat dashboard.
 const _entitlementId = 'premium';
+
+/// Snapshot of the "premium" entitlement with the real plan and expiry,
+/// derived from RevenueCat [CustomerInfo].
+class PremiumStatus {
+  final bool isPremium;
+
+  /// 'free', 'monthly', 'yearly' or 'trial'
+  final String plan;
+
+  /// Subscription expiry (null when not premium or non-expiring).
+  final DateTime? expiresAt;
+
+  const PremiumStatus({
+    required this.isPremium,
+    required this.plan,
+    this.expiresAt,
+  });
+
+  static const free = PremiumStatus(isPremium: false, plan: 'free');
+}
 
 /// Singleton wrapper around RevenueCat SDK (v9).
 ///
@@ -48,7 +69,8 @@ class PurchaseService {
   static Future<void> login(String userId) async {
     if (!_initialized) return;
     try {
-      await Purchases.logIn(userId);
+      final result = await Purchases.logIn(userId);
+      await _syncToSupabase(_statusFromCustomerInfo(result.customerInfo));
     } catch (e) {
       debugPrint('RevenueCat login error: $e');
     }
@@ -76,6 +98,61 @@ class PurchaseService {
       debugPrint('RevenueCat isPremium error: $e');
       return false;
     }
+  }
+
+  /// Detailed premium status with the real plan and expiration date.
+  /// Returns null when RevenueCat is unreachable — callers should fall
+  /// back to the Supabase-cached subscription in that case.
+  static Future<PremiumStatus?> getPremiumStatus() async {
+    if (!_initialized) return null;
+    try {
+      final info = await Purchases.getCustomerInfo();
+      final status = _statusFromCustomerInfo(info);
+      await _syncToSupabase(status);
+      return status;
+    } catch (e) {
+      debugPrint('RevenueCat getPremiumStatus error: $e');
+      return null;
+    }
+  }
+
+  /// Derive premium status (plan + real expiry) from [CustomerInfo].
+  static PremiumStatus _statusFromCustomerInfo(CustomerInfo info) {
+    final entitlement = info.entitlements.active[_entitlementId];
+    if (entitlement == null) return PremiumStatus.free;
+
+    final expiresAt = DateTime.tryParse(entitlement.expirationDate ?? '');
+
+    // Trial takes precedence so trials are displayed correctly.
+    final String plan;
+    if (entitlement.periodType == PeriodType.trial) {
+      plan = 'trial';
+    } else {
+      final productId = entitlement.productIdentifier.toLowerCase();
+      if (productId.contains('month')) {
+        plan = 'monthly';
+      } else if (productId.contains('year')) {
+        plan = 'yearly';
+      } else {
+        plan = 'monthly'; // unknown product — display fallback only
+      }
+    }
+
+    return PremiumStatus(isPremium: true, plan: plan, expiresAt: expiresAt);
+  }
+
+  /// Persist premium state to the Supabase `subscriptions` table so it
+  /// stays a usable cache when RevenueCat is unreachable.
+  ///
+  /// Only premium states are written. Downgrades need no write: the
+  /// stored `expires_at` is real, so the cached subscription flips to
+  /// expired on its own at the right time.
+  static Future<void> _syncToSupabase(PremiumStatus status) async {
+    if (!status.isPremium) return;
+    await DatabaseService.upsertSubscription(
+      plan: status.plan,
+      expiresAt: status.expiresAt,
+    );
   }
 
   /// Get full customer info for detailed subscription status.
@@ -117,8 +194,9 @@ class PurchaseService {
     if (!_initialized) return false;
     try {
       final result = await Purchases.purchase(PurchaseParams.package(package));
-      return result.customerInfo.entitlements.active
-          .containsKey(_entitlementId);
+      final status = _statusFromCustomerInfo(result.customerInfo);
+      await _syncToSupabase(status);
+      return status.isPremium;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
@@ -139,7 +217,9 @@ class PurchaseService {
     if (!_initialized) return false;
     try {
       final info = await Purchases.restorePurchases();
-      return info.entitlements.active.containsKey(_entitlementId);
+      final status = _statusFromCustomerInfo(info);
+      await _syncToSupabase(status);
+      return status.isPremium;
     } catch (e) {
       debugPrint('RevenueCat restore error: $e');
       return false;

@@ -27,14 +27,17 @@ final subscriptionProvider = FutureProvider<UserSubscription>((ref) async {
 
   // RevenueCat is the source of truth when configured
   if (PurchaseService.isConfigured) {
-    final premium = await PurchaseService.isPremium();
-    if (premium) {
+    final premiumStatus = await PurchaseService.getPremiumStatus();
+    if (premiumStatus != null && premiumStatus.isPremium) {
       return UserSubscription(
         id: '',
-        plan: 'yearly', // RevenueCat doesn't distinguish — just mark premium
+        plan: premiumStatus.plan,
         status: 'active',
+        expiresAt: premiumStatus.expiresAt,
       );
     }
+    // Not premium (or RevenueCat unreachable): fall through to the
+    // Supabase cache, which holds the last synced plan + real expiry.
   }
 
   // Fallback to Supabase (works offline / without RevenueCat key)

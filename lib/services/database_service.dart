@@ -437,6 +437,31 @@ class DatabaseService {
     }
   }
 
+  /// Upsert subscription state synced from RevenueCat.
+  /// Keeps the `subscriptions` table a usable cache of the real
+  /// subscription (RevenueCat stays the source of truth).
+  static Future<bool> upsertSubscription({
+    required String plan,
+    DateTime? expiresAt,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      await _client.from('subscriptions').upsert({
+        'user_id': user.id,
+        'plan': plan,
+        'status': 'active',
+        'expires_at': expiresAt?.toUtc().toIso8601String(),
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'user_id');
+      return true;
+    } catch (e) {
+      print('Error syncing subscription: $e');
+      return false;
+    }
+  }
+
   /// Get today's game counts for free tier tracking
   static Future<DailyGameCounts> getDailyGameCounts() async {
     final user = _client.auth.currentUser;
