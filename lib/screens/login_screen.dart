@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
 import '../utils/app_dialogs.dart';
@@ -13,6 +14,16 @@ import '../widgets/animated_app_icon.dart';
 import 'home_screen.dart';
 
 const _kHasLoggedInBefore = 'has_logged_in_before';
+
+const _kTermsUrl = 'https://musicmemo.app/terms';
+const _kPrivacyUrl = 'https://musicmemo.app/privacy';
+
+Future<void> _openLegalPage(String url) async {
+  final uri = Uri.parse(url);
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -257,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () => _openLegalPage(_kTermsUrl),
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
@@ -273,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () => _openLegalPage(_kPrivacyUrl),
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,

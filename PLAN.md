@@ -48,7 +48,8 @@
 ### P2 — Polish
 - [ ] Periodic 30-min subscription refresh
 - [ ] "Subscription expired" UX dialog, trial-countdown UI
-- [ ] Privacy policy + terms of service (required for IAP release)
+- [x] ~~Privacy policy + terms of service~~ ✅ Done 2026-08-01 — musicmemo.app/privacy + /terms, wired in login screen
+- [ ] **In-app account deletion** — REQUIRED by Apple guideline 5.1.1(v) (apps with account creation must offer account deletion). Currently no flow; needs a Supabase Edge Function (service role) to delete auth.users (cascades to all data). Considered a P0 for submission.
 - [ ] Sandbox testing per 10-item checklist in `iap-payment-plan.md` (restore, TRY pricing, offline cache…)
 - [ ] Apple Small Business Program application (30% → 15% cut)
 
@@ -118,7 +119,7 @@ The game is feature-complete. The only goal now is **shipping v1.0**. Work in th
 2. **Read real plan + expiry from `EntitlementInfo`** (~half day) — fixes flaws.md #1: premium is synthesized as `plan: 'yearly'` with no expiry, so a lapsed subscription never downgrades
 3. **Client-side sync RevenueCat → Supabase after purchase/restore/login** (~half day) — closes audit BUG 1: `subscriptions` table stays `free` forever after someone pays
 4. **Commit DB schema to `supabase/migrations/`** ✅ Done 2026-08-01 — `0000_baseline_schema.sql` recreates the full live schema (13 tables, indexes, functions, triggers, RLS, storage bucket, cron jobs); validated via rollback test against live DB. Superseded `daily_challenge_scores.sql` + `subscriptions_client_sync_rls.sql` were consolidated into it.
-5. **Privacy policy + terms** (few hours, no code) — hard App Store requirement for IAP; host on the `site/` deployment, link from app + listing
+5. **Privacy policy + terms** ✅ Done 2026-08-01 — hosted at `https://musicmemo.app/privacy` and `/terms` (site repo, pending deploy); login-screen links wired via url_launcher. ⚠️ Contact email placeholder `support@musicmemo.app` — confirm it exists before submitting.
 6. **Sandbox test the 10-item checklist from `iap-payment-plan.md`, then submit**
 
 Total realistic effort: ~3–4 focused days of coding + Apple review wait.
