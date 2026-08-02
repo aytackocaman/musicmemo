@@ -60,5 +60,8 @@ zz_notes_credentials/
 # Agent tooling (vendored skills, restorable from skills-lock.json)
 .agents/
 
+# Supabase CLI temp state
+supabase/.temp/
+
 # Local leftover assets
 assets/icon/app_icon_animated_deleted.mp4

@@ -195,6 +195,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       isDestructive: true,
                       onTap: _confirmSignOut,
                     ),
+                    _SectionDivider(),
+                    _Row(
+                      icon: Icons.delete_forever,
+                      iconColor: const Color(0xFFEF4444),
+                      label: l10n.deleteAccount,
+                      isDestructive: true,
+                      onTap: _confirmDeleteAccount,
+                    ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -294,6 +302,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           MaterialPageRoute(builder: (_) => const LoginScreen()),
           (route) => false,
         );
+      },
+    );
+  }
+
+  void _confirmDeleteAccount() {
+    final l10n = AppLocalizations.of(context)!;
+    showAppDialog(
+      context: context,
+      title: l10n.deleteAccountTitle,
+      message: l10n.deleteAccountConfirm,
+      confirmLabel: l10n.deleteAccount,
+      isDestructive: true,
+      onConfirm: () async {
+        final success = await AuthService.deleteAccount();
+        if (!mounted) return;
+        if (success) {
+          ref.invalidate(userProfileProvider);
+          ref.invalidate(userProfileNotifierProvider);
+          ref.invalidate(subscriptionProvider);
+          ref.invalidate(dailyGameCountsProvider);
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        } else {
+          showAppSnackBar(context, l10n.deleteAccountFailed, isError: true);
+        }
       },
     );
   }

@@ -49,7 +49,7 @@
 - [ ] Periodic 30-min subscription refresh
 - [ ] "Subscription expired" UX dialog, trial-countdown UI
 - [x] ~~Privacy policy + terms of service~~ ✅ Done 2026-08-01 — musicmemo.app/privacy + /terms, wired in login screen
-- [ ] **In-app account deletion** — REQUIRED by Apple guideline 5.1.1(v) (apps with account creation must offer account deletion). Currently no flow; needs a Supabase Edge Function (service role) to delete auth.users (cascades to all data). Considered a P0 for submission.
+- [x] ~~**In-app account deletion**~~ ✅ Done 2026-08-01 — Supabase Edge Function `delete-account` (service role, revokes sessions then hard-deletes; FK cascade removes all data) + Settings screen button with confirmation dialog (EN/TR). Deployed + verified end-to-end with throwaway user (post-delete → `user_not_found`).
 - [ ] Sandbox testing per 10-item checklist in `iap-payment-plan.md` (restore, TRY pricing, offline cache…)
 - [ ] Apple Small Business Program application (30% → 15% cut)
 

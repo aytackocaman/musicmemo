@@ -96,6 +96,22 @@ class AuthService {
     await _client.auth.signOut();
   }
 
+  /// Permanently delete the current user's account.
+  /// Invokes the `delete-account` edge function (server-side, service-role
+  /// deletion), then clears local auth + RevenueCat identity.
+  /// Returns true on success.
+  static Future<bool> deleteAccount() async {
+    try {
+      await _client.functions.invoke('delete-account');
+      await PurchaseService.logout();
+      await _client.auth.signOut();
+      return true;
+    } catch (e) {
+      print('Delete account error: $e');
+      return false;
+    }
+  }
+
   /// Send password reset email
   static Future<AuthResult> resetPassword(String email) async {
     try {

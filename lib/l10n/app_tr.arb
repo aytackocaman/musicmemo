@@ -1,13 +1,11 @@
 {
   "@@locale": "tr",
-
   "appTitle": "Music Memo",
   "matchTheSoundsToWin": "Sesleri eşleştirerek kazan!",
   "playGame": "Oyuna Başla",
   "subscription": "Abonelik",
   "statistics": "İstatistikler",
   "highScore": "En Yüksek Skor",
-
   "welcome": "Hoş Geldiniz!",
   "welcomeBack": "Tekrar Hoş Geldiniz",
   "createAccountSubtitle": "Oynamaya başlamak için hesap oluşturun veya giriş yapın",
@@ -35,7 +33,6 @@
   "enterName": "Ad girin",
   "enterEmailToReset": "Şifrenizi sıfırlamak için e-posta adresinizi girin.",
   "passwordResetSent": "Şifre sıfırlama e-postası gönderildi!",
-
   "selectGameMode": "Oyun Modu Seçin",
   "chooseHowToPlay": "Nasıl oynamak istediğinizi seçin",
   "singlePlayer": "Tek Oyunculu",
@@ -51,11 +48,14 @@
   "freeGamesLeftToday": "Bugün {remaining}/{limit} ücretsiz oyun hakkı",
   "@freeGamesLeftToday": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "limit": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
     }
   },
-
   "selectCategory": "Kategori Seçin",
   "whatKindOfSounds": "Ne tür sesler eşleştirmek istiyorsunuz?",
   "music": "Müzik",
@@ -73,35 +73,42 @@
   "noCollectionsMatch": "\"{query}\" ile eşleşen koleksiyon yok",
   "@noCollectionsMatch": {
     "placeholders": {
-      "query": { "type": "String" }
+      "query": {
+        "type": "String"
+      }
     }
   },
   "noCategoriesAvailable": "Kategori bulunamadı",
   "trackCount": "{count} parça",
   "@trackCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pro": "PRO",
   "searchTag": "{tagLabel} ara...",
   "@searchTag": {
     "placeholders": {
-      "tagLabel": { "type": "String" }
+      "tagLabel": {
+        "type": "String"
+      }
     }
   },
   "noResults": "Sonuç yok",
   "premiumCategoryMessage": "{name} Premium bir kategoridir. Kilidi açmak için Premium'a yükseltin.",
   "@premiumCategoryMessage": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "tagMood": "Ruh Hali",
   "tagGenre": "Tür",
   "tagMovement": "Hareket",
   "tagTheme": "Tema",
-
   "selectGridSize": "Izgara Boyutu Seçin",
   "largerGridsMoreChallenging": "Büyük ızgaralar daha zorlayıcıdır",
   "debug": "Hata Ayıklama",
@@ -112,19 +119,21 @@
   "cardsPairs": "{cards} kart, {pairs} çift",
   "@cardsPairs": {
     "placeholders": {
-      "cards": { "type": "int" },
-      "pairs": { "type": "int" }
+      "cards": {
+        "type": "int"
+      },
+      "pairs": {
+        "type": "int"
+      }
     }
   },
   "pleaseSelectGameModeAndCategory": "Lütfen bir oyun modu ve kategori seçin",
-
   "preparingGame": "Oyun Hazırlanıyor",
   "fetchingSoundList": "Ses listesi alınıyor...",
   "downloadingSounds": "Hazırlanıyor...",
   "failedToLoadSounds": "Sesler yüklenemedi",
   "retry": "Tekrar Dene",
   "goBack": "Geri Dön",
-
   "playerSetup": "Oyuncu Ayarları",
   "enterNamesAndPickColors": "Adları girin ve renk seçin",
   "vs": "VS",
@@ -132,11 +141,12 @@
   "playerNumber": "Oyuncu {number}",
   "@playerNumber": {
     "placeholders": {
-      "number": { "type": "int" }
+      "number": {
+        "type": "int"
+      }
     }
   },
   "chooseColor": "Renk seçin",
-
   "score": "Skor",
   "moves": "Hamle",
   "time": "Süre",
@@ -148,14 +158,15 @@
   "goHomeTitle": "Ana Sayfaya Dön?",
   "progressWillBeLost": "İlerlemeniz kaybolacak.",
   "goHome": "Ana Sayfa",
-
   "yourTurn": "Senin Sıran",
   "opponentsTurn": "Onun Sırası",
   "itsATie": "Berabere!",
   "playerWins": "{name} Kazandı!",
   "@playerWins": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "greatMatchBothPlayers": "Harika maç, iki oyuncu da!",
@@ -167,11 +178,12 @@
   "freeGamesLeftCount": "{count, plural, one{Bugün 1 ücretsiz oyun hakkı kaldı} other{Bugün {count} ücretsiz oyun hakkı kaldı}}",
   "@freeGamesLeftCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "noFreeGamesLeft": "Ücretsiz oyun hakkı kalmadı. Sabah 3:00'te yenilenir",
-
   "onlineMultiplayerTitle": "Çevrimiçi Çok Oyunculu",
   "createOrJoinGame": "Oyun oluştur veya kodla katıl",
   "yourName": "Adınız",
@@ -192,7 +204,6 @@
   "failedToCreateGame": "Oyun oluşturulamadı. Lütfen tekrar deneyin.",
   "pleaseEnterValidCode": "Lütfen geçerli bir 6 haneli kod girin",
   "opponentLeftTheGame": "Rakip oyundan ayrıldı",
-
   "settingUpGame": "Oyun kuruluyor...",
   "waitingForHost": "Ev sahibi bekleniyor...",
   "live": "CANLI",
@@ -216,7 +227,6 @@
   "acceptRematch": "Rövanşı Kabul Et!",
   "decline": "Reddet",
   "startingRematch": "Rövanş başlıyor...",
-
   "statisticsTitle": "İstatistikler",
   "byGameMode": "Oyun Moduna Göre",
   "overallStats": "Genel İstatistikler",
@@ -225,14 +235,17 @@
   "winRate": "Kazanma Oranı",
   "twoPlayerLocal": "İki Oyunculu Yerel",
   "twoPlayerOnline": "İki Oyunculu Çevrimiçi",
-  "gamesWinRate": "{games} oyun \u2022 %{winRate} kazanma oranı",
+  "gamesWinRate": "{games} oyun • %{winRate} kazanma oranı",
   "@gamesWinRate": {
     "placeholders": {
-      "games": { "type": "int" },
-      "winRate": { "type": "String" }
+      "games": {
+        "type": "int"
+      },
+      "winRate": {
+        "type": "String"
+      }
     }
   },
-
   "subscriptionTitle": "Abonelik",
   "currentPlan": "Mevcut Plan",
   "free": "Ücretsiz",
@@ -250,7 +263,6 @@
   "unlimitedSinglePlayerGames": "Sınırsız tek oyunculu oyun",
   "unlimitedLocalMultiplayerGames": "Sınırsız yerel çok oyunculu oyun",
   "accessOnlineMultiplayer": "Çevrimiçi çok oyunculu erişim",
-
   "trialEnded": "Ücretsiz Denemeniz Sona Erdi",
   "premiumFeature": "Premium Özellik",
   "reachedYourLimit": "Limitinize Ulaştınız!",
@@ -261,15 +273,13 @@
   "unlimitedLocalMultiplayer": "Sınırsız yerel çok oyunculu",
   "onlineMultiplayerAccess": "Çevrimiçi çok oyunculu erişim",
   "adFreeExperience": "Reklamsız deneyim",
-  "getYearly": "Yıllık Al \u2013 ₺349,99/yıl",
-  "getMonthly": "Aylık Al \u2013 ₺49,99/ay",
+  "getYearly": "Yıllık Al – ₺349,99/yıl",
+  "getMonthly": "Aylık Al – ₺49,99/ay",
   "restorePurchase": "Satın Alımı Geri Yükle",
   "cancelAnytime": "İstediğiniz zaman iptal edin. Koşullar ve Gizlilik geçerlidir.",
-
   "perfect": "Mükemmel!",
   "wellDone": "Harika!",
   "niceTry": "İyi Deneme!",
-
   "settings": "Ayarlar",
   "accentColor": "Kart Rengi",
   "blue": "Mavi",
@@ -283,6 +293,11 @@
   "signOut": "Çıkış Yap",
   "signOutTitle": "Çıkış Yap",
   "signOutConfirm": "Çıkış yapmak istediğinize emin misiniz?",
+  "deleteAccount": "Hesabı Sil",
+  "deleteAccountTitle": "Hesabı Sil",
+  "deleteAccountConfirm": "Bu, hesabınızı ve istatistikler ve oyun geçmişi dahil tüm oyun verilerinizi kalıcı olarak siler. Bu işlem geri alınamaz.",
+  "deleteAccountFailed": "Hesabınız silinemedi. Lütfen tekrar deneyin.",
+  "deleteAccountSuccess": "Hesap silindi.",
   "manageSubscription": "Aboneliği Yönet",
   "language": "Dil",
   "comingSoon": "Çok Yakında",
@@ -304,12 +319,11 @@
   "cardTiming": "Kart Zamanlamaları",
   "delayAfterFirstCard": "1. karttan sonra bekleme",
   "delayAfterMismatch": "Eşleşmeme sonrası bekleme",
-  "delayAfterFirstCardDescription": "İlk karta dokunduktan sonra ikinci karta dokunmadan önce ne kadar beklemeniz gerektiği. Ses ne olursa olsun çalmaya devam eder \u2014 bu yalnızca bir sonraki dokunmanızın ne zaman kabul edileceğini kontrol eder.",
+  "delayAfterFirstCardDescription": "İlk karta dokunduktan sonra ikinci karta dokunmadan önce ne kadar beklemeniz gerektiği. Ses ne olursa olsun çalmaya devam eder — bu yalnızca bir sonraki dokunmanızın ne zaman kabul edileceğini kontrol eder.",
   "delayAfterMismatchDescription": "Bir eşleşmemeden sonra tekrar dokunmadan önce beklemeniz gereken minimum süre. Eşleşmeyen kartlar görünür kalır ve henüz dokunmadıysanız 2,1 saniyede kendiliğinden geri döner.",
   "hapticFeedbackInfoDescription": "Kart çevirme, eşleşme, eşleşmeme ve sıra değişikliklerinde kısa titreşimler. Ekrana bakmadan oyunun ritmini hissetmenizi sağlar. Sessiz bir deneyim istiyorsanız veya biraz pil tasarrufu yapmak istiyorsanız aşağıdan kapatabilirsiniz.",
   "turnTimeLimit": "Hamle Süresi",
   "gotIt": "Anlaşıldı",
-
   "authSignUpFailed": "Kayıt başarısız. Lütfen tekrar deneyin.",
   "authUnexpectedError": "Beklenmeyen bir hata oluştu.",
   "authSignInFailed": "Giriş başarısız. Lütfen tekrar deneyin.",
@@ -319,7 +333,9 @@
   "authGoogleError": "Google giriş hatası: {error}",
   "@authGoogleError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "authAppleNoIdentityToken": "Apple girişi başarısız: kimlik tokenı alınamadı.",
@@ -327,7 +343,9 @@
   "authAppleError": "Apple giriş hatası: {error}",
   "@authAppleError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "authInvalidCredentials": "Geçersiz e-posta veya şifre.",
@@ -335,7 +353,6 @@
   "authUserAlreadyRegistered": "Bu e-posta adresiyle zaten bir hesap mevcut.",
   "authPasswordTooShort": "Şifre en az 6 karakter olmalıdır.",
   "authInvalidEmail": "Lütfen geçerli bir e-posta adresi girin.",
-
   "findOpponent": "Rakip Bul",
   "findOpponentDescription": "Rastgele bir oyuncuyla eşleş",
   "searching": "Aranıyor...",
@@ -345,11 +362,9 @@
   "inviteFriendDescription": "Biriyle kod paylaş",
   "joinWithCode": "Kodla Katıl",
   "joinWithCodeDescription": "Arkadaşının davet kodunu gir",
-
   "lobbyWaitingForOpponent": "Rakip bekleniyor...",
   "lobbyShareCode": "Bu kodu bir arkadaşınızla paylaşın",
   "lobbyTapToCopy": "Kopyalamak için dokunun",
-
   "playWithFriendsRealtime": "Arkadaşlarınla gerçek zamanlı oyna",
   "createPrivateGame": "Özel Oyun Oluştur",
   "startNewGameInviteFriend": "Yeni oyun başlat ve arkadaşını davet et",
@@ -381,7 +396,6 @@
   "connectionLost": "Bağlantı kesildi",
   "opponentTimedOutMessage": "Rakibiniz 60 saniyedir hamle yapmadı. Oyun sonlandırıldı.",
   "enterTheCodeFromFriend": "Arkadaşınızdan aldığınız kodu girin",
-
   "dailyChallenge": "Günlük Meydan Okuma",
   "dailyChallengeSubtitle": "Her gün herkes için aynı bulmaca",
   "playNow": "Şimdi Oyna",
@@ -393,8 +407,12 @@
   "rankOutOfTotal": "{total} kişiden #{rank}.",
   "@rankOutOfTotal": {
     "placeholders": {
-      "rank": { "type": "int" },
-      "total": { "type": "int" }
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "noScoresYet": "Henüz skor yok. İlk sen ol!",
@@ -403,7 +421,6 @@
   "giveUp": "Pes Et",
   "challengeComplete": "Meydan Okuma Tamamlandı!",
   "upgradeToPlay": "Oynamak İçin Yükselt",
-
   "turkce": "Türkçe",
   "english": "English",
   "languageSystem": "Sistem"

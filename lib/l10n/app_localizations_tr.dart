@@ -689,6 +689,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signOutConfirm => 'Çıkış yapmak istediğinize emin misiniz?';
 
   @override
+  String get deleteAccount => 'Hesabı Sil';
+
+  @override
+  String get deleteAccountTitle => 'Hesabı Sil';
+
+  @override
+  String get deleteAccountConfirm =>
+      'Bu, hesabınızı ve istatistikler ve oyun geçmişi dahil tüm oyun verilerinizi kalıcı olarak siler. Bu işlem geri alınamaz.';
+
+  @override
+  String get deleteAccountFailed =>
+      'Hesabınız silinemedi. Lütfen tekrar deneyin.';
+
+  @override
+  String get deleteAccountSuccess => 'Hesap silindi.';
+
+  @override
   String get manageSubscription => 'Aboneliği Yönet';
 
   @override

@@ -1,13 +1,11 @@
 {
   "@@locale": "en",
-
   "appTitle": "Music Memo",
   "matchTheSoundsToWin": "Match the sounds to win!",
   "playGame": "Play Game",
   "subscription": "Subscription",
   "statistics": "Statistics",
   "highScore": "High Score",
-
   "welcome": "Welcome!",
   "welcomeBack": "Welcome Back",
   "createAccountSubtitle": "Create an account or sign in to start playing",
@@ -35,7 +33,6 @@
   "enterName": "Enter name",
   "enterEmailToReset": "Enter your email to reset password.",
   "passwordResetSent": "Password reset email sent!",
-
   "selectGameMode": "Select Game Mode",
   "chooseHowToPlay": "Choose how you want to play",
   "singlePlayer": "Single Player",
@@ -51,11 +48,14 @@
   "freeGamesLeftToday": "{remaining} of {limit} free games left today",
   "@freeGamesLeftToday": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "limit": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
     }
   },
-
   "selectCategory": "Select Category",
   "whatKindOfSounds": "What kind of sounds do you want to match?",
   "music": "Music",
@@ -73,35 +73,42 @@
   "noCollectionsMatch": "No collections match \"{query}\"",
   "@noCollectionsMatch": {
     "placeholders": {
-      "query": { "type": "String" }
+      "query": {
+        "type": "String"
+      }
     }
   },
   "noCategoriesAvailable": "No categories available",
   "trackCount": "{count} tracks",
   "@trackCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pro": "PRO",
   "searchTag": "Search {tagLabel}...",
   "@searchTag": {
     "placeholders": {
-      "tagLabel": { "type": "String" }
+      "tagLabel": {
+        "type": "String"
+      }
     }
   },
   "noResults": "No results",
   "premiumCategoryMessage": "{name} is a Premium category. Upgrade to unlock it and all other premium collections.",
   "@premiumCategoryMessage": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "tagMood": "Mood",
   "tagGenre": "Genre",
   "tagMovement": "Movement",
   "tagTheme": "Theme",
-
   "selectGridSize": "Select Grid Size",
   "largerGridsMoreChallenging": "Larger grids are more challenging",
   "debug": "Debug",
@@ -112,19 +119,21 @@
   "cardsPairs": "{cards} cards, {pairs} pairs",
   "@cardsPairs": {
     "placeholders": {
-      "cards": { "type": "int" },
-      "pairs": { "type": "int" }
+      "cards": {
+        "type": "int"
+      },
+      "pairs": {
+        "type": "int"
+      }
     }
   },
   "pleaseSelectGameModeAndCategory": "Please select a game mode and category",
-
   "preparingGame": "Preparing Game",
   "fetchingSoundList": "Fetching sound list...",
   "downloadingSounds": "Getting ready...",
   "failedToLoadSounds": "Failed to load sounds",
   "retry": "Retry",
   "goBack": "Go Back",
-
   "playerSetup": "Player Setup",
   "enterNamesAndPickColors": "Enter names and pick colors",
   "vs": "VS",
@@ -132,11 +141,12 @@
   "playerNumber": "Player {number}",
   "@playerNumber": {
     "placeholders": {
-      "number": { "type": "int" }
+      "number": {
+        "type": "int"
+      }
     }
   },
   "chooseColor": "Choose color",
-
   "score": "Score",
   "moves": "Moves",
   "time": "Time",
@@ -148,14 +158,15 @@
   "goHomeTitle": "Go Home?",
   "progressWillBeLost": "Your progress will be lost.",
   "goHome": "Go Home",
-
   "yourTurn": "Your Turn",
   "opponentsTurn": "Their Turn",
   "itsATie": "It's a Tie!",
   "playerWins": "{name} Wins!",
   "@playerWins": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "greatMatchBothPlayers": "Great match, both players!",
@@ -167,11 +178,12 @@
   "freeGamesLeftCount": "{count, plural, one{1 free game left today} other{{count} free games left today}}",
   "@freeGamesLeftCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "noFreeGamesLeft": "No free games left. Resets at 3:00 AM",
-
   "onlineMultiplayerTitle": "Online Multiplayer",
   "createOrJoinGame": "Create a game or join with a code",
   "yourName": "Your Name",
@@ -192,7 +204,6 @@
   "failedToCreateGame": "Failed to create game. Please try again.",
   "pleaseEnterValidCode": "Please enter a valid 6-digit code",
   "opponentLeftTheGame": "Opponent left the game",
-
   "settingUpGame": "Setting up game...",
   "waitingForHost": "Waiting for host...",
   "live": "LIVE",
@@ -216,7 +227,6 @@
   "acceptRematch": "Accept Rematch!",
   "decline": "Decline",
   "startingRematch": "Starting rematch...",
-
   "statisticsTitle": "Statistics",
   "byGameMode": "By Game Mode",
   "overallStats": "Overall Stats",
@@ -225,14 +235,17 @@
   "winRate": "Win Rate",
   "twoPlayerLocal": "Two Player Local",
   "twoPlayerOnline": "Two Player Online",
-  "gamesWinRate": "{games} games \u2022 {winRate}% win rate",
+  "gamesWinRate": "{games} games • {winRate}% win rate",
   "@gamesWinRate": {
     "placeholders": {
-      "games": { "type": "int" },
-      "winRate": { "type": "String" }
+      "games": {
+        "type": "int"
+      },
+      "winRate": {
+        "type": "String"
+      }
     }
   },
-
   "subscriptionTitle": "Subscription",
   "currentPlan": "Current Plan",
   "free": "Free",
@@ -250,7 +263,6 @@
   "unlimitedSinglePlayerGames": "Unlimited single player games",
   "unlimitedLocalMultiplayerGames": "Unlimited local multiplayer games",
   "accessOnlineMultiplayer": "Access to online multiplayer",
-
   "trialEnded": "Your Free Trial Has Ended",
   "premiumFeature": "Premium Feature",
   "reachedYourLimit": "You've Reached Your Limit!",
@@ -261,15 +273,13 @@
   "unlimitedLocalMultiplayer": "Unlimited local multiplayer",
   "onlineMultiplayerAccess": "Online multiplayer access",
   "adFreeExperience": "Ad-free experience",
-  "getYearly": "Get Yearly \u2013 $35.99/year",
-  "getMonthly": "Get Monthly \u2013 $4.99/month",
+  "getYearly": "Get Yearly – $35.99/year",
+  "getMonthly": "Get Monthly – $4.99/month",
   "restorePurchase": "Restore Purchase",
   "cancelAnytime": "Cancel anytime. Terms & Privacy apply.",
-
   "perfect": "Perfect!",
   "wellDone": "Well Done!",
   "niceTry": "Nice Try!",
-
   "settings": "Settings",
   "accentColor": "Card Color",
   "blue": "Blue",
@@ -283,6 +293,11 @@
   "signOut": "Sign Out",
   "signOutTitle": "Sign Out",
   "signOutConfirm": "Are you sure you want to sign out?",
+  "deleteAccount": "Delete Account",
+  "deleteAccountTitle": "Delete Account",
+  "deleteAccountConfirm": "This permanently deletes your account and all your game data, including stats and game history. This action cannot be undone.",
+  "deleteAccountFailed": "Could not delete your account. Please try again.",
+  "deleteAccountSuccess": "Account deleted.",
   "manageSubscription": "Manage Subscription",
   "language": "Language",
   "comingSoon": "Coming Soon",
@@ -304,12 +319,11 @@
   "cardTiming": "Card Timing",
   "delayAfterFirstCard": "Delay after 1st card",
   "delayAfterMismatch": "Delay after mismatch",
-  "delayAfterFirstCardDescription": "How long you must wait after tapping the first card before you can tap a second. The sound keeps playing regardless \u2014 this only controls when your next tap is accepted.",
+  "delayAfterFirstCardDescription": "How long you must wait after tapping the first card before you can tap a second. The sound keeps playing regardless — this only controls when your next tap is accepted.",
   "delayAfterMismatchDescription": "Minimum time you must wait after a mismatch before tapping again. The unmatched cards stay visible and flip back on their own at 2.1 seconds if you haven't tapped yet.",
   "hapticFeedbackInfoDescription": "Short vibrations on card flips, matches, mismatches, and turn changes. Lets you feel the rhythm of the game without looking. Toggle it off below if you prefer silence or want to save a bit of battery.",
   "turnTimeLimit": "Turn Time",
   "gotIt": "Got it",
-
   "authSignUpFailed": "Sign up failed. Please try again.",
   "authUnexpectedError": "An unexpected error occurred.",
   "authSignInFailed": "Sign in failed. Please try again.",
@@ -319,7 +333,9 @@
   "authGoogleError": "Google Sign-In error: {error}",
   "@authGoogleError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "authAppleNoIdentityToken": "Apple Sign-In failed: no identity token.",
@@ -327,7 +343,9 @@
   "authAppleError": "Apple Sign-In error: {error}",
   "@authAppleError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "authInvalidCredentials": "Invalid email or password.",
@@ -335,7 +353,6 @@
   "authUserAlreadyRegistered": "An account with this email already exists.",
   "authPasswordTooShort": "Password must be at least 6 characters.",
   "authInvalidEmail": "Please enter a valid email address.",
-
   "findOpponent": "Find Opponent",
   "findOpponentDescription": "Match with a random player",
   "searching": "Searching...",
@@ -345,11 +362,9 @@
   "inviteFriendDescription": "Share a code with someone",
   "joinWithCode": "Join with Code",
   "joinWithCodeDescription": "Enter a friend's invite code",
-
   "lobbyWaitingForOpponent": "Waiting for opponent...",
   "lobbyShareCode": "Share this code with a friend",
   "lobbyTapToCopy": "Tap to copy",
-
   "playWithFriendsRealtime": "Play with friends in real-time",
   "createPrivateGame": "Create Private Game",
   "startNewGameInviteFriend": "Start a new game and invite a friend",
@@ -381,7 +396,6 @@
   "connectionLost": "Connection lost",
   "opponentTimedOutMessage": "Your opponent hasn't made a move in 60 seconds. The game has been ended.",
   "enterTheCodeFromFriend": "Enter the code from your friend",
-
   "dailyChallenge": "Daily Challenge",
   "dailyChallengeSubtitle": "Same puzzle for everyone, every day",
   "playNow": "Play Now",
@@ -393,8 +407,12 @@
   "rankOutOfTotal": "#{rank} of {total}",
   "@rankOutOfTotal": {
     "placeholders": {
-      "rank": { "type": "int" },
-      "total": { "type": "int" }
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "noScoresYet": "No scores yet. Be the first!",
@@ -403,8 +421,7 @@
   "giveUp": "Give Up",
   "challengeComplete": "Challenge Complete!",
   "upgradeToPlay": "Upgrade to Play",
-
-  "turkce": "T\u00fcrk\u00e7e",
+  "turkce": "Türkçe",
   "english": "English",
   "languageSystem": "System"
 }

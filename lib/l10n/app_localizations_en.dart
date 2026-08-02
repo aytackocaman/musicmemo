@@ -683,6 +683,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOutConfirm => 'Are you sure you want to sign out?';
 
   @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountTitle => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirm =>
+      'This permanently deletes your account and all your game data, including stats and game history. This action cannot be undone.';
+
+  @override
+  String get deleteAccountFailed =>
+      'Could not delete your account. Please try again.';
+
+  @override
+  String get deleteAccountSuccess => 'Account deleted.';
+
+  @override
   String get manageSubscription => 'Manage Subscription';
 
   @override

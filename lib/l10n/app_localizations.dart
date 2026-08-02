@@ -1382,6 +1382,36 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to sign out?'**
   String get signOutConfirm;
 
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account and all your game data, including stats and game history. This action cannot be undone.'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete your account. Please try again.'**
+  String get deleteAccountFailed;
+
+  /// No description provided for @deleteAccountSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted.'**
+  String get deleteAccountSuccess;
+
   /// No description provided for @manageSubscription.
   ///
   /// In en, this message translates to:
