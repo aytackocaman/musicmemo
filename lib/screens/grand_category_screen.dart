@@ -5,6 +5,8 @@ import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../utils/responsive.dart';
 import 'category_screen.dart';
+import 'ear_training_screen.dart';
+import 'kids_screen.dart';
 
 class GrandCategoryScreen extends ConsumerStatefulWidget {
   /// When provided, called with the picked category instead of popping.
@@ -95,25 +97,58 @@ class _GrandCategoryScreenState extends ConsumerState<GrandCategoryScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Ear Training — coming soon
+                // Ear Training — active
                 _GrandCategoryCard(
                   icon: Icons.hearing,
                   title: l10n.earTraining,
                   subtitle: l10n.earTrainingDescription,
                   iconColor: AppColors.teal,
                   iconBackgroundColor: const Color(0x2614B8A6),
-                  comingSoon: true,
+                  onTap: () async {
+                    final isOnline =
+                        ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer;
+                    final navigator = Navigator.of(context);
+                    await navigator.push(
+                      MaterialPageRoute(
+                          builder: (_) => const EarTrainingScreen()),
+                    );
+                    final picked = ref.read(selectedCategoryProvider);
+                    if (!mounted || picked == null) return;
+                    if (widget.onCategoryPicked != null) {
+                      // Caller handles forward navigation
+                      widget.onCategoryPicked!(context, picked); // ignore: use_build_context_synchronously
+                    } else if (isOnline) {
+                      // Default online behaviour: pop so the caller can resume
+                      navigator.pop();
+                    }
+                  },
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // For Kids — coming soon
+                // For Kids — active
                 _GrandCategoryCard(
                   icon: Icons.child_care,
                   title: l10n.forKids,
                   subtitle: l10n.forKidsDescription,
                   iconColor: AppColors.pink,
                   iconBackgroundColor: const Color(0x26F472B6),
-                  comingSoon: true,
+                  onTap: () async {
+                    final isOnline =
+                        ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer;
+                    final navigator = Navigator.of(context);
+                    await navigator.push(
+                      MaterialPageRoute(builder: (_) => const KidsScreen()),
+                    );
+                    final picked = ref.read(selectedCategoryProvider);
+                    if (!mounted || picked == null) return;
+                    if (widget.onCategoryPicked != null) {
+                      // Caller handles forward navigation
+                      widget.onCategoryPicked!(context, picked); // ignore: use_build_context_synchronously
+                    } else if (isOnline) {
+                      // Default online behaviour: pop so the caller can resume
+                      navigator.pop();
+                    }
+                  },
                 ),
                 const SizedBox(height: AppSpacing.md),
 

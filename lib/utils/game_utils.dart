@@ -108,4 +108,36 @@ class GameUtils {
       return 1; // Completed
     }
   }
+
+  /// Format a category selection key into a human-readable label.
+  ///
+  /// Handles all four forms:
+  ///  - plain id:     `piano`          → `Piano`
+  ///  - tag:          `tag:mood:X`     → `X`
+  ///  - ear training: `et:ear_chords:block` → `Ear Chords · Block`
+  ///  - kids mix:     `kids:all`       → `Kids`
+  static String formatCategoryName(String category) {
+    String raw;
+    if (category == 'kids:all') {
+      return 'Kids';
+    }
+    if (category.startsWith('et:')) {
+      final parts = category.split(':');
+      raw = parts.length > 1 ? parts[1] : category;
+      final form = parts.length > 2 && parts[2].isNotEmpty ? parts[2] : null;
+      if (form != null) {
+        return '${_titleCase(raw)} · ${_titleCase(form)}';
+      }
+    } else if (category.startsWith('tag:')) {
+      raw = category.split(':').elementAtOrNull(2) ?? category;
+    } else {
+      raw = category;
+    }
+    return _titleCase(raw);
+  }
+
+  static String _titleCase(String value) => value
+      .split('_')
+      .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+      .join(' ');
 }

@@ -422,6 +422,36 @@ abstract class AppLocalizations {
   /// **'Animals, toys, and fun sounds'**
   String get forKidsDescription;
 
+  /// No description provided for @kidsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For Kids'**
+  String get kidsTitle;
+
+  /// No description provided for @kidsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fun sounds little ones will love'**
+  String get kidsSubtitle;
+
+  /// No description provided for @kidsMixAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix Everything'**
+  String get kidsMixAll;
+
+  /// No description provided for @kidsMixAllDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with sounds from all kids categories at once'**
+  String get kidsMixAllDescription;
+
+  /// No description provided for @kidsCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Kids'**
+  String get kidsCategory;
+
   /// No description provided for @funnyMemes.
   ///
   /// In en, this message translates to:
@@ -2023,6 +2053,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System'**
   String get languageSystem;
+
+  /// No description provided for @earTrainingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ear Training'**
+  String get earTrainingTitle;
+
+  /// No description provided for @earTrainingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Train your ear with intervals, chords, scales and more'**
+  String get earTrainingSubtitle;
+
+  /// No description provided for @allForms.
+  ///
+  /// In en, this message translates to:
+  /// **'All Forms'**
+  String get allForms;
+
+  /// No description provided for @form.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get form;
+
+  /// No description provided for @playWithSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get playWithSelection;
+
+  /// No description provided for @premiumEarTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Ear Training is a Premium feature'**
+  String get premiumEarTraining;
 }
 
 class _AppLocalizationsDelegate

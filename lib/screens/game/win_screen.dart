@@ -223,15 +223,7 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     );
   }
 
-  String _formatCategory(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategory(String category) => GameUtils.formatCategoryName(category);
 
   Widget _buildStat(String value, String label) {
     return Column(

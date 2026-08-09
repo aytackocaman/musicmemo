@@ -176,6 +176,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get forKidsDescription => 'Hayvanlar, oyuncaklar ve eğlenceli sesler';
 
   @override
+  String get kidsTitle => 'Çocuklar İçin';
+
+  @override
+  String get kidsSubtitle => 'Miniklerin bayılacağı eğlenceli sesler';
+
+  @override
+  String get kidsMixAll => 'Hepsini Karıştır';
+
+  @override
+  String get kidsMixAllDescription =>
+      'Tüm çocuk kategorilerindeki seslerle aynı anda oyna';
+
+  @override
+  String get kidsCategory => 'Çocuklar';
+
+  @override
   String get funnyMemes => 'Komik Memeler';
 
   @override
@@ -1032,4 +1048,23 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get languageSystem => 'Sistem';
+
+  @override
+  String get earTrainingTitle => 'Kulak Eğitimi';
+
+  @override
+  String get earTrainingSubtitle =>
+      'Aralıklar, akorlar, gamlar ve daha fazlasıyla kulağınızı eğitin';
+
+  @override
+  String get allForms => 'Tüm Formlar';
+
+  @override
+  String get form => 'Form';
+
+  @override
+  String get playWithSelection => 'Oyna';
+
+  @override
+  String get premiumEarTraining => 'Kulak Eğitimi Premium özelliktir';
 }

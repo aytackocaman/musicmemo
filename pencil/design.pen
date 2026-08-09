@@ -1,5 +1,5 @@
 {
-  "version": "2.10",
+  "version": "2.14",
   "children": [
     {
       "type": "frame",
@@ -36,13 +36,13 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "Q9zWp",
                   "name": "musicIcon",
                   "width": 64,
                   "height": 64,
-                  "iconFontName": "music",
-                  "iconFontFamily": "lucide",
+                  "icon": "music",
+                  "library": "lucide",
                   "fill": "#FFFFFF"
                 }
               ]
@@ -70,13 +70,13 @@
           ]
         },
         {
-          "type": "icon_font",
+          "type": "icon",
           "id": "nI6J1",
           "name": "loader",
           "width": 32,
           "height": 32,
-          "iconFontName": "loader",
-          "iconFontFamily": "lucide",
+          "icon": "loader",
+          "library": "lucide",
           "fill": "#FFFFFF"
         }
       ]
@@ -129,13 +129,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "H8V29",
                       "name": "iconSmall",
                       "width": 40,
                       "height": 40,
-                      "iconFontName": "music",
-                      "iconFontFamily": "lucide",
+                      "icon": "music",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     }
                   ]
@@ -217,23 +217,21 @@
                   "height": 56,
                   "fill": "$surface",
                   "cornerRadius": 28,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 12,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "U99YK",
                       "name": "guestIcon",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "user",
-                      "iconFontFamily": "lucide",
+                      "icon": "user",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     },
                     {
@@ -311,13 +309,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "SelPt",
                       "name": "homeMusic",
                       "width": 64,
                       "height": 64,
-                      "iconFontName": "music",
-                      "iconFontFamily": "lucide",
+                      "icon": "music",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     }
                   ]
@@ -355,13 +353,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "x4C8h",
                       "name": "playIcon",
                       "width": 28,
                       "height": 28,
-                      "iconFontName": "play",
-                      "iconFontFamily": "lucide",
+                      "icon": "play",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -384,23 +382,21 @@
                   "height": 64,
                   "fill": "$surface",
                   "cornerRadius": 32,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 12,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "cFXqA",
                       "name": "statsIcon",
                       "width": 28,
                       "height": 28,
-                      "iconFontName": "bar_chart",
-                      "iconFontFamily": "Material Symbols Rounded",
+                      "icon": "bar_chart",
+                      "library": "Material Symbols Rounded",
                       "fill": "$text-primary"
                     },
                     {
@@ -423,23 +419,21 @@
                   "height": 64,
                   "fill": "$surface",
                   "cornerRadius": 32,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 12,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "v4Jbw",
                       "name": "settingsIcon",
                       "width": 28,
                       "height": 28,
-                      "iconFontName": "settings",
-                      "iconFontFamily": "lucide",
+                      "icon": "settings",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     },
                     {
@@ -501,13 +495,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "gBoJO",
                       "name": "backIcon1",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -570,13 +564,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "7ZCQk",
                           "name": "spIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "user",
-                          "iconFontFamily": "lucide",
+                          "icon": "user",
+                          "library": "lucide",
                           "fill": "#FFFFFF"
                         }
                       ]
@@ -620,11 +614,9 @@
                   "height": 80,
                   "fill": "$surface",
                   "cornerRadius": 20,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": [
                     0,
@@ -645,13 +637,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "HJVaj",
                           "name": "localIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "smartphone",
-                          "iconFontFamily": "lucide",
+                          "icon": "smartphone",
+                          "library": "lucide",
                           "fill": "$primary"
                         }
                       ]
@@ -698,13 +690,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "8IRGC",
                           "name": "lmpIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "users",
-                          "iconFontFamily": "lucide",
+                          "icon": "users",
+                          "library": "lucide",
                           "fill": "$primary"
                         }
                       ]
@@ -748,11 +740,9 @@
                   "height": 80,
                   "fill": "$surface",
                   "cornerRadius": 20,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": [
                     0,
@@ -773,13 +763,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "nFqwG",
                           "name": "onlineIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "globe",
-                          "iconFontFamily": "lucide",
+                          "icon": "globe",
+                          "library": "lucide",
                           "fill": "$success"
                         }
                       ]
@@ -895,13 +885,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "9yayE",
                       "name": "backIcon2",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -926,11 +916,9 @@
               "height": 52,
               "fill": "$surface",
               "cornerRadius": 16,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1,
-                "fill": "$border"
-              },
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
               "gap": 12,
               "padding": [
                 0,
@@ -939,13 +927,13 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "TXaPV",
                   "name": "searchIcon",
                   "width": 20,
                   "height": 20,
-                  "iconFontName": "search",
-                  "iconFontFamily": "lucide",
+                  "icon": "search",
+                  "library": "lucide",
                   "fill": "$text-muted"
                 },
                 {
@@ -976,11 +964,9 @@
                   "height": 72,
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": [
                     0,
@@ -1001,13 +987,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "Vt843",
                           "name": "cat1IconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "guitar",
-                          "iconFontFamily": "lucide",
+                          "icon": "guitar",
+                          "library": "lucide",
                           "fill": "$primary"
                         }
                       ]
@@ -1043,13 +1029,13 @@
                       ]
                     },
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "EbLl4",
                       "name": "cat1Arrow",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "chevron-right",
-                      "iconFontFamily": "lucide",
+                      "icon": "chevron-right",
+                      "library": "lucide",
                       "fill": "$text-muted"
                     }
                   ]
@@ -1062,11 +1048,9 @@
                   "height": 72,
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": [
                     0,
@@ -1087,13 +1071,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "CKsWu",
                           "name": "cat2IconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "bird",
-                          "iconFontFamily": "lucide",
+                          "icon": "bird",
+                          "library": "lucide",
                           "fill": "$success"
                         }
                       ]
@@ -1129,13 +1113,13 @@
                       ]
                     },
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "TVkIz",
                       "name": "cat2Arrow",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "chevron-right",
-                      "iconFontFamily": "lucide",
+                      "icon": "chevron-right",
+                      "library": "lucide",
                       "fill": "$text-muted"
                     }
                   ]
@@ -1148,11 +1132,9 @@
                   "height": 72,
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": [
                     0,
@@ -1173,13 +1155,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "UUFT6",
                           "name": "cat3IconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "car",
-                          "iconFontFamily": "lucide",
+                          "icon": "car",
+                          "library": "lucide",
                           "fill": "$accent"
                         }
                       ]
@@ -1215,13 +1197,13 @@
                       ]
                     },
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "96NsJ",
                       "name": "cat3Arrow",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "chevron-right",
-                      "iconFontFamily": "lucide",
+                      "icon": "chevron-right",
+                      "library": "lucide",
                       "fill": "$text-muted"
                     }
                   ]
@@ -1273,13 +1255,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "TnuP8",
                       "name": "backIcon3",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -1322,11 +1304,9 @@
                   "height": 72,
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "padding": [
                     0,
                     20
@@ -1354,13 +1334,13 @@
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon_font",
+                              "type": "icon",
                               "id": "a6FkS",
                               "name": "grid1IconInner",
                               "width": 24,
                               "height": 24,
-                              "iconFontName": "grid-2x2",
-                              "iconFontFamily": "lucide",
+                              "icon": "grid-2x2",
+                              "library": "lucide",
                               "fill": "$success"
                             }
                           ]
@@ -1429,11 +1409,9 @@
                   "height": 72,
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "padding": [
                     0,
                     20
@@ -1461,13 +1439,13 @@
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon_font",
+                              "type": "icon",
                               "id": "w4YJs",
                               "name": "grid2IconInner",
                               "width": 24,
                               "height": 24,
-                              "iconFontName": "grid-3x3",
-                              "iconFontFamily": "lucide",
+                              "icon": "grid-3x3",
+                              "library": "lucide",
                               "fill": "$primary"
                             }
                           ]
@@ -1536,11 +1514,9 @@
                   "height": 72,
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "padding": [
                     0,
                     20
@@ -1568,13 +1544,13 @@
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon_font",
+                              "type": "icon",
                               "id": "CFryz",
                               "name": "grid3IconInner",
                               "width": 24,
                               "height": 24,
-                              "iconFontName": "layout-grid",
-                              "iconFontFamily": "lucide",
+                              "icon": "layout-grid",
+                              "library": "lucide",
                               "fill": "$accent"
                             }
                           ]
@@ -1686,13 +1662,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "i9UjM",
                       "name": "backIconGame",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -1720,13 +1696,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "whQSo",
                       "name": "pauseIcon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "pause",
-                      "iconFontFamily": "lucide",
+                      "icon": "pause",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -1868,13 +1844,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "xMGkr",
                           "name": "c1i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -1892,13 +1868,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "3NBVy",
                           "name": "c2i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -1911,23 +1887,21 @@
                       "height": 80,
                       "fill": "$background",
                       "cornerRadius": 12,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 2,
-                        "fill": "$primary"
-                      },
+                      "stroke": "$primary",
+                      "strokeWidth": 2,
+                      "strokeAlignment": "inner",
                       "layout": "vertical",
                       "justifyContent": "center",
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "DdAsT",
                           "name": "c3i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "volume-2",
-                          "iconFontFamily": "lucide",
+                          "icon": "volume-2",
+                          "library": "lucide",
                           "fill": "$primary"
                         }
                       ]
@@ -1945,13 +1919,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "RY9Da",
                           "name": "c4i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "check",
-                          "iconFontFamily": "lucide",
+                          "icon": "check",
+                          "library": "lucide",
                           "fill": "#FFFFFF"
                         }
                       ]
@@ -1969,13 +1943,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "9tox4",
                           "name": "c5i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "check",
-                          "iconFontFamily": "lucide",
+                          "icon": "check",
+                          "library": "lucide",
                           "fill": "#FFFFFF"
                         }
                       ]
@@ -2001,13 +1975,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "W0lf2",
                           "name": "c6i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2025,13 +1999,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "qnxF8",
                           "name": "c7i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2049,13 +2023,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "GNvTc",
                           "name": "c8i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2073,13 +2047,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "hfAER",
                           "name": "c9i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2097,13 +2071,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "HKmae",
                           "name": "c10i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2129,13 +2103,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "VVGGr",
                           "name": "c11i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2153,13 +2127,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "3fSJ4",
                           "name": "c12i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2177,13 +2151,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "wYd00",
                           "name": "c13i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2201,13 +2175,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "Oe5i6",
                           "name": "c14i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2225,13 +2199,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "oYLoo",
                           "name": "c15i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2257,13 +2231,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "oyK5L",
                           "name": "c16i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2281,13 +2255,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "xIOTG",
                           "name": "c17i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2305,13 +2279,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "cjSeS",
                           "name": "c18i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2329,13 +2303,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "5fJkj",
                           "name": "c19i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2353,13 +2327,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "S9s57",
                           "name": "c20i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -2410,13 +2384,13 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "IicSV",
                   "name": "trophy",
                   "width": 64,
                   "height": 64,
-                  "iconFontName": "trophy",
-                  "iconFontFamily": "lucide",
+                  "icon": "trophy",
+                  "library": "lucide",
                   "fill": "#FFFFFF"
                 }
               ]
@@ -2438,33 +2412,33 @@
               "gap": 8,
               "children": [
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "o2ljV",
                   "name": "star1",
                   "width": 40,
                   "height": 40,
-                  "iconFontName": "star",
-                  "iconFontFamily": "lucide",
+                  "icon": "star",
+                  "library": "lucide",
                   "fill": "#FBBF24"
                 },
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "0Uay6",
                   "name": "star2",
                   "width": 40,
                   "height": 40,
-                  "iconFontName": "star",
-                  "iconFontFamily": "lucide",
+                  "icon": "star",
+                  "library": "lucide",
                   "fill": "#FBBF24"
                 },
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "oo28O",
                   "name": "star3",
                   "width": 40,
                   "height": 40,
-                  "iconFontName": "star",
-                  "iconFontFamily": "lucide",
+                  "icon": "star",
+                  "library": "lucide",
                   "fill": "#FBBF24"
                 }
               ]
@@ -2592,13 +2566,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "NNDcY",
                       "name": "nextIcon",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-right",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-right",
+                      "library": "lucide",
                       "fill": "$primary"
                     },
                     {
@@ -2626,13 +2600,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "tJoHO",
                       "name": "replayIcon",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "rotate-ccw",
-                      "iconFontFamily": "lucide",
+                      "icon": "rotate-ccw",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -2654,23 +2628,21 @@
                   "width": "fill_container",
                   "height": 56,
                   "cornerRadius": 28,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "#FFFFFF4D"
-                  },
+                  "stroke": "#FFFFFF4D",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 12,
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "4yIHZ",
                       "name": "homeIcon",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "home",
-                      "iconFontFamily": "Material Symbols Rounded",
+                      "icon": "home",
+                      "library": "Material Symbols Rounded",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -2732,13 +2704,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "fbe0M",
                       "name": "backIconSetup",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -2772,11 +2744,9 @@
               "width": "fill_container",
               "fill": "$surface",
               "cornerRadius": 20,
-              "stroke": {
-                "align": "inside",
-                "thickness": 2,
-                "fill": "$primary"
-              },
+              "stroke": "$primary",
+              "strokeWidth": 2,
+              "strokeAlignment": "inner",
               "layout": "vertical",
               "gap": 16,
               "padding": 20,
@@ -2799,11 +2769,9 @@
                   "height": 48,
                   "fill": "$background",
                   "cornerRadius": 12,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "padding": [
                     0,
                     16
@@ -2846,11 +2814,9 @@
                       "height": 44,
                       "fill": "$primary",
                       "cornerRadius": 22,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 3,
-                        "fill": "#FFFFFF"
-                      }
+                      "stroke": "#FFFFFF",
+                      "strokeWidth": 3,
+                      "strokeAlignment": "inner"
                     },
                     {
                       "type": "frame",
@@ -2899,11 +2865,9 @@
               "width": "fill_container",
               "fill": "$surface",
               "cornerRadius": 20,
-              "stroke": {
-                "align": "inside",
-                "thickness": 2,
-                "fill": "$success"
-              },
+              "stroke": "$success",
+              "strokeWidth": 2,
+              "strokeAlignment": "inner",
               "layout": "vertical",
               "gap": 16,
               "padding": 20,
@@ -2926,11 +2890,9 @@
                   "height": 48,
                   "fill": "$background",
                   "cornerRadius": 12,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "padding": [
                     0,
                     16
@@ -2973,11 +2935,9 @@
                       "height": 44,
                       "fill": "$success",
                       "cornerRadius": 22,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 3,
-                        "fill": "#FFFFFF"
-                      }
+                      "stroke": "#FFFFFF",
+                      "strokeWidth": 3,
+                      "strokeAlignment": "inner"
                     },
                     {
                       "type": "frame",
@@ -3032,13 +2992,13 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "z45xg",
                   "name": "startIcon",
                   "width": 24,
                   "height": 24,
-                  "iconFontName": "play",
-                  "iconFontFamily": "lucide",
+                  "icon": "play",
+                  "library": "lucide",
                   "fill": "#FFFFFF"
                 },
                 {
@@ -3102,13 +3062,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "qoy5B",
                       "name": "backIconLmp",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -3136,13 +3096,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "SHZ4D",
                       "name": "pauseIconLmp",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "pause",
-                      "iconFontFamily": "lucide",
+                      "icon": "pause",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -3235,11 +3195,9 @@
                   "width": "fill_container",
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 2,
-                    "fill": "$success"
-                  },
+                  "stroke": "$success",
+                  "strokeWidth": 2,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 8,
                   "padding": 16,
@@ -3319,13 +3277,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "elq5P",
                           "name": "lc1i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3343,13 +3301,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "CEuoK",
                           "name": "lc2i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3367,13 +3325,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "DYlhz",
                           "name": "lc3i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3391,13 +3349,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "DnBJn",
                           "name": "lc4i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3415,13 +3373,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "CykDF",
                           "name": "lc5i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3447,13 +3405,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "6kpoL",
                           "name": "lc6i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3466,23 +3424,21 @@
                       "height": 80,
                       "fill": "$background",
                       "cornerRadius": 12,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 2,
-                        "fill": "$primary"
-                      },
+                      "stroke": "$primary",
+                      "strokeWidth": 2,
+                      "strokeAlignment": "inner",
                       "layout": "vertical",
                       "justifyContent": "center",
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "tA0fT",
                           "name": "lc7i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "volume-2",
-                          "iconFontFamily": "lucide",
+                          "icon": "volume-2",
+                          "library": "lucide",
                           "fill": "$primary"
                         }
                       ]
@@ -3500,13 +3456,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "uuHWz",
                           "name": "lc8i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3524,13 +3480,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "6k7hh",
                           "name": "lc9i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3548,13 +3504,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "61knE",
                           "name": "lc10i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3580,13 +3536,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "KYOXc",
                           "name": "lc11i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3604,13 +3560,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "CZiNX",
                           "name": "lc12i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3628,13 +3584,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "tgwvr",
                           "name": "lc13i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3652,13 +3608,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "tHMVx",
                           "name": "lc14i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3676,13 +3632,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "1rxfO",
                           "name": "lc15i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3708,13 +3664,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "5xIRx",
                           "name": "lc16i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3732,13 +3688,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "NlqBl",
                           "name": "lc17i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3756,13 +3712,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "wpCr6",
                           "name": "lc18i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3780,13 +3736,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "oZN2j",
                           "name": "lc19i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3804,13 +3760,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "43fzw",
                           "name": "lc20i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -3868,13 +3824,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "rWdjL",
                       "name": "backIconOnline",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -3994,11 +3950,9 @@
                   "width": "fill_container",
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 2,
-                    "fill": "$accent"
-                  },
+                  "stroke": "$accent",
+                  "strokeWidth": 2,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 4,
                   "padding": 12,
@@ -4068,13 +4022,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "Kmx8R",
                           "name": "oc1i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4092,13 +4046,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "7SS3K",
                           "name": "oc2i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4116,13 +4070,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "DqXTE",
                           "name": "oc3i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4140,13 +4094,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "vhUfp",
                           "name": "oc4i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4164,13 +4118,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "WG6hL",
                           "name": "oc5i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4196,13 +4150,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "r5D3z",
                           "name": "oc6i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4220,13 +4174,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "wOTzd",
                           "name": "oc7i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4244,13 +4198,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "Y2DvP",
                           "name": "oc8i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4268,13 +4222,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "GB7jk",
                           "name": "oc9i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4292,13 +4246,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "MPhXV",
                           "name": "oc10i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4324,13 +4278,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "0D3gI",
                           "name": "oc11i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4348,13 +4302,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "It0HA",
                           "name": "oc12i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4372,13 +4326,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "4cDIC",
                           "name": "oc13i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4396,13 +4350,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "eQdyR",
                           "name": "oc14i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4420,13 +4374,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "nSgVF",
                           "name": "oc15i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4452,13 +4406,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "enwzq",
                           "name": "oc16i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4476,13 +4430,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "7ZSSs",
                           "name": "oc17i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4500,13 +4454,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "3unLw",
                           "name": "oc18i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4524,13 +4478,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "LvPYX",
                           "name": "oc19i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4548,13 +4502,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "FtTyL",
                           "name": "oc20i",
                           "width": 28,
                           "height": 28,
-                          "iconFontName": "music",
-                          "iconFontFamily": "lucide",
+                          "icon": "music",
+                          "library": "lucide",
                           "fill": "#FFFFFF4D"
                         }
                       ]
@@ -4608,13 +4562,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "9UGgq",
                       "name": "backIconStats",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -4808,11 +4762,9 @@
                   "width": "fill_container",
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": 16,
                   "alignItems": "center",
@@ -4830,13 +4782,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "98uo4",
                           "name": "spCardIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "user",
-                          "iconFontFamily": "lucide",
+                          "icon": "user",
+                          "library": "lucide",
                           "fill": "$primary"
                         }
                       ]
@@ -4880,11 +4832,9 @@
                   "width": "fill_container",
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": 16,
                   "alignItems": "center",
@@ -4902,13 +4852,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "mnMd7",
                           "name": "lmpCardIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "users",
-                          "iconFontFamily": "lucide",
+                          "icon": "users",
+                          "library": "lucide",
                           "fill": "$success"
                         }
                       ]
@@ -4952,11 +4902,9 @@
                   "width": "fill_container",
                   "fill": "$surface",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 16,
                   "padding": 16,
                   "alignItems": "center",
@@ -4974,13 +4922,13 @@
                       "alignItems": "center",
                       "children": [
                         {
-                          "type": "icon_font",
+                          "type": "icon",
                           "id": "u5jfT",
                           "name": "onlineCardIconInner",
                           "width": 24,
                           "height": 24,
-                          "iconFontName": "globe",
-                          "iconFontFamily": "lucide",
+                          "icon": "globe",
+                          "library": "lucide",
                           "fill": "$accent"
                         }
                       ]
@@ -5064,13 +5012,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "SjTlH",
                       "name": "backIconSub",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "arrow-left",
-                      "iconFontFamily": "lucide",
+                      "icon": "arrow-left",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     }
                   ]
@@ -5094,11 +5042,9 @@
               "width": "fill_container",
               "fill": "$surface",
               "cornerRadius": 20,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1,
-                "fill": "$border"
-              },
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
               "layout": "vertical",
               "gap": 16,
               "padding": 20,
@@ -5249,11 +5195,9 @@
                   "width": "fill_container",
                   "fill": "$surface",
                   "cornerRadius": 20,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "$border"
-                  },
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 12,
                   "padding": 20,
@@ -5376,13 +5320,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "p8TYm",
                       "name": "benefit1Check",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "$success"
                     },
                     {
@@ -5405,13 +5349,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "cVlTY",
                       "name": "benefit2Check",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "$success"
                     },
                     {
@@ -5434,13 +5378,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "215wm",
                       "name": "benefit3Check",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "$success"
                     },
                     {
@@ -5506,13 +5450,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "3HNc7",
                       "name": "closeIcon",
                       "width": 24,
                       "height": 24,
-                      "iconFontName": "x",
-                      "iconFontFamily": "lucide",
+                      "icon": "x",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     }
                   ]
@@ -5532,13 +5476,13 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
+                  "type": "icon",
                   "id": "s6Dln",
                   "name": "lockIconInner",
                   "width": 48,
                   "height": 48,
-                  "iconFontName": "lock",
-                  "iconFontFamily": "lucide",
+                  "icon": "lock",
+                  "library": "lucide",
                   "fill": "#FFFFFF"
                 }
               ]
@@ -5591,13 +5535,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "cCLBD",
                       "name": "b1Icon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -5620,13 +5564,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "bVtza",
                       "name": "b2Icon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -5649,13 +5593,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "qZBeS",
                       "name": "b3Icon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -5678,13 +5622,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "lba2P",
                       "name": "b4Icon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "check",
-                      "iconFontFamily": "lucide",
+                      "icon": "check",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -5752,11 +5696,9 @@
                   "height": 52,
                   "fill": "#FFFFFF26",
                   "cornerRadius": 26,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 2,
-                    "fill": "#FFFFFF"
-                  },
+                  "stroke": "#FFFFFF",
+                  "strokeWidth": 2,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "justifyContent": "center",
                   "alignItems": "center",
@@ -5835,10 +5777,6 @@
           ]
         }
       ],
-      "stroke": {
-        "align": "inside",
-        "thickness": 1
-      },
       "layout": "vertical",
       "padding": [
         24,
@@ -5853,10 +5791,6 @@
           "name": "Container",
           "width": "fill_container",
           "height": 1862.3203125,
-          "stroke": {
-            "align": "inside",
-            "thickness": 1
-          },
           "layout": "vertical",
           "gap": 24,
           "children": [
@@ -5866,10 +5800,6 @@
               "name": "motion.div",
               "width": "fill_container",
               "height": 44,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1
-              },
               "gap": 335.96875,
               "justifyContent": "space_between",
               "alignItems": "center",
@@ -5882,10 +5812,6 @@
                   "height": 44,
                   "fill": "#1e2939ff",
                   "cornerRadius": 14,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "layout": "none",
                   "children": [
                     {
@@ -5897,10 +5823,6 @@
                       "clip": true,
                       "width": 20,
                       "height": 20,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -5912,13 +5834,10 @@
                           "geometry": "M6 9l0-8c0-0.26522-0.10536-0.51957-0.29289-0.70711-0.18754-0.18754-0.44189-0.29289-0.70711-0.29289l-4 0c-0.26522 0-0.51957 0.10536-0.70711 0.29289-0.18754 0.18754-0.29289 0.44189-0.29289 0.70711l0 8",
                           "width": 5,
                           "height": 7.5,
-                          "stroke": {
-                            "align": "center",
-                            "thickness": 1.6666666269302368,
-                            "join": "round",
-                            "cap": "round",
-                            "fill": "#d1d5dcff"
-                          }
+                          "stroke": "#d1d5dcff",
+                          "strokeWidth": 1.6666666269302368,
+                          "strokeLinejoin": "round",
+                          "strokeLinecap": "round"
                         },
                         {
                           "type": "path",
@@ -5929,13 +5848,10 @@
                           "geometry": "M0 7.99948c-0.00007-0.29093 0.06333-0.57838 0.18579-0.84228 0.12245-0.26391 0.30101-0.49792 0.52321-0.68572l7-5.999c0.36099-0.30509 0.81836-0.47248 1.291-0.47248 0.47264 0 0.93001 0.16739 1.291 0.47248l7 5.999c0.2222 0.1878 0.40076 0.42181 0.52321 0.68572 0.12245 0.26391 0.18586 0.55135 0.18579 0.84228l0 9c0 0.53043-0.21071 1.03914-0.58579 1.41421-0.37507 0.37507-0.88378 0.58579-1.41421 0.58579l-14 0c-0.53043 0-1.03914-0.21071-1.41421-0.58579-0.37507-0.37507-0.58579-0.88378-0.58579-1.41421l0-9z",
                           "width": 15,
                           "height": 15.83289909362793,
-                          "stroke": {
-                            "align": "center",
-                            "thickness": 1.6666666269302368,
-                            "join": "round",
-                            "cap": "round",
-                            "fill": "#d1d5dcff"
-                          }
+                          "stroke": "#d1d5dcff",
+                          "strokeWidth": 1.6666666269302368,
+                          "strokeLinejoin": "round",
+                          "strokeLinecap": "round"
                         }
                       ]
                     }
@@ -5947,10 +5863,6 @@
                   "name": "h1",
                   "width": 136.0703125,
                   "height": 32,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "layout": "none",
                   "children": [
                     {
@@ -5977,10 +5889,6 @@
                   "height": 44,
                   "fill": "#1e2939ff",
                   "cornerRadius": 14,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "layout": "vertical",
                   "padding": [
                     12,
@@ -5996,10 +5904,6 @@
                       "clip": true,
                       "width": "fill_container",
                       "height": 20,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -6011,13 +5915,10 @@
                           "geometry": "M1 0l2 0c0.55228 0 1 0.44772 1 1l0 14c0 0.55228-0.44772 1-1 1l-2 0c-0.55228 0-1-0.44772-1-1l0-14c0-0.55228 0.44772-1 1-1z",
                           "width": 3.3333332538604736,
                           "height": 13.333333015441895,
-                          "stroke": {
-                            "align": "center",
-                            "thickness": 1.6666666269302368,
-                            "join": "round",
-                            "cap": "round",
-                            "fill": "#d1d5dcff"
-                          }
+                          "stroke": "#d1d5dcff",
+                          "strokeWidth": 1.6666666269302368,
+                          "strokeLinejoin": "round",
+                          "strokeLinecap": "round"
                         },
                         {
                           "type": "path",
@@ -6028,13 +5929,10 @@
                           "geometry": "M1 0l2 0c0.55228 0 1 0.44772 1 1l0 14c0 0.55228-0.44772 1-1 1l-2 0c-0.55228 0-1-0.44772-1-1l0-14c0-0.55228 0.44772-1 1-1z",
                           "width": 3.3333332538604736,
                           "height": 13.333333015441895,
-                          "stroke": {
-                            "align": "center",
-                            "thickness": 1.6666666269302368,
-                            "join": "round",
-                            "cap": "round",
-                            "fill": "#d1d5dcff"
-                          }
+                          "stroke": "#d1d5dcff",
+                          "strokeWidth": 1.6666666269302368,
+                          "strokeLinejoin": "round",
+                          "strokeLinecap": "round"
                         }
                       ]
                     }
@@ -6048,10 +5946,6 @@
               "name": "Container",
               "width": "fill_container",
               "height": 87,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1
-              },
               "layout": "none",
               "children": [
                 {
@@ -6082,11 +5976,9 @@
                     ]
                   },
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 2,
-                    "fill": "#c27affff"
-                  },
+                  "stroke": "#c27affff",
+                  "strokeWidth": 2,
+                  "strokeAlignment": "inner",
                   "effect": {
                     "type": "shadow",
                     "shadowType": "outer",
@@ -6107,10 +5999,6 @@
                       "name": "div",
                       "width": "fill_container",
                       "height": 52.019989013671875,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "gap": 303.872314453125,
                       "justifyContent": "space_between",
                       "alignItems": "center",
@@ -6121,10 +6009,6 @@
                           "name": "Container",
                           "width": 88.52484130859375,
                           "height": 52.019989013671875,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "layout": "vertical",
                           "gap": 4.0800018310546875,
                           "children": [
@@ -6134,10 +6018,6 @@
                               "name": "Container",
                               "width": "fill_container",
                               "height": 27.539993286132812,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "gap": 8.15997314453125,
                               "alignItems": "center",
                               "children": [
@@ -6149,10 +6029,6 @@
                                   "height": 12.240005493164062,
                                   "fill": "#dab2ffff",
                                   "cornerRadius": 16777200,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 1
-                                  },
                                   "layout": "none"
                                 },
                                 {
@@ -6161,10 +6037,6 @@
                                   "name": "h3",
                                   "width": "fill_container",
                                   "height": 27.539993286132812,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 1
-                                  },
                                   "layout": "none",
                                   "children": [
                                     {
@@ -6191,10 +6063,6 @@
                               "name": "motion.p",
                               "width": "fill_container",
                               "height": 20.399993896484375,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -6221,10 +6089,6 @@
                           "name": "motion.div",
                           "width": 19.682861328125,
                           "height": 36.720001220703125,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "children": [
                             {
                               "type": "text",
@@ -6254,11 +6118,9 @@
                   "height": 87,
                   "fill": "#1e2939ff",
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 2,
-                    "fill": "#364153ff"
-                  },
+                  "stroke": "#364153ff",
+                  "strokeWidth": 2,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "padding": [
                     18,
@@ -6273,10 +6135,6 @@
                       "name": "div",
                       "width": "fill_container",
                       "height": 36,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "gap": 300.0625,
                       "justifyContent": "space_between",
                       "alignItems": "center",
@@ -6287,10 +6145,6 @@
                           "name": "Container",
                           "width": 89.140625,
                           "height": 27,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "gap": 8,
                           "alignItems": "center",
                           "children": [
@@ -6302,10 +6156,6 @@
                               "height": 12,
                               "fill": "#4a5565ff",
                               "cornerRadius": 16777200,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none"
                             },
                             {
@@ -6314,10 +6164,6 @@
                               "name": "h3",
                               "width": "fill_container",
                               "height": 27,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -6344,10 +6190,6 @@
                           "name": "motion.div",
                           "width": 14.796875,
                           "height": 36,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "children": [
                             {
                               "type": "text",
@@ -6375,10 +6217,6 @@
               "name": "motion.div",
               "width": "fill_container",
               "height": 94,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1
-              },
               "layout": "none",
               "children": [
                 {
@@ -6391,11 +6229,9 @@
                   "height": 94,
                   "fill": "#1e2939ff",
                   "cornerRadius": 14,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "#364153ff"
-                  },
+                  "stroke": "#364153ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 4,
                   "padding": [
@@ -6411,10 +6247,6 @@
                       "name": "motion.div",
                       "width": "fill_container",
                       "height": 36,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "children": [
                         {
                           "type": "text",
@@ -6439,10 +6271,6 @@
                       "name": "Container",
                       "width": "fill_container",
                       "height": 20,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -6474,11 +6302,9 @@
                   "height": 94,
                   "fill": "#1e2939ff",
                   "cornerRadius": 14,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "#364153ff"
-                  },
+                  "stroke": "#364153ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 4,
                   "padding": [
@@ -6494,10 +6320,6 @@
                       "name": "Container",
                       "width": "fill_container",
                       "height": 36,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "children": [
                         {
                           "type": "text",
@@ -6522,10 +6344,6 @@
                       "name": "Container",
                       "width": "fill_container",
                       "height": 20,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -6557,11 +6375,9 @@
                   "height": 94,
                   "fill": "#1e2939ff",
                   "cornerRadius": 14,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "#364153ff"
-                  },
+                  "stroke": "#364153ff",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 4,
                   "padding": [
@@ -6577,10 +6393,6 @@
                       "name": "motion.div",
                       "width": "fill_container",
                       "height": 36,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "children": [
                         {
                           "type": "text",
@@ -6605,10 +6417,6 @@
                       "name": "Container",
                       "width": "fill_container",
                       "height": 20,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -6666,10 +6474,6 @@
           ]
         }
       ],
-      "stroke": {
-        "align": "inside",
-        "thickness": 1
-      },
       "justifyContent": "center",
       "alignItems": "center",
       "children": [
@@ -6679,10 +6483,6 @@
           "name": "Container",
           "width": 256,
           "height": 468,
-          "stroke": {
-            "align": "inside",
-            "thickness": 1
-          },
           "layout": "none",
           "children": [
             {
@@ -6693,10 +6493,6 @@
               "name": "Container",
               "width": 156.953125,
               "height": 68,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1
-              },
               "layout": "vertical",
               "gap": 8,
               "children": [
@@ -6706,10 +6502,6 @@
                   "name": "h1",
                   "width": "fill_container",
                   "height": 36,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "layout": "none",
                   "children": [
                     {
@@ -6735,10 +6527,6 @@
                   "name": "p",
                   "width": "fill_container",
                   "height": 24,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "layout": "none",
                   "children": [
                     {
@@ -6768,10 +6556,6 @@
               "name": "Container",
               "width": 212,
               "height": 80,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1
-              },
               "layout": "none",
               "children": [
                 {
@@ -6803,10 +6587,6 @@
                     ]
                   },
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "effect": [
                     {
                       "type": "shadow",
@@ -6866,10 +6646,6 @@
                           "y": 0.29999997639776554
                         }
                       },
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none"
                     },
                     {
@@ -6880,10 +6656,6 @@
                       "name": "Container",
                       "width": 80,
                       "height": 80,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -6914,10 +6686,6 @@
                             ]
                           },
                           "cornerRadius": 10,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -6952,10 +6720,6 @@
                               "clip": true,
                               "width": 20,
                               "height": 20,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -6967,11 +6731,7 @@
                                   "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z",
                                   "fill": "#ffffffff",
                                   "width": 10,
-                                  "height": 15,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 0.8333333134651184
-                                  }
+                                  "height": 15
                                 }
                               ]
                             }
@@ -7005,10 +6765,6 @@
                             ]
                           },
                           "cornerRadius": 10,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -7043,10 +6799,6 @@
                               "clip": true,
                               "width": 20,
                               "height": 20,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -7058,11 +6810,7 @@
                                   "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z m7 0l0 8-3 0 0-8 3 0z",
                                   "fill": "#ffffffff",
                                   "width": 10.833333015441895,
-                                  "height": 15,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 0.8333333134651184
-                                  }
+                                  "height": 15
                                 }
                               ]
                             }
@@ -7101,10 +6849,6 @@
                     ]
                   },
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "effect": [
                     {
                       "type": "shadow",
@@ -7164,10 +6908,6 @@
                           "y": 0.29999997639776554
                         }
                       },
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none"
                     },
                     {
@@ -7178,10 +6918,6 @@
                       "name": "Container",
                       "width": 60,
                       "height": 60,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -7212,10 +6948,6 @@
                             ]
                           },
                           "cornerRadius": 10,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -7250,10 +6982,6 @@
                               "clip": true,
                               "width": 15,
                               "height": 15,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -7265,11 +6993,7 @@
                                   "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z",
                                   "fill": "#ffffffff",
                                   "width": 7.5,
-                                  "height": 11.25,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 0.625
-                                  }
+                                  "height": 11.25
                                 }
                               ]
                             }
@@ -7303,10 +7027,6 @@
                             ]
                           },
                           "cornerRadius": 10,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -7341,10 +7061,6 @@
                               "clip": true,
                               "width": 15,
                               "height": 15,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -7356,11 +7072,7 @@
                                   "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z m7 0l0 8-3 0 0-8 3 0z",
                                   "fill": "#ffffffff",
                                   "width": 8.125,
-                                  "height": 11.25,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 0.625
-                                  }
+                                  "height": 11.25
                                 }
                               ]
                             }
@@ -7399,10 +7111,6 @@
                     ]
                   },
                   "cornerRadius": 16,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "effect": [
                     {
                       "type": "shadow",
@@ -7462,10 +7170,6 @@
                           "y": 0.29999997639776554
                         }
                       },
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none"
                     },
                     {
@@ -7476,10 +7180,6 @@
                       "name": "Container",
                       "width": 40,
                       "height": 40,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -7510,10 +7210,6 @@
                             ]
                           },
                           "cornerRadius": 10,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -7548,10 +7244,6 @@
                               "clip": true,
                               "width": 10,
                               "height": 10,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -7563,11 +7255,7 @@
                                   "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z",
                                   "fill": "#ffffffff",
                                   "width": 5,
-                                  "height": 7.5,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 0.4166666567325592
-                                  }
+                                  "height": 7.5
                                 }
                               ]
                             }
@@ -7601,10 +7289,6 @@
                             ]
                           },
                           "cornerRadius": 10,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -7639,10 +7323,6 @@
                               "clip": true,
                               "width": 10,
                               "height": 10,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "layout": "none",
                               "children": [
                                 {
@@ -7654,11 +7334,7 @@
                                   "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z m7 0l0 8-3 0 0-8 3 0z",
                                   "fill": "#ffffffff",
                                   "width": 5.416666507720947,
-                                  "height": 7.5,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 0.4166666567325592
-                                  }
+                                  "height": 7.5
                                 }
                               ]
                             }
@@ -7678,10 +7354,6 @@
               "name": "Container",
               "width": 256,
               "height": 256,
-              "stroke": {
-                "align": "inside",
-                "thickness": 1
-              },
               "layout": "none",
               "children": [
                 {
@@ -7713,10 +7385,6 @@
                     ]
                   },
                   "cornerRadius": 56,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "effect": {
                     "type": "blur",
                     "radius": 70
@@ -7752,10 +7420,6 @@
                     ]
                   },
                   "cornerRadius": 56,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1
-                  },
                   "effect": {
                     "type": "shadow",
                     "shadowType": "outer",
@@ -7802,10 +7466,6 @@
                           "y": 0.29999997639776554
                         }
                       },
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none"
                     },
                     {
@@ -7816,10 +7476,6 @@
                       "name": "Container",
                       "width": 256,
                       "height": 256,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none",
                       "children": [
                         {
@@ -7851,10 +7507,6 @@
                             ]
                           },
                           "cornerRadius": 14,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": [
                             {
                               "type": "shadow",
@@ -7890,11 +7542,9 @@
                               "width": 142.818359375,
                               "height": 179.78976440429688,
                               "cornerRadius": 14,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1,
-                                "fill": "#ffffff4d"
-                              },
+                              "stroke": "#ffffff4d",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
                               "layout": "none"
                             },
                             {
@@ -7905,10 +7555,6 @@
                               "name": "Container",
                               "width": 142.818359375,
                               "height": 179.78976440429688,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "padding": [
                                 0,
                                 0.00006103515625,
@@ -7925,10 +7571,6 @@
                                   "clip": true,
                                   "width": 64,
                                   "height": 64,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 1
-                                  },
                                   "effect": {
                                     "type": "shadow",
                                     "shadowType": "outer",
@@ -7950,11 +7592,7 @@
                                       "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z",
                                       "fill": "#ffffffff",
                                       "width": 32,
-                                      "height": 48,
-                                      "stroke": {
-                                        "align": "inside",
-                                        "thickness": 2.6666667461395264
-                                      }
+                                      "height": 48
                                     }
                                   ]
                                 }
@@ -7991,10 +7629,6 @@
                             ]
                           },
                           "cornerRadius": 14,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1
-                          },
                           "effect": {
                             "type": "shadow",
                             "shadowType": "outer",
@@ -8017,11 +7651,9 @@
                               "width": 142.818359375,
                               "height": 179.78976440429688,
                               "cornerRadius": 14,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1,
-                                "fill": "#ffffff4d"
-                              },
+                              "stroke": "#ffffff4d",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
                               "layout": "none"
                             },
                             {
@@ -8032,10 +7664,6 @@
                               "name": "Container",
                               "width": 142.818359375,
                               "height": 179.78976440429688,
-                              "stroke": {
-                                "align": "inside",
-                                "thickness": 1
-                              },
                               "padding": [
                                 0,
                                 0.00006103515625,
@@ -8052,10 +7680,6 @@
                                   "clip": true,
                                   "width": 64,
                                   "height": 64,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 1
-                                  },
                                   "effect": {
                                     "type": "shadow",
                                     "shadowType": "outer",
@@ -8077,11 +7701,7 @@
                                       "geometry": "M6 0l0 10.55c-0.59-0.34-1.27-0.55-2-0.55-2.21 0-4 1.79-4 4 0 2.21 1.79 4 4 4 2.21 0 4-1.79 4-4l0-10 4 0 0-4-6 0z m7 0l0 8-3 0 0-8 3 0z",
                                       "fill": "#ffffffff",
                                       "width": 34.66666793823242,
-                                      "height": 48,
-                                      "stroke": {
-                                        "align": "inside",
-                                        "thickness": 2.6666667461395264
-                                      }
+                                      "height": 48
                                     }
                                   ]
                                 }
@@ -8119,10 +7739,6 @@
                           }
                         ]
                       },
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1
-                      },
                       "layout": "none"
                     }
                   ]
@@ -8141,7 +7757,7 @@
           "fill": {
             "type": "image",
             "enabled": true,
-            "url": "./images/generated-1772835643562.png",
+            "url": "images/generated-1772835643562.png",
             "mode": "fill"
           },
           "cornerRadius": 224
@@ -8220,13 +7836,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "7C9Rr",
                       "name": "appleIcon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "apple",
-                      "iconFontFamily": "lucide",
+                      "icon": "apple",
+                      "library": "lucide",
                       "fill": "#FFFFFF"
                     },
                     {
@@ -8249,11 +7865,9 @@
                   "height": 56,
                   "fill": "#FFFFFF",
                   "cornerRadius": 24,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "#D4D4D8"
-                  },
+                  "stroke": "#D4D4D8",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
                   "gap": 12,
                   "justifyContent": "center",
                   "alignItems": "center",
@@ -8293,13 +7907,13 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "icon_font",
+                      "type": "icon",
                       "id": "hw2bQ",
                       "name": "emailIcon",
                       "width": 20,
                       "height": 20,
-                      "iconFontName": "mail",
-                      "iconFontFamily": "lucide",
+                      "icon": "mail",
+                      "library": "lucide",
                       "fill": "$text-primary"
                     },
                     {
@@ -8446,5 +8060,6 @@
       "type": "color",
       "value": "#18181B"
     }
-  }
+  },
+  "fileToken": "b1511ec7-8daa-4e42-97af-c98b67934a52"
 }

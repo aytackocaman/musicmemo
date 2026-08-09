@@ -54,16 +54,8 @@ class _PreloadScreenState extends ConsumerState<PreloadScreen> {
       final l10n = AppLocalizations.of(context)!;
       setState(() => _statusText = l10n.fetchingSoundList);
 
-      List<SoundModel> sounds;
-      if (widget.category.startsWith('tag:')) {
-        // Format: 'tag:{tagType}:{tagValue}' e.g. 'tag:mood:Relaxing'
-        final parts = widget.category.split(':');
-        final tagType = parts[1];
-        final tagValue = parts.sublist(2).join(':'); // handles values with colons
-        sounds = await DatabaseService.getSoundsByTag(tagType, tagValue);
-      } else {
-        sounds = await DatabaseService.getSoundsForCategory(widget.category);
-      }
+      List<SoundModel> sounds =
+          await DatabaseService.getSoundsForSelection(widget.category);
 
       if (!mounted) return;
 

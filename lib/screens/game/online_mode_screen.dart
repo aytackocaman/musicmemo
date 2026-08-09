@@ -509,13 +509,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     setState(() => _isStartingGame = true);
 
     // Fetch real sound IDs from the database (fall back to piano if empty)
-    List<SoundModel> sounds;
-    if (_selectedCategory.startsWith('tag:')) {
-      final parts = _selectedCategory.split(':');
-      sounds = await DatabaseService.getSoundsByTag(parts[1], parts.sublist(2).join(':'));
-    } else {
-      sounds = await DatabaseService.getSoundsForCategory(_selectedCategory);
-    }
+    List<SoundModel> sounds =
+        await DatabaseService.getSoundsForSelection(_selectedCategory);
     if (sounds.isEmpty && _selectedCategory != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -1554,15 +1549,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1699,14 +1687,8 @@ class _CreatePrivateGameScreenState
     if (_currentSession == null || _sessionId == null) return;
     setState(() => _isStartingGame = true);
 
-    List<SoundModel> sounds;
-    if (widget.category.startsWith('tag:')) {
-      final parts = widget.category.split(':');
-      sounds = await DatabaseService.getSoundsByTag(
-          parts[1], parts.sublist(2).join(':'));
-    } else {
-      sounds = await DatabaseService.getSoundsForCategory(widget.category);
-    }
+    List<SoundModel> sounds =
+        await DatabaseService.getSoundsForSelection(widget.category);
     if (sounds.isEmpty && widget.category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -2196,15 +2178,8 @@ class _CreatePrivateGameScreenState
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2403,14 +2378,8 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
   Future<void> _hostStartGame() async {
     if (_currentSession == null || _sessionId == null) return;
 
-    List<SoundModel> sounds;
-    if (widget.category.startsWith('tag:')) {
-      final parts = widget.category.split(':');
-      sounds = await DatabaseService.getSoundsByTag(
-          parts[1], parts.sublist(2).join(':'));
-    } else {
-      sounds = await DatabaseService.getSoundsForCategory(widget.category);
-    }
+    List<SoundModel> sounds =
+        await DatabaseService.getSoundsForSelection(widget.category);
     if (sounds.isEmpty && widget.category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -2938,15 +2907,8 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 }
 
 /// Two player avatars with an animated pulsing VS badge between them.

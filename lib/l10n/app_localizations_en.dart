@@ -174,6 +174,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forKidsDescription => 'Animals, toys, and fun sounds';
 
   @override
+  String get kidsTitle => 'For Kids';
+
+  @override
+  String get kidsSubtitle => 'Fun sounds little ones will love';
+
+  @override
+  String get kidsMixAll => 'Mix Everything';
+
+  @override
+  String get kidsMixAllDescription =>
+      'Play with sounds from all kids categories at once';
+
+  @override
+  String get kidsCategory => 'Kids';
+
+  @override
   String get funnyMemes => 'Funny Memes';
 
   @override
@@ -1021,4 +1037,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSystem => 'System';
+
+  @override
+  String get earTrainingTitle => 'Ear Training';
+
+  @override
+  String get earTrainingSubtitle =>
+      'Train your ear with intervals, chords, scales and more';
+
+  @override
+  String get allForms => 'All Forms';
+
+  @override
+  String get form => 'Form';
+
+  @override
+  String get playWithSelection => 'Play';
+
+  @override
+  String get premiumEarTraining => 'Ear Training is a Premium feature';
 }

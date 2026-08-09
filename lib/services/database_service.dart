@@ -3,6 +3,9 @@ import '../config/game_config.dart';
 import '../models/daily_challenge.dart';
 import 'supabase_service.dart';
 
+/// Selection key that mixes all kids categories (cartoons + animals).
+const String kKidsMixSelection = 'kids:all';
+
 /// User profile model
 class UserProfile {
   final String id;
@@ -885,6 +888,34 @@ class DatabaseService {
     }
   }
 
+  /// Resolve a category selection string to its sounds.
+  ///
+  /// Supports four forms:
+  ///  - plain category id:   `piano`, `jazz`, `ear_intervals`, `kids_cartoons`
+  ///  - tag selection:       `tag:{tagType}:{tagValue}` (e.g. `tag:mood:Relaxing`)
+  ///  - ear training:        `et:{categoryId}:{form}`
+  ///    where form (block/up/down) may be empty for "all".
+  ///  - kids mix:            `kids:all` (all kids categories combined)
+  /// Returns an empty list when nothing matches.
+  static Future<List<SoundModel>> getSoundsForSelection(String selection) async {
+    if (selection == kKidsMixSelection) {
+      final cartoons = await getSoundsForCategory('kids_cartoons');
+      final animals = await getSoundsForCategory('kids_animals');
+      return [...cartoons, ...animals];
+    }
+    if (selection.startsWith('et:')) {
+      final parts = selection.split(':');
+      final categoryId = parts.length > 1 ? parts[1] : '';
+      final form = parts.length > 2 && parts[2].isNotEmpty ? parts[2] : null;
+      return getEarTrainingSounds(categoryId, form: form);
+    }
+    if (selection.startsWith('tag:')) {
+      final parts = selection.split(':');
+      return getSoundsByTag(parts[1], parts.sublist(2).join(':'));
+    }
+    return getSoundsForCategory(selection);
+  }
+
   /// Get sounds for a specific category
   static Future<List<SoundModel>> getSoundsForCategory(String categoryId) async {
     try {
@@ -898,6 +929,57 @@ class DatabaseService {
           .toList();
     } catch (e) {
       print('Error fetching sounds for category $categoryId: $e');
+      return [];
+    }
+  }
+
+  /// Get Ear Training sounds for a category with an optional form filter.
+  /// Format mirrors the `et:` compound category key.
+  /// [form] in {'block','up','down'} or null for all.
+  ///
+  /// Fetches all sounds for the category (max 5,128 small metadata rows) and
+  /// filters in Dart — a single sound_tags row has one tag_type, so AND
+  /// conditions across tag types can't be expressed in one PostgREST query.
+  static Future<List<SoundModel>> getEarTrainingSounds(
+    String categoryId, {
+    String? form,
+  }) async {
+    try {
+      final response = await _client
+          .from('sounds')
+          .select('id, category_id, name, file_path, duration_ms, file_size_bytes, sound_tags(tag_type, tag_value)')
+          .eq('category_id', categoryId)
+          .limit(10000);
+
+      final raw = response as List;
+      final sounds = raw
+          .map((json) => SoundModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      if (form == null) {
+        return sounds;
+      }
+
+      // Build id → {tag_type: tag_value} lookup for filtering in Dart.
+      final tagLookup = <String, Map<String, String>>{};
+      for (final row in raw.cast<Map<String, dynamic>>()) {
+        final id = row['id'] as String? ?? '';
+        final map = <String, String>{};
+        final tags = row['sound_tags'] as List? ?? const [];
+        for (final t in tags.cast<Map<String, dynamic>>()) {
+          final type = t['tag_type'] as String? ?? '';
+          final value = t['tag_value'] as String? ?? '';
+          if (type.isNotEmpty) map[type] = value;
+        }
+        tagLookup[id] = map;
+      }
+
+      return sounds.where((s) {
+        final tags = tagLookup[s.id] ?? const <String, String>{};
+        return tags['form'] == form;
+      }).toList();
+    } catch (e) {
+      print('Error fetching ear training sounds for $categoryId: $e');
       return [];
     }
   }

@@ -64,6 +64,11 @@
   "earTrainingDescription": "Intervals, chords, and scales",
   "forKids": "For Kids",
   "forKidsDescription": "Animals, toys, and fun sounds",
+  "kidsTitle": "For Kids",
+  "kidsSubtitle": "Fun sounds little ones will love",
+  "kidsMixAll": "Mix Everything",
+  "kidsMixAllDescription": "Play with sounds from all kids categories at once",
+  "kidsCategory": "Kids",
   "funnyMemes": "Funny Memes",
   "funnyMemesDescription": "Viral sounds and internet classics",
   "soon": "Soon",
@@ -423,5 +428,11 @@
   "upgradeToPlay": "Upgrade to Play",
   "turkce": "Türkçe",
   "english": "English",
-  "languageSystem": "System"
+  "languageSystem": "System",
+  "earTrainingTitle": "Ear Training",
+  "earTrainingSubtitle": "Train your ear with intervals, chords, scales and more",
+  "allForms": "All Forms",
+  "form": "Form",
+  "playWithSelection": "Play",
+  "premiumEarTraining": "Ear Training is a Premium feature"
 }

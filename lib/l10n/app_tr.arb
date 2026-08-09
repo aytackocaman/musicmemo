@@ -64,6 +64,11 @@
   "earTrainingDescription": "Aralıklar, akorlar ve diziler",
   "forKids": "Çocuklar İçin",
   "forKidsDescription": "Hayvanlar, oyuncaklar ve eğlenceli sesler",
+  "kidsTitle": "Çocuklar İçin",
+  "kidsSubtitle": "Miniklerin bayılacağı eğlenceli sesler",
+  "kidsMixAll": "Hepsini Karıştır",
+  "kidsMixAllDescription": "Tüm çocuk kategorilerindeki seslerle aynı anda oyna",
+  "kidsCategory": "Çocuklar",
   "funnyMemes": "Komik Memeler",
   "funnyMemesDescription": "Viral sesler ve internet klasikleri",
   "soon": "Yakında",
@@ -423,5 +428,11 @@
   "upgradeToPlay": "Oynamak İçin Yükselt",
   "turkce": "Türkçe",
   "english": "English",
-  "languageSystem": "Sistem"
+  "languageSystem": "Sistem",
+  "earTrainingTitle": "Kulak Eğitimi",
+  "earTrainingSubtitle": "Aralıklar, akorlar, gamlar ve daha fazlasıyla kulağınızı eğitin",
+  "allForms": "Tüm Formlar",
+  "form": "Form",
+  "playWithSelection": "Oyna",
+  "premiumEarTraining": "Kulak Eğitimi Premium özelliktir"
 }
