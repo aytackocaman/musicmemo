@@ -2066,6 +2066,18 @@ abstract class AppLocalizations {
   /// **'Train your ear with intervals, chords, scales and more'**
   String get earTrainingSubtitle;
 
+  /// No description provided for @earTrainingMixAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix Everything'**
+  String get earTrainingMixAll;
+
+  /// No description provided for @earTrainingMixAllDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with sounds from all ear training categories at once'**
+  String get earTrainingMixAllDescription;
+
   /// No description provided for @allForms.
   ///
   /// In en, this message translates to:

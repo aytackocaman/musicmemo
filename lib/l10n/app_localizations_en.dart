@@ -1046,6 +1046,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Train your ear with intervals, chords, scales and more';
 
   @override
+  String get earTrainingMixAll => 'Mix Everything';
+
+  @override
+  String get earTrainingMixAllDescription =>
+      'Play with sounds from all ear training categories at once';
+
+  @override
   String get allForms => 'All Forms';
 
   @override

@@ -111,6 +111,31 @@ class _EarTrainingScreenState extends ConsumerState<EarTrainingScreen> {
     });
   }
 
+  void _startMixGame() {
+    if (!_isPremium) {
+      final l10n = AppLocalizations.of(context)!;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaywallScreen(
+            isPremiumFeature: true,
+            subtitle: l10n.premiumEarTraining,
+          ),
+        ),
+      );
+      return;
+    }
+    ref.read(selectedCategoryProvider.notifier).state = kEarTrainingMixSelection;
+    if (ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer) {
+      Navigator.pop(context); // pop EarTrainingScreen; caller handles rest
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GridScreen()),
+      );
+    }
+  }
+
   void _startGame() {
     final cat = _selected;
     if (cat == null) return;
@@ -195,6 +220,88 @@ class _EarTrainingScreenState extends ConsumerState<EarTrainingScreen> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       children: [
+        // ── Mix Everything ────────────────────────────────────────────────
+        GestureDetector(
+          onTap: _startMixGame,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: AppColors.teal,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.shuffle,
+                    size: 22,
+                    color: AppColors.white,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.earTrainingMixAll,
+                        style: AppTypography.body(context).copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.earTrainingMixAllDescription,
+                        style: AppTypography.labelSmall(context).copyWith(
+                          color: AppColors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!_isPremium)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.lock, size: 12, color: AppColors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.pro,
+                          style: AppTypography.labelSmall(context).copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: AppColors.white.withValues(alpha: 0.7),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+
         ..._categories.map((cat) {
           final selected = _selected?.id == cat.id;
           return Padding(

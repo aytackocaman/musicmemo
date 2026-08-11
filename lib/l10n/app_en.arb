@@ -431,6 +431,8 @@
   "languageSystem": "System",
   "earTrainingTitle": "Ear Training",
   "earTrainingSubtitle": "Train your ear with intervals, chords, scales and more",
+  "earTrainingMixAll": "Mix Everything",
+  "earTrainingMixAllDescription": "Play with sounds from all ear training categories at once",
   "allForms": "All Forms",
   "form": "Form",
   "playWithSelection": "Play",

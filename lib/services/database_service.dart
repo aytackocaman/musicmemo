@@ -6,6 +6,9 @@ import 'supabase_service.dart';
 /// Selection key that mixes all kids categories (cartoons + animals).
 const String kKidsMixSelection = 'kids:all';
 
+/// Selection key that mixes all ear training categories together.
+const String kEarTrainingMixSelection = 'et:all';
+
 /// User profile model
 class UserProfile {
   final String id;
@@ -902,6 +905,15 @@ class DatabaseService {
       final cartoons = await getSoundsForCategory('kids_cartoons');
       final animals = await getSoundsForCategory('kids_animals');
       return [...cartoons, ...animals];
+    }
+    if (selection == kEarTrainingMixSelection) {
+      final results = await Future.wait([
+        getEarTrainingSounds('ear_chords'),
+        getEarTrainingSounds('ear_intervals'),
+        getEarTrainingSounds('ear_notes'),
+        getEarTrainingSounds('ear_scales'),
+      ]);
+      return results.expand((sounds) => sounds).toList();
     }
     if (selection.startsWith('et:')) {
       final parts = selection.split(':');

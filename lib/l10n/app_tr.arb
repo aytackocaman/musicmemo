@@ -431,6 +431,8 @@
   "languageSystem": "Sistem",
   "earTrainingTitle": "Kulak Eğitimi",
   "earTrainingSubtitle": "Aralıklar, akorlar, gamlar ve daha fazlasıyla kulağınızı eğitin",
+  "earTrainingMixAll": "Hepsini Karıştır",
+  "earTrainingMixAllDescription": "Tüm kulak eğitimi kategorilerindeki seslerle aynı anda oyna",
   "allForms": "Tüm Formlar",
   "form": "Form",
   "playWithSelection": "Oyna",

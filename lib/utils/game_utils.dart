@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../providers/game_provider.dart';
+import '../services/database_service.dart';
 
 /// Utility functions for game logic
 class GameUtils {
@@ -111,15 +112,19 @@ class GameUtils {
 
   /// Format a category selection key into a human-readable label.
   ///
-  /// Handles all four forms:
+  /// Handles all five forms:
   ///  - plain id:     `piano`          → `Piano`
   ///  - tag:          `tag:mood:X`     → `X`
   ///  - ear training: `et:ear_chords:block` → `Ear Chords · Block`
+  ///  - ear mix:      `et:all`         → `Ear Training`
   ///  - kids mix:     `kids:all`       → `Kids`
   static String formatCategoryName(String category) {
     String raw;
     if (category == 'kids:all') {
       return 'Kids';
+    }
+    if (category == kEarTrainingMixSelection) {
+      return 'Ear Training';
     }
     if (category.startsWith('et:')) {
       final parts = category.split(':');

@@ -1057,6 +1057,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Aralıklar, akorlar, gamlar ve daha fazlasıyla kulağınızı eğitin';
 
   @override
+  String get earTrainingMixAll => 'Hepsini Karıştır';
+
+  @override
+  String get earTrainingMixAllDescription =>
+      'Tüm kulak eğitimi kategorilerindeki seslerle aynı anda oyna';
+
+  @override
   String get allForms => 'Tüm Formlar';
 
   @override
