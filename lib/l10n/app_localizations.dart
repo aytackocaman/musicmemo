@@ -446,6 +446,18 @@ abstract class AppLocalizations {
   /// **'Play with sounds from all kids categories at once'**
   String get kidsMixAllDescription;
 
+  /// No description provided for @musicMixAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix Everything'**
+  String get musicMixAll;
+
+  /// No description provided for @musicMixAllDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with sounds from all music categories at once'**
+  String get musicMixAllDescription;
+
   /// No description provided for @kidsCategory.
   ///
   /// In en, this message translates to:
@@ -1331,7 +1343,7 @@ abstract class AppLocalizations {
   /// No description provided for @niceTry.
   ///
   /// In en, this message translates to:
-  /// **'Nice Try!'**
+  /// **'Great Job!'**
   String get niceTry;
 
   /// No description provided for @settings.

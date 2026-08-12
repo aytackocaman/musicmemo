@@ -638,15 +638,8 @@ class _LocalMultiplayerGameScreenState
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 
   void _showHomeConfirmation() {
     final l10n = AppLocalizations.of(context)!;

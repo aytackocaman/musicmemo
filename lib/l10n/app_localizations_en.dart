@@ -187,6 +187,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Play with sounds from all kids categories at once';
 
   @override
+  String get musicMixAll => 'Mix Everything';
+
+  @override
+  String get musicMixAllDescription =>
+      'Play with sounds from all music categories at once';
+
+  @override
   String get kidsCategory => 'Kids';
 
   @override
@@ -657,7 +664,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wellDone => 'Well Done!';
 
   @override
-  String get niceTry => 'Nice Try!';
+  String get niceTry => 'Great Job!';
 
   @override
   String get settings => 'Settings';

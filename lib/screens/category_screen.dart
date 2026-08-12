@@ -10,31 +10,6 @@ import '../utils/responsive.dart';
 import 'grid_screen.dart';
 import 'paywall_screen.dart';
 
-// ── Tag type config ───────────────────────────────────────────────────────────
-
-List<_TagType> _tagTypes(BuildContext context) => [
-  _TagType('mood',     Icons.sentiment_satisfied_alt, context.colors.accent),
-  _TagType('genre',    Icons.queue_music,             AppColors.teal),
-];
-
-class _TagType {
-  final String id;
-  final IconData icon;
-  final Color color;
-  const _TagType(this.id, this.icon, this.color);
-}
-
-String _localizedTagLabel(BuildContext context, String id) {
-  final l10n = AppLocalizations.of(context)!;
-  switch (id) {
-    case 'mood':     return l10n.tagMood;
-    case 'genre':    return l10n.tagGenre;
-    case 'movement': return l10n.tagMovement;
-    case 'theme':    return l10n.tagTheme;
-    default:         return id;
-  }
-}
-
 // ── Sub-group colors (cycle through brand palette) ────────────────────────────
 
 List<Color> _subGroupColors(BuildContext context) => [
@@ -114,29 +89,16 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     return map;
   }
 
-  void _openTagSheet(BuildContext context, _TagType tagType) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _TagValueSheet(
-        tagType: tagType,
-        isPremiumUser: _isPremium,
-        onSelected: (tagValue) {
-          Navigator.pop(context); // close sheet
-          ref.read(selectedCategoryProvider.notifier).state =
-              'tag:${tagType.id}:$tagValue';
-          if (ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer) {
-            Navigator.pop(context); // pop CategoryScreen; caller handles rest
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GridScreen()),
-            );
-          }
-        },
-      ),
-    );
+  void _startMixGame() {
+    ref.read(selectedCategoryProvider.notifier).state = kMusicMixSelection;
+    if (ref.read(selectedGameModeProvider) == GameMode.onlineMultiplayer) {
+      Navigator.pop(context); // pop CategoryScreen; caller handles rest
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GridScreen()),
+      );
+    }
   }
 
   void _selectCategory(SoundCategoryModel cat) {
@@ -267,23 +229,61 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       children: [
-        // ── Browse by Feel ───────────────────────────────────────────────────
+        // ── Mix Everything ────────────────────────────────────────────────
         if (_searchQuery.isEmpty) ...[
-          _SectionHeader(title: l10n.browseByFeel),
-          const SizedBox(height: 12),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 2.4,
-            children: _tagTypes(context)
-                .map((t) => _TagTypeButton(
-                      tagType: t,
-                      onTap: () => _openTagSheet(context, t),
-                    ))
-                .toList(),
+          GestureDetector(
+            onTap: _startMixGame,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              decoration: BoxDecoration(
+                color: context.colors.accent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.shuffle,
+                      size: 22,
+                      color: AppColors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.musicMixAll,
+                          style: AppTypography.body(context).copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.musicMixAllDescription,
+                          style: AppTypography.labelSmall(context).copyWith(
+                            color: AppColors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: AppColors.white.withValues(alpha: 0.7),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
         ],
@@ -390,67 +390,6 @@ class _SubGroupHeader extends StatelessWidget {
   }
 }
 
-// ── Tag type button ───────────────────────────────────────────────────────────
-
-class _TagTypeButton extends StatelessWidget {
-  final _TagType tagType;
-  final VoidCallback onTap;
-  const _TagTypeButton({required this.tagType, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final localizedLabel = _localizedTagLabel(context, tagType.id);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final narrow = constraints.maxWidth < 162;
-        final hPad = narrow ? 8.0 : 16.0;
-        final iconBox = narrow ? 24.0 : 28.0;
-        final iconInner = narrow ? 14.0 : 16.0;
-        final spacing = narrow ? 6.0 : 8.0;
-
-        return GestureDetector(
-          onTap: onTap,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 12),
-            decoration: BoxDecoration(
-              color: tagType.color.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: tagType.color.withValues(alpha: 0.25), width: 1),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: iconBox,
-                  height: iconBox,
-                  decoration: BoxDecoration(
-                    color: tagType.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(tagType.icon, size: iconInner, color: tagType.color),
-                ),
-                SizedBox(width: spacing),
-                Expanded(
-                  child: Text(
-                    localizedLabel,
-                    style: AppTypography.body(context).copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(Icons.chevron_right, size: 16, color: tagType.color),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ── Category tile ─────────────────────────────────────────────────────────────
 
 class _CategoryTile extends StatelessWidget {
   final SoundCategoryModel category;
@@ -517,284 +456,6 @@ class _CategoryTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (isLocked)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: context.colors.accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.lock, size: 12, color: context.colors.accent),
-                    const SizedBox(width: 4),
-                    Text(
-                      l10n.pro,
-                      style: AppTypography.labelSmall(context).copyWith(
-                        color: context.colors.accent,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Icon(Icons.chevron_right, size: 18, color: color.withValues(alpha: 0.6)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Tag value bottom sheet ────────────────────────────────────────────────────
-
-class _TagValueSheet extends StatefulWidget {
-  final _TagType tagType;
-  final bool isPremiumUser;
-  final void Function(String tagValue) onSelected;
-
-  const _TagValueSheet({
-    required this.tagType,
-    required this.isPremiumUser,
-    required this.onSelected,
-  });
-
-  @override
-  State<_TagValueSheet> createState() => _TagValueSheetState();
-}
-
-class _TagValueSheetState extends State<_TagValueSheet> {
-  final _searchController = TextEditingController();
-  String _searchQuery = '';
-  List<TagValueModel> _allValues = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final values = await DatabaseService.getTagValues(widget.tagType.id);
-    if (!mounted) return;
-    setState(() {
-      _allValues = values;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  List<TagValueModel> get _filtered {
-    if (_searchQuery.isEmpty) return _allValues;
-    final q = _searchQuery.toLowerCase();
-    return _allValues.where((v) => v.value.toLowerCase().contains(q)).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final t = widget.tagType;
-    final localizedLabel = _localizedTagLabel(context, t.id);
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: context.colors.background,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              // Drag handle
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.colors.elevated,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: t.color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(t.icon, size: 20, color: t.color),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      localizedLabel,
-                      style: AppTypography.headline3(context),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: context.colors.surface,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Icon(Icons.close, size: 16, color: context.colors.textSecondary),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Search
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: context.colors.elevated, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search, size: 18, color: t.color.withValues(alpha: 0.6)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (v) => setState(() => _searchQuery = v),
-                          style: AppTypography.body(context),
-                          decoration: InputDecoration(
-                            hintText: l10n.searchTag(localizedLabel.toLowerCase()),
-                            hintStyle: AppTypography.body(context).copyWith(
-                              color: context.colors.textSecondary,
-                            ),
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // List
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _filtered.isEmpty
-                        ? Center(
-                            child: Text(
-                              l10n.noResults,
-                              style: AppTypography.body(context).copyWith(
-                                color: context.colors.textSecondary,
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            controller: scrollController,
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            itemCount: _filtered.length,
-                            itemBuilder: (_, i) {
-                              final v = _filtered[i];
-                              final isLocked = v.isPremium && !widget.isPremiumUser;
-                              return _TagValueTile(
-                                tagValue: v,
-                                color: t.color,
-                                isLocked: isLocked,
-                                onTap: isLocked
-                                    ? () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => PaywallScreen(
-                                              isPremiumFeature: true,
-                                              subtitle: l10n.premiumCategoryMessage(v.value),
-                                            ),
-                                          ),
-                                        )
-                                    : () => widget.onSelected(v.value),
-                              );
-                            },
-                          ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ── Tag value tile ────────────────────────────────────────────────────────────
-
-class _TagValueTile extends StatelessWidget {
-  final TagValueModel tagValue;
-  final Color color;
-  final bool isLocked;
-  final VoidCallback onTap;
-
-  const _TagValueTile({
-    required this.tagValue,
-    required this.color,
-    required this.onTap,
-    this.isLocked = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: context.colors.elevated, width: 1),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                tagValue.value,
-                style: AppTypography.body(context).copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: isLocked ? context.colors.textTertiary : context.colors.textPrimary,
-                ),
-              ),
-            ),
-            Text(
-              l10n.trackCount(tagValue.soundCount),
-              style: AppTypography.labelSmall(context).copyWith(color: context.colors.textSecondary),
-            ),
-            const SizedBox(width: 8),
             if (isLocked)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

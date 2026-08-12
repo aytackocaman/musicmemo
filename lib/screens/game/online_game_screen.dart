@@ -920,15 +920,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 
   Widget _buildPlayerScores() {
     final myScore = _amIPlayer1
@@ -2317,13 +2310,6 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 }

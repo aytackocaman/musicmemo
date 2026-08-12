@@ -112,12 +112,13 @@ class GameUtils {
 
   /// Format a category selection key into a human-readable label.
   ///
-  /// Handles all five forms:
+  /// Handles all six forms:
   ///  - plain id:     `piano`          → `Piano`
   ///  - tag:          `tag:mood:X`     → `X`
   ///  - ear training: `et:ear_chords:block` → `Ear Chords · Block`
   ///  - ear mix:      `et:all`         → `Ear Training`
   ///  - kids mix:     `kids:all`       → `Kids`
+  ///  - music mix:    `music:all`      → `Music`
   static String formatCategoryName(String category) {
     String raw;
     if (category == 'kids:all') {
@@ -125,6 +126,9 @@ class GameUtils {
     }
     if (category == kEarTrainingMixSelection) {
       return 'Ear Training';
+    }
+    if (category == kMusicMixSelection) {
+      return 'Music';
     }
     if (category.startsWith('et:')) {
       final parts = category.split(':');

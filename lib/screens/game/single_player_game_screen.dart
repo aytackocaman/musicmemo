@@ -427,15 +427,8 @@ class _SinglePlayerGameScreenState
     );
   }
 
-  String _formatCategoryName(String category) {
-    final raw = category.startsWith('tag:')
-        ? (category.split(':').elementAtOrNull(2) ?? category)
-        : category;
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
-  }
+  String _formatCategoryName(String category) =>
+      GameUtils.formatCategoryName(category);
 
   Widget _buildPauseOverlay() {
     final l10n = AppLocalizations.of(context)!;

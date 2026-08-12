@@ -9,6 +9,9 @@ const String kKidsMixSelection = 'kids:all';
 /// Selection key that mixes all ear training categories together.
 const String kEarTrainingMixSelection = 'et:all';
 
+/// Selection key that mixes all main Music (collections) categories.
+const String kMusicMixSelection = 'music:all';
+
 /// User profile model
 class UserProfile {
   final String id;
@@ -902,9 +905,13 @@ class DatabaseService {
   /// Returns an empty list when nothing matches.
   static Future<List<SoundModel>> getSoundsForSelection(String selection) async {
     if (selection == kKidsMixSelection) {
-      final cartoons = await getSoundsForCategory('kids_cartoons');
-      final animals = await getSoundsForCategory('kids_animals');
-      return [...cartoons, ...animals];
+      // Combine all categories in the 'kids' group (cartoons, animals, music...)
+      final kidsCategories =
+          await getSoundCategories(groupId: 'kids', showInUiOnly: false);
+      final results = await Future.wait(
+        kidsCategories.map((c) => getSoundsForCategory(c.id)),
+      );
+      return results.expand((sounds) => sounds).toList();
     }
     if (selection == kEarTrainingMixSelection) {
       final results = await Future.wait([
@@ -913,6 +920,15 @@ class DatabaseService {
         getEarTrainingSounds('ear_notes'),
         getEarTrainingSounds('ear_scales'),
       ]);
+      return results.expand((sounds) => sounds).toList();
+    }
+    if (selection == kMusicMixSelection) {
+      // Combine all categories in the 'collections' group (main Music)
+      final musicCategories =
+          await getSoundCategories(groupId: 'collections', showInUiOnly: false);
+      final results = await Future.wait(
+        musicCategories.map((c) => getSoundsForCategory(c.id)),
+      );
       return results.expand((sounds) => sounds).toList();
     }
     if (selection.startsWith('et:')) {

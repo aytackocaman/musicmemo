@@ -10,18 +10,12 @@ import '../utils/responsive.dart';
 import 'grid_screen.dart';
 import 'paywall_screen.dart';
 
-/// Form filter options (block = all notes at once, up/down = arpeggiated/sequential).
-const List<String> kEarTrainingForms = [
-  'block',
-  'up',
-  'down',
-];
-
-/// Categories that support the form filter (notes don't carry forms).
-const Set<String> kEarTrainingFormCategories = {
-  'ear_chords',
-  'ear_intervals',
-  'ear_scales',
+/// Form filter options per category (block = all notes at once,
+/// up/down = arpeggiated/sequential). Scales only exist as up/down.
+const Map<String, List<String>> kEarTrainingForms = {
+  'ear_chords': ['block', 'up', 'down'],
+  'ear_intervals': ['block', 'up', 'down'],
+  'ear_scales': ['up', 'down'],
 };
 
 IconData _categoryIcon(String iconName) {
@@ -89,7 +83,7 @@ class _EarTrainingScreenState extends ConsumerState<EarTrainingScreen> {
   }
 
   bool get _supportsForm =>
-      _selected != null && kEarTrainingFormCategories.contains(_selected!.id);
+      _selected != null && kEarTrainingForms.containsKey(_selected!.id);
 
   void _selectCategory(SoundCategoryModel cat) {
     if (cat.isPremium && !_isPremium) {
@@ -331,7 +325,8 @@ class _EarTrainingScreenState extends ConsumerState<EarTrainingScreen> {
             _buildChips(
               options: [
                 ('', l10n.allForms),
-                ...kEarTrainingForms.map((f) => (f, _titleCase(f))),
+                ...(kEarTrainingForms[_selected!.id] ?? const [])
+                    .map((f) => (f, _titleCase(f))),
               ],
               selected: _form,
               onSelect: (v) => setState(() => _form = v),

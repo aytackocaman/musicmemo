@@ -189,6 +189,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Tüm çocuk kategorilerindeki seslerle aynı anda oyna';
 
   @override
+  String get musicMixAll => 'Hepsini Karıştır';
+
+  @override
+  String get musicMixAllDescription =>
+      'Tüm müzik kategorilerindeki seslerle aynı anda oyna';
+
+  @override
   String get kidsCategory => 'Çocuklar';
 
   @override
@@ -663,7 +670,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get wellDone => 'Harika!';
 
   @override
-  String get niceTry => 'İyi Deneme!';
+  String get niceTry => 'Harika İş!';
 
   @override
   String get settings => 'Ayarlar';
