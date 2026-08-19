@@ -81,6 +81,7 @@
 
 ### 6.3 Known Flaws (from `flaws.md`)
 - [x] ~~`DevConfig.bypassPaywall` security risk~~ — debug-only, safe (audit confirmed)
+- [ ] **Offline save queue (no network drop handling)** — gameplay is local (sounds preloaded + card state in Riverpod), but on a mid-game disconnect `saveGame()` / `getDailyGameCounts()` fail silently: the win screen still shows but history/stats/daily counts are **lost**, and online matches can desync. Fix (Medium/High — flaky-connection UX): queue the result locally when the save fails and flush to Supabase on reconnect.
 - [ ] Sound tag integrity — tags stored as JSON string, no validation (Medium)
 - [ ] Orphaned `online_sessions` rows on disconnect; `player2_id` not confirmed before join (Medium)
 - [ ] Local MP scores not persisted locally (Low)
