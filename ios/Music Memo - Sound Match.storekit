@@ -21,7 +21,7 @@
     "_askToBuyEnabled" : false,
     "_billingGracePeriodEnabled" : false,
     "_billingIssuesEnabled" : false,
-    "_developerTeamID" : "2QF39UZMSW",
+    "_developerTeamID" : "FB5MU2BS8D",
     "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
     "_lastSynchronizedDate" : 794524301.28673804,
@@ -65,7 +65,7 @@
               "locale" : "ar"
             }
           ],
-          "productID" : "musicmemo_pro_monthly",
+          "productID" : "com.musicmemo.premium.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "MusicMemo Pro Monthly",
           "subscriptionGroupID" : "21963139",
@@ -98,7 +98,7 @@
               "locale" : "tr"
             }
           ],
-          "productID" : "musicmemo_pro_yearly",
+          "productID" : "com.musicmemo.premium.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "MusicMemo Pro Yearly",
           "subscriptionGroupID" : "21963139",
