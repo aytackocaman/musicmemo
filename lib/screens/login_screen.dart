@@ -215,30 +215,34 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // Read the real keyboard height above the Scaffold. Once the body is laid
-    // out, Scaffold has already consumed the bottom view inset for its own
-    // resize, so reading MediaQuery inside the body would always yield 0.
-    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: GestureDetector(
+        // Explicit rather than relying on the default deferToChild, which only
+        // delivers a tap when a *child* is hit. The body is expected to fill the
+        // viewport, so deferToChild happens to work today, but that leaves
+        // tap-to-dismiss hostage to the layout always covering every pixel -
+        // a short landscape layout or any future child that does not fill would
+        // silently reintroduce dead zones.
+        behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                // Must stay scrollable while the email form is open. On short
-                // devices (iPhone 13 mini) the software keyboard covers the
-                // password field and the submit button, and without scrolling
-                // there is no way to reach them.
-                padding: EdgeInsets.only(
-                  left: AppSpacing.xl,
-                  right: AppSpacing.xl,
-                  top: AppSpacing.xl,
-                  // Headroom so the last field, the submit button and the
-                  // forgot-password link can be scrolled clear of the keyboard.
-                  bottom: AppSpacing.xl + keyboardInset,
-                ),
+                // Scrollable, because on short devices (iPhone 13 mini) the
+                // software keyboard covers the password field and the submit
+                // button. But scrolling happens *only* when the laid-out
+                // content is taller than the viewport: Scaffold already shrinks
+                // the viewport by the keyboard via resizeToAvoidBottomInset, so
+                // adding the inset here as padding as well manufactured a whole
+                // extra keyboard-height of dead scroll range and made the page
+                // scroll even when everything was already visible.
+                //
+                // Clamping (rather than the default iOS bouncing physics) so a
+                // page that has nothing to scroll does not rubber-band.
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.all(AppSpacing.xl),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight - 2 * AppSpacing.xl,
