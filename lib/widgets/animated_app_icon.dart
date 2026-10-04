@@ -22,13 +22,21 @@ class _AnimatedAppIconState extends State<AnimatedAppIcon> {
     super.initState();
     _controller = VideoPlayerController.asset('assets/icon/app_icon_animated.mp4')
       ..setLooping(true)
-      ..setVolume(0)
-      ..initialize().then((_) {
+      ..setVolume(0);
+
+    _controller.initialize().then(
+      (_) {
         if (mounted) {
           setState(() => _initialized = true);
           _controller.play();
         }
-      });
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        // The animated asset is optional. Keep the static icon visible when
+        // it is absent or unsupported instead of emitting an unhandled error.
+        debugPrint('Animated app icon unavailable; using static icon: $error');
+      },
+    );
   }
 
   @override

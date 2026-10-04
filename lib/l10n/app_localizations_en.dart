@@ -585,7 +585,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthly => 'Monthly';
 
   @override
-  String get monthlyPrice => '\$4.99';
+  String get monthlyPrice => '\$1.99';
 
   @override
   String get perMonth => '/month';
@@ -594,13 +594,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yearly => 'Yearly';
 
   @override
-  String get yearlyPrice => '\$35.99';
+  String get yearlyPrice => '\$19.99';
 
   @override
   String get perYear => '/year';
 
   @override
-  String get save40 => 'SAVE 40%';
+  String savePercent(int percent) {
+    return 'SAVE $percent%';
+  }
 
   @override
   String get unlimitedSinglePlayerGames => 'Unlimited single player games';
@@ -646,10 +648,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adFreeExperience => 'Ad-free experience';
 
   @override
-  String get getYearly => 'Get Yearly – \$35.99/year';
+  String getYearly(String price) {
+    return 'Get Yearly – $price/year';
+  }
 
   @override
-  String get getMonthly => 'Get Monthly – \$4.99/month';
+  String getMonthly(String price) {
+    return 'Get Monthly – $price/month';
+  }
 
   @override
   String get restorePurchase => 'Restore Purchase';

@@ -261,12 +261,19 @@
   "singlePlayerToday": "Bugün tek oyunculu",
   "localMpToday": "Bugün yerel çok oyunculu",
   "monthly": "Aylık",
-  "monthlyPrice": "₺49,99",
+  "monthlyPrice": "₺99,99",
   "perMonth": "/ay",
   "yearly": "Yıllık",
-  "yearlyPrice": "₺349,99",
+  "yearlyPrice": "₺999,99",
   "perYear": "/yıl",
-  "save40": "%40 TASARRUF",
+  "savePercent": "%{percent} TASARRUF",
+  "@savePercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "unlimitedSinglePlayerGames": "Sınırsız tek oyunculu oyun",
   "unlimitedLocalMultiplayerGames": "Sınırsız yerel çok oyunculu oyun",
   "accessOnlineMultiplayer": "Çevrimiçi çok oyunculu erişim",
@@ -280,8 +287,22 @@
   "unlimitedLocalMultiplayer": "Sınırsız yerel çok oyunculu",
   "onlineMultiplayerAccess": "Çevrimiçi çok oyunculu erişim",
   "adFreeExperience": "Reklamsız deneyim",
-  "getYearly": "Yıllık Al – ₺349,99/yıl",
-  "getMonthly": "Aylık Al – ₺49,99/ay",
+  "getYearly": "Yıllık Al – {price}/yıl",
+  "@getYearly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "getMonthly": "Aylık Al – {price}/ay",
+  "@getMonthly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "restorePurchase": "Satın Alımı Geri Yükle",
   "cancelAnytime": "İstediğiniz zaman iptal edin. Koşullar ve Gizlilik geçerlidir.",
   "perfect": "Mükemmel!",

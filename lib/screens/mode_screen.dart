@@ -35,12 +35,13 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
   }
 
   void _onDailyChallengePlay(DailyChallenge challenge) {
-    final isPremium = DevConfig.bypassPaywall ||
-        ref.read(subscriptionProvider).when(
-              data: (sub) => sub.canAccessPremiumFeatures,
-              loading: () => false,
-              error: (_, __) => false,
-            );
+    final isPremium = DevConfig.resolvePremium(
+      ref.read(subscriptionProvider).when(
+            data: (sub) => sub.canAccessPremiumFeatures,
+            loading: () => false,
+            error: (_, __) => false,
+          ),
+    );
     final counts = ref.read(dailyGameCountsProvider).valueOrNull ??
         DailyGameCounts.zero();
 
@@ -100,14 +101,15 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
     final subscriptionAsync = ref.watch(subscriptionProvider);
     final countsAsync = ref.watch(dailyGameCountsProvider);
 
-    final isPremium = DevConfig.bypassPaywall ||
-        subscriptionAsync.when(
-          data: (sub) => sub.canAccessPremiumFeatures,
-          loading: () => false,
-          error: (_, _) => false,
-        );
+    final isPremium = DevConfig.resolvePremium(
+      subscriptionAsync.when(
+        data: (sub) => sub.canAccessPremiumFeatures,
+        loading: () => false,
+        error: (_, _) => false,
+      ),
+    );
 
-    final isTrialExpired = !DevConfig.bypassPaywall &&
+    final isTrialExpired = !DevConfig.premiumOverrideActive &&
         subscriptionAsync.when(
           data: (sub) => sub.isTrial && sub.isExpired,
           loading: () => false,
@@ -501,6 +503,7 @@ class _DebugPaywallToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onToggle,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

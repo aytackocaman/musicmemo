@@ -33,7 +33,7 @@
 > Entitlement: `premium`, Offering: `default`. RC App User ID = Supabase user UUID.
 
 ### P0 — Ship blockers (from subscription audit)
-- [ ] **Fix `env/production.json`** — keys are malformed: `REVENUECAT_API_KEY_` (trailing underscore) + `REVENUECAT_API_KEY_BACKUP_TEST_KEY`; `main.dart` reads `REVENUECAT_API_KEY`, so **prod builds silently fall back to Supabase-only premium checks**. ← **FIX FIRST (one-line fix)**
+- [x] ~~**Fix `env/production.json` RevenueCat key**~~ ✅ Done 2026-09-03 — production now supplies the public `appl_...` SDK key under the exact `REVENUECAT_API_KEY` name; the leftover test key was removed. Never place the Apple `.p8` or a RevenueCat `sk_...` secret here.
 - [ ] **Client-side sync: RevenueCat → Supabase** — after purchase/restore/login, write real `plan` + `expires_at` to `subscriptions` table (currently stays `free` forever; paying users locked out if RC unreachable)
 - [ ] **Read real plan/expiry from `EntitlementInfo`** — synthetic RC subscription is hardcoded `plan: 'yearly'` with no expiry
 - [ ] **Commit DB schema/triggers to repo** — only `daily_challenge_scores.sql` exists in `supabase/migrations/`; core schema (profiles, games, `handle_new_user()`, etc.) lives only in the Supabase dashboard
@@ -116,7 +116,7 @@
 The game is feature-complete. The only goal now is **shipping v1.0**. Work in this exact order:
 
 ### Phase 1: Ship v1.0 (in order)
-1. **Fix `env/production.json` key name** (5 min) — malformed `REVENUECAT_API_KEY_` means prod builds silently ignore RevenueCat; without this, everything below is pointless
+1. ~~**Fix `env/production.json` key name**~~ ✅ Done 2026-09-03 — production uses the public RevenueCat SDK key under `REVENUECAT_API_KEY`
 2. **Read real plan + expiry from `EntitlementInfo`** (~half day) — fixes flaws.md #1: premium is synthesized as `plan: 'yearly'` with no expiry, so a lapsed subscription never downgrades
 3. **Client-side sync RevenueCat → Supabase after purchase/restore/login** (~half day) — closes audit BUG 1: `subscriptions` table stays `free` forever after someone pays
 4. **Commit DB schema to `supabase/migrations/`** ✅ Done 2026-08-01 — `0000_baseline_schema.sql` recreates the full live schema (13 tables, indexes, functions, triggers, RLS, storage bucket, cron jobs); validated via rollback test against live DB. Superseded `daily_challenge_scores.sql` + `subscriptions_client_sync_rls.sql` were consolidated into it.

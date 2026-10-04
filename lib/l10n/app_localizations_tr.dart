@@ -590,7 +590,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get monthly => 'Aylık';
 
   @override
-  String get monthlyPrice => '₺49,99';
+  String get monthlyPrice => '₺99,99';
 
   @override
   String get perMonth => '/ay';
@@ -599,13 +599,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get yearly => 'Yıllık';
 
   @override
-  String get yearlyPrice => '₺349,99';
+  String get yearlyPrice => '₺999,99';
 
   @override
   String get perYear => '/yıl';
 
   @override
-  String get save40 => '%40 TASARRUF';
+  String savePercent(int percent) {
+    return '%$percent TASARRUF';
+  }
 
   @override
   String get unlimitedSinglePlayerGames => 'Sınırsız tek oyunculu oyun';
@@ -651,10 +653,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get adFreeExperience => 'Reklamsız deneyim';
 
   @override
-  String get getYearly => 'Yıllık Al – ₺349,99/yıl';
+  String getYearly(String price) {
+    return 'Yıllık Al – $price/yıl';
+  }
 
   @override
-  String get getMonthly => 'Aylık Al – ₺49,99/ay';
+  String getMonthly(String price) {
+    return 'Aylık Al – $price/ay';
+  }
 
   @override
   String get restorePurchase => 'Satın Alımı Geri Yükle';

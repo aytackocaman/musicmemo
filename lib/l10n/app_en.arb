@@ -261,12 +261,19 @@
   "singlePlayerToday": "Single player today",
   "localMpToday": "Local MP today",
   "monthly": "Monthly",
-  "monthlyPrice": "$4.99",
+  "monthlyPrice": "$1.99",
   "perMonth": "/month",
   "yearly": "Yearly",
-  "yearlyPrice": "$35.99",
+  "yearlyPrice": "$19.99",
   "perYear": "/year",
-  "save40": "SAVE 40%",
+  "savePercent": "SAVE {percent}%",
+  "@savePercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "unlimitedSinglePlayerGames": "Unlimited single player games",
   "unlimitedLocalMultiplayerGames": "Unlimited local multiplayer games",
   "accessOnlineMultiplayer": "Access to online multiplayer",
@@ -280,8 +287,22 @@
   "unlimitedLocalMultiplayer": "Unlimited local multiplayer",
   "onlineMultiplayerAccess": "Online multiplayer access",
   "adFreeExperience": "Ad-free experience",
-  "getYearly": "Get Yearly – $35.99/year",
-  "getMonthly": "Get Monthly – $4.99/month",
+  "getYearly": "Get Yearly – {price}/year",
+  "@getYearly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "getMonthly": "Get Monthly – {price}/month",
+  "@getMonthly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "restorePurchase": "Restore Purchase",
   "cancelAnytime": "Cancel anytime. Terms & Privacy apply.",
   "perfect": "Perfect!",

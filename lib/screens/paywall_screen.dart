@@ -91,9 +91,21 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     }
   }
 
+  int? get _savingsPercent {
+    final monthly = _monthlyPackage?.storeProduct.price;
+    final yearly = _yearlyPackage?.storeProduct.price;
+    if (monthly == null || yearly == null || monthly <= 0) return null;
+    return (((monthly * 12 - yearly) / (monthly * 12)) * 100).round();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final monthlyPrice =
+        _monthlyPackage?.storeProduct.priceString ?? l10n.monthlyPrice;
+    final yearlyPrice =
+        _yearlyPackage?.storeProduct.priceString ?? l10n.yearlyPrice;
+    final savingsPercent = _savingsPercent;
 
     return Scaffold(
       backgroundColor: context.colors.accent,
@@ -214,7 +226,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    l10n.getYearly,
+                                     l10n.getYearly(yearlyPrice),
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -222,7 +234,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                                     ),
                                   ),
                                   Text(
-                                    l10n.save40,
+                                     l10n.savePercent(savingsPercent ?? 0),
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -248,7 +260,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            l10n.getMonthly,
+                             l10n.getMonthly(monthlyPrice),
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

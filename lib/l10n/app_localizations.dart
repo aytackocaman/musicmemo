@@ -1193,7 +1193,7 @@ abstract class AppLocalizations {
   /// No description provided for @monthlyPrice.
   ///
   /// In en, this message translates to:
-  /// **'\$4.99'**
+  /// **'\$1.99'**
   String get monthlyPrice;
 
   /// No description provided for @perMonth.
@@ -1211,7 +1211,7 @@ abstract class AppLocalizations {
   /// No description provided for @yearlyPrice.
   ///
   /// In en, this message translates to:
-  /// **'\$35.99'**
+  /// **'\$19.99'**
   String get yearlyPrice;
 
   /// No description provided for @perYear.
@@ -1220,11 +1220,11 @@ abstract class AppLocalizations {
   /// **'/year'**
   String get perYear;
 
-  /// No description provided for @save40.
+  /// No description provided for @savePercent.
   ///
   /// In en, this message translates to:
-  /// **'SAVE 40%'**
-  String get save40;
+  /// **'SAVE {percent}%'**
+  String savePercent(int percent);
 
   /// No description provided for @unlimitedSinglePlayerGames.
   ///
@@ -1307,14 +1307,14 @@ abstract class AppLocalizations {
   /// No description provided for @getYearly.
   ///
   /// In en, this message translates to:
-  /// **'Get Yearly – \$35.99/year'**
-  String get getYearly;
+  /// **'Get Yearly – {price}/year'**
+  String getYearly(String price);
 
   /// No description provided for @getMonthly.
   ///
   /// In en, this message translates to:
-  /// **'Get Monthly – \$4.99/month'**
-  String get getMonthly;
+  /// **'Get Monthly – {price}/month'**
+  String getMonthly(String price);
 
   /// No description provided for @restorePurchase.
   ///
