@@ -13,8 +13,7 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key});
 
   @override
-  ConsumerState<SubscriptionScreen> createState() =>
-      _SubscriptionScreenState();
+  ConsumerState<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
 class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
@@ -51,59 +50,59 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back,
-                    size: 24,
-                    color: context.colors.textPrimary,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back button
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: context.colors.surface,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: context.colors.textPrimary,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xl),
 
-              Text(l10n.subscriptionTitle,
-                  style: AppTypography.headline3(context)),
-              const SizedBox(height: AppSpacing.xl),
+                Text(
+                  l10n.subscriptionTitle,
+                  style: AppTypography.headline3(context),
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-              // Current Plan card
-              _CurrentPlanCard(
-                subscriptionAsync: subscriptionAsync,
-                countsAsync: countsAsync,
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                // Current Plan card
+                _CurrentPlanCard(
+                  subscriptionAsync: subscriptionAsync,
+                  countsAsync: countsAsync,
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-              // Actions based on subscription status
-              subscriptionAsync.when(
-                data: (subscription) {
-                  if (subscription.canAccessPremiumFeatures) {
-                    // Premium users: Customer Center for subscription mgmt
-                    return _PremiumActions(
-                      onManage: _openCustomerCenter,
+                // Actions based on subscription status
+                subscriptionAsync.when(
+                  data: (subscription) {
+                    if (subscription.canAccessPremiumFeatures) {
+                      // Premium users: Customer Center for subscription mgmt
+                      return _PremiumActions(onManage: _openCustomerCenter);
+                    }
+                    // Free users: upgrade via paywall
+                    return _FreeActions(
+                      onUpgrade: _openPaywall,
+                      isPurchasing: _isPurchasing,
                     );
-                  }
-                  // Free users: upgrade via paywall
-                  return _FreeActions(
-                    onUpgrade: _openPaywall,
-                    isPurchasing: _isPurchasing,
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-            ],
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -163,16 +162,20 @@ class _CurrentPlanCard extends StatelessWidget {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                error: (_, __) => Text(l10n.free,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: context.colors.textPrimary,
-                    )),
+                error: (_, __) => Text(
+                  l10n.free,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.textPrimary,
+                  ),
+                ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.green.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
@@ -203,6 +206,35 @@ class _CurrentPlanCard extends StatelessWidget {
                   ),
                 );
               }
+
+              // Surface the trial countdown. UserSubscription.trialDaysRemaining
+              // existed but was never displayed, so users had no idea a trial
+              // was running or ending.
+              if (sub.isTrial && sub.trialDaysRemaining != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: 15,
+                        color: context.colors.textTertiary,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          l10n.trialDaysRemaining(sub.trialDaysRemaining!),
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: context.colors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
               return countsAsync.when(
                 data: (counts) => Row(
                   children: [
@@ -226,7 +258,8 @@ class _CurrentPlanCard extends StatelessWidget {
                 loading: () => const SizedBox(
                   height: 40,
                   child: Center(
-                      child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 ),
                 error: (_, __) => const SizedBox.shrink(),
               );
@@ -314,10 +347,7 @@ class _FreeActions extends StatelessWidget {
   final VoidCallback onUpgrade;
   final bool isPurchasing;
 
-  const _FreeActions({
-    required this.onUpgrade,
-    required this.isPurchasing,
-  });
+  const _FreeActions({required this.onUpgrade, required this.isPurchasing});
 
   @override
   Widget build(BuildContext context) {

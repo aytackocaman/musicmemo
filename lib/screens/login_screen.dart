@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config/theme.dart';
@@ -67,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } else {
-      if (result.errorMessage != 'Sign-in cancelled.') {
-        setState(() => _errorMessage = result.errorMessage);
+      if (!result.wasCancelled) {
+        setState(() => _errorMessage = _localizeAuthError(result));
       }
     }
   }
@@ -138,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } else {
-      setState(() => _errorMessage = result.errorMessage);
+      setState(() => _errorMessage = _localizeAuthError(result));
     }
   }
 
@@ -161,8 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } else {
-      if (result.errorMessage != 'Sign-in cancelled.') {
-        setState(() => _errorMessage = result.errorMessage);
+      if (!result.wasCancelled) {
+        setState(() => _errorMessage = _localizeAuthError(result));
       }
     }
   }
@@ -189,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
         showAppSnackBar(context, l10n.passwordResetSent);
       }
     } else {
-      setState(() => _errorMessage = result.errorMessage);
+      setState(() => _errorMessage = _localizeAuthError(result));
     }
   }
 
@@ -244,7 +245,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 350),
                               curve: Curves.easeInOut,
-                              height: _showEmailForm ? AppSpacing.xl : AppSpacing.xxl,
+                              height: _showEmailForm
+                                  ? AppSpacing.xl
+                                  : AppSpacing.xxl,
                             ),
                             Text(
                               _isFirstLaunch ? l10n.welcome : l10n.welcomeBack,
@@ -256,9 +259,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _isFirstLaunch
                                     ? l10n.createAccountSubtitle
                                     : l10n.signInSubtitle,
-                                style: AppTypography.body(context).copyWith(
-                                  color: context.colors.textSecondary,
-                                ),
+                                style: AppTypography.body(
+                                  context,
+                                ).copyWith(color: context.colors.textSecondary),
                               ),
                             ],
                           ],
@@ -271,7 +274,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ] else ...[
                               _buildSocialButtons(),
                             ],
-                            SizedBox(height: _showEmailForm ? AppSpacing.sm : AppSpacing.xxl),
+                            SizedBox(
+                              height: _showEmailForm
+                                  ? AppSpacing.sm
+                                  : AppSpacing.xxl,
+                            ),
                             Text(
                               l10n.byContinuing,
                               style: AppTypography.labelSmall(context),
@@ -284,30 +291,37 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   child: Text(
                                     l10n.termsOfService,
-                                    style: AppTypography.labelSmall(context).copyWith(
-                                      color: context.colors.accent,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTypography.labelSmall(context)
+                                        .copyWith(
+                                          color: context.colors.accent,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ),
-                                Text(l10n.andSeparator, style: AppTypography.labelSmall(context)),
+                                Text(
+                                  l10n.andSeparator,
+                                  style: AppTypography.labelSmall(context),
+                                ),
                                 TextButton(
                                   onPressed: () => _openLegalPage(_kPrivacyUrl),
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   child: Text(
                                     l10n.privacyPolicy,
-                                    style: AppTypography.labelSmall(context).copyWith(
-                                      color: context.colors.accent,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTypography.labelSmall(context)
+                                        .copyWith(
+                                          color: context.colors.accent,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -324,6 +338,34 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  /// Render an auth failure in the active language.
+  ///
+  /// AuthService returns a stable [AuthErrorCode]; the raw message is only an
+  /// English fallback for logging and for codes with no dedicated string.
+  String _localizeAuthError(AuthResult result) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (result.code) {
+      AuthErrorCode.signUpFailed => l10n.authSignUpFailed,
+      AuthErrorCode.signInFailed => l10n.authSignInFailed,
+      AuthErrorCode.invalidCredentials => l10n.authInvalidCredentials,
+      AuthErrorCode.emailNotConfirmed => l10n.authEmailNotConfirmed,
+      AuthErrorCode.userAlreadyRegistered => l10n.authUserAlreadyRegistered,
+      AuthErrorCode.passwordTooShort => l10n.authPasswordTooShort,
+      AuthErrorCode.invalidEmail => l10n.authInvalidEmail,
+      AuthErrorCode.googleNoIdToken => l10n.authGoogleNoIdToken,
+      AuthErrorCode.googleFailed => l10n.authGoogleFailed,
+      AuthErrorCode.googleError => l10n.authGoogleError(
+        result.errorMessage ?? '',
+      ),
+      AuthErrorCode.appleNoIdentityToken => l10n.authAppleNoIdentityToken,
+      AuthErrorCode.appleFailed => l10n.authAppleFailed,
+      AuthErrorCode.appleError => l10n.authAppleError(
+        result.errorMessage ?? '',
+      ),
+      _ => result.errorMessage ?? l10n.authUnexpectedError,
+    };
   }
 
   Widget _buildSocialButtons() {
@@ -346,12 +388,14 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(
           width: double.infinity,
           child: _EmailSignInButton(
-            onPressed: _isLoading ? () {} : () {
-              setState(() {
-                _showEmailForm = true;
-                _errorMessage = null;
-              });
-            },
+            onPressed: _isLoading
+                ? () {}
+                : () {
+                    setState(() {
+                      _showEmailForm = true;
+                      _errorMessage = null;
+                    });
+                  },
           ),
         ),
       ],
@@ -406,7 +450,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   enableSuggestions: false,
                   autofillHints: const [AutofillHints.email],
                   validator: (value) {
-                    if (value == null || value.isEmpty) return l10n.pleaseEnterEmail;
+                    if (value == null || value.isEmpty)
+                      return l10n.pleaseEnterEmail;
                     if (!value.contains('@')) return l10n.pleaseEnterValidEmail;
                     return null;
                   },
@@ -436,11 +481,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           : Icons.visibility_off_outlined,
                       color: context.colors.textTertiary,
                     ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return l10n.pleaseEnterPassword;
-                    if (_isSignUp && value.length < 6) return l10n.passwordMinLength;
+                    if (value == null || value.isEmpty)
+                      return l10n.pleaseEnterPassword;
+                    if (_isSignUp && value.length < 6)
+                      return l10n.passwordMinLength;
                     return null;
                   },
                 ),
@@ -465,9 +513,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Expanded(
                   child: Text(
                     _errorMessage!,
-                    style: AppTypography.bodySmall(context).copyWith(
-                      color: Colors.red.shade700,
-                    ),
+                    style: AppTypography.bodySmall(
+                      context,
+                    ).copyWith(color: Colors.red.shade700),
                   ),
                 ),
               ],
@@ -504,9 +552,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: Text(
                 l10n.forgotPassword,
-                style: AppTypography.bodySmall(context).copyWith(
-                  color: context.colors.accent,
-                ),
+                style: AppTypography.bodySmall(
+                  context,
+                ).copyWith(color: context.colors.accent),
               ),
             ),
           ),
@@ -515,18 +563,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Back to sign-in options
         TextButton(
-          onPressed: _isLoading ? null : () {
-            setState(() {
-              _showEmailForm = false;
-              _isSignUp = false;
-              _errorMessage = null;
-            });
-          },
+          onPressed: _isLoading
+              ? null
+              : () {
+                  setState(() {
+                    _showEmailForm = false;
+                    _isSignUp = false;
+                    _errorMessage = null;
+                  });
+                },
           child: Text(
             '← ${l10n.otherSignInOptions}',
-            style: AppTypography.bodySmall(context).copyWith(
-              color: context.colors.textTertiary,
-            ),
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(color: context.colors.textTertiary),
           ),
         ),
       ],
@@ -536,12 +586,14 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildTab(String label, bool active, {required bool isSignUp}) {
     return Expanded(
       child: GestureDetector(
-        onTap: _isLoading ? null : () {
-          setState(() {
-            _isSignUp = isSignUp;
-            _errorMessage = null;
-          });
-        },
+        onTap: _isLoading
+            ? null
+            : () {
+                setState(() {
+                  _isSignUp = isSignUp;
+                  _errorMessage = null;
+                });
+              },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -549,14 +601,22 @@ class _LoginScreenState extends State<LoginScreen> {
             color: active ? AppColors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(AppRadius.button - 4),
             boxShadow: active
-                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
                 : null,
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
             style: AppTypography.label(context).copyWith(
-              color: active ? context.colors.accent : context.colors.textTertiary,
+              color: active
+                  ? context.colors.accent
+                  : context.colors.textTertiary,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
@@ -596,9 +656,9 @@ class _LoginScreenState extends State<LoginScreen> {
       style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: AppTypography.body(context).copyWith(
-          color: context.colors.textTertiary,
-        ),
+        hintStyle: AppTypography.body(
+          context,
+        ).copyWith(color: context.colors.textTertiary),
         prefixIcon: Icon(icon, color: context.colors.textTertiary),
         suffixIcon: suffixIcon,
         filled: true,
@@ -683,6 +743,12 @@ class _GoogleG extends StatelessWidget {
   }
 }
 
+/// Official Apple "Sign in with Apple" badge.
+///
+/// Apple requires the official badge whenever Apple sign-in is offered next to
+/// other providers, and the logo must be drawn by the platform rather than
+/// substituted with the U+F8FF private-use glyph — that glyph only exists in
+/// Apple's system font and rendered as an empty box on web and Android.
 class _AppleSignInButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
@@ -692,38 +758,21 @@ class _AppleSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
-    final fgColor = isDark ? const Color(0xFF1C1C1E) : Colors.white;
 
     return SizedBox(
+      width: double.infinity,
       height: 56,
-      child: ElevatedButton(
+      child: SignInWithAppleButton(
         onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          foregroundColor: fgColor,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.button),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '\uF8FF',
-              style: TextStyle(fontSize: 20, color: fgColor, height: 1.1),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              l10n.signInWithApple,
-              style: AppTypography.body(context).copyWith(
-                fontWeight: FontWeight.w600,
-                color: fgColor,
-              ),
-            ),
-          ],
-        ),
+        text: l10n.signInWithApple,
+        height: 56,
+        // Match the rest of the app's button treatment rather than Apple's
+        // default 8px radius.
+        borderRadius: BorderRadius.circular(AppRadius.button),
+        // The app is dark-only, so the white badge is always the right variant.
+        style: isDark
+            ? SignInWithAppleButtonStyle.white
+            : SignInWithAppleButtonStyle.black,
       ),
     );
   }
@@ -751,7 +800,11 @@ class _EmailSignInButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.email_outlined, size: 20, color: context.colors.textPrimary),
+            Icon(
+              Icons.email_outlined,
+              size: 20,
+              color: context.colors.textPrimary,
+            ),
             const SizedBox(width: 12),
             Text(
               l10n.signInWithEmail,

@@ -40,11 +40,13 @@ class WinScreen extends ConsumerStatefulWidget {
 class _WinScreenState extends ConsumerState<WinScreen> {
   bool get _isPremium {
     return DevConfig.resolvePremium(
-      ref.read(subscriptionProvider).when(
-        data: (sub) => sub.canAccessPremiumFeatures,
-        loading: () => false,
-        error: (_, _) => false,
-      ),
+      ref
+          .read(subscriptionProvider)
+          .when(
+            data: (sub) => sub.canAccessPremiumFeatures,
+            loading: () => false,
+            error: (_, _) => false,
+          ),
     );
   }
 
@@ -75,146 +77,148 @@ class _WinScreenState extends ConsumerState<WinScreen> {
                     vertical: isCompact ? 12 : 24,
                   ),
                   child: Column(
-                  children: [
-                    const Spacer(flex: 1),
+                    children: [
+                      const Spacer(flex: 1),
 
-                    // Trophy icon
-                    Container(
-                      width: isCompact ? 72 : 88,
-                      height: isCompact ? 72 : 88,
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.emoji_events,
-                        size: isCompact ? 36 : 48,
-                        color: AppColors.white,
-                      ),
-                    ),
-                    SizedBox(height: isCompact ? 10 : 16),
-
-                    // Title
-                    Text(
-                      stars == 3
-                          ? l10n.perfect
-                          : stars == 2
-                              ? l10n.wellDone
-                              : l10n.niceTry,
-                      style: AppTypography.headline2(context).copyWith(
-                        color: AppColors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Category & grid info
-                    Text(
-                      '${_formatCategory(widget.category)}  ·  ${widget.gridSize.replaceAll('x', '×')}',
-                      style: AppTypography.bodySmall(context).copyWith(
-                        color: AppColors.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    SizedBox(height: isCompact ? 8 : 12),
-
-                    // Stars
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(3, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Icon(
-                            index < stars ? Icons.star : Icons.star_border,
-                            size: isCompact ? 28 : 32,
-                            color: const Color(0xFFFBBF24), // Gold
-                          ),
-                        );
-                      }),
-                    ),
-
-                    const Spacer(flex: 2),
-
-                    // Stats card
-                    Container(
-                      padding: EdgeInsets.all(isCompact ? 12 : 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStat('${widget.score}', l10n.score),
-                          _buildStat('${widget.moves}', l10n.moves),
-                          _buildStat(
-                              GameUtils.formatTime(widget.timeSeconds),
-                              l10n.time),
-                        ],
-                      ),
-                    ),
-
-                    // Remaining free games banner (only for non-premium users)
-                    if (!isPremium) ...[
-                      SizedBox(height: isCompact ? 10 : 16),
+                      // Trophy icon
                       Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: isCompact ? 8 : 12,
-                        ),
+                        width: isCompact ? 72 : 88,
+                        height: isCompact ? 72 : 88,
                         decoration: BoxDecoration(
-                          color: AppColors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppColors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          counts.canPlaySinglePlayer
-                              ? l10n.freeGamesLeftCount(
-                                  counts.singlePlayerRemaining)
-                              : l10n.noFreeGamesLeft,
-                          textAlign: TextAlign.center,
-                          style: AppTypography.bodySmall(context).copyWith(
-                            color: AppColors.white.withValues(alpha: 0.9),
+                        child: Icon(
+                          Icons.emoji_events,
+                          size: isCompact ? 36 : 48,
+                          color: AppColors.white,
+                        ),
+                      ),
+                      SizedBox(height: isCompact ? 10 : 16),
+
+                      // Title
+                      Text(
+                        stars == 3
+                            ? l10n.perfect
+                            : stars == 2
+                            ? l10n.wellDone
+                            : l10n.niceTry,
+                        style: AppTypography.headline2(
+                          context,
+                        ).copyWith(color: AppColors.white),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Category & grid info
+                      Text(
+                        '${_formatCategory(widget.category)}  ·  ${widget.gridSize.replaceAll('x', '×')}',
+                        style: AppTypography.bodySmall(context).copyWith(
+                          color: AppColors.white.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      SizedBox(height: isCompact ? 8 : 12),
+
+                      // Stars
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(
+                              index < stars ? Icons.star : Icons.star_border,
+                              size: isCompact ? 28 : 32,
+                              color: const Color(0xFFFBBF24), // Gold
+                            ),
+                          );
+                        }),
+                      ),
+
+                      const Spacer(flex: 2),
+
+                      // Stats card
+                      Container(
+                        padding: EdgeInsets.all(isCompact ? 12 : 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStat('${widget.score}', l10n.score),
+                            _buildStat('${widget.moves}', l10n.moves),
+                            _buildStat(
+                              GameUtils.formatTime(widget.timeSeconds),
+                              l10n.time,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Remaining free games banner (only for non-premium users)
+                      if (!isPremium) ...[
+                        SizedBox(height: isCompact ? 10 : 16),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: isCompact ? 8 : 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            counts.canPlaySinglePlayer
+                                ? l10n.freeGamesLeftCount(
+                                    counts.singlePlayerRemaining,
+                                  )
+                                : l10n.noFreeGamesLeft,
+                            textAlign: TextAlign.center,
+                            style: AppTypography.bodySmall(context).copyWith(
+                              color: AppColors.white.withValues(alpha: 0.9),
+                            ),
                           ),
                         ),
+                      ],
+
+                      const Spacer(flex: 2),
+
+                      // Buttons — vary based on whether free games remain
+                      if (hasGamesLeft) ...[
+                        _buildButton(
+                          label: l10n.playAgain,
+                          icon: Icons.replay,
+                          isPrimary: true,
+                          onTap: () => _playAgain(context),
+                        ),
+                        SizedBox(height: isCompact ? 8 : 10),
+                        _buildButton(
+                          label: l10n.changeCategory,
+                          icon: Icons.category,
+                          onTap: () => _changeCategory(context),
+                        ),
+                        SizedBox(height: isCompact ? 8 : 10),
+                      ] else ...[
+                        _buildButton(
+                          label: l10n.upgradeToPremium,
+                          icon: Icons.workspace_premium,
+                          isPrimary: true,
+                          onTap: () => _goToPaywall(context),
+                        ),
+                        SizedBox(height: isCompact ? 8 : 10),
+                      ],
+
+                      _buildButton(
+                        label: l10n.home,
+                        icon: Icons.home,
+                        isOutlined: true,
+                        onTap: () => _goHome(context),
                       ),
+
+                      const Spacer(flex: 1),
                     ],
-
-                    const Spacer(flex: 2),
-
-                    // Buttons — vary based on whether free games remain
-                    if (hasGamesLeft) ...[
-                      _buildButton(
-                        label: l10n.playAgain,
-                        icon: Icons.replay,
-                        isPrimary: true,
-                        onTap: () => _playAgain(context),
-                      ),
-                      SizedBox(height: isCompact ? 8 : 10),
-                      _buildButton(
-                        label: l10n.changeCategory,
-                        icon: Icons.category,
-                        onTap: () => _changeCategory(context),
-                      ),
-                      SizedBox(height: isCompact ? 8 : 10),
-                    ] else ...[
-                      _buildButton(
-                        label: l10n.upgradeToPremium,
-                        icon: Icons.workspace_premium,
-                        isPrimary: true,
-                        onTap: () => _goToPaywall(context),
-                      ),
-                      SizedBox(height: isCompact ? 8 : 10),
-                    ],
-
-                    _buildButton(
-                      label: l10n.home,
-                      icon: Icons.home,
-                      isOutlined: true,
-                      onTap: () => _goHome(context),
-                    ),
-
-                    const Spacer(flex: 1),
-                  ],
-                ),
+                  ),
                 ),
               );
             },
@@ -224,23 +228,24 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     );
   }
 
-  String _formatCategory(String category) => GameUtils.formatCategoryName(category);
+  String _formatCategory(String category) =>
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 
   Widget _buildStat(String value, String label) {
     return Column(
       children: [
         Text(
           value,
-          style: AppTypography.metricSmall(context).copyWith(
-            color: AppColors.white,
-          ),
+          style: AppTypography.metricSmall(
+            context,
+          ).copyWith(color: AppColors.white),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.bodySmall(context).copyWith(
-            color: AppColors.white.withValues(alpha: 0.8),
-          ),
+          style: AppTypography.bodySmall(
+            context,
+          ).copyWith(color: AppColors.white.withValues(alpha: 0.8)),
         ),
       ],
     );
@@ -256,8 +261,8 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     final backgroundColor = isPrimary
         ? AppColors.white
         : isOutlined
-            ? Colors.transparent
-            : AppColors.white.withValues(alpha: 0.1);
+        ? Colors.transparent
+        : AppColors.white.withValues(alpha: 0.1);
 
     final foregroundColor = isPrimary ? context.colors.accent : AppColors.white;
 
@@ -283,9 +288,9 @@ class _WinScreenState extends ConsumerState<WinScreen> {
             const SizedBox(width: 12),
             Text(
               label,
-              style: AppTypography.bodyLarge(context).copyWith(
-                color: foregroundColor,
-              ),
+              style: AppTypography.bodyLarge(
+                context,
+              ).copyWith(color: foregroundColor),
             ),
           ],
         ),
@@ -300,10 +305,8 @@ class _WinScreenState extends ConsumerState<WinScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => PreloadScreen(
-          category: widget.category,
-          gridSize: widget.gridSize,
-        ),
+        builder: (context) =>
+            PreloadScreen(category: widget.category, gridSize: widget.gridSize),
       ),
     );
   }

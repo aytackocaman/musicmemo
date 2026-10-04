@@ -620,6 +620,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get accessOnlineMultiplayer => 'Çevrimiçi çok oyunculu erişim';
 
   @override
+  String trialDaysRemaining(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ücretsiz denemenizde $count gün kaldı',
+      one: 'Ücretsiz denemenizde 1 gün kaldı',
+      zero: 'Ücretsiz denemenizin son günü',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get trialEnded => 'Ücretsiz Denemeniz Sona Erdi';
 
   @override
@@ -682,7 +694,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings => 'Ayarlar';
 
   @override
+  String get card => 'Kart';
+
+  @override
+  String get cardFaceDown => 'kapalı';
+
+  @override
+  String get cardFlipped => 'açık';
+
+  @override
+  String get cardMatched => 'eşleşti';
+
+  @override
   String get accentColor => 'Kart Rengi';
+
+  @override
+  String get accentColorDescription =>
+      'Kapalı kartların rengini değiştirir. Düğmeler ve vurgular mavi kalır.';
 
   @override
   String get blue => 'Mavi';

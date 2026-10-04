@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../services/database_service.dart';
 
@@ -28,20 +29,17 @@ class GameUtils {
       pairSoundIds = shuffled.sublist(0, totalPairs);
     } else {
       // Fallback: generate mock IDs
-      pairSoundIds = List.generate(totalPairs, (index) => '${category}_sound_$index');
+      pairSoundIds = List.generate(
+        totalPairs,
+        (index) => '${category}_sound_$index',
+      );
     }
 
     // Create pairs of cards
     final cards = <GameCard>[];
     for (int i = 0; i < totalPairs; i++) {
-      cards.add(GameCard(
-        id: 'card_${i * 2}',
-        soundId: pairSoundIds[i],
-      ));
-      cards.add(GameCard(
-        id: 'card_${i * 2 + 1}',
-        soundId: pairSoundIds[i],
-      ));
+      cards.add(GameCard(id: 'card_${i * 2}', soundId: pairSoundIds[i]));
+      cards.add(GameCard(id: 'card_${i * 2 + 1}', soundId: pairSoundIds[i]));
     }
 
     // Shuffle the cards
@@ -95,10 +93,7 @@ class GameUtils {
 
   /// Calculate star rating based on score performance
   /// Returns 1-3 stars
-  static int calculateStars({
-    required int score,
-    required int totalPairs,
-  }) {
+  static int calculateStars({required int score, required int totalPairs}) {
     final scorePerPair = totalPairs > 0 ? score / totalPairs : 0;
 
     if (scorePerPair >= 250) {
@@ -119,16 +114,20 @@ class GameUtils {
   ///  - ear mix:      `et:all`         → `Ear Training`
   ///  - kids mix:     `kids:all`       → `Kids`
   ///  - music mix:    `music:all`      → `Music`
-  static String formatCategoryName(String category) {
+  /// Human-readable label for a selection string.
+  ///
+  /// Takes [l10n] so the well-known "mix everything" selections render as
+  /// localized names rather than hard-coded English.
+  static String formatCategoryName(String category, AppLocalizations l10n) {
     String raw;
     if (category == 'kids:all') {
-      return 'Kids';
+      return l10n.kidsCategory;
     }
     if (category == kEarTrainingMixSelection) {
-      return 'Ear Training';
+      return l10n.earTraining;
     }
     if (category == kMusicMixSelection) {
-      return 'Music';
+      return l10n.music;
     }
     if (category.startsWith('et:')) {
       final parts = category.split(':');

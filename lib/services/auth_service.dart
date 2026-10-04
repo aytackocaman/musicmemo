@@ -10,27 +10,52 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'purchase_service.dart';
 import 'supabase_service.dart';
 
+/// Machine-readable failure kinds.
+///
+/// The UI needs to distinguish outcomes (notably "user cancelled", which must
+/// not surface an error banner) and must render the message in the user's
+/// language. Carrying a stable enum alongside the message means the UI can
+/// branch on [code] and pick a localized string, instead of comparing against
+/// hard-coded English text.
+enum AuthErrorCode {
+  signUpFailed,
+  signInFailed,
+  signInCancelled,
+  invalidCredentials,
+  emailNotConfirmed,
+  userAlreadyRegistered,
+  passwordTooShort,
+  invalidEmail,
+  googleNoIdToken,
+  googleFailed,
+  googleError,
+  appleNoIdentityToken,
+  appleFailed,
+  appleError,
+  resetFailed,
+  deleteFailed,
+  unexpected,
+}
+
 /// Authentication result wrapper
 class AuthResult {
   final bool success;
   final String? errorMessage;
+  final AuthErrorCode? code;
   final User? user;
 
-  AuthResult({
-    required this.success,
-    this.errorMessage,
-    this.user,
-  });
+  AuthResult({required this.success, this.errorMessage, this.code, this.user});
 
-  factory AuthResult.success(User user) => AuthResult(
-        success: true,
-        user: user,
-      );
+  /// True when the user dismissed the provider sheet, so the UI can stay silent.
+  bool get wasCancelled => code == AuthErrorCode.signInCancelled;
 
-  factory AuthResult.failure(String message) => AuthResult(
-        success: false,
-        errorMessage: message,
-      );
+  factory AuthResult.success(User user) =>
+      AuthResult(success: true, user: user);
+
+  factory AuthResult.failure(
+    String message, [
+    AuthErrorCode code = AuthErrorCode.unexpected,
+  ]) => AuthResult(success: false, errorMessage: message, code: code);
 }
 
 /// Handles all authentication operations with Supabase
@@ -56,11 +81,17 @@ class AuthService {
         return AuthResult.success(response.user!);
       }
 
-      return AuthResult.failure('Sign up failed. Please try again.');
+      return AuthResult.failure(
+        'Sign up failed. Please try again.',
+        AuthErrorCode.signUpFailed,
+      );
     } on AuthException catch (e) {
-      return AuthResult.failure(_parseAuthError(e.message));
+      return _authFailure(e.message);
     } catch (e) {
-      return AuthResult.failure('An unexpected error occurred.');
+      return AuthResult.failure(
+        'An unexpected error occurred.',
+        AuthErrorCode.unexpected,
+      );
     }
   }
 
@@ -82,11 +113,17 @@ class AuthService {
         return AuthResult.success(response.user!);
       }
 
-      return AuthResult.failure('Sign in failed. Please try again.');
+      return AuthResult.failure(
+        'Sign in failed. Please try again.',
+        AuthErrorCode.signInFailed,
+      );
     } on AuthException catch (e) {
-      return AuthResult.failure(_parseAuthError(e.message));
+      return _authFailure(e.message);
     } catch (e) {
-      return AuthResult.failure('An unexpected error occurred.');
+      return AuthResult.failure(
+        'An unexpected error occurred.',
+        AuthErrorCode.unexpected,
+      );
     }
   }
 
@@ -107,7 +144,7 @@ class AuthService {
       await _client.auth.signOut();
       return true;
     } catch (e) {
-      print('Delete account error: $e');
+      debugPrint('Delete account error: $e');
       return false;
     }
   }
@@ -116,14 +153,14 @@ class AuthService {
   static Future<AuthResult> resetPassword(String email) async {
     try {
       await _client.auth.resetPasswordForEmail(email);
-      return AuthResult(
-        success: true,
-        errorMessage: null,
-      );
+      return AuthResult(success: true, errorMessage: null);
     } on AuthException catch (e) {
-      return AuthResult.failure(_parseAuthError(e.message));
+      return _authFailure(e.message);
     } catch (e) {
-      return AuthResult.failure('An unexpected error occurred.');
+      return AuthResult.failure(
+        'An unexpected error occurred.',
+        AuthErrorCode.unexpected,
+      );
     }
   }
 
@@ -134,12 +171,13 @@ class AuthService {
   /// Update last login timestamp
   static Future<void> _updateLastLogin(String userId) async {
     try {
-      await _client.from('profiles').update({
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', userId);
+      await _client
+          .from('profiles')
+          .update({'updated_at': DateTime.now().toIso8601String()})
+          .eq('id', userId);
     } catch (e) {
       // Non-critical error
-      print('Update last login error: $e');
+      debugPrint('Update last login error: $e');
     }
   }
 
@@ -168,14 +206,20 @@ class AuthService {
 
       final googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        return AuthResult.failure('Sign-in cancelled.');
+        return AuthResult.failure(
+          'Sign-in cancelled.',
+          AuthErrorCode.signInCancelled,
+        );
       }
 
       final googleAuth = await googleUser.authentication;
       final idToken = googleAuth.idToken;
 
       if (idToken == null) {
-        return AuthResult.failure('Google Sign-In failed: no ID token.');
+        return AuthResult.failure(
+          'Google Sign-In failed: no ID token.',
+          AuthErrorCode.googleNoIdToken,
+        );
       }
 
       final response = await _client.auth.signInWithIdToken(
@@ -189,11 +233,17 @@ class AuthService {
         return AuthResult.success(response.user!);
       }
 
-      return AuthResult.failure('Google Sign-In failed. Please try again.');
+      return AuthResult.failure(
+        'Google Sign-In failed. Please try again.',
+        AuthErrorCode.googleFailed,
+      );
     } on AuthException catch (e) {
-      return AuthResult.failure(_parseAuthError(e.message));
+      return _authFailure(e.message);
     } catch (e) {
-      return AuthResult.failure('Google Sign-In error: $e');
+      return AuthResult.failure(
+        'Google Sign-In error: $e',
+        AuthErrorCode.googleError,
+      );
     }
   }
 
@@ -213,7 +263,10 @@ class AuthService {
 
       final identityToken = credential.identityToken;
       if (identityToken == null) {
-        return AuthResult.failure('Apple Sign-In failed: no identity token.');
+        return AuthResult.failure(
+          'Apple Sign-In failed: no identity token.',
+          AuthErrorCode.appleNoIdentityToken,
+        );
       }
 
       final response = await _client.auth.signInWithIdToken(
@@ -228,28 +281,42 @@ class AuthService {
         final givenName = credential.givenName;
         final familyName = credential.familyName;
         if (givenName != null || familyName != null) {
-          final rawName = [givenName, familyName]
-              .where((s) => s != null && s.isNotEmpty)
-              .join(' ');
+          final rawName = [
+            givenName,
+            familyName,
+          ].where((s) => s != null && s.isNotEmpty).join(' ');
           final displayName = rawName.substring(0, rawName.length.clamp(0, 20));
-          await _client.from('profiles').update({
-            'display_name': displayName,
-          }).eq('id', response.user!.id);
+          await _client
+              .from('profiles')
+              .update({'display_name': displayName})
+              .eq('id', response.user!.id);
         }
         await PurchaseService.login(response.user!.id);
         return AuthResult.success(response.user!);
       }
 
-      return AuthResult.failure('Apple Sign-In failed. Please try again.');
+      return AuthResult.failure(
+        'Apple Sign-In failed. Please try again.',
+        AuthErrorCode.appleFailed,
+      );
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
-        return AuthResult.failure('Sign-in cancelled.');
+        return AuthResult.failure(
+          'Sign-in cancelled.',
+          AuthErrorCode.signInCancelled,
+        );
       }
-      return AuthResult.failure('Apple Sign-In error: ${e.message}');
+      return AuthResult.failure(
+        'Apple Sign-In error: ${e.message}',
+        AuthErrorCode.appleError,
+      );
     } on AuthException catch (e) {
-      return AuthResult.failure(_parseAuthError(e.message));
+      return _authFailure(e.message);
     } catch (e) {
-      return AuthResult.failure('An unexpected error occurred.');
+      return AuthResult.failure(
+        'An unexpected error occurred.',
+        AuthErrorCode.unexpected,
+      );
     }
   }
 
@@ -258,8 +325,10 @@ class AuthService {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
   }
 
   /// Returns the SHA256 hex digest of [input]
@@ -270,22 +339,42 @@ class AuthService {
   }
 
   /// Parse Supabase auth errors into user-friendly messages
-  static String _parseAuthError(String message) {
+  /// Map a raw Supabase message to a localized-friendly [AuthErrorCode] plus
+  /// an English fallback for logs.
+  static (AuthErrorCode, String) _classifyAuthError(String message) {
     if (message.contains('Invalid login credentials')) {
-      return 'Invalid email or password.';
+      return (AuthErrorCode.invalidCredentials, 'Invalid email or password.');
     }
     if (message.contains('Email not confirmed')) {
-      return 'Please verify your email before signing in.';
+      return (
+        AuthErrorCode.emailNotConfirmed,
+        'Please verify your email before signing in.',
+      );
     }
     if (message.contains('User already registered')) {
-      return 'An account with this email already exists.';
+      return (
+        AuthErrorCode.userAlreadyRegistered,
+        'An account with this email already exists.',
+      );
     }
     if (message.contains('Password should be at least')) {
-      return 'Password must be at least 6 characters.';
+      return (
+        AuthErrorCode.passwordTooShort,
+        'Password must be at least 6 characters.',
+      );
     }
     if (message.contains('Invalid email')) {
-      return 'Please enter a valid email address.';
+      return (
+        AuthErrorCode.invalidEmail,
+        'Please enter a valid email address.',
+      );
     }
-    return message;
+    return (AuthErrorCode.unexpected, message);
+  }
+
+  /// Build a failure from a raw Supabase message, carrying the classified code.
+  static AuthResult _authFailure(String message) {
+    final (code, text) = _classifyAuthError(message);
+    return AuthResult.failure(text, code);
   }
 }

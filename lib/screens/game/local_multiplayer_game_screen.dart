@@ -27,6 +27,7 @@ class LocalMultiplayerGameScreen extends ConsumerStatefulWidget {
   final List<String>? soundIds;
   final Map<String, String> soundPaths;
   final Map<String, int> soundDurations;
+
   /// Turn time limit in ms. Null means no limit (infinite).
   final int? turnTimeLimitMs;
 
@@ -86,7 +87,9 @@ class _LocalMultiplayerGameScreenState
     );
 
     // Start the game
-    ref.read(gameProvider.notifier).startGame(
+    ref
+        .read(gameProvider.notifier)
+        .startGame(
           mode: GameMode.localMultiplayer,
           category: widget.category,
           gridSize: widget.gridSize,
@@ -153,7 +156,9 @@ class _LocalMultiplayerGameScreenState
       // If first card is showing, flip it back
       final gameState = ref.read(gameProvider);
       if (gameState != null) {
-        final hasFlipped = gameState.cards.any((c) => c.state == CardState.flipped);
+        final hasFlipped = gameState.cards.any(
+          (c) => c.state == CardState.flipped,
+        );
         if (hasFlipped) {
           ref.read(gameProvider.notifier).flipCardsBack(switchTurn: false);
         }
@@ -206,8 +211,9 @@ class _LocalMultiplayerGameScreenState
     }
 
     // Count currently flipped cards
-    final flippedCards =
-        gameState.cards.where((c) => c.state == CardState.flipped).length;
+    final flippedCards = gameState.cards
+        .where((c) => c.state == CardState.flipped)
+        .length;
 
     // Don't allow more than 2 flipped cards
     if (flippedCards >= 2) {
@@ -218,9 +224,10 @@ class _LocalMultiplayerGameScreenState
     ref.read(gameProvider.notifier).flipCard(cardId);
 
     // Play the sound for the flipped card
-    final flippedCard = ref.read(gameProvider)?.cards.firstWhere(
-      (c) => c.id == cardId,
-    );
+    final flippedCard = ref
+        .read(gameProvider)
+        ?.cards
+        .firstWhere((c) => c.id == cardId);
     if (flippedCard != null) {
       final path = widget.soundPaths[flippedCard.soundId];
       if (path != null) {
@@ -235,8 +242,9 @@ class _LocalMultiplayerGameScreenState
       return;
     }
 
-    final newFlippedCards =
-        newState.cards.where((c) => c.state == CardState.flipped).length;
+    final newFlippedCards = newState.cards
+        .where((c) => c.state == CardState.flipped)
+        .length;
 
     if (newFlippedCards == 1) {
       // First card flipped - longer delay if never heard, shorter if already heard
@@ -358,9 +366,7 @@ class _LocalMultiplayerGameScreenState
     final gameState = ref.watch(gameProvider);
 
     if (gameState == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return PopScope(
@@ -423,16 +429,19 @@ class _LocalMultiplayerGameScreenState
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
+            child: Icon(
+              Icons.home,
+              size: 20,
+              color: context.colors.textSecondary,
+            ),
           ),
         ),
         Expanded(
           child: Text(
             _formatCategoryName(widget.category),
-            style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTypography.bodyLarge(
+              context,
+            ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
           ),
@@ -465,8 +474,12 @@ class _LocalMultiplayerGameScreenState
     final turnProgress = _hasTimeLimit
         ? _turnTimeRemainingMs / widget.turnTimeLimitMs!
         : 1.0;
-    final p1Color = player1 != null ? hexToColor(player1.color) : context.colors.accent;
-    final p2Color = player2 != null ? hexToColor(player2.color) : AppColors.teal;
+    final p1Color = player1 != null
+        ? hexToColor(player1.color)
+        : context.colors.accent;
+    final p2Color = player2 != null
+        ? hexToColor(player2.color)
+        : AppColors.teal;
 
     return IntrinsicHeight(
       child: Row(
@@ -510,9 +523,7 @@ class _LocalMultiplayerGameScreenState
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: _buildStatCard('${gameState.moves}', l10n.moves),
-          ),
+          Expanded(child: _buildStatCard('${gameState.moves}', l10n.moves)),
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(GameUtils.formatTime(_seconds), l10n.time),
@@ -520,7 +531,9 @@ class _LocalMultiplayerGameScreenState
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(
-                '${gameState.matchedPairs}/${gameState.totalPairs}', l10n.pairs),
+              '${gameState.matchedPairs}/${gameState.totalPairs}',
+              l10n.pairs,
+            ),
           ),
         ],
       ),
@@ -534,10 +547,7 @@ class _LocalMultiplayerGameScreenState
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: context.colors.elevated,
-          width: 2,
-        ),
+        border: Border.all(color: context.colors.elevated, width: 2),
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -546,18 +556,16 @@ class _LocalMultiplayerGameScreenState
           children: [
             Text(
               value,
-              style: AppTypography.bodyLarge(context).copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTypography.bodyLarge(
+                context,
+              ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             Text(
               label,
-              style: AppTypography.labelSmall(context).copyWith(
-                fontSize: 14,
-                color: context.colors.textTertiary,
-              ),
+              style: AppTypography.labelSmall(
+                context,
+              ).copyWith(fontSize: 14, color: context.colors.textTertiary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -591,16 +599,13 @@ class _LocalMultiplayerGameScreenState
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  l10n.gamePaused,
-                  style: AppTypography.headline3(context),
-                ),
+                Text(l10n.gamePaused, style: AppTypography.headline3(context)),
                 const SizedBox(height: 8),
                 Text(
                   l10n.tapToResume,
-                  style: AppTypography.body(context).copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTypography.body(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
                 const SizedBox(height: 32),
                 GestureDetector(
@@ -625,9 +630,9 @@ class _LocalMultiplayerGameScreenState
                   onTap: () => _showHomeConfirmation(),
                   child: Text(
                     l10n.quitGame,
-                    style: AppTypography.body(context).copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTypography.body(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ),
               ],
@@ -639,7 +644,7 @@ class _LocalMultiplayerGameScreenState
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 
   void _showHomeConfirmation() {
     final l10n = AppLocalizations.of(context)!;
@@ -699,96 +704,98 @@ class _PlayerScoreCard extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-        gradient: isCurrentTurn
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color,
-                  Color.lerp(color, Colors.white, 0.25) ?? color,
-                ],
-              )
-            : null,
-        color: isCurrentTurn ? null : context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isCurrentTurn
-              ? Color.lerp(color, Colors.white, 0.35) ?? color
-              : context.colors.elevated,
-          width: 2,
-        ),
-        boxShadow: isCurrentTurn
-            ? [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.4),
-                  blurRadius: 18,
-                  spreadRadius: 0,
-                ),
-              ]
-            : null,
-      ),
-      child: Row(
-        children: [
-          // Color dot + Name + Turn label
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: isCurrentTurn ? Colors.white : color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        name,
-                        style: AppTypography.bodySmall(context).copyWith(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: isCurrentTurn
-                              ? Colors.white
-                              : context.colors.textPrimary,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+          gradient: isCurrentTurn
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color,
+                    Color.lerp(color, Colors.white, 0.25) ?? color,
                   ],
-                ),
-                if (isCurrentTurn)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16, top: 2),
-                    child: Text(
-                      AppLocalizations.of(context)!.yourTurn,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.7),
+                )
+              : null,
+          color: isCurrentTurn ? null : context.colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isCurrentTurn
+                ? Color.lerp(color, Colors.white, 0.35) ?? color
+                : context.colors.elevated,
+            width: 2,
+          ),
+          boxShadow: isCurrentTurn
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.4),
+                    blurRadius: 18,
+                    spreadRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          children: [
+            // Color dot + Name + Turn label
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: isCurrentTurn ? Colors.white : color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          name,
+                          style: AppTypography.bodySmall(context).copyWith(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: isCurrentTurn
+                                ? Colors.white
+                                : context.colors.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (isCurrentTurn)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 2),
+                      child: Text(
+                        AppLocalizations.of(context)!.yourTurn,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          // Score
-          Text(
-            '$score',
-            style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: isCurrentTurn ? Colors.white : context.colors.textPrimary,
+            // Score
+            Text(
+              '$score',
+              style: AppTypography.bodyLarge(context).copyWith(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: isCurrentTurn
+                    ? Colors.white
+                    : context.colors.textPrimary,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -827,9 +834,10 @@ class _NameTooltipState extends State<_NameTooltip>
       duration: const Duration(milliseconds: 200),
     );
     _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scale = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scale = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward();
     Future.delayed(const Duration(seconds: 2), _dismiss);
   }
@@ -868,12 +876,16 @@ class _NameTooltipState extends State<_NameTooltip>
               alignment: Alignment.bottomCenter,
               child: UnconstrainedBox(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
                         widget.color,
-                        Color.lerp(widget.color, Colors.white, 0.2) ?? widget.color,
+                        Color.lerp(widget.color, Colors.white, 0.2) ??
+                            widget.color,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
@@ -926,11 +938,13 @@ class _MultiplayerWinScreen extends ConsumerWidget {
 
   bool _isPremium(WidgetRef ref) {
     return DevConfig.resolvePremium(
-      ref.read(subscriptionProvider).when(
-        data: (sub) => sub.canAccessPremiumFeatures,
-        loading: () => false,
-        error: (_, _) => false,
-      ),
+      ref
+          .read(subscriptionProvider)
+          .when(
+            data: (sub) => sub.canAccessPremiumFeatures,
+            loading: () => false,
+            error: (_, _) => false,
+          ),
     );
   }
 
@@ -970,8 +984,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     color: isTie
                         ? context.colors.surface
                         : winner != null
-                            ? hexToColor(winner.color).withValues(alpha: 0.2)
-                            : context.colors.surface,
+                        ? hexToColor(winner.color).withValues(alpha: 0.2)
+                        : context.colors.surface,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -980,8 +994,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     color: isTie
                         ? context.colors.textSecondary
                         : winner != null
-                            ? hexToColor(winner.color)
-                            : context.colors.accent,
+                        ? hexToColor(winner.color)
+                        : context.colors.accent,
                   ),
                 ),
 
@@ -989,16 +1003,18 @@ class _MultiplayerWinScreen extends ConsumerWidget {
 
                 // Result text
                 Text(
-                  isTie ? l10n.itsATie : l10n.playerWins(winner?.name ?? 'Player'),
+                  isTie
+                      ? l10n.itsATie
+                      : l10n.playerWins(winner?.name ?? 'Player'),
                   style: AppTypography.headline2(context),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   isTie ? l10n.greatMatchBothPlayers : l10n.congratulations,
-                  style: AppTypography.body(context).copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTypography.body(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
 
                 const Spacer(flex: 2),
@@ -1020,9 +1036,9 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         l10n.vs,
-                        style: AppTypography.bodyLarge(context).copyWith(
-                          color: context.colors.textTertiary,
-                        ),
+                        style: AppTypography.bodyLarge(
+                          context,
+                        ).copyWith(color: context.colors.textTertiary),
                       ),
                     ),
                     Expanded(
@@ -1041,7 +1057,10 @@ class _MultiplayerWinScreen extends ConsumerWidget {
 
                 // Game stats
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: context.colors.surface,
                     borderRadius: BorderRadius.circular(16),
@@ -1050,7 +1069,10 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _StatItem(value: '$moves', label: l10n.moves),
-                      _StatItem(value: GameUtils.formatTime(timeSeconds), label: l10n.time),
+                      _StatItem(
+                        value: GameUtils.formatTime(timeSeconds),
+                        label: l10n.time,
+                      ),
                     ],
                   ),
                 ),
@@ -1060,19 +1082,24 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                   const SizedBox(height: 10),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: context.colors.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       counts.canPlayLocalMultiplayer
-                          ? l10n.freeGamesLeftCount(counts.localMultiplayerRemaining)
+                          ? l10n.freeGamesLeftCount(
+                              counts.localMultiplayerRemaining,
+                            )
                           : l10n.noFreeGamesLeft,
                       textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall(context).copyWith(
-                        color: context.colors.textSecondary,
-                      ),
+                      style: AppTypography.bodySmall(
+                        context,
+                      ).copyWith(color: context.colors.textSecondary),
                     ),
                   ),
                 ],
@@ -1108,7 +1135,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const GrandCategoryScreen()),
+                          builder: (context) => const GrandCategoryScreen(),
+                        ),
                       );
                     },
                   ),
@@ -1121,7 +1149,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const PaywallScreen()),
+                          builder: (context) => const PaywallScreen(),
+                        ),
                       );
                     },
                   ),
@@ -1136,7 +1165,8 @@ class _MultiplayerWinScreen extends ConsumerWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const HomeScreen()),
+                        builder: (context) => const HomeScreen(),
+                      ),
                       (route) => false,
                     );
                   },
@@ -1170,40 +1200,33 @@ class _ScoreColumn extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isWinner ? color.withValues(alpha: 0.15) : context.colors.surface,
+        color: isWinner
+            ? color.withValues(alpha: 0.15)
+            : context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: isWinner
-            ? Border.all(color: color, width: 2)
-            : null,
+        border: isWinner ? Border.all(color: color, width: 2) : null,
       ),
       child: Column(
         children: [
-          if (isWinner)
-            Icon(
-              Icons.emoji_events,
-              color: color,
-              size: 24,
-            ),
+          if (isWinner) Icon(Icons.emoji_events, color: color, size: 24),
           const SizedBox(height: 4),
           Text(
             name,
-            style: AppTypography.bodySmall(context).copyWith(
-              color: context.colors.textSecondary,
-            ),
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
             '$score',
-            style: AppTypography.metric(context).copyWith(
-              color: color,
-            ),
+            style: AppTypography.metric(context).copyWith(color: color),
           ),
           Text(
             AppLocalizations.of(context)!.pairs,
-            style: AppTypography.labelSmall(context).copyWith(
-              color: context.colors.textTertiary,
-            ),
+            style: AppTypography.labelSmall(
+              context,
+            ).copyWith(color: context.colors.textTertiary),
           ),
         ],
       ),
@@ -1215,25 +1238,19 @@ class _StatItem extends StatelessWidget {
   final String value;
   final String label;
 
-  const _StatItem({
-    required this.value,
-    required this.label,
-  });
+  const _StatItem({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          value,
-          style: AppTypography.bodyLarge(context),
-        ),
+        Text(value, style: AppTypography.bodyLarge(context)),
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.labelSmall(context).copyWith(
-            color: context.colors.textSecondary,
-          ),
+          style: AppTypography.labelSmall(
+            context,
+          ).copyWith(color: context.colors.textSecondary),
         ),
       ],
     );

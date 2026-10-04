@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/game_config.dart';
 import '../models/daily_challenge.dart';
@@ -51,7 +52,8 @@ class UserSubscription {
   });
 
   bool get isTrial => plan == 'trial';
-  bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
+  bool get isExpired =>
+      expiresAt != null && expiresAt!.isBefore(DateTime.now());
   bool get isPremium =>
       (plan == 'monthly' || plan == 'yearly' || plan == 'trial') && !isExpired;
   bool get isActive => status == 'active';
@@ -77,11 +79,7 @@ class UserSubscription {
 
   /// Default free subscription
   factory UserSubscription.free() {
-    return UserSubscription(
-      id: '',
-      plan: 'free',
-      status: 'active',
-    );
+    return UserSubscription(id: '', plan: 'free', status: 'active');
   }
 }
 
@@ -103,15 +101,13 @@ class DailyGameCounts {
   }
 
   factory DailyGameCounts.zero() {
-    return DailyGameCounts(
-      singlePlayerCount: 0,
-      localMultiplayerCount: 0,
-    );
+    return DailyGameCounts(singlePlayerCount: 0, localMultiplayerCount: 0);
   }
 
   // Free tier limits (from env/development.json or env/production.json)
   static const int singlePlayerLimit = GameConfig.singlePlayerDailyLimit;
-  static const int localMultiplayerLimit = GameConfig.localMultiplayerDailyLimit;
+  static const int localMultiplayerLimit =
+      GameConfig.localMultiplayerDailyLimit;
 
   bool get canPlaySinglePlayer => singlePlayerCount < singlePlayerLimit;
   bool get canPlayLocalMultiplayer =>
@@ -132,13 +128,10 @@ class UserStats {
   final int bestStreak;
   final int spGames;
   final int spWins;
-  final int? spBestTime;
-  final int? spBestMoves;
   final int localMpGames;
   final int localMpWins;
   final int onlineGames;
   final int onlineWins;
-  final int onlineRating;
   final String? favoriteCategory;
 
   UserStats({
@@ -150,20 +143,19 @@ class UserStats {
     required this.bestStreak,
     required this.spGames,
     required this.spWins,
-    this.spBestTime,
-    this.spBestMoves,
     required this.localMpGames,
     required this.localMpWins,
     required this.onlineGames,
     required this.onlineWins,
-    required this.onlineRating,
     this.favoriteCategory,
   });
 
   double get winRate => totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
   double get spWinRate => spGames > 0 ? (spWins / spGames) * 100 : 0;
-  double get localMpWinRate => localMpGames > 0 ? (localMpWins / localMpGames) * 100 : 0;
-  double get onlineWinRate => onlineGames > 0 ? (onlineWins / onlineGames) * 100 : 0;
+  double get localMpWinRate =>
+      localMpGames > 0 ? (localMpWins / localMpGames) * 100 : 0;
+  double get onlineWinRate =>
+      onlineGames > 0 ? (onlineWins / onlineGames) * 100 : 0;
 
   factory UserStats.fromJson(Map<String, dynamic> json) {
     return UserStats(
@@ -175,13 +167,10 @@ class UserStats {
       bestStreak: json['best_streak'] as int? ?? 0,
       spGames: json['sp_games'] as int? ?? 0,
       spWins: json['sp_wins'] as int? ?? 0,
-      spBestTime: json['sp_best_time'] as int?,
-      spBestMoves: json['sp_best_moves'] as int?,
       localMpGames: json['local_mp_games'] as int? ?? 0,
       localMpWins: json['local_mp_wins'] as int? ?? 0,
       onlineGames: json['online_games'] as int? ?? 0,
       onlineWins: json['online_wins'] as int? ?? 0,
-      onlineRating: json['online_rating'] as int? ?? 1000,
       favoriteCategory: json['favorite_category'] as String?,
     );
   }
@@ -200,7 +189,6 @@ class UserStats {
       localMpWins: 0,
       onlineGames: 0,
       onlineWins: 0,
-      onlineRating: 1000,
     );
   }
 }
@@ -409,7 +397,7 @@ class DatabaseService {
 
       return UserProfile.fromJson(response);
     } catch (e) {
-      print('Error fetching profile: $e');
+      debugPrint('Error fetching profile: $e');
       return null;
     }
   }
@@ -432,7 +420,7 @@ class DatabaseService {
       await _client.from('profiles').update(updates).eq('id', user.id);
       return true;
     } catch (e) {
-      print('Error updating profile: $e');
+      debugPrint('Error updating profile: $e');
       return false;
     }
   }
@@ -451,7 +439,7 @@ class DatabaseService {
 
       return UserSubscription.fromJson(response);
     } catch (e) {
-      print('Error fetching subscription: $e');
+      debugPrint('Error fetching subscription: $e');
       return UserSubscription.free();
     }
   }
@@ -473,7 +461,7 @@ class DatabaseService {
       if (response == null) return DailyGameCounts.zero();
       return DailyGameCounts.fromJson(response);
     } catch (e) {
-      print('Error fetching daily game counts: $e');
+      debugPrint('Error fetching daily game counts: $e');
       return DailyGameCounts.zero();
     }
   }
@@ -518,7 +506,7 @@ class DatabaseService {
         params: {'p_game_mode': gameMode},
       );
     } catch (e) {
-      print('Error incrementing game count: $e');
+      debugPrint('Error incrementing game count: $e');
     }
   }
 
@@ -548,14 +536,14 @@ class DatabaseService {
       });
 
       // Update user stats
-      await _updateUserStats(score: score, won: won);
+      await _updateUserStats(score: score, won: won, gameMode: gameMode);
 
       // Update category stats
       await _updateCategoryStats(category: category, won: won);
 
       return true;
     } catch (e) {
-      print('Error saving game: $e');
+      debugPrint('Error saving game: $e');
       return false;
     }
   }
@@ -564,6 +552,7 @@ class DatabaseService {
   static Future<void> _updateUserStats({
     required int score,
     required bool won,
+    required String gameMode,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
@@ -587,17 +576,44 @@ class DatabaseService {
       final newBestStreak = newStreak > bestStreak ? newStreak : bestStreak;
       final newHighScore = score > highScore ? score : highScore;
 
-      await _client.from('user_stats').update({
-        'total_games': totalGames,
-        'total_wins': totalWins,
-        'total_score': totalScore,
-        'high_score': newHighScore,
-        'current_streak': newStreak,
-        'best_streak': newBestStreak,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('user_id', user.id);
+      // Per-mode counters drive the three mode cards on the Statistics screen.
+      // Without these the screen showed "0 games - 0% win rate" for every mode.
+      final win = won ? 1 : 0;
+      final perMode = <String, int>{
+        switch (gameMode) {
+          'single_player' => 'sp_games',
+          'local_multiplayer' => 'local_mp_games',
+          'online_multiplayer' => 'online_games',
+          _ => '',
+        }: 1,
+      }..remove('');
+      final perModeWins = <String, int>{
+        switch (gameMode) {
+          'single_player' => 'sp_wins',
+          'local_multiplayer' => 'local_mp_wins',
+          'online_multiplayer' => 'online_wins',
+          _ => '',
+        }: win,
+      }..remove('');
+
+      await _client
+          .from('user_stats')
+          .update({
+            'total_games': totalGames,
+            'total_wins': totalWins,
+            'total_score': totalScore,
+            'high_score': newHighScore,
+            'current_streak': newStreak,
+            'best_streak': newBestStreak,
+            for (final entry in perMode.entries)
+              entry.key: (current[entry.key] as int? ?? 0) + entry.value,
+            for (final entry in perModeWins.entries)
+              entry.key: (current[entry.key] as int? ?? 0) + entry.value,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('user_id', user.id);
     } catch (e) {
-      print('Error updating user stats: $e');
+      debugPrint('Error updating user stats: $e');
     }
   }
 
@@ -610,26 +626,28 @@ class DatabaseService {
     if (user == null) return;
 
     try {
-      await _client.from('category_stats').upsert(
-        {
-          'user_id': user.id,
-          'category': category,
-          'plays': 1,
-          'wins': won ? 1 : 0,
-        },
-        onConflict: 'user_id,category',
-      );
+      await _client.from('category_stats').upsert({
+        'user_id': user.id,
+        'category': category,
+        'plays': 1,
+        'wins': won ? 1 : 0,
+      }, onConflict: 'user_id,category');
 
       // If record exists, increment
-      await _client.rpc('increment_category_stats', params: {
-        'p_user_id': user.id,
-        'p_category': category,
-        'p_won': won,
-      }).catchError((_) {
-        // Function may not exist, that's ok - upsert handled it
-      });
+      await _client
+          .rpc(
+            'increment_category_stats',
+            params: {
+              'p_user_id': user.id,
+              'p_category': category,
+              'p_won': won,
+            },
+          )
+          .catchError((_) {
+            // Function may not exist, that's ok - upsert handled it
+          });
     } catch (e) {
-      print('Error updating category stats: $e');
+      debugPrint('Error updating category stats: $e');
     }
   }
 
@@ -648,7 +666,7 @@ class DatabaseService {
       if (response == null) return UserStats.empty();
       return UserStats.fromJson(response);
     } catch (e) {
-      print('Error fetching user stats: $e');
+      debugPrint('Error fetching user stats: $e');
       return UserStats.empty();
     }
   }
@@ -670,7 +688,7 @@ class DatabaseService {
           .map((json) => GameHistoryEntry.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching game history: $e');
+      debugPrint('Error fetching game history: $e');
       return [];
     }
   }
@@ -678,9 +696,13 @@ class DatabaseService {
   // ─── Daily Challenge ─────────────────────────────────────────
 
   /// Check if user already played the daily challenge for [date].
-  static Future<DailyChallengeScore?> getDailyChallengeScore(String date) async {
+  static Future<DailyChallengeScore?> getDailyChallengeScore(
+    String date,
+  ) async {
     final user = _client.auth.currentUser;
-    print('[DailyChallenge] getDailyChallengeScore date=$date user=${user?.id}');
+    debugPrint(
+      '[DailyChallenge] getDailyChallengeScore date=$date user=${user?.id}',
+    );
     if (user == null) return null;
 
     try {
@@ -691,11 +713,11 @@ class DatabaseService {
           .eq('date', date)
           .maybeSingle();
 
-      print('[DailyChallenge] response=$response');
+      debugPrint('[DailyChallenge] response=$response');
       if (response == null) return null;
       return DailyChallengeScore.fromJson(response);
     } catch (e) {
-      print('[DailyChallenge] ERROR fetching score: $e');
+      debugPrint('[DailyChallenge] ERROR fetching score: $e');
       return null;
     }
   }
@@ -714,7 +736,9 @@ class DatabaseService {
     if (user == null) return false;
 
     try {
-      print('[DailyChallenge] saving score: date=$date score=$score moves=$moves time=$timeSeconds');
+      debugPrint(
+        '[DailyChallenge] saving score: date=$date score=$score moves=$moves time=$timeSeconds',
+      );
       await _client.from('daily_challenge_scores').insert({
         'user_id': user.id,
         'date': date,
@@ -724,15 +748,19 @@ class DatabaseService {
         'category': category,
         'grid_size': gridSize,
       });
-      print('[DailyChallenge] save SUCCESS');
+      debugPrint('[DailyChallenge] save SUCCESS');
 
-      // Also count towards user stats
-      await _updateUserStats(score: score, won: true);
+      // Also count towards user stats. A daily challenge is single-player.
+      await _updateUserStats(
+        score: score,
+        won: true,
+        gameMode: 'single_player',
+      );
       await _updateCategoryStats(category: category, won: true);
 
       return true;
     } catch (e) {
-      print('[DailyChallenge] save ERROR: $e');
+      debugPrint('[DailyChallenge] save ERROR: $e');
       return false;
     }
   }
@@ -802,11 +830,8 @@ class DatabaseService {
         totalPlayers: totalPlayers,
       );
     } catch (e) {
-      print('Error fetching daily challenge leaderboard: $e');
-      return const DailyChallengeLeaderboard(
-        topScores: [],
-        totalPlayers: 0,
-      );
+      debugPrint('Error fetching daily challenge leaderboard: $e');
+      return const DailyChallengeLeaderboard(topScores: [], totalPlayers: 0);
     }
   }
 
@@ -824,7 +849,7 @@ class DatabaseService {
           .map((json) => CategoryGroup.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching category groups: $e');
+      debugPrint('Error fetching category groups: $e');
       return [];
     }
   }
@@ -851,7 +876,7 @@ class DatabaseService {
           .map((json) => SoundCategoryModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching sound categories: $e');
+      debugPrint('Error fetching sound categories: $e');
       return [];
     }
   }
@@ -865,11 +890,15 @@ class DatabaseService {
   ///    where form (block/up/down) may be empty for "all".
   ///  - kids mix:            `kids:all` (all kids categories combined)
   /// Returns an empty list when nothing matches.
-  static Future<List<SoundModel>> getSoundsForSelection(String selection) async {
+  static Future<List<SoundModel>> getSoundsForSelection(
+    String selection,
+  ) async {
     if (selection == kKidsMixSelection) {
       // Combine all categories in the 'kids' group (cartoons, animals, music...)
-      final kidsCategories =
-          await getSoundCategories(groupId: 'kids', showInUiOnly: false);
+      final kidsCategories = await getSoundCategories(
+        groupId: 'kids',
+        showInUiOnly: false,
+      );
       final results = await Future.wait(
         kidsCategories.map((c) => getSoundsForCategory(c.id)),
       );
@@ -886,8 +915,10 @@ class DatabaseService {
     }
     if (selection == kMusicMixSelection) {
       // Combine all categories in the 'collections' group (main Music)
-      final musicCategories =
-          await getSoundCategories(groupId: 'collections', showInUiOnly: false);
+      final musicCategories = await getSoundCategories(
+        groupId: 'collections',
+        showInUiOnly: false,
+      );
       final results = await Future.wait(
         musicCategories.map((c) => getSoundsForCategory(c.id)),
       );
@@ -907,7 +938,9 @@ class DatabaseService {
   }
 
   /// Get sounds for a specific category
-  static Future<List<SoundModel>> getSoundsForCategory(String categoryId) async {
+  static Future<List<SoundModel>> getSoundsForCategory(
+    String categoryId,
+  ) async {
     try {
       final response = await _client
           .from('sounds')
@@ -918,7 +951,7 @@ class DatabaseService {
           .map((json) => SoundModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching sounds for category $categoryId: $e');
+      debugPrint('Error fetching sounds for category $categoryId: $e');
       return [];
     }
   }
@@ -937,7 +970,9 @@ class DatabaseService {
     try {
       final response = await _client
           .from('sounds')
-          .select('id, category_id, name, file_path, duration_ms, file_size_bytes, sound_tags(tag_type, tag_value)')
+          .select(
+            'id, category_id, name, file_path, duration_ms, file_size_bytes, sound_tags(tag_type, tag_value)',
+          )
           .eq('category_id', categoryId)
           .limit(10000);
 
@@ -969,7 +1004,7 @@ class DatabaseService {
         return tags['form'] == form;
       }).toList();
     } catch (e) {
-      print('Error fetching ear training sounds for $categoryId: $e');
+      debugPrint('Error fetching ear training sounds for $categoryId: $e');
       return [];
     }
   }
@@ -989,7 +1024,7 @@ class DatabaseService {
           .map((json) => TagValueModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching tag values for $tagType: $e');
+      debugPrint('Error fetching tag values for $tagType: $e');
       return [];
     }
   }
@@ -1003,7 +1038,9 @@ class DatabaseService {
     try {
       final response = await _client
           .from('sounds')
-          .select('id, category_id, name, file_path, duration_ms, file_size_bytes, sound_tags!inner(tag_type, tag_value)')
+          .select(
+            'id, category_id, name, file_path, duration_ms, file_size_bytes, sound_tags!inner(tag_type, tag_value)',
+          )
           .eq('sound_tags.tag_type', tagType)
           .eq('sound_tags.tag_value', tagValue)
           .limit(200);
@@ -1012,7 +1049,7 @@ class DatabaseService {
           .map((json) => SoundModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching sounds for tag $tagType=$tagValue: $e');
+      debugPrint('Error fetching sounds for tag $tagType=$tagValue: $e');
       return [];
     }
   }
@@ -1031,7 +1068,7 @@ class DatabaseService {
           .map((json) => SoundModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('Error fetching sounds by ids: $e');
+      debugPrint('Error fetching sounds by ids: $e');
       return [];
     }
   }

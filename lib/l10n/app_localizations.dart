@@ -1244,6 +1244,12 @@ abstract class AppLocalizations {
   /// **'Access to online multiplayer'**
   String get accessOnlineMultiplayer;
 
+  /// No description provided for @trialDaysRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Last day of your free trial} =1{1 day left in your free trial} other{{count} days left in your free trial}}'**
+  String trialDaysRemaining(num count);
+
   /// No description provided for @trialEnded.
   ///
   /// In en, this message translates to:
@@ -1352,11 +1358,41 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// No description provided for @card.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get card;
+
+  /// No description provided for @cardFaceDown.
+  ///
+  /// In en, this message translates to:
+  /// **'face down'**
+  String get cardFaceDown;
+
+  /// No description provided for @cardFlipped.
+  ///
+  /// In en, this message translates to:
+  /// **'flipped'**
+  String get cardFlipped;
+
+  /// No description provided for @cardMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'matched'**
+  String get cardMatched;
+
   /// No description provided for @accentColor.
   ///
   /// In en, this message translates to:
-  /// **'Card Color'**
+  /// **'Card Colour'**
   String get accentColor;
+
+  /// No description provided for @accentColorDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes the colour of face-down cards. Buttons and highlights stay blue.'**
+  String get accentColorDescription;
 
   /// No description provided for @blue.
   ///

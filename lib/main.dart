@@ -17,10 +17,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Lock orientation: landscape on iPad, portrait on iPhone
-  final isTablet = Platform.isIOS &&
-      MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first)
-              .size
-              .shortestSide >=
+  final isTablet =
+      Platform.isIOS &&
+      MediaQueryData.fromView(
+            WidgetsBinding.instance.platformDispatcher.views.first,
+          ).size.shortestSide >=
           600;
   await SystemChrome.setPreferredOrientations(
     isTablet
@@ -65,9 +66,7 @@ void main() async {
         cardTimingsProvider.overrideWith(
           (ref) => CardTimingsNotifier(initialCardTimings),
         ),
-        localeProvider.overrideWith(
-          (ref) => LocaleNotifier(initialLocale),
-        ),
+        localeProvider.overrideWith((ref) => LocaleNotifier(initialLocale)),
         hapticFeedbackProvider.overrideWith(
           (ref) => HapticFeedbackNotifier(initialHaptic),
         ),
@@ -85,7 +84,6 @@ class MusicMemoApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     DeepLinkService.navigatorKey = navigatorKey;
-    final themeMode = ref.watch(themeModeProvider);
     final accent = ref.watch(accentColorProvider);
     final locale = ref.watch(localeProvider);
     return MaterialApp(
@@ -94,7 +92,10 @@ class MusicMemoApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(accent),
       darkTheme: AppTheme.darkTheme(accent),
-      themeMode: ThemeMode.dark, // Dark-only for now; light theme code kept for future use
+      themeMode:
+          ThemeMode.dark, // Deliberately dark-only; the neon icon and card art
+      // are designed for a dark surface. Light theme remains available in
+      // AppTheme.lightTheme if that ever changes.
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,

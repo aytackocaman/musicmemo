@@ -35,6 +35,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   Package? _yearlyPackage;
   bool _isPurchasing = false;
 
+  /// null = still loading, true = offerings resolved, false = failed.
+  ///
+  /// The paywall must never look "ready" before prices arrive, otherwise it
+  /// briefly shows the fallback strings as if they were the real prices.
+  bool? _offeringsLoaded;
+
   @override
   void initState() {
     super.initState();
@@ -45,12 +51,13 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final offerings = await PurchaseService.getOfferings();
     if (!mounted) return;
     final current = offerings?.current;
-    if (current != null) {
-      setState(() {
+    setState(() {
+      if (current != null) {
         _monthlyPackage = current.monthly;
         _yearlyPackage = current.annual;
-      });
-    }
+      }
+      _offeringsLoaded = current != null;
+    });
   }
 
   Future<void> _handlePurchase(Package? package) async {
@@ -91,6 +98,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     }
   }
 
+  /// True only once offerings have loaded and a plan is actually available.
+  /// Guards the CTAs so a tap can never call purchase() with a null Package.
+  bool get _canPurchase =>
+      !_isPurchasing && _monthlyPackage != null && _yearlyPackage != null;
+
   int? get _savingsPercent {
     final monthly = _monthlyPackage?.storeProduct.price;
     final yearly = _yearlyPackage?.storeProduct.price;
@@ -114,194 +126,233 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           child: Column(
             children: [
               // Close button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(32, 22, 32, 0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 24,
-                      color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 22, 32, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        size: 24,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
-                child: Column(
-                  children: [
-                    // Lock icon
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: const Icon(
-                        Icons.lock_outline,
-                        size: 40,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const Spacer(),
-
-                    // Title
-                    Text(
-                      widget.isTrialExpired
-                          ? l10n.trialEnded
-                          : widget.isPremiumFeature
-                              ? l10n.premiumFeature
-                              : l10n.reachedYourLimit,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Subtitle
-                    Text(
-                      widget.subtitle ??
-                          (widget.isTrialExpired
-                              ? l10n.subscribeMessage
-                              : widget.isPremiumFeature
-                                  ? l10n.onlineRequiresPremium
-                                  : l10n.upgradeToPremiumToKeepPlaying),
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-                    const Spacer(),
-
-                    // Benefits
-                    _BenefitItem(text: l10n.unlimitedSinglePlayer),
-                    const SizedBox(height: 10),
-                    _BenefitItem(text: l10n.unlimitedLocalMultiplayer),
-                    const SizedBox(height: 10),
-                    _BenefitItem(text: l10n.onlineMultiplayerAccess),
-                    const SizedBox(height: 10),
-                    _BenefitItem(text: l10n.adFreeExperience),
-                    const Spacer(),
-
-                    // Yearly CTA
-                    GestureDetector(
-                      onTap: () => _handlePurchase(_yearlyPackage),
-                      child: Container(
-                        width: double.infinity,
-                        height: 56,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+                  child: Column(
+                    children: [
+                      // Lock icon
+                      Container(
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(40),
                         ),
-                        child: _isPurchasing
-                            ? Center(
-                                child: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: context.colors.accent,
-                                  ),
-                                ),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                     l10n.getYearly(yearlyPrice),
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                        child: const Icon(
+                          Icons.lock_outline,
+                          size: 40,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Spacer(),
+
+                      // Title
+                      Text(
+                        widget.isTrialExpired
+                            ? l10n.trialEnded
+                            : widget.isPremiumFeature
+                            ? l10n.premiumFeature
+                            : l10n.reachedYourLimit,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Subtitle
+                      Text(
+                        widget.subtitle ??
+                            (widget.isTrialExpired
+                                ? l10n.subscribeMessage
+                                : widget.isPremiumFeature
+                                ? l10n.onlineRequiresPremium
+                                : l10n.upgradeToPremiumToKeepPlaying),
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const Spacer(),
+
+                      // Benefits
+                      _BenefitItem(text: l10n.unlimitedSinglePlayer),
+                      const SizedBox(height: 10),
+                      _BenefitItem(text: l10n.unlimitedLocalMultiplayer),
+                      const SizedBox(height: 10),
+                      _BenefitItem(text: l10n.onlineMultiplayerAccess),
+                      const SizedBox(height: 10),
+                      _BenefitItem(text: l10n.adFreeExperience),
+                      const Spacer(),
+
+                      // Yearly CTA
+                      GestureDetector(
+                        onTap: _canPurchase
+                            ? () => _handlePurchase(_yearlyPackage)
+                            : null,
+                        child: Container(
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.button,
+                            ),
+                          ),
+                          child: _isPurchasing || !_canPurchase
+                              ? Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
                                       color: context.colors.accent,
                                     ),
                                   ),
-                                  Text(
-                                     l10n.savePercent(savingsPercent ?? 0),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.teal,
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      l10n.getYearly(yearlyPrice),
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: context.colors.accent,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Monthly CTA
-                    GestureDetector(
-                      onTap: () => _handlePurchase(_monthlyPackage),
-                      child: Container(
-                        width: double.infinity,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(26),
-                          border: Border.all(color: Colors.white, width: 2),
+                                    Text(
+                                      l10n.savePercent(savingsPercent ?? 0),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.teal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ),
-                        child: Center(
-                          child: Text(
-                             l10n.getMonthly(monthlyPrice),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Monthly CTA
+                      GestureDetector(
+                        onTap: _canPurchase
+                            ? () => _handlePurchase(_monthlyPackage)
+                            : null,
+                        child: Container(
+                          width: double.infinity,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.button,
+                            ),
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Center(
+                            child: Text(
+                              l10n.getMonthly(monthlyPrice),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                    // Restore
-                    GestureDetector(
-                      onTap: _handleRestore,
-                      child: Text(
-                        l10n.restorePurchase,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withValues(alpha: 0.67),
+                      // Offerings are still loading, or the fetch failed. Previously
+                      // the paywall silently fell back to placeholder strings, so a
+                      // failure looked like a legitimate price.
+                      if (_offeringsLoaded == null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: Center(
+                            child: SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ),
+                        )
+                      else if (_offeringsLoaded == false)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: Text(
+                            l10n.loadingPurchases,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                          ),
+                        ),
+
+                      // Restore
+                      GestureDetector(
+                        onTap: _handleRestore,
+                        child: Text(
+                          l10n.restorePurchase,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white.withValues(alpha: 0.67),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                    // Terms
-                    Text(
-                      l10n.cancelAnytime,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white.withValues(alpha: 0.5),
+                      // Terms
+                      Text(
+                        l10n.cancelAnytime,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );

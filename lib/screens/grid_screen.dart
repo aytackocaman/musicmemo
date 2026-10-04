@@ -10,7 +10,7 @@ import '../utils/app_dialogs.dart';
 import '../utils/responsive.dart';
 import 'game/preload_screen.dart';
 import 'game/local_player_setup_screen.dart';
-import 'game/online_lobby_screen.dart';
+import 'game/online_mode_screen.dart';
 
 /// Grid size option for the game
 class GridOption {
@@ -35,22 +35,24 @@ class GridOption {
 }
 
 final List<GridOption> _gridOptions = [
-  if (kDebugMode) const GridOption(
-    id: '2x1',
-    label: '2 x 1',
-    rows: 2,
-    cols: 1,
-    badgeColor: Color(0xFFEF4444),
-    badgeKey: 'debug',
-  ),
-  if (kDebugMode) const GridOption(
-    id: '2x3',
-    label: '2 x 3',
-    rows: 2,
-    cols: 3,
-    badgeColor: Color(0xFFEF4444),
-    badgeKey: 'debug',
-  ),
+  if (kDebugMode)
+    const GridOption(
+      id: '2x1',
+      label: '2 x 1',
+      rows: 2,
+      cols: 1,
+      badgeColor: Color(0xFFEF4444),
+      badgeKey: 'debug',
+    ),
+  if (kDebugMode)
+    const GridOption(
+      id: '2x3',
+      label: '2 x 3',
+      rows: 2,
+      cols: 3,
+      badgeColor: Color(0xFFEF4444),
+      badgeKey: 'debug',
+    ),
   const GridOption(
     id: '4x5',
     label: '4 x 5',
@@ -94,43 +96,49 @@ class GridScreen extends ConsumerWidget {
               children: [
                 // Back button
                 _BackButton(onPressed: () => Navigator.pop(context)),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xl),
 
-              // Title
-              Text(
-                l10n.selectGridSize,
-                style: AppTypography.headline3(context),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-
-              // Description
-              Text(
-                l10n.largerGridsMoreChallenging,
-                style: AppTypography.body(context).copyWith(
-                  color: context.colors.textSecondary,
+                // Title
+                Text(
+                  l10n.selectGridSize,
+                  style: AppTypography.headline3(context),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.sm),
 
-              // Grid options
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: _gridOptions.map((option) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _GridOptionItem(
-                          option: option,
-                          onTap: () {
-                            ref.read(selectedGridSizeProvider.notifier).state =
-                                option.id;
-                            _startGame(context, ref, option);
-                          },
-                        ),
-                      )).toList(),
+                // Description
+                Text(
+                  l10n.largerGridsMoreChallenging,
+                  style: AppTypography.body(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(height: AppSpacing.xl),
+
+                // Grid options
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: _gridOptions
+                        .map(
+                          (option) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _GridOptionItem(
+                              option: option,
+                              onTap: () {
+                                ref
+                                        .read(selectedGridSizeProvider.notifier)
+                                        .state =
+                                    option.id;
+                                _startGame(context, ref, option);
+                              },
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -142,7 +150,11 @@ class GridScreen extends ConsumerWidget {
     final category = ref.read(selectedCategoryProvider);
 
     if (gameMode == null || category == null) {
-      showAppSnackBar(context, AppLocalizations.of(context)!.pleaseSelectGameModeAndCategory, isError: true);
+      showAppSnackBar(
+        context,
+        AppLocalizations.of(context)!.pleaseSelectGameModeAndCategory,
+        isError: true,
+      );
       return;
     }
 
@@ -159,10 +171,8 @@ class GridScreen extends ConsumerWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PreloadScreen(
-            category: category,
-            gridSize: gridOption.id,
-          ),
+          builder: (context) =>
+              PreloadScreen(category: category, gridSize: gridOption.id),
         ),
       );
     } else if (gameMode == GameMode.localMultiplayer) {
@@ -177,15 +187,13 @@ class GridScreen extends ConsumerWidget {
         ),
       );
     } else {
-      // Online multiplayer
+      // Online multiplayer. GridScreen is never reached for online play — the
+      // category screens pop back instead, and OnlineModeScreen owns grid and
+      // turn-time selection for online sessions. The older OnlineLobbyScreen
+      // flow was removed; see OnlineModeScreen for the single online path.
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => OnlineLobbyScreen(
-            category: category,
-            gridSize: gridOption.id,
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => const OnlineModeScreen()),
       );
     }
   }
@@ -221,10 +229,7 @@ class _GridOptionItem extends StatelessWidget {
   final GridOption option;
   final VoidCallback onTap;
 
-  const _GridOptionItem({
-    required this.option,
-    required this.onTap,
-  });
+  const _GridOptionItem({required this.option, required this.onTap});
 
   String _localizedBadgeText(AppLocalizations l10n) {
     switch (option.badgeKey) {
@@ -253,10 +258,7 @@ class _GridOptionItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: context.colors.elevated,
-            width: 1,
-          ),
+          border: Border.all(color: context.colors.elevated, width: 1),
         ),
         child: Row(
           children: [
@@ -268,11 +270,7 @@ class _GridOptionItem extends StatelessWidget {
                 color: option.badgeColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                Icons.grid_view,
-                size: 24,
-                color: option.badgeColor,
-              ),
+              child: Icon(Icons.grid_view, size: 24, color: option.badgeColor),
             ),
             const SizedBox(width: 16),
 
@@ -282,16 +280,13 @@ class _GridOptionItem extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    option.label,
-                    style: AppTypography.bodyLarge(context),
-                  ),
+                  Text(option.label, style: AppTypography.bodyLarge(context)),
                   const SizedBox(height: 2),
                   Text(
                     l10n.cardsPairs(option.totalCards, option.totalPairs),
-                    style: AppTypography.bodySmall(context).copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTypography.bodySmall(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),

@@ -69,7 +69,9 @@ class _SinglePlayerGameScreenState
       );
 
       // Start the game
-      ref.read(gameProvider.notifier).startGame(
+      ref
+          .read(gameProvider.notifier)
+          .startGame(
             mode: GameMode.singlePlayer,
             category: widget.category,
             gridSize: widget.gridSize,
@@ -124,8 +126,9 @@ class _SinglePlayerGameScreenState
     }
 
     // Count currently flipped cards
-    final flippedCards =
-        gameState.cards.where((c) => c.state == CardState.flipped).length;
+    final flippedCards = gameState.cards
+        .where((c) => c.state == CardState.flipped)
+        .length;
 
     // Don't allow more than 2 flipped cards
     if (flippedCards >= 2) {
@@ -136,9 +139,10 @@ class _SinglePlayerGameScreenState
     ref.read(gameProvider.notifier).flipCard(cardId);
 
     // Play the sound for the flipped card
-    final flippedCard = ref.read(gameProvider)?.cards.firstWhere(
-      (c) => c.id == cardId,
-    );
+    final flippedCard = ref
+        .read(gameProvider)
+        ?.cards
+        .firstWhere((c) => c.id == cardId);
     if (flippedCard != null) {
       final path = widget.soundPaths[flippedCard.soundId];
       if (path != null) {
@@ -153,8 +157,9 @@ class _SinglePlayerGameScreenState
       return;
     }
 
-    final newFlippedCards =
-        newState.cards.where((c) => c.state == CardState.flipped).length;
+    final newFlippedCards = newState.cards
+        .where((c) => c.state == CardState.flipped)
+        .length;
 
     if (newFlippedCards == 1) {
       // First card flipped - longer delay if never heard, shorter if already heard
@@ -269,51 +274,49 @@ class _SinglePlayerGameScreenState
     final gameState = ref.watch(gameProvider);
 
     if (gameState == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-      backgroundColor: context.colors.background,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              child: Column(
-                children: [
-                  // Compact header with home/pause
-                  _buildCompactHeader(),
-                  const SizedBox(height: 10),
+        backgroundColor: context.colors.background,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                child: Column(
+                  children: [
+                    // Compact header with home/pause
+                    _buildCompactHeader(),
+                    const SizedBox(height: 10),
 
-                  // Stats row
-                  _buildStatsRow(gameState),
-                  const SizedBox(height: 10),
+                    // Stats row
+                    _buildStatsRow(gameState),
+                    const SizedBox(height: 10),
 
-                  // Game board
-                  Expanded(
-                    child: GameBoard(
-                      cards: gameState.cards,
-                      gridSize: widget.gridSize,
-                      onCardTap: _handleCardTap,
-                      enabled: !_isProcessing && !_isPaused,
-                      countdownCardId: _countdownCardId,
-                      countdownDurationMs: _countdownDurationMs,
+                    // Game board
+                    Expanded(
+                      child: GameBoard(
+                        cards: gameState.cards,
+                        gridSize: widget.gridSize,
+                        onCardTap: _handleCardTap,
+                        enabled: !_isProcessing && !_isPaused,
+                        countdownCardId: _countdownCardId,
+                        countdownDurationMs: _countdownDurationMs,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Pause overlay
-            if (_isPaused) _buildPauseOverlay(),
-          ],
+              // Pause overlay
+              if (_isPaused) _buildPauseOverlay(),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -330,16 +333,19 @@ class _SinglePlayerGameScreenState
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(Icons.home, size: 20, color: context.colors.textSecondary),
+            child: Icon(
+              Icons.home,
+              size: 20,
+              color: context.colors.textSecondary,
+            ),
           ),
         ),
         Expanded(
           child: Text(
             _formatCategoryName(widget.category),
-            style: AppTypography.bodyLarge(context).copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTypography.bodyLarge(
+              context,
+            ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
           ),
@@ -372,7 +378,10 @@ class _SinglePlayerGameScreenState
         children: [
           Expanded(
             child: _buildStatCard(
-                '${gameState.score}', l10n.score, context.colors.accent),
+              '${gameState.score}',
+              l10n.score,
+              context.colors.accent,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -381,7 +390,10 @@ class _SinglePlayerGameScreenState
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(
-                GameUtils.formatTime(_seconds), l10n.time, null),
+              GameUtils.formatTime(_seconds),
+              l10n.time,
+              null,
+            ),
           ),
         ],
       ),
@@ -394,10 +406,7 @@ class _SinglePlayerGameScreenState
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: context.colors.elevated,
-          width: 2,
-        ),
+        border: Border.all(color: context.colors.elevated, width: 2),
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -415,10 +424,9 @@ class _SinglePlayerGameScreenState
             ),
             Text(
               label,
-              style: AppTypography.labelSmall(context).copyWith(
-                fontSize: 14,
-                color: context.colors.textTertiary,
-              ),
+              style: AppTypography.labelSmall(
+                context,
+              ).copyWith(fontSize: 14, color: context.colors.textTertiary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -428,7 +436,7 @@ class _SinglePlayerGameScreenState
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 
   Widget _buildPauseOverlay() {
     final l10n = AppLocalizations.of(context)!;
@@ -455,16 +463,13 @@ class _SinglePlayerGameScreenState
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  l10n.gamePaused,
-                  style: AppTypography.headline3(context),
-                ),
+                Text(l10n.gamePaused, style: AppTypography.headline3(context)),
                 const SizedBox(height: 8),
                 Text(
                   l10n.tapToResume,
-                  style: AppTypography.body(context).copyWith(
-                    color: context.colors.textSecondary,
-                  ),
+                  style: AppTypography.body(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
                 const SizedBox(height: 32),
                 GestureDetector(
@@ -489,9 +494,9 @@ class _SinglePlayerGameScreenState
                   onTap: () => _showHomeConfirmation(),
                   child: Text(
                     l10n.quitGame,
-                    style: AppTypography.body(context).copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTypography.body(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ),
               ],

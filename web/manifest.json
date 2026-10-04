@@ -1,11 +1,11 @@
 {
-    "name": "music_memo",
-    "short_name": "music_memo",
+    "name": "Music Memo",
+    "short_name": "Music Memo",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A sound matching memory card game",
+    "background_color": "#1C1C1E",
+    "theme_color": "#3B82F6",
+    "description": "A music memory game: listen, match and recall clips across Ear Training, For Kids and Music Mix.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

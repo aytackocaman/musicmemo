@@ -42,10 +42,10 @@ class AccentColorData {
   );
 
   static AccentColorData fromEnum(AccentColor accent) => switch (accent) {
-        AccentColor.blue => blue,
-        AccentColor.purple => purple,
-        AccentColor.red => red,
-      };
+    AccentColor.blue => blue,
+    AccentColor.purple => purple,
+    AccentColor.red => red,
+  };
 }
 
 // ─── Theme Extension ───────────────────────────────────────────────────────────
@@ -93,43 +93,45 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   final Color cardGradientLight;
   final Color cardGradientDark;
 
-  static AppColorsTheme light({AccentColorData cardColorData = AccentColorData.blue}) =>
-      AppColorsTheme(
-        background: const Color(0xFFFFFFFF),
-        surface: const Color(0xFFF4F4F5),
-        elevated: const Color(0xFFE4E4E7),
-        textPrimary: const Color(0xFF18181B),
-        textSecondary: const Color(0xFF71717A),
-        textTertiary: const Color(0xFFA1A1AA),
-        textMuted: const Color(0xFFD4D4D8),
-        accent: AccentColorData.blue.primary,
-        accentSoft: AccentColorData.blue.primarySoft,
-        accentGradientLight: AccentColorData.blue.gradientLight,
-        accentGradientDark: AccentColorData.blue.gradientDark,
-        cardColor: cardColorData.primary,
-        cardColorSoft: cardColorData.primarySoft,
-        cardGradientLight: cardColorData.gradientLight,
-        cardGradientDark: cardColorData.gradientDark,
-      );
+  static AppColorsTheme light({
+    AccentColorData cardColorData = AccentColorData.blue,
+  }) => AppColorsTheme(
+    background: const Color(0xFFFFFFFF),
+    surface: const Color(0xFFF4F4F5),
+    elevated: const Color(0xFFE4E4E7),
+    textPrimary: const Color(0xFF18181B),
+    textSecondary: const Color(0xFF71717A),
+    textTertiary: const Color(0xFFA1A1AA),
+    textMuted: const Color(0xFFD4D4D8),
+    accent: AccentColorData.blue.primary,
+    accentSoft: AccentColorData.blue.primarySoft,
+    accentGradientLight: AccentColorData.blue.gradientLight,
+    accentGradientDark: AccentColorData.blue.gradientDark,
+    cardColor: cardColorData.primary,
+    cardColorSoft: cardColorData.primarySoft,
+    cardGradientLight: cardColorData.gradientLight,
+    cardGradientDark: cardColorData.gradientDark,
+  );
 
-  static AppColorsTheme dark({AccentColorData cardColorData = AccentColorData.blue}) =>
-      AppColorsTheme(
-        background: const Color(0xFF1C1C1E),
-        surface: const Color(0xFF2C2C2E),
-        elevated: const Color(0xFF3A3A3C),
-        textPrimary: const Color(0xFFF2F2F7),
-        textSecondary: const Color(0xFFAEAEB2),
-        textTertiary: const Color(0xFF8E8E93),
-        textMuted: const Color(0xFF636366),
-        accent: AccentColorData.blue.primary,
-        accentSoft: AccentColorData.blue.primarySoft,
-        accentGradientLight: AccentColorData.blue.gradientLight,
-        accentGradientDark: AccentColorData.blue.gradientDark,
-        cardColor: cardColorData.primary,
-        cardColorSoft: cardColorData.primarySoft,
-        cardGradientLight: cardColorData.gradientLight,
-        cardGradientDark: cardColorData.gradientDark,
-      );
+  static AppColorsTheme dark({
+    AccentColorData cardColorData = AccentColorData.blue,
+  }) => AppColorsTheme(
+    background: const Color(0xFF1C1C1E),
+    surface: const Color(0xFF2C2C2E),
+    elevated: const Color(0xFF3A3A3C),
+    textPrimary: const Color(0xFFF2F2F7),
+    textSecondary: const Color(0xFFAEAEB2),
+    textTertiary: const Color(0xFF8E8E93),
+    textMuted: const Color(0xFF636366),
+    accent: AccentColorData.blue.primary,
+    accentSoft: AccentColorData.blue.primarySoft,
+    accentGradientLight: AccentColorData.blue.gradientLight,
+    accentGradientDark: AccentColorData.blue.gradientDark,
+    cardColor: cardColorData.primary,
+    cardColorSoft: cardColorData.primarySoft,
+    cardGradientLight: cardColorData.gradientLight,
+    cardGradientDark: cardColorData.gradientDark,
+  );
 
   @override
   AppColorsTheme copyWith({
@@ -181,12 +183,28 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       accentSoft: Color.lerp(accentSoft, other.accentSoft, t)!,
-      accentGradientLight: Color.lerp(accentGradientLight, other.accentGradientLight, t)!,
-      accentGradientDark: Color.lerp(accentGradientDark, other.accentGradientDark, t)!,
+      accentGradientLight: Color.lerp(
+        accentGradientLight,
+        other.accentGradientLight,
+        t,
+      )!,
+      accentGradientDark: Color.lerp(
+        accentGradientDark,
+        other.accentGradientDark,
+        t,
+      )!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardColorSoft: Color.lerp(cardColorSoft, other.cardColorSoft, t)!,
-      cardGradientLight: Color.lerp(cardGradientLight, other.cardGradientLight, t)!,
-      cardGradientDark: Color.lerp(cardGradientDark, other.cardGradientDark, t)!,
+      cardGradientLight: Color.lerp(
+        cardGradientLight,
+        other.cardGradientLight,
+        t,
+      )!,
+      cardGradientDark: Color.lerp(
+        cardGradientDark,
+        other.cardGradientDark,
+        t,
+      )!,
     );
   }
 }
@@ -212,7 +230,7 @@ class AppColors {
 
   // Badge / accent
   static const green = Color(0xFF10B981); // emerald-500
-  static const gold = Color(0xFFFBBF24);  // amber-400
+  static const gold = Color(0xFFFBBF24); // amber-400
 }
 
 /// App typography using Google Fonts.
@@ -220,19 +238,22 @@ class AppColors {
 /// Static fields are used for styles that always use brand colors.
 class AppTypography {
   // ── Headlines ──────────────────────────────────────────────────────────────
-  static TextStyle headline1(BuildContext context) => GoogleFonts.plusJakartaSans(
+  static TextStyle headline1(BuildContext context) =>
+      GoogleFonts.plusJakartaSans(
         fontSize: 40 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
       );
 
-  static TextStyle headline2(BuildContext context) => GoogleFonts.plusJakartaSans(
+  static TextStyle headline2(BuildContext context) =>
+      GoogleFonts.plusJakartaSans(
         fontSize: 34 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
       );
 
-  static TextStyle headline3(BuildContext context) => GoogleFonts.plusJakartaSans(
+  static TextStyle headline3(BuildContext context) =>
+      GoogleFonts.plusJakartaSans(
         fontSize: 28 * Responsive.scale(context),
         fontWeight: FontWeight.w700,
         color: context.colors.textPrimary,
@@ -240,12 +261,13 @@ class AppTypography {
 
   // ── Metrics ─────────────────────────────────────────────────────────────────
   static TextStyle metric(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 32 * Responsive.scale(context),
-        fontWeight: FontWeight.w800,
-        color: context.colors.accent,
-      );
+    fontSize: 32 * Responsive.scale(context),
+    fontWeight: FontWeight.w800,
+    color: context.colors.accent,
+  );
 
-  static TextStyle metricSmall(BuildContext context) => GoogleFonts.plusJakartaSans(
+  static TextStyle metricSmall(BuildContext context) =>
+      GoogleFonts.plusJakartaSans(
         fontSize: 28 * Responsive.scale(context),
         fontWeight: FontWeight.w800,
         color: context.colors.textPrimary,
@@ -253,48 +275,48 @@ class AppTypography {
 
   // ── Body ────────────────────────────────────────────────────────────────────
   static TextStyle bodyLarge(BuildContext context) => GoogleFonts.inter(
-        fontSize: 18 * Responsive.scale(context),
-        fontWeight: FontWeight.w600,
-        color: context.colors.textPrimary,
-      );
+    fontSize: 18 * Responsive.scale(context),
+    fontWeight: FontWeight.w600,
+    color: context.colors.textPrimary,
+  );
 
   static TextStyle body(BuildContext context) => GoogleFonts.inter(
-        fontSize: 16 * Responsive.scale(context),
-        fontWeight: FontWeight.w400,
-        color: context.colors.textPrimary,
-      );
+    fontSize: 16 * Responsive.scale(context),
+    fontWeight: FontWeight.w400,
+    color: context.colors.textPrimary,
+  );
 
   static TextStyle bodySmall(BuildContext context) => GoogleFonts.inter(
-        fontSize: 14 * Responsive.scale(context),
-        fontWeight: FontWeight.w500,
-        color: context.colors.textSecondary,
-      );
+    fontSize: 14 * Responsive.scale(context),
+    fontWeight: FontWeight.w500,
+    color: context.colors.textSecondary,
+  );
 
   // ── Labels ──────────────────────────────────────────────────────────────────
   static TextStyle label(BuildContext context) => GoogleFonts.inter(
-        fontSize: 14 * Responsive.scale(context),
-        fontWeight: FontWeight.w600,
-        color: context.colors.textPrimary,
-      );
+    fontSize: 14 * Responsive.scale(context),
+    fontWeight: FontWeight.w600,
+    color: context.colors.textPrimary,
+  );
 
   static TextStyle labelSmall(BuildContext context) => GoogleFonts.inter(
-        fontSize: 13 * Responsive.scale(context),
-        fontWeight: FontWeight.w500,
-        color: context.colors.textTertiary,
-      );
+    fontSize: 13 * Responsive.scale(context),
+    fontWeight: FontWeight.w500,
+    color: context.colors.textTertiary,
+  );
 
   // ── Buttons ─────────────────────────────────────────────────────────────────
   static TextStyle button(BuildContext context) => GoogleFonts.plusJakartaSans(
-        fontSize: 18 * Responsive.scale(context),
-        fontWeight: FontWeight.w700,
-        color: AppColors.white,
-      );
+    fontSize: 18 * Responsive.scale(context),
+    fontWeight: FontWeight.w700,
+    color: AppColors.white,
+  );
 
   static TextStyle buttonSecondary(BuildContext context) => GoogleFonts.inter(
-        fontSize: 16 * Responsive.scale(context),
-        fontWeight: FontWeight.w600,
-        color: context.colors.textPrimary,
-      );
+    fontSize: 16 * Responsive.scale(context),
+    fontWeight: FontWeight.w600,
+    color: context.colors.textPrimary,
+  );
 }
 
 /// App spacing constants
@@ -310,7 +332,14 @@ class AppSpacing {
 /// App radius constants
 class AppRadius {
   static const double card = 16;
-  static const double button = 24;
+
+  /// Buttons and text fields are 52-56px tall, so a radius of 13 reads as a
+  /// soft rectangle. The previous value of 24 matched the control height and
+  /// turned every button in the app into a full pill, which is the single
+  /// strongest "generated from a template" tell. Keep AppRadius.circular for
+  /// genuine pills (chips, badges).
+  static const double button = 13;
+
   static const double logo = 32;
   static const double badge = 20;
   static const double circular = 100;

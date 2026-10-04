@@ -68,7 +68,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
   StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
-  MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
+  MultiplayerConnectionState _connectionState =
+      MultiplayerConnectionState.connected;
 
   // Emoji reactions
   StreamSubscription<Map<String, String>>? _emojiSubscription;
@@ -95,15 +96,16 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   void _initializeGame() async {
     // Subscribe to session updates
     _sessionSubscription =
-        MultiplayerService.subscribeToSession(widget.session.id).listen(
-      (updatedSession) {
-        _handleSessionUpdate(updatedSession);
-      },
-    );
+        MultiplayerService.subscribeToSession(widget.session.id).listen((
+          updatedSession,
+        ) {
+          _handleSessionUpdate(updatedSession);
+        });
 
     // Subscribe to connection state changes
-    _connectionSubscription =
-        MultiplayerService.connectionStateStream.listen((state) {
+    _connectionSubscription = MultiplayerService.connectionStateStream.listen((
+      state,
+    ) {
       if (!mounted) return;
       setState(() => _connectionState = state);
       // Pause opponent timeout while we're disconnected/reconnecting
@@ -145,7 +147,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       setState(() {
         _currentSession = session;
         _cards = MultiplayerService.parseCardsFromGameState(session.gameState);
-        _turnTimeLimitMs = (gs['turnTimeLimitMs'] as int?) ?? _defaultTurnTimeLimitMs;
+        _turnTimeLimitMs =
+            (gs['turnTimeLimitMs'] as int?) ?? _defaultTurnTimeLimitMs;
         _turnTimeRemainingMs = _turnTimeLimitMs;
         _isInitialized = true;
       });
@@ -189,7 +192,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         setState(() {
           _currentSession = updatedSession;
           if (updatedSession.gameState != null) {
-            final serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+            final serverCards = MultiplayerService.parseCardsFromGameState(
+              updatedSession.gameState,
+            );
             _cards = _tagMatchedColors(serverCards, _cards);
           }
         });
@@ -201,7 +206,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     final wasMyTurn = _currentSession.currentTurn == _myUserId;
     final isNowMyTurn = updatedSession.currentTurn == _myUserId;
     final turnChanged = wasMyTurn != isNowMyTurn;
-    debugPrint('Session update received: turn=${updatedSession.currentTurn}, isMyTurn=$isNowMyTurn, turnChanged=$turnChanged');
+    debugPrint(
+      'Session update received: turn=${updatedSession.currentTurn}, isMyTurn=$isNowMyTurn, turnChanged=$turnChanged',
+    );
 
     // Reset opponent timeout on every session update
     _resetOpponentTimeout(isNowMyTurn);
@@ -210,14 +217,17 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     // Detect newly flipped cards from opponent to play their sounds
     List<GameCard>? serverCards;
     if (updatedSession.gameState != null) {
-      serverCards = MultiplayerService.parseCardsFromGameState(updatedSession.gameState);
+      serverCards = MultiplayerService.parseCardsFromGameState(
+        updatedSession.gameState,
+      );
       // Play sound for opponent's newly flipped card.
       if (!_isMyTurn) {
         for (final sc in serverCards) {
           final existing = _cards.where((c) => c.id == sc.id).firstOrNull;
           if (existing != null &&
               existing.state == CardState.faceDown &&
-              (sc.state == CardState.flipped || sc.state == CardState.matched)) {
+              (sc.state == CardState.flipped ||
+                  sc.state == CardState.matched)) {
             final path = _soundPaths[sc.soundId];
             if (path != null) {
               AudioService.play(path);
@@ -237,7 +247,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         if (_isProcessing && isNowMyTurn && !turnChanged) {
           debugPrint('Skipping server card overwrite — processing my own turn');
         } else {
-          debugPrint('Server cards: ${serverCards.map((c) => "${c.id}:${c.state.name}").join(", ")}');
+          debugPrint(
+            'Server cards: ${serverCards.map((c) => "${c.id}:${c.state.name}").join(", ")}',
+          );
           // Preserve local matchedByColor for cards we already tagged, and
           // tag newly matched cards from the opponent with teal.
           _cards = _tagMatchedColors(serverCards, _cards);
@@ -267,7 +279,8 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     if (_cards.isNotEmpty) {
       final totalPairs = _cards.length ~/ 2;
       final allMatched = _cards.every((c) => c.state == CardState.matched);
-      final decisiveWin = updatedSession.player1Score > totalPairs / 2 ||
+      final decisiveWin =
+          updatedSession.player1Score > totalPairs / 2 ||
           updatedSession.player2Score > totalPairs / 2;
       if (allMatched || decisiveWin) {
         _handleGameComplete();
@@ -410,8 +423,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     }
 
     // Switch turn to opponent
-    final opponentId =
-        _amIPlayer1 ? widget.session.player2Id : widget.session.player1Id;
+    final opponentId = _amIPlayer1
+        ? widget.session.player2Id
+        : widget.session.player1Id;
 
     HapticService.turnSwitch();
 
@@ -461,7 +475,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   /// Merge matchedByColor info: keep local tags for cards we already matched,
   /// and tag newly matched cards (from opponent) with teal.
-  List<GameCard> _tagMatchedColors(List<GameCard> serverCards, List<GameCard> localCards) {
+  List<GameCard> _tagMatchedColors(
+    List<GameCard> serverCards,
+    List<GameCard> localCards,
+  ) {
     final localColorMap = <String, String?>{};
     final localMatchedIds = <String>{};
     for (final c in localCards) {
@@ -493,10 +510,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
 
   /// My match color depends on accent so it contrasts with face-down cards.
   String get _myMatchHexColor => switch (ref.read(accentColorProvider)) {
-        AccentColor.blue => '#8B5CF6',   // purple
-        AccentColor.purple => '#3B82F6', // blue
-        AccentColor.red => '#3B82F6',    // blue
-      };
+    AccentColor.blue => '#8B5CF6', // purple
+    AccentColor.purple => '#3B82F6', // blue
+    AccentColor.red => '#3B82F6', // blue
+  };
 
   void _handleCardTap(String cardId) async {
     // IMMEDIATELY block if not my turn or already processing
@@ -587,7 +604,10 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         // Tag with accent-contrasting color (my matches in online mode)
         final updatedCards = _cards.map((c) {
           if (flippedCardIds.contains(c.id)) {
-            return c.copyWith(state: CardState.matched, matchedByColor: _myMatchHexColor);
+            return c.copyWith(
+              state: CardState.matched,
+              matchedByColor: _myMatchHexColor,
+            );
           }
           return c;
         }).toList();
@@ -605,9 +625,12 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
             : _currentSession.player2Score;
 
         // Check if game is complete (all matched or decisive win)
-        final allMatched = updatedCards.every((c) => c.state == CardState.matched);
+        final allMatched = updatedCards.every(
+          (c) => c.state == CardState.matched,
+        );
         final totalPairs = updatedCards.length ~/ 2;
-        final decisiveWin = newPlayer1Score > totalPairs / 2 ||
+        final decisiveWin =
+            newPlayer1Score > totalPairs / 2 ||
             newPlayer2Score > totalPairs / 2;
         final gameOver = allMatched || decisiveWin;
 
@@ -646,7 +669,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           currentTurn: _myUserId, // Keep turn on match
           status: gameOver ? 'finished' : null,
           turnTimeLimitMs: _turnTimeLimitMs,
-            );
+        );
 
         if (gameOver) {
           // Go to win screen immediately — no pause needed
@@ -683,8 +706,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
         });
 
         // Switch turn to opponent
-        final opponentId =
-            _amIPlayer1 ? widget.session.player2Id : widget.session.player1Id;
+        final opponentId = _amIPlayer1
+            ? widget.session.player2Id
+            : widget.session.player1Id;
 
         debugPrint('No match - switching turn to $opponentId');
 
@@ -695,7 +719,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           player2Score: _currentSession.player2Score,
           currentTurn: opponentId!,
           turnTimeLimitMs: _turnTimeLimitMs,
-            );
+        );
 
         // Keep processing=true - turn switched, player can't act anymore
         // _isProcessing will be reset when session update comes with new turn
@@ -704,8 +728,12 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   }
 
   Future<void> _syncGameState() async {
-    final flippedCount = _cards.where((c) => c.state == CardState.flipped).length;
-    debugPrint('Syncing game state: flipped=$flippedCount, turn=${_currentSession.currentTurn}');
+    final flippedCount = _cards
+        .where((c) => c.state == CardState.flipped)
+        .length;
+    debugPrint(
+      'Syncing game state: flipped=$flippedCount, turn=${_currentSession.currentTurn}',
+    );
     await MultiplayerService.updateGameState(
       sessionId: widget.session.id,
       cards: _cards,
@@ -738,7 +766,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     await DatabaseService.saveGame(
       category: _currentSession.category ?? 'unknown',
       score: myScore,
-      moves: myScore + opponentScore, // total pairs found = total moves in multiplayer context
+      moves:
+          myScore +
+          opponentScore, // total pairs found = total moves in multiplayer context
       timeSeconds: _seconds,
       won: won,
       gridSize: _currentSession.gridSize ?? '4x5',
@@ -792,7 +822,9 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.accent,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -832,7 +864,11 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
                     cards: _cards,
                     gridSize: widget.session.gridSize ?? '4x5',
                     onCardTap: _handleCardTap,
-                    enabled: _isMyTurn && !_isProcessing && _connectionState == MultiplayerConnectionState.connected,
+                    enabled:
+                        _isMyTurn &&
+                        !_isProcessing &&
+                        _connectionState ==
+                            MultiplayerConnectionState.connected,
                     countdownCardId: _countdownCardId,
                     countdownDurationMs: _countdownDurationMs,
                   ),
@@ -880,9 +916,13 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
                       setState(() {});
                     },
                     child: Icon(
-                      DevConfig.simulateDisconnect ? Icons.wifi_off : Icons.wifi,
+                      DevConfig.simulateDisconnect
+                          ? Icons.wifi_off
+                          : Icons.wifi,
                       size: 14,
-                      color: DevConfig.simulateDisconnect ? Colors.red : context.colors.textTertiary,
+                      color: DevConfig.simulateDisconnect
+                          ? Colors.red
+                          : context.colors.textTertiary,
                     ),
                   ),
                 ],
@@ -897,16 +937,19 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
               Flexible(
                 child: Text(
                   _formatCategoryName(_currentSession.category ?? ''),
-                  style: AppTypography.bodyLarge(context).copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.bodyLarge(
+                    context,
+                  ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 6),
-              _AnimatedDot(color: dotColor, animate: _connectionState == MultiplayerConnectionState.reconnecting),
+              _AnimatedDot(
+                color: dotColor,
+                animate:
+                    _connectionState == MultiplayerConnectionState.reconnecting,
+              ),
             ],
           ),
         ),
@@ -921,7 +964,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 
   Widget _buildPlayerScores() {
     final myScore = _amIPlayer1
@@ -986,15 +1029,14 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
     final totalPairs = _cards.length ~/ 2;
     final matchedPairs =
         _cards.where((c) => c.state == CardState.matched).length ~/ 2;
-    final totalMoves = _currentSession.player1Score + _currentSession.player2Score;
+    final totalMoves =
+        _currentSession.player1Score + _currentSession.player2Score;
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: _buildStatCard('$totalMoves', l10n.moves),
-          ),
+          Expanded(child: _buildStatCard('$totalMoves', l10n.moves)),
           const SizedBox(width: 8),
           Expanded(
             child: _buildStatCard(GameUtils.formatTime(_seconds), l10n.time),
@@ -1014,10 +1056,7 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: context.colors.elevated,
-          width: 2,
-        ),
+        border: Border.all(color: context.colors.elevated, width: 2),
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -1026,18 +1065,16 @@ class _OnlineGameScreenState extends ConsumerState<OnlineGameScreen>
           children: [
             Text(
               value,
-              style: AppTypography.bodyLarge(context).copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTypography.bodyLarge(
+                context,
+              ).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             Text(
               label,
-              style: AppTypography.labelSmall(context).copyWith(
-                fontSize: 11,
-                color: context.colors.textTertiary,
-              ),
+              style: AppTypography.labelSmall(
+                context,
+              ).copyWith(fontSize: 11, color: context.colors.textTertiary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -1117,7 +1154,7 @@ class _PlayerScoreCard extends StatelessWidget {
     // My color contrasts with the accent; opponent is always orange
     final myColor = switch (context.colors.accent.toARGB32()) {
       0xFF3B82F6 => const Color(0xFF8B5CF6), // blue accent → purple
-      _ => const Color(0xFF3B82F6),           // purple/red accent → blue
+      _ => const Color(0xFF3B82F6), // purple/red accent → blue
     };
     final color = isMe ? myColor : const Color(0xFFF97316);
 
@@ -1224,7 +1261,9 @@ class _PlayerScoreCard extends StatelessWidget {
               style: AppTypography.bodyLarge(context).copyWith(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: isCurrentTurn ? Colors.white : context.colors.textPrimary,
+                color: isCurrentTurn
+                    ? Colors.white
+                    : context.colors.textPrimary,
               ),
             ),
           ],
@@ -1321,7 +1360,10 @@ class _EmojiPickerButtonState extends State<_EmojiPickerButton> {
                           width: 44,
                           height: 44,
                           child: Center(
-                            child: Text(emoji, style: const TextStyle(fontSize: 22)),
+                            child: Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 22),
+                            ),
                           ),
                         ),
                       ),
@@ -1364,9 +1406,7 @@ class _EmojiPickerButtonState extends State<_EmojiPickerButton> {
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Center(
-          child: Text('😀', style: TextStyle(fontSize: 22)),
-        ),
+        child: const Center(child: Text('😀', style: TextStyle(fontSize: 22))),
       ),
     );
   }
@@ -1411,9 +1451,10 @@ class _FloatingEmojiState extends State<_FloatingEmoji>
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 40),
     ]).animate(_controller);
-    _translateY = Tween<double>(begin: 0, end: -60).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _translateY = Tween<double>(
+      begin: 0,
+      end: -60,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward().then((_) {
       if (mounted) widget.onDone();
     });
@@ -1491,9 +1532,10 @@ class _NameTooltipState extends State<_NameTooltip>
       duration: const Duration(milliseconds: 200),
     );
     _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scale = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scale = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward();
     Future.delayed(const Duration(seconds: 2), _dismiss);
   }
@@ -1532,12 +1574,16 @@ class _NameTooltipState extends State<_NameTooltip>
               alignment: Alignment.bottomCenter,
               child: UnconstrainedBox(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
                         widget.color,
-                        Color.lerp(widget.color, Colors.white, 0.2) ?? widget.color,
+                        Color.lerp(widget.color, Colors.white, 0.2) ??
+                            widget.color,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
@@ -1621,10 +1667,7 @@ class _AnimatedDotState extends State<_AnimatedDot>
       child: Container(
         width: 6,
         height: 6,
-        decoration: BoxDecoration(
-          color: widget.color,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle),
       ),
     );
   }
@@ -1696,17 +1739,18 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-    _sessionSubscription =
-        MultiplayerService.subscribeToSession(widget.session.id).listen(
-      _handleSessionUpdate,
-    );
+    _sessionSubscription = MultiplayerService.subscribeToSession(
+      widget.session.id,
+    ).listen(_handleSessionUpdate);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // `inactive` fires as soon as the home button is pressed (before the app
     // is fully suspended), giving us the best chance to complete the HTTP call.
-    if (state == AppLifecycleState.inactive && !_navigatingToGame && !_markedLeft) {
+    if (state == AppLifecycleState.inactive &&
+        !_navigatingToGame &&
+        !_markedLeft) {
       _markedLeft = true;
       MultiplayerService.markPlayerLeft(widget.session.id);
     }
@@ -1778,8 +1822,7 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
   Future<void> _requestRematch() async {
     setState(() => _rematchState = _RematchState.requested);
-    final success =
-        await MultiplayerService.requestRematch(widget.session.id);
+    final success = await MultiplayerService.requestRematch(widget.session.id);
     if (!mounted) return;
     if (!success) {
       setState(() => _rematchState = _RematchState.idle);
@@ -1819,8 +1862,9 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
 
     // Fetch sounds for session category (fall back to piano)
     final category = _latestSession.category ?? 'piano';
-    List<SoundModel> sounds =
-        await DatabaseService.getSoundsForSelection(category);
+    List<SoundModel> sounds = await DatabaseService.getSoundsForSelection(
+      category,
+    );
     if (sounds.isEmpty && category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -1888,8 +1932,8 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     final resultAccent = isTie
         ? context.colors.accent
         : iWon
-            ? AppColors.teal
-            : AppColors.pink;
+        ? AppColors.teal
+        : AppColors.pink;
 
     return PopScope(
       canPop: false,
@@ -1911,173 +1955,192 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                // Result icon
-                Container(
-                  width: isCompact ? 80 : 120,
-                  height: isCompact ? 80 : 120,
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isTie
-                        ? Icons.handshake
-                        : iWon
-                            ? Icons.emoji_events
-                            : Icons.sentiment_dissatisfied,
-                    size: isCompact ? 40 : 64,
-                    color: AppColors.white,
-                  ),
-                ),
-                SizedBox(height: isCompact ? 16 : 24),
-
-                // Result text
-                Text(
-                  _opponentLeftPostGame
-                      ? l10n.opponentLeftTitle
-                      : isTie
-                          ? l10n.itsATie
-                          : iWon
-                              ? l10n.youWin
-                              : l10n.youLost,
-                  style: AppTypography.headline2(context).copyWith(
-                    color: AppColors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                Text(
-                  _opponentLeftPostGame
-                      ? l10n.opponentLeftMessage
-                      : isTie
-                      ? l10n.greatMatch
-                      : iWon
-                          ? l10n.congratulations
-                          : l10n.betterLuckNextTime,
-                  style: AppTypography.body(context).copyWith(
-                    color: AppColors.white.withValues(alpha: 0.8),
-                  ),
-                ),
-                SizedBox(height: isCompact ? 20 : 32),
-
-                // Scores comparison card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Text(
-                              widget.playerName,
-                              style: AppTypography.bodySmall(context).copyWith(
-                                color: AppColors.white.withValues(alpha: 0.8),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$myScore',
-                              style: AppTypography.metric(context).copyWith(
-                                color: AppColors.white,
-                              ),
-                            ),
-                            Text(
-                              l10n.pairs,
-                              style: AppTypography.labelSmall(context).copyWith(
-                                color: AppColors.white.withValues(alpha: 0.7),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Result icon
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                        width: isCompact ? 80 : 120,
+                        height: isCompact ? 80 : 120,
                         decoration: BoxDecoration(
-                          color: AppColors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppColors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          l10n.vs,
-                          style: AppTypography.bodyLarge(context).copyWith(
-                            color: AppColors.white.withValues(alpha: 0.6),
-                          ),
+                        child: Icon(
+                          isTie
+                              ? Icons.handshake
+                              : iWon
+                              ? Icons.emoji_events
+                              : Icons.sentiment_dissatisfied,
+                          size: isCompact ? 40 : 64,
+                          color: AppColors.white,
                         ),
                       ),
-                      Expanded(
-                        child: Column(
+                      SizedBox(height: isCompact ? 16 : 24),
+
+                      // Result text
+                      Text(
+                        _opponentLeftPostGame
+                            ? l10n.opponentLeftTitle
+                            : isTie
+                            ? l10n.itsATie
+                            : iWon
+                            ? l10n.youWin
+                            : l10n.youLost,
+                        style: AppTypography.headline2(
+                          context,
+                        ).copyWith(color: AppColors.white),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Text(
+                        _opponentLeftPostGame
+                            ? l10n.opponentLeftMessage
+                            : isTie
+                            ? l10n.greatMatch
+                            : iWon
+                            ? l10n.congratulations
+                            : l10n.betterLuckNextTime,
+                        style: AppTypography.body(context).copyWith(
+                          color: AppColors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      SizedBox(height: isCompact ? 20 : 32),
+
+                      // Scores comparison card
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
                           children: [
-                            Text(
-                              opponentName ?? l10n.opponent,
-                              style: AppTypography.bodySmall(context).copyWith(
-                                color: AppColors.white.withValues(alpha: 0.8),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    widget.playerName,
+                                    style: AppTypography.bodySmall(context)
+                                        .copyWith(
+                                          color: AppColors.white.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                        ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '$myScore',
+                                    style: AppTypography.metric(
+                                      context,
+                                    ).copyWith(color: AppColors.white),
+                                  ),
+                                  Text(
+                                    l10n.pairs,
+                                    style: AppTypography.labelSmall(context)
+                                        .copyWith(
+                                          color: AppColors.white.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                        ),
+                                  ),
+                                ],
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$opponentScore',
-                              style: AppTypography.metric(context).copyWith(
-                                color: AppColors.white,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                l10n.vs,
+                                style: AppTypography.bodyLarge(context)
+                                    .copyWith(
+                                      color: AppColors.white.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
                               ),
                             ),
-                            Text(
-                              l10n.pairs,
-                              style: AppTypography.labelSmall(context).copyWith(
-                                color: AppColors.white.withValues(alpha: 0.7),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    opponentName ?? l10n.opponent,
+                                    style: AppTypography.bodySmall(context)
+                                        .copyWith(
+                                          color: AppColors.white.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                        ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '$opponentScore',
+                                    style: AppTypography.metric(
+                                      context,
+                                    ).copyWith(color: AppColors.white),
+                                  ),
+                                  Text(
+                                    l10n.pairs,
+                                    style: AppTypography.labelSmall(context)
+                                        .copyWith(
+                                          color: AppColors.white.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                        ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 16),
+
+                      // Game info row (category, grid, time)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _buildInfoItem(
+                                icon: Icons.category,
+                                value: _formatCategoryName(category),
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildInfoItem(
+                                icon: Icons.grid_view,
+                                value: widget.session.gridSize ?? '4x5',
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildInfoItem(
+                                icon: Icons.timer,
+                                value: GameUtils.formatTime(widget.timeSeconds),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: isCompact ? 20 : 32),
+
+                      // Rematch action buttons
+                      ..._buildRematchButtons(),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Game info row (category, grid, time)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildInfoItem(
-                          icon: Icons.category,
-                          value: _formatCategoryName(category),
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildInfoItem(
-                          icon: Icons.grid_view,
-                          value: widget.session.gridSize ?? '4x5',
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildInfoItem(
-                          icon: Icons.timer,
-                          value: GameUtils.formatTime(widget.timeSeconds),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: isCompact ? 20 : 32),
-
-                // Rematch action buttons
-                ..._buildRematchButtons(),
-                  ],
-                ),
-              ),
               );
             },
           ),
@@ -2225,15 +2288,10 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
       MaterialPageRoute(builder: (_) => const HomeScreen()),
       (route) => false,
     );
-    navigator.push(
-      MaterialPageRoute(builder: (_) => const OnlineModeScreen()),
-    );
+    navigator.push(MaterialPageRoute(builder: (_) => const OnlineModeScreen()));
   }
 
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String value,
-  }) {
+  Widget _buildInfoItem({required IconData icon, required String value}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -2242,9 +2300,9 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
         Flexible(
           child: Text(
             value,
-            style: AppTypography.bodySmall(context).copyWith(
-              color: AppColors.white.withValues(alpha: 0.9),
-            ),
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(color: AppColors.white.withValues(alpha: 0.9)),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -2264,8 +2322,8 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
     final backgroundColor = isPrimary
         ? AppColors.white
         : isOutlined
-            ? Colors.transparent
-            : AppColors.white.withValues(alpha: 0.1);
+        ? Colors.transparent
+        : AppColors.white.withValues(alpha: 0.1);
     final foregroundColor = isPrimary ? context.colors.accent : AppColors.white;
 
     return GestureDetector(
@@ -2278,7 +2336,9 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
           borderRadius: BorderRadius.circular(28),
           border: isOutlined
               ? Border.all(
-                  color: AppColors.white.withValues(alpha: 0.3), width: 1)
+                  color: AppColors.white.withValues(alpha: 0.3),
+                  width: 1,
+                )
               : null,
         ),
         child: Row(
@@ -2300,9 +2360,9 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
             ],
             Text(
               label,
-              style: AppTypography.bodyLarge(context).copyWith(
-                color: foregroundColor,
-              ),
+              style: AppTypography.bodyLarge(
+                context,
+              ).copyWith(color: foregroundColor),
             ),
           ],
         ),
@@ -2311,5 +2371,5 @@ class _OnlineWinScreenState extends State<_OnlineWinScreen>
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 }

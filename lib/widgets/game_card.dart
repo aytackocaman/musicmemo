@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/game_provider.dart';
 import '../services/haptic_service.dart';
 
@@ -151,54 +152,72 @@ class _GameCardWidgetState extends State<GameCardWidget>
 
   @override
   Widget build(BuildContext context) {
-    final showParticles = _particleController != null &&
-        _particleController!.isAnimating;
+    final showParticles =
+        _particleController != null && _particleController!.isAnimating;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.center,
-      children: [
-        GestureDetector(
-          onTapDown: _handleTapDown,
-          onTapUp: _handleTapUp,
-          onTapCancel: _handleTapCancel,
-          child: ScaleTransition(
-            scale: _scaleAnimation ?? const AlwaysStoppedAnimation(1.0),
-            child: AnimatedBuilder(
-              animation: _flipAnimation,
-              builder: (context, child) {
-                final angle = _flipAnimation.value * pi;
-                final transform = Matrix4.identity()
-                  ..setEntry(3, 2, 0.001)
-                  ..rotateY(angle);
+    // Screen-reader label. Without this a VoiceOver user hears only "button",
+    // which makes a memory game unplayable: the whole point is knowing which
+    // card is which and whether it is still face down.
+    final l10n = AppLocalizations.of(context);
+    final stateLabel = switch (widget.state) {
+      CardState.faceDown => l10n?.cardFaceDown ?? 'Face down',
+      CardState.flipped => l10n?.cardFlipped ?? 'Flipped',
+      CardState.matched => l10n?.cardMatched ?? 'Matched',
+    };
+    final semanticsLabel =
+        '${l10n?.card ?? 'Card'} ${widget.cardNumber}, $stateLabel';
 
-                return Transform(
-                  alignment: Alignment.center,
-                  transform: transform,
-                  child: _showFront ? _buildFaceDown() : _buildFaceUp(),
-                );
-              },
+    return Semantics(
+      label: semanticsLabel,
+      button: widget.onTap != null && widget.state == CardState.faceDown,
+      enabled: widget.onTap != null && widget.state == CardState.faceDown,
+      excludeSemantics: true,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          GestureDetector(
+            onTapDown: _handleTapDown,
+            onTapUp: _handleTapUp,
+            onTapCancel: _handleTapCancel,
+            child: ScaleTransition(
+              scale: _scaleAnimation ?? const AlwaysStoppedAnimation(1.0),
+              child: AnimatedBuilder(
+                animation: _flipAnimation,
+                builder: (context, child) {
+                  final angle = _flipAnimation.value * pi;
+                  final transform = Matrix4.identity()
+                    ..setEntry(3, 2, 0.001)
+                    ..rotateY(angle);
+
+                  return Transform(
+                    alignment: Alignment.center,
+                    transform: transform,
+                    child: _showFront ? _buildFaceDown() : _buildFaceUp(),
+                  );
+                },
+              ),
             ),
           ),
-        ),
-        if (showParticles)
-          Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedBuilder(
-                animation: _particleController!,
-                builder: (context, _) => CustomPaint(
-                  painter: _ParticlePainter(
-                    progress: _particleController!.value,
-                    cardWidth: widget.size,
-                    cardHeight: widget.size * 1.25,
-                    matchedColor: widget.matchedColor,
-                    accentColor: context.colors.cardColor,
+          if (showParticles)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedBuilder(
+                  animation: _particleController!,
+                  builder: (context, _) => CustomPaint(
+                    painter: _ParticlePainter(
+                      progress: _particleController!.value,
+                      cardWidth: widget.size,
+                      cardHeight: widget.size * 1.25,
+                      matchedColor: widget.matchedColor,
+                      accentColor: context.colors.cardColor,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -286,10 +305,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
       decoration: BoxDecoration(
         color: context.colors.background,
         borderRadius: radius,
-        border: Border.all(
-          color: context.colors.cardColor,
-          width: 2,
-        ),
+        border: Border.all(color: context.colors.cardColor, width: 2),
         boxShadow: [
           BoxShadow(
             color: context.colors.cardColor.withValues(alpha: 0.2),
@@ -341,7 +357,9 @@ class _GameCardWidgetState extends State<GameCardWidget>
                       value: progress,
                       strokeWidth: 3,
                       color: context.colors.cardColor.withValues(alpha: 0.6),
-                      backgroundColor: context.colors.cardColor.withValues(alpha: 0.1),
+                      backgroundColor: context.colors.cardColor.withValues(
+                        alpha: 0.1,
+                      ),
                     ),
                   );
                 },
@@ -357,8 +375,12 @@ class _GameCardWidgetState extends State<GameCardWidget>
     final baseColor = widget.matchedColor ?? AppColors.teal;
     // Derive lighter and deeper shades from the base color for the gradient
     final hsl = HSLColor.fromColor(baseColor);
-    final lighterColor = hsl.withLightness((hsl.lightness + 0.12).clamp(0.0, 1.0)).toColor();
-    final deeperColor = hsl.withLightness((hsl.lightness - 0.08).clamp(0.0, 1.0)).toColor();
+    final lighterColor = hsl
+        .withLightness((hsl.lightness + 0.12).clamp(0.0, 1.0))
+        .toColor();
+    final deeperColor = hsl
+        .withLightness((hsl.lightness - 0.08).clamp(0.0, 1.0))
+        .toColor();
     return Container(
       width: widget.size,
       height: widget.size * 1.25,
@@ -404,11 +426,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
                 ),
               ),
             ),
-            Icon(
-              Icons.check,
-              size: widget.size * 0.4,
-              color: AppColors.white,
-            ),
+            Icon(Icons.check, size: widget.size * 0.4, color: AppColors.white),
           ],
         ),
       ),
@@ -426,7 +444,8 @@ class _ParticlePainter extends CustomPainter {
   static const int _particleCount = 20;
   static List<Offset>? _cachedDirections;
   static List<Offset> get _directions {
-    if (_cachedDirections == null || _cachedDirections!.length != _particleCount) {
+    if (_cachedDirections == null ||
+        _cachedDirections!.length != _particleCount) {
       _cachedDirections = List.generate(_particleCount, (i) {
         final angle = (i / _particleCount) * 2 * pi + 0.3 * i;
         return Offset(cos(angle), sin(angle));

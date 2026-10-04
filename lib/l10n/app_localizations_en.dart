@@ -615,6 +615,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accessOnlineMultiplayer => 'Access to online multiplayer';
 
   @override
+  String trialDaysRemaining(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days left in your free trial',
+      one: '1 day left in your free trial',
+      zero: 'Last day of your free trial',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get trialEnded => 'Your Free Trial Has Ended';
 
   @override
@@ -676,7 +688,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get accentColor => 'Card Color';
+  String get card => 'Card';
+
+  @override
+  String get cardFaceDown => 'face down';
+
+  @override
+  String get cardFlipped => 'flipped';
+
+  @override
+  String get cardMatched => 'matched';
+
+  @override
+  String get accentColor => 'Card Colour';
+
+  @override
+  String get accentColorDescription =>
+      'Changes the colour of face-down cards. Buttons and highlights stay blue.';
 
   @override
   String get blue => 'Blue';

@@ -20,7 +20,8 @@ import '../../utils/responsive.dart';
 
 /// Grid options — difficulty keys are resolved via l10n at render time.
 final List<Map<String, dynamic>> _gridOptions = [
-  if (kDebugMode) {'id': '2x3', 'label': '2x3', 'pairs': 3, 'difficultyKey': 'test'},
+  if (kDebugMode)
+    {'id': '2x3', 'label': '2x3', 'pairs': 3, 'difficultyKey': 'test'},
   {'id': '4x5', 'label': '4x5', 'pairs': 10, 'difficultyKey': 'easy'},
   {'id': '5x6', 'label': '5x6', 'pairs': 15, 'difficultyKey': 'medium'},
   {'id': '6x7', 'label': '6x7', 'pairs': 21, 'difficultyKey': 'hard'},
@@ -33,7 +34,6 @@ const List<Map<String, dynamic>> _turnTimeOptions = [
   {'ms': 18000, 'label': '18s'},
   {'ms': 21000, 'label': '21s'},
 ];
-
 
 Widget _buildOptionRow({
   required BuildContext context,
@@ -49,15 +49,17 @@ Widget _buildOptionRow({
         child: GestureDetector(
           onTap: () => onSelect(ms),
           child: Container(
-            margin: EdgeInsets.only(
-              right: opt != options.last ? 8 : 0,
-            ),
+            margin: EdgeInsets.only(right: opt != options.last ? 8 : 0),
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? context.colors.accent : context.colors.surface,
+              color: isSelected
+                  ? context.colors.accent
+                  : context.colors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? context.colors.accent : context.colors.elevated,
+                color: isSelected
+                    ? context.colors.accent
+                    : context.colors.elevated,
               ),
             ),
             child: Center(
@@ -77,11 +79,16 @@ Widget _buildOptionRow({
 
 String _resolveDifficulty(AppLocalizations l10n, String key) {
   switch (key) {
-    case 'test': return l10n.test;
-    case 'easy': return l10n.easy;
-    case 'medium': return l10n.medium;
-    case 'hard': return l10n.hard;
-    default: return key;
+    case 'test':
+      return l10n.test;
+    case 'easy':
+      return l10n.easy;
+    case 'medium':
+      return l10n.medium;
+    case 'hard':
+      return l10n.hard;
+    default:
+      return key;
   }
 }
 
@@ -100,8 +107,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   bool _isFindOpponentMode = false;
   bool _isSearchingForOpponent = false;
   bool _isWaitingForOpponent = false;
-  bool _isOpponentJoined = false;  // Host: opponent joined, ready to start
-  bool _isWaitingForHostToStart = false;  // Joiner: waiting for host
+  bool _isOpponentJoined = false; // Host: opponent joined, ready to start
+  bool _isWaitingForHostToStart = false; // Joiner: waiting for host
   bool _isLoading = false;
   bool _isStartingGame = false;
   bool _isPublicSession = false; // Track if current session is public
@@ -122,11 +129,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   String? _opponentName;
   OnlineSession? _currentSession;
   String? _errorMessage;
-  bool _navigatingToGame = false;  // Track if we're navigating to game
+  bool _navigatingToGame = false; // Track if we're navigating to game
 
   StreamSubscription<OnlineSession>? _sessionSubscription;
   StreamSubscription<MultiplayerConnectionState>? _connectionSubscription;
-  MultiplayerConnectionState _connectionState = MultiplayerConnectionState.connected;
+  MultiplayerConnectionState _connectionState =
+      MultiplayerConnectionState.connected;
 
   @override
   void initState() {
@@ -137,12 +145,18 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       final profileState = ref.read(userProfileNotifierProvider);
       final displayName = profileState.valueOrNull?.displayName;
       if (displayName != null && displayName.isNotEmpty) {
-        _nameController.text = displayName.substring(0, displayName.length.clamp(0, 20));
+        _nameController.text = displayName.substring(
+          0,
+          displayName.length.clamp(0, 20),
+        );
       } else {
         final user = SupabaseService.currentUser;
         if (user?.email != null) {
           final prefix = user!.email!.split('@').first;
-          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
+          _nameController.text = prefix.substring(
+            0,
+            prefix.length.clamp(0, 20),
+          );
         }
       }
     });
@@ -154,8 +168,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   void _startConnectionListener() {
     _connectionSubscription?.cancel();
-    _connectionSubscription =
-        MultiplayerService.connectionStateStream.listen((state) {
+    _connectionSubscription = MultiplayerService.connectionStateStream.listen((
+      state,
+    ) {
       if (!mounted) return;
       setState(() => _connectionState = state);
     });
@@ -176,7 +191,6 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     }
     super.dispose();
   }
-
 
   void _showJoinOptions() {
     setState(() {
@@ -216,7 +230,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   Future<void> _searchForOpponent() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName,
+      );
       return;
     }
 
@@ -246,15 +262,13 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _isWaitingForHostToStart = true;
         });
 
-        _sessionSubscription =
-            MultiplayerService.subscribeToSession(joined.id).listen(
-          (updatedSession) {
-            _currentSession = updatedSession;
-            if (updatedSession.isPlaying) {
-              _navigateToGame(updatedSession);
-            }
-          },
-        );
+        _sessionSubscription = MultiplayerService.subscribeToSession(joined.id)
+            .listen((updatedSession) {
+              _currentSession = updatedSession;
+              if (updatedSession.isPlaying) {
+                _navigateToGame(updatedSession);
+              }
+            });
         _startConnectionListener();
         return;
       }
@@ -268,7 +282,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   Future<void> _createPublicGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName,
+      );
       return;
     }
 
@@ -303,26 +319,26 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     });
 
     // Subscribe — auto-start when someone joins
-    _sessionSubscription =
-        MultiplayerService.subscribeToSession(session.id).listen(
-      (updatedSession) {
-        _currentSession = updatedSession;
+    _sessionSubscription = MultiplayerService.subscribeToSession(session.id)
+        .listen((updatedSession) {
+          _currentSession = updatedSession;
 
-        if (updatedSession.isReady && updatedSession.hasOpponent) {
-          // Someone joined our public session — auto-start the game
-          _opponentName = updatedSession.player2Name;
-          _hostStartGame();
-        } else if (updatedSession.isPlaying) {
-          _navigateToGame(updatedSession);
-        }
-      },
-    );
+          if (updatedSession.isReady && updatedSession.hasOpponent) {
+            // Someone joined our public session — auto-start the game
+            _opponentName = updatedSession.player2Name;
+            _hostStartGame();
+          } else if (updatedSession.isPlaying) {
+            _navigateToGame(updatedSession);
+          }
+        });
     _startConnectionListener();
   }
 
   Future<void> _createGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName,
+      );
       return;
     }
 
@@ -354,44 +370,53 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     });
 
     // Subscribe to session updates
-    _sessionSubscription =
-        MultiplayerService.subscribeToSession(session.id).listen(
-      (updatedSession) {
-        _currentSession = updatedSession;
+    _sessionSubscription = MultiplayerService.subscribeToSession(session.id)
+        .listen((updatedSession) {
+          _currentSession = updatedSession;
 
-        if (updatedSession.isReady && updatedSession.hasOpponent) {
-          // Opponent joined - show "Start Game" button to host
-          setState(() {
-            _isOpponentJoined = true;
-            _opponentName = updatedSession.player2Name;
-          });
-        } else if (updatedSession.isPlaying) {
-          // Game started - navigate to game
-          _navigateToGame(updatedSession);
-        } else if (_isOpponentJoined && updatedSession.isWaiting && !updatedSession.hasOpponent) {
-          // Opponent left before game started — go back to waiting
-          setState(() {
-            _isOpponentJoined = false;
-            _opponentName = null;
-          });
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) showAppSnackBar(context, AppLocalizations.of(context)!.opponentLeftTheGame);
-          });
-        }
-      },
-    );
+          if (updatedSession.isReady && updatedSession.hasOpponent) {
+            // Opponent joined - show "Start Game" button to host
+            setState(() {
+              _isOpponentJoined = true;
+              _opponentName = updatedSession.player2Name;
+            });
+          } else if (updatedSession.isPlaying) {
+            // Game started - navigate to game
+            _navigateToGame(updatedSession);
+          } else if (_isOpponentJoined &&
+              updatedSession.isWaiting &&
+              !updatedSession.hasOpponent) {
+            // Opponent left before game started — go back to waiting
+            setState(() {
+              _isOpponentJoined = false;
+              _opponentName = null;
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted)
+                showAppSnackBar(
+                  context,
+                  AppLocalizations.of(context)!.opponentLeftTheGame,
+                );
+            });
+          }
+        });
     _startConnectionListener();
   }
 
   Future<void> _joinGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName,
+      );
       return;
     }
 
     final code = _codeController.text.trim();
     if (code.isEmpty || code.length != 6) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterValidCode);
+      setState(
+        () =>
+            _errorMessage = AppLocalizations.of(context)!.pleaseEnterValidCode,
+      );
       return;
     }
 
@@ -418,37 +443,41 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     _currentSession = session;
     _sessionId = session.id;
 
-    FocusScope.of(context).unfocus(); // dismiss keyboard before showing waiting screen
+    FocusScope.of(
+      context,
+    ).unfocus(); // dismiss keyboard before showing waiting screen
     setState(() {
       _isWaitingForHostToStart = true;
     });
 
     // Subscribe to session updates to know when host starts the game
-    _sessionSubscription =
-        MultiplayerService.subscribeToSession(session.id).listen(
-      (updatedSession) {
-        if (updatedSession.isCancelled) {
-          _sessionSubscription?.cancel();
-          _connectionSubscription?.cancel();
-          MultiplayerService.unsubscribeFromSession();
-          setState(() => _isWaitingForHostToStart = false);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) showAppSnackBar(context, AppLocalizations.of(context)!.hostCancelledGame);
-          });
-          return;
-        }
-        _currentSession = updatedSession;
-        if (updatedSession.isPlaying) {
-          // Host started the game - navigate
-          _navigateToGame(updatedSession);
-        }
-      },
-    );
+    _sessionSubscription = MultiplayerService.subscribeToSession(session.id)
+        .listen((updatedSession) {
+          if (updatedSession.isCancelled) {
+            _sessionSubscription?.cancel();
+            _connectionSubscription?.cancel();
+            MultiplayerService.unsubscribeFromSession();
+            setState(() => _isWaitingForHostToStart = false);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted)
+                showAppSnackBar(
+                  context,
+                  AppLocalizations.of(context)!.hostCancelledGame,
+                );
+            });
+            return;
+          }
+          _currentSession = updatedSession;
+          if (updatedSession.isPlaying) {
+            // Host started the game - navigate
+            _navigateToGame(updatedSession);
+          }
+        });
     _startConnectionListener();
   }
 
   void _navigateToGame(OnlineSession session) {
-    _navigatingToGame = true;  // Don't cleanup subscription in dispose
+    _navigatingToGame = true; // Don't cleanup subscription in dispose
     _sessionSubscription?.cancel();
     Navigator.pushReplacement(
       context,
@@ -509,8 +538,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     setState(() => _isStartingGame = true);
 
     // Fetch real sound IDs from the database (fall back to piano if empty)
-    List<SoundModel> sounds =
-        await DatabaseService.getSoundsForSelection(_selectedCategory);
+    List<SoundModel> sounds = await DatabaseService.getSoundsForSelection(
+      _selectedCategory,
+    );
     if (sounds.isEmpty && _selectedCategory != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -543,8 +573,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider,
-        (prev, next) {
+    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider, (
+      prev,
+      next,
+    ) {
       if (!_nameSetFromProfile) {
         final name = next.valueOrNull?.displayName;
         if (name != null && name.isNotEmpty) {
@@ -558,7 +590,8 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
     // current sub-mode instead of popping the whole screen — same behavior
     // as the in-screen back button. Only let the route pop when we're on
     // the main view with no sub-mode active.
-    final inSubMode = _isCreateMode ||
+    final inSubMode =
+        _isCreateMode ||
         _isJoinMode ||
         _isFindOpponentMode ||
         _isWaitingForOpponent ||
@@ -576,22 +609,22 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
-          child: ResponsiveBody(
-            child: _isWaitingForHostToStart
-                ? _buildWaitingForHostScreen()
-                : _isOpponentJoined
-                    ? _buildOpponentJoinedScreen()
-                    : _isWaitingForOpponent
-                        ? _buildWaitingScreen()
-                        : _isFindOpponentMode
-                            ? _buildFindOpponentScreen()
-                            : _isCreateMode
-                                ? _buildCreateScreen()
-                                : _isJoinMode
-                                    ? _buildJoinScreen()
-                                    : _buildMainScreen(),
+            child: ResponsiveBody(
+              child: _isWaitingForHostToStart
+                  ? _buildWaitingForHostScreen()
+                  : _isOpponentJoined
+                  ? _buildOpponentJoinedScreen()
+                  : _isWaitingForOpponent
+                  ? _buildWaitingScreen()
+                  : _isFindOpponentMode
+                  ? _buildFindOpponentScreen()
+                  : _isCreateMode
+                  ? _buildCreateScreen()
+                  : _isJoinMode
+                  ? _buildJoinScreen()
+                  : _buildMainScreen(),
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -607,11 +640,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           _buildBackButton(),
           const SizedBox(height: AppSpacing.xl),
 
-          Text(l10n.onlineMultiplayerTitle, style: AppTypography.headline3(context)),
+          Text(
+            l10n.onlineMultiplayerTitle,
+            style: AppTypography.headline3(context),
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             l10n.playWithFriendsRealtime,
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xxl),
 
@@ -702,7 +740,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             _isSearchingForOpponent
                 ? l10n.searchingForPlayers
                 : l10n.noPlayersFoundCreateGame,
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
 
@@ -713,14 +753,14 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 child: Column(
                   children: [
                     const CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(AppColors.pink),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.pink),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       l10n.lookingForOpponents,
-                      style: AppTypography.body(context)
-                          .copyWith(color: context.colors.textSecondary),
+                      style: AppTypography.body(
+                        context,
+                      ).copyWith(color: context.colors.textSecondary),
                     ),
                   ],
                 ),
@@ -770,12 +810,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
-                    : Text(l10n.createAndWaitForOpponent,
-                        style: AppTypography.button(context)),
+                    : Text(
+                        l10n.createAndWaitForOpponent,
+                        style: AppTypography.button(context),
+                      ),
               ),
             ),
             const SizedBox(height: 12),
@@ -792,8 +835,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                     borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                 ),
-                child:
-                    Text(l10n.searchAgain, style: AppTypography.buttonSecondary(context)),
+                child: Text(
+                  l10n.searchAgain,
+                  style: AppTypography.buttonSecondary(context),
+                ),
               ),
             ),
           ],
@@ -816,7 +861,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(height: AppSpacing.sm),
           Text(
             l10n.setupGameInviteFriend,
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
 
@@ -892,7 +939,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   l10n.enterTheCodeFromFriend,
-                  style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+                  style: AppTypography.body(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.xl),
 
@@ -989,7 +1038,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   color: context.colors.surface,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
+                child: Icon(
+                  Icons.close,
+                  size: 24,
+                  color: context.colors.textPrimary,
+                ),
               ),
             ),
           ),
@@ -1004,7 +1057,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             ),
             child: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.accent,
+                ),
               ),
             ),
           ),
@@ -1020,7 +1075,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             _isPublicSession
                 ? l10n.someoneWillJoinSoon
                 : l10n.shareCodeWithFriend,
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 24),
 
@@ -1036,10 +1093,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
               ),
               child: Text(
                 _inviteCode ?? '',
-                style: AppTypography.headline3(context).copyWith(
-                  letterSpacing: 6,
-                  color: context.colors.accent,
-                ),
+                style: AppTypography.headline3(
+                  context,
+                ).copyWith(letterSpacing: 6, color: context.colors.accent),
               ),
             ),
             const SizedBox(height: 16),
@@ -1049,7 +1105,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 GestureDetector(
                   onTap: _copyInviteCode,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: context.colors.surface,
                       borderRadius: BorderRadius.circular(AppRadius.button),
@@ -1058,9 +1117,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.copy, size: 18, color: context.colors.textSecondary),
+                        Icon(
+                          Icons.copy,
+                          size: 18,
+                          color: context.colors.textSecondary,
+                        ),
                         const SizedBox(width: 8),
-                        Text(l10n.copy, style: AppTypography.bodySmall(context)),
+                        Text(
+                          l10n.copy,
+                          style: AppTypography.bodySmall(context),
+                        ),
                       ],
                     ),
                   ),
@@ -1069,7 +1135,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                 GestureDetector(
                   onTap: _shareInviteCode,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: context.colors.accent,
                       borderRadius: BorderRadius.circular(AppRadius.button),
@@ -1079,7 +1148,12 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                       children: [
                         const Icon(Icons.share, size: 18, color: Colors.white),
                         const SizedBox(width: 8),
-                        Text(l10n.share, style: AppTypography.bodySmall(context).copyWith(color: Colors.white)),
+                        Text(
+                          l10n.share,
+                          style: AppTypography.bodySmall(
+                            context,
+                          ).copyWith(color: Colors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -1099,16 +1173,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.publicGame,
-                    style: AppTypography.bodyLarge(context).copyWith(
-                      color: AppColors.pink,
-                    ),
+                    style: AppTypography.bodyLarge(
+                      context,
+                    ).copyWith(color: AppColors.pink),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     l10n.anyoneCanJoinThisGame,
-                    style: AppTypography.bodySmall(context).copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTypography.bodySmall(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -1128,7 +1202,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
+              child: Text(
+                l10n.cancel,
+                style: AppTypography.buttonSecondary(context),
+              ),
             ),
           ),
         ],
@@ -1153,12 +1230,16 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.readyToPlay,
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 40),
 
           _VsPlayersWidget(
-            player1Name: _nameController.text.isNotEmpty ? _nameController.text : l10n.youFallbackName,
+            player1Name: _nameController.text.isNotEmpty
+                ? _nameController.text
+                : l10n.youFallbackName,
             player2Name: _opponentName ?? l10n.opponent,
           ),
           const SizedBox(height: 32),
@@ -1173,22 +1254,29 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(_formatCategoryName(_selectedCategory),
-                    style: AppTypography.bodySmall(context)
-                        .copyWith(color: context.colors.textSecondary)),
+                Text(
+                  _formatCategoryName(_selectedCategory),
+                  style: AppTypography.bodySmall(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Container(
-                    width: 4, height: 4,
+                    width: 4,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: context.colors.textSecondary,
                       shape: BoxShape.circle,
                     ),
                   ),
                 ),
-                Text(_selectedGrid,
-                    style: AppTypography.bodySmall(context)
-                        .copyWith(color: context.colors.textSecondary)),
+                Text(
+                  _selectedGrid,
+                  style: AppTypography.bodySmall(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
+                ),
               ],
             ),
           ),
@@ -1231,7 +1319,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
+              child: Text(
+                l10n.cancel,
+                style: AppTypography.buttonSecondary(context),
+              ),
             ),
           ),
         ],
@@ -1243,7 +1334,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   Widget _buildWaitingForHostScreen() {
     final l10n = AppLocalizations.of(context)!;
     final hostName = _currentSession?.player1Name ?? l10n.opponent;
-    final myName = _nameController.text.isNotEmpty ? _nameController.text : l10n.youFallbackName;
+    final myName = _nameController.text.isNotEmpty
+        ? _nameController.text
+        : l10n.youFallbackName;
     final category = _currentSession?.category;
     final gridSize = _currentSession?.gridSize ?? '4x5';
 
@@ -1273,7 +1366,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                     borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                 ),
-                child: Text(l10n.leave, style: AppTypography.buttonSecondary(context)),
+                child: Text(
+                  l10n.leave,
+                  style: AppTypography.buttonSecondary(context),
+                ),
               ),
             ),
           ),
@@ -1292,7 +1388,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.joinedSuccessfully,
-                    style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+                    style: AppTypography.body(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
@@ -1303,7 +1401,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   // Game settings — values only, no labels
                   if (category != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: context.colors.surface,
                         borderRadius: BorderRadius.circular(12),
@@ -1313,13 +1414,15 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                         children: [
                           Text(
                             _formatCategoryName(category),
-                            style: AppTypography.bodySmall(context)
-                                .copyWith(color: context.colors.textSecondary),
+                            style: AppTypography.bodySmall(
+                              context,
+                            ).copyWith(color: context.colors.textSecondary),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: Container(
-                              width: 4, height: 4,
+                              width: 4,
+                              height: 4,
                               decoration: BoxDecoration(
                                 color: context.colors.textSecondary,
                                 shape: BoxShape.circle,
@@ -1328,8 +1431,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                           ),
                           Text(
                             gridSize,
-                            style: AppTypography.bodySmall(context)
-                                .copyWith(color: context.colors.textSecondary),
+                            style: AppTypography.bodySmall(
+                              context,
+                            ).copyWith(color: context.colors.textSecondary),
                           ),
                         ],
                       ),
@@ -1356,7 +1460,11 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
+        child: Icon(
+          Icons.arrow_back,
+          size: 24,
+          color: context.colors.textPrimary,
+        ),
       ),
     );
   }
@@ -1397,9 +1505,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: AppTypography.bodySmall(context).copyWith(
-                      color: context.colors.textSecondary,
-                    ),
+                    style: AppTypography.bodySmall(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -1435,7 +1543,10 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -1449,15 +1560,17 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           child: GestureDetector(
             onTap: () => setState(() => _selectedGrid = grid['id']),
             child: Container(
-              margin: EdgeInsets.only(
-                right: grid != _gridOptions.last ? 8 : 0,
-              ),
+              margin: EdgeInsets.only(right: grid != _gridOptions.last ? 8 : 0),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? context.colors.accent : context.colors.surface,
+                color: isSelected
+                    ? context.colors.accent
+                    : context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? context.colors.accent : context.colors.elevated,
+                  color: isSelected
+                      ? context.colors.accent
+                      : context.colors.elevated,
                 ),
               ),
               child: Column(
@@ -1465,7 +1578,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
                   Text(
                     grid['label'],
                     style: AppTypography.bodyLarge(context).copyWith(
-                      color: isSelected ? Colors.white : context.colors.textPrimary,
+                      color: isSelected
+                          ? Colors.white
+                          : context.colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1498,8 +1613,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: (isDisconnected ? Colors.red : Colors.orange)
-            .withValues(alpha: 0.1),
+        color: (isDisconnected ? Colors.red : Colors.orange).withValues(
+          alpha: 0.1,
+        ),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -1517,9 +1633,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           const SizedBox(width: 10),
           Text(
             isDisconnected ? l10n.connectionLost : l10n.reconnecting,
-            style: AppTypography.bodySmall(context).copyWith(
-              color: isDisconnected ? Colors.red : Colors.orange,
-            ),
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(color: isDisconnected ? Colors.red : Colors.orange),
           ),
         ],
       ),
@@ -1541,7 +1657,9 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
           Expanded(
             child: Text(
               _errorMessage!,
-              style: AppTypography.bodySmall(context).copyWith(color: Colors.red),
+              style: AppTypography.bodySmall(
+                context,
+              ).copyWith(color: Colors.red),
             ),
           ),
         ],
@@ -1550,7 +1668,7 @@ class _OnlineModeScreenState extends ConsumerState<OnlineModeScreen> {
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1604,7 +1722,10 @@ class _CreatePrivateGameScreenState
         final user = SupabaseService.currentUser;
         if (user?.email != null) {
           final prefix = user!.email!.split('@').first;
-          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
+          _nameController.text = prefix.substring(
+            0,
+            prefix.length.clamp(0, 20),
+          );
         }
       }
     });
@@ -1624,8 +1745,9 @@ class _CreatePrivateGameScreenState
 
   void _startConnectionListener() {
     _connectionSubscription?.cancel();
-    _connectionSubscription =
-        MultiplayerService.connectionStateStream.listen((state) {
+    _connectionSubscription = MultiplayerService.connectionStateStream.listen((
+      state,
+    ) {
       if (!mounted) return;
       setState(() => _connectionState = state);
     });
@@ -1633,10 +1755,15 @@ class _CreatePrivateGameScreenState
 
   Future<void> _createGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName);
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName,
+      );
       return;
     }
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     final session = await MultiplayerService.createSession(
       category: widget.category,
@@ -1646,7 +1773,10 @@ class _CreatePrivateGameScreenState
     );
 
     if (session == null) {
-      setState(() { _isLoading = false; _errorMessage = AppLocalizations.of(context)!.failedToCreateGame; });
+      setState(() {
+        _isLoading = false;
+        _errorMessage = AppLocalizations.of(context)!.failedToCreateGame;
+      });
       return;
     }
 
@@ -1657,29 +1787,33 @@ class _CreatePrivateGameScreenState
       _sessionId = session.id;
     });
 
-    _sessionSubscription =
-        MultiplayerService.subscribeToSession(session.id).listen(
-      (updatedSession) {
-        _currentSession = updatedSession;
-        if (updatedSession.isReady && updatedSession.hasOpponent) {
-          setState(() {
-            _isOpponentJoined = true;
-            _opponentName = updatedSession.player2Name;
-          });
-        } else if (updatedSession.isPlaying) {
-          _navigateToGame(updatedSession);
-        } else if (_isOpponentJoined && updatedSession.isWaiting && !updatedSession.hasOpponent) {
-          // Opponent left before game started — go back to waiting
-          setState(() {
-            _isOpponentJoined = false;
-            _opponentName = null;
-          });
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) showAppSnackBar(context, AppLocalizations.of(context)!.opponentLeftTheGame);
-          });
-        }
-      },
-    );
+    _sessionSubscription = MultiplayerService.subscribeToSession(session.id)
+        .listen((updatedSession) {
+          _currentSession = updatedSession;
+          if (updatedSession.isReady && updatedSession.hasOpponent) {
+            setState(() {
+              _isOpponentJoined = true;
+              _opponentName = updatedSession.player2Name;
+            });
+          } else if (updatedSession.isPlaying) {
+            _navigateToGame(updatedSession);
+          } else if (_isOpponentJoined &&
+              updatedSession.isWaiting &&
+              !updatedSession.hasOpponent) {
+            // Opponent left before game started — go back to waiting
+            setState(() {
+              _isOpponentJoined = false;
+              _opponentName = null;
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted)
+                showAppSnackBar(
+                  context,
+                  AppLocalizations.of(context)!.opponentLeftTheGame,
+                );
+            });
+          }
+        });
     _startConnectionListener();
   }
 
@@ -1687,8 +1821,9 @@ class _CreatePrivateGameScreenState
     if (_currentSession == null || _sessionId == null) return;
     setState(() => _isStartingGame = true);
 
-    List<SoundModel> sounds =
-        await DatabaseService.getSoundsForSelection(widget.category);
+    List<SoundModel> sounds = await DatabaseService.getSoundsForSelection(
+      widget.category,
+    );
     if (sounds.isEmpty && widget.category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -1706,7 +1841,10 @@ class _CreatePrivateGameScreenState
     );
 
     if (!success) {
-      setState(() { _isStartingGame = false; _errorMessage = AppLocalizations.of(context)!.failedToStartGame; });
+      setState(() {
+        _isStartingGame = false;
+        _errorMessage = AppLocalizations.of(context)!.failedToStartGame;
+      });
     }
   }
 
@@ -1735,7 +1873,11 @@ class _CreatePrivateGameScreenState
     }
     MultiplayerService.unsubscribeFromSession();
     if (mounted) {
-      setState(() { _isWaiting = false; _isOpponentJoined = false; _sessionId = null; });
+      setState(() {
+        _isWaiting = false;
+        _isOpponentJoined = false;
+        _sessionId = null;
+      });
       Navigator.pop(context);
     }
   }
@@ -1753,15 +1895,18 @@ class _CreatePrivateGameScreenState
     await Share.share(
       'Join my Music Memo game! Enter code $_inviteCode or tap: https://musicmemo.app/join?code=$_inviteCode',
       subject: 'Music Memo - Game Invite',
-      sharePositionOrigin:
-          box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+      sharePositionOrigin: box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider,
-        (prev, next) {
+    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider, (
+      prev,
+      next,
+    ) {
       if (!_nameSetFromProfile) {
         final name = next.valueOrNull?.displayName;
         if (name != null && name.isNotEmpty) {
@@ -1780,8 +1925,8 @@ class _CreatePrivateGameScreenState
             child: _isOpponentJoined
                 ? _buildOpponentJoinedScreen()
                 : _isWaiting
-                    ? _buildWaitingScreen()
-                    : _buildCreateForm(),
+                ? _buildWaitingScreen()
+                : _buildCreateForm(),
           ),
         ),
       ),
@@ -1803,8 +1948,9 @@ class _CreatePrivateGameScreenState
           const SizedBox(height: AppSpacing.sm),
           Text(
             l10n.setupGameInviteFriend,
-            style: AppTypography.body(context)
-                .copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
           if (_errorMessage != null) _buildErrorMessage(),
@@ -1833,16 +1979,18 @@ class _CreatePrivateGameScreenState
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.colors.accent,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.button)),
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
               ),
               child: _isLoading
                   ? const SizedBox(
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white)))
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
                   : Text(l10n.createGame, style: AppTypography.button(context)),
             ),
           ),
@@ -1864,43 +2012,63 @@ class _CreatePrivateGameScreenState
             child: GestureDetector(
               onTap: _cancelAndPop,
               child: Container(
-                width: 44, height: 44,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                    color: context.colors.surface,
-                    borderRadius: BorderRadius.circular(22)),
-                child: Icon(Icons.close, size: 24, color: context.colors.textPrimary),
+                  color: context.colors.surface,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Icon(
+                  Icons.close,
+                  size: 24,
+                  color: context.colors.textPrimary,
+                ),
               ),
             ),
           ),
           const Spacer(),
           Container(
-            width: 100, height: 100,
+            width: 100,
+            height: 100,
             decoration: BoxDecoration(
-                color: context.colors.accent.withValues(alpha: 0.1),
-                shape: BoxShape.circle),
+              color: context.colors.accent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
             child: Center(
               child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(context.colors.accent)),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.accent,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 32),
-          Text(l10n.waitingForOpponent, style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          Text(
+            l10n.waitingForOpponent,
+            style: AppTypography.headline3(context),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 8),
-          Text(l10n.shareCodeWithFriend,
-              style: AppTypography.body(context)
-                  .copyWith(color: context.colors.textSecondary)),
+          Text(
+            l10n.shareCodeWithFriend,
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
+          ),
           const SizedBox(height: 24),
           _buildConnectionBanner(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: context.colors.elevated)),
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: context.colors.elevated),
+            ),
             child: Text(
               _inviteCode ?? '',
-              style: AppTypography.headline3(context)
-                  .copyWith(letterSpacing: 6, color: context.colors.accent),
+              style: AppTypography.headline3(
+                context,
+              ).copyWith(letterSpacing: 6, color: context.colors.accent),
             ),
           ),
           const SizedBox(height: 16),
@@ -1910,47 +2078,74 @@ class _CreatePrivateGameScreenState
               GestureDetector(
                 onTap: _copyInviteCode,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                      color: context.colors.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.button),
-                      border: Border.all(color: context.colors.elevated)),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.copy, size: 18, color: context.colors.textSecondary),
-                    const SizedBox(width: 8),
-                    Text(l10n.copy, style: AppTypography.bodySmall(context)),
-                  ]),
+                    color: context.colors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                    border: Border.all(color: context.colors.elevated),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.copy,
+                        size: 18,
+                        color: context.colors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(l10n.copy, style: AppTypography.bodySmall(context)),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: _shareInviteCode,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                      color: context.colors.accent,
-                      borderRadius: BorderRadius.circular(AppRadius.button)),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(Icons.share, size: 18, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Text(l10n.share,
-                        style: AppTypography.bodySmall(context)
-                            .copyWith(color: Colors.white)),
-                  ]),
+                    color: context.colors.accent,
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.share, size: 18, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.share,
+                        style: AppTypography.bodySmall(
+                          context,
+                        ).copyWith(color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           const Spacer(),
           SizedBox(
-            width: double.infinity, height: 56,
+            width: double.infinity,
+            height: 56,
             child: OutlinedButton(
               onPressed: _cancelAndPop,
               style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: context.colors.elevated),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button))),
-              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
+                side: BorderSide(color: context.colors.elevated),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: Text(
+                l10n.cancel,
+                style: AppTypography.buttonSecondary(context),
+              ),
             ),
           ),
         ],
@@ -1969,16 +2164,24 @@ class _CreatePrivateGameScreenState
         children: [
           const Spacer(),
 
-          Text(l10n.opponentJoinedTitle, style: AppTypography.headline3(context), textAlign: TextAlign.center),
+          Text(
+            l10n.opponentJoinedTitle,
+            style: AppTypography.headline3(context),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 8),
           Text(
             l10n.readyToPlay,
-            style: AppTypography.body(context).copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 40),
 
           _VsPlayersWidget(
-            player1Name: _nameController.text.isNotEmpty ? _nameController.text : l10n.youFallbackName,
+            player1Name: _nameController.text.isNotEmpty
+                ? _nameController.text
+                : l10n.youFallbackName,
             player2Name: _opponentName ?? l10n.opponent,
           ),
           const SizedBox(height: 32),
@@ -1987,60 +2190,83 @@ class _CreatePrivateGameScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-                color: context.colors.surface,
-                borderRadius: BorderRadius.circular(12)),
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(categoryName,
-                    style: AppTypography.bodySmall(context)
-                        .copyWith(color: context.colors.textSecondary)),
+                Text(
+                  categoryName,
+                  style: AppTypography.bodySmall(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Container(
-                    width: 4, height: 4,
+                    width: 4,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: context.colors.textSecondary,
                       shape: BoxShape.circle,
                     ),
                   ),
                 ),
-                Text(_selectedGrid,
-                    style: AppTypography.bodySmall(context)
-                        .copyWith(color: context.colors.textSecondary)),
+                Text(
+                  _selectedGrid,
+                  style: AppTypography.bodySmall(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
+                ),
               ],
             ),
           ),
 
           const Spacer(),
-          if (_errorMessage != null) ...[_buildErrorMessage(), const SizedBox(height: 8)],
+          if (_errorMessage != null) ...[
+            _buildErrorMessage(),
+            const SizedBox(height: 8),
+          ],
           SizedBox(
-            width: double.infinity, height: 56,
+            width: double.infinity,
+            height: 56,
             child: ElevatedButton(
               onPressed: _isStartingGame ? null : _hostStartGame,
               style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.teal,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button))),
+                backgroundColor: AppColors.teal,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
               child: _isStartingGame
                   ? const SizedBox(
-                      width: 24, height: 24,
+                      width: 24,
+                      height: 24,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
                   : Text(l10n.startGame, style: AppTypography.button(context)),
             ),
           ),
           const SizedBox(height: 12),
           SizedBox(
-            width: double.infinity, height: 56,
+            width: double.infinity,
+            height: 56,
             child: OutlinedButton(
               onPressed: _cancelAndPop,
               style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: context.colors.elevated),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.button))),
-              child: Text(l10n.cancel, style: AppTypography.buttonSecondary(context)),
+                side: BorderSide(color: context.colors.elevated),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                ),
+              ),
+              child: Text(
+                l10n.cancel,
+                style: AppTypography.buttonSecondary(context),
+              ),
             ),
           ),
         ],
@@ -2054,11 +2280,17 @@ class _CreatePrivateGameScreenState
     return GestureDetector(
       onTap: () => Navigator.pop(context),
       child: Container(
-        width: 44, height: 44,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(22)),
-        child: Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Icon(
+          Icons.arrow_back,
+          size: 24,
+          color: context.colors.textPrimary,
+        ),
       ),
     );
   }
@@ -2083,10 +2315,13 @@ class _CreatePrivateGameScreenState
         filled: true,
         fillColor: context.colors.surface,
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -2102,26 +2337,40 @@ class _CreatePrivateGameScreenState
               margin: EdgeInsets.only(right: grid != _gridOptions.last ? 8 : 0),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? context.colors.accent : context.colors.surface,
+                color: isSelected
+                    ? context.colors.accent
+                    : context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: isSelected
-                        ? context.colors.accent
-                        : context.colors.elevated),
+                  color: isSelected
+                      ? context.colors.accent
+                      : context.colors.elevated,
+                ),
               ),
-              child: Column(children: [
-                Text(grid['label'],
+              child: Column(
+                children: [
+                  Text(
+                    grid['label'],
                     style: AppTypography.bodyLarge(context).copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : context.colors.textPrimary)),
-                const SizedBox(height: 2),
-                Text(_resolveDifficulty(AppLocalizations.of(context)!, grid['difficultyKey']),
+                      color: isSelected
+                          ? Colors.white
+                          : context.colors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _resolveDifficulty(
+                      AppLocalizations.of(context)!,
+                      grid['difficultyKey'],
+                    ),
                     style: AppTypography.labelSmall(context).copyWith(
-                        color: isSelected
-                            ? Colors.white.withValues(alpha: 0.8)
-                            : context.colors.textTertiary)),
-              ]),
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : context.colors.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -2141,22 +2390,32 @@ class _CreatePrivateGameScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-          color: (isDisconnected ? Colors.red : Colors.orange)
-              .withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10)),
-      child: Row(children: [
-        SizedBox(
-          width: 14, height: 14,
-          child: CircularProgressIndicator(
+        color: (isDisconnected ? Colors.red : Colors.orange).withValues(
+          alpha: 0.1,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                  isDisconnected ? Colors.red : Colors.orange)),
-        ),
-        const SizedBox(width: 10),
-        Text(isDisconnected ? l10n.connectionLost : l10n.reconnecting,
-            style: AppTypography.bodySmall(context)
-                .copyWith(color: isDisconnected ? Colors.red : Colors.orange)),
-      ]),
+                isDisconnected ? Colors.red : Colors.orange,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isDisconnected ? l10n.connectionLost : l10n.reconnecting,
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(color: isDisconnected ? Colors.red : Colors.orange),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2165,21 +2424,28 @@ class _CreatePrivateGameScreenState
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8)),
-      child: Row(children: [
-        const Icon(Icons.error_outline, color: Colors.red, size: 20),
-        const SizedBox(width: 8),
-        Expanded(
-            child: Text(_errorMessage!,
-                style: AppTypography.bodySmall(context)
-                    .copyWith(color: Colors.red))),
-      ]),
+        color: Colors.red.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: AppTypography.bodySmall(
+                context,
+              ).copyWith(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2231,7 +2497,10 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
         final user = SupabaseService.currentUser;
         if (user?.email != null) {
           final prefix = user!.email!.split('@').first;
-          _nameController.text = prefix.substring(0, prefix.length.clamp(0, 20));
+          _nameController.text = prefix.substring(
+            0,
+            prefix.length.clamp(0, 20),
+          );
         }
       }
       // Auto-search as soon as the screen opens.
@@ -2244,7 +2513,8 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
     _nameController.dispose();
     _sessionSubscription?.cancel();
     _connectionSubscription?.cancel();
-    if (!_navigatingToGame && _sessionId != null &&
+    if (!_navigatingToGame &&
+        _sessionId != null &&
         _phase == _FindPhase.waitingForOpponent) {
       MultiplayerService.deleteSession(_sessionId!);
       MultiplayerService.unsubscribeFromSession();
@@ -2254,8 +2524,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
 
   void _startConnectionListener() {
     _connectionSubscription?.cancel();
-    _connectionSubscription =
-        MultiplayerService.connectionStateStream.listen((state) {
+    _connectionSubscription = MultiplayerService.connectionStateStream.listen((
+      state,
+    ) {
       if (!mounted) return;
       setState(() => _connectionState = state);
     });
@@ -2265,8 +2536,7 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
     if (_nameController.text.trim().isEmpty) {
       setState(() {
         _phase = _FindPhase.form;
-        _errorMessage =
-            AppLocalizations.of(context)!.pleaseEnterYourName;
+        _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName;
       });
       return;
     }
@@ -2291,30 +2561,29 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
         _sessionId = joined.id;
         setState(() => _phase = _FindPhase.waitingForHost);
 
-        _sessionSubscription =
-            MultiplayerService.subscribeToSession(joined.id).listen(
-          (updatedSession) {
-            if (updatedSession.isCancelled) {
-              _sessionSubscription?.cancel();
-              _connectionSubscription?.cancel();
-              MultiplayerService.unsubscribeFromSession();
-              if (!mounted) return;
-              setState(() => _phase = _FindPhase.form);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  showAppSnackBar(
+        _sessionSubscription = MultiplayerService.subscribeToSession(joined.id)
+            .listen((updatedSession) {
+              if (updatedSession.isCancelled) {
+                _sessionSubscription?.cancel();
+                _connectionSubscription?.cancel();
+                MultiplayerService.unsubscribeFromSession();
+                if (!mounted) return;
+                setState(() => _phase = _FindPhase.form);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    showAppSnackBar(
                       context,
-                      AppLocalizations.of(context)!.hostCancelledGame);
-                }
-              });
-              return;
-            }
-            _currentSession = updatedSession;
-            if (updatedSession.isPlaying) {
-              _navigateToGame(updatedSession);
-            }
-          },
-        );
+                      AppLocalizations.of(context)!.hostCancelledGame,
+                    );
+                  }
+                });
+                return;
+              }
+              _currentSession = updatedSession;
+              if (updatedSession.isPlaying) {
+                _navigateToGame(updatedSession);
+              }
+            });
         _startConnectionListener();
         return;
       }
@@ -2326,8 +2595,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
 
   Future<void> _createPublicGame() async {
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage =
-          AppLocalizations.of(context)!.pleaseEnterYourName);
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.pleaseEnterYourName,
+      );
       return;
     }
 
@@ -2348,8 +2618,7 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
     if (session == null) {
       setState(() {
         _isLoading = false;
-        _errorMessage =
-            AppLocalizations.of(context)!.failedToCreateGame;
+        _errorMessage = AppLocalizations.of(context)!.failedToCreateGame;
       });
       return;
     }
@@ -2360,26 +2629,25 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
       _sessionId = session.id;
     });
 
-    _sessionSubscription =
-        MultiplayerService.subscribeToSession(session.id).listen(
-      (updatedSession) {
-        _currentSession = updatedSession;
-        if (updatedSession.isReady && updatedSession.hasOpponent) {
-          // Someone joined — auto-start the game.
-          _hostStartGame();
-        } else if (updatedSession.isPlaying) {
-          _navigateToGame(updatedSession);
-        }
-      },
-    );
+    _sessionSubscription = MultiplayerService.subscribeToSession(session.id)
+        .listen((updatedSession) {
+          _currentSession = updatedSession;
+          if (updatedSession.isReady && updatedSession.hasOpponent) {
+            // Someone joined — auto-start the game.
+            _hostStartGame();
+          } else if (updatedSession.isPlaying) {
+            _navigateToGame(updatedSession);
+          }
+        });
     _startConnectionListener();
   }
 
   Future<void> _hostStartGame() async {
     if (_currentSession == null || _sessionId == null) return;
 
-    List<SoundModel> sounds =
-        await DatabaseService.getSoundsForSelection(widget.category);
+    List<SoundModel> sounds = await DatabaseService.getSoundsForSelection(
+      widget.category,
+    );
     if (sounds.isEmpty && widget.category != 'piano') {
       sounds = await DatabaseService.getSoundsForCategory('piano');
     }
@@ -2426,13 +2694,14 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider,
-        (prev, next) {
+    ref.listen<AsyncValue<UserProfile?>>(userProfileNotifierProvider, (
+      prev,
+      next,
+    ) {
       if (!_nameSetFromProfile) {
         final name = next.valueOrNull?.displayName;
         if (name != null && name.isNotEmpty) {
-          _nameController.text =
-              name.substring(0, name.length.clamp(0, 20));
+          _nameController.text = name.substring(0, name.length.clamp(0, 20));
           _nameSetFromProfile = true;
         }
       }
@@ -2481,8 +2750,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                 const SizedBox(height: 24),
                 Text(
                   l10n.lookingForOpponents,
-                  style: AppTypography.body(context)
-                      .copyWith(color: context.colors.textSecondary),
+                  style: AppTypography.body(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -2506,8 +2776,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
           const SizedBox(height: AppSpacing.sm),
           Text(
             l10n.noPlayersFoundCreateGame,
-            style: AppTypography.body(context)
-                .copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
           if (_errorMessage != null) _buildErrorMessage(),
@@ -2545,12 +2816,13 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                       height: 24,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text(l10n.createAndWaitForOpponent,
-                      style: AppTypography.button(context)),
+                  : Text(
+                      l10n.createAndWaitForOpponent,
+                      style: AppTypography.button(context),
+                    ),
             ),
           ),
           const SizedBox(height: 12),
@@ -2565,8 +2837,10 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text(l10n.searchAgain,
-                  style: AppTypography.buttonSecondary(context)),
+              child: Text(
+                l10n.searchAgain,
+                style: AppTypography.buttonSecondary(context),
+              ),
             ),
           ),
         ],
@@ -2591,8 +2865,11 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                   color: context.colors.surface,
                   borderRadius: BorderRadius.circular(22),
                 ),
-                child: Icon(Icons.close,
-                    size: 24, color: context.colors.textPrimary),
+                child: Icon(
+                  Icons.close,
+                  size: 24,
+                  color: context.colors.textPrimary,
+                ),
               ),
             ),
           ),
@@ -2606,8 +2883,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
             ),
             child: Center(
               child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(context.colors.accent),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.accent,
+                ),
               ),
             ),
           ),
@@ -2620,8 +2898,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.someoneWillJoinSoon,
-            style: AppTypography.body(context)
-                .copyWith(color: context.colors.textSecondary),
+            style: AppTypography.body(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 24),
           _buildConnectionBanner(),
@@ -2637,15 +2916,16 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                 const SizedBox(height: 8),
                 Text(
                   l10n.publicGame,
-                  style: AppTypography.bodyLarge(context).copyWith(
-                    color: AppColors.pink,
-                  ),
+                  style: AppTypography.bodyLarge(
+                    context,
+                  ).copyWith(color: AppColors.pink),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   l10n.anyoneCanJoinThisGame,
-                  style: AppTypography.bodySmall(context)
-                      .copyWith(color: context.colors.textSecondary),
+                  style: AppTypography.bodySmall(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -2662,8 +2942,10 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.button),
                 ),
               ),
-              child: Text(l10n.cancel,
-                  style: AppTypography.buttonSecondary(context)),
+              child: Text(
+                l10n.cancel,
+                style: AppTypography.buttonSecondary(context),
+              ),
             ),
           ),
         ],
@@ -2697,8 +2979,10 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                     borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                 ),
-                child: Text(l10n.leave,
-                    style: AppTypography.buttonSecondary(context)),
+                child: Text(
+                  l10n.leave,
+                  style: AppTypography.buttonSecondary(context),
+                ),
               ),
             ),
           ),
@@ -2715,18 +2999,20 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.joinedSuccessfully,
-                    style: AppTypography.body(context)
-                        .copyWith(color: context.colors.textSecondary),
+                    style: AppTypography.body(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
-                  _VsPlayersWidget(
-                      player1Name: hostName, player2Name: myName),
+                  _VsPlayersWidget(player1Name: hostName, player2Name: myName),
                   const SizedBox(height: 32),
                   if (category != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: context.colors.surface,
                         borderRadius: BorderRadius.circular(12),
@@ -2736,12 +3022,12 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                         children: [
                           Text(
                             _formatCategoryName(category),
-                            style: AppTypography.bodySmall(context).copyWith(
-                                color: context.colors.textSecondary),
+                            style: AppTypography.bodySmall(
+                              context,
+                            ).copyWith(color: context.colors.textSecondary),
                           ),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: Container(
                               width: 4,
                               height: 4,
@@ -2753,8 +3039,9 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
                           ),
                           Text(
                             gridSize,
-                            style: AppTypography.bodySmall(context).copyWith(
-                                color: context.colors.textSecondary),
+                            style: AppTypography.bodySmall(
+                              context,
+                            ).copyWith(color: context.colors.textSecondary),
                           ),
                         ],
                       ),
@@ -2782,8 +3069,11 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(22),
         ),
-        child:
-            Icon(Icons.arrow_back, size: 24, color: context.colors.textPrimary),
+        child: Icon(
+          Icons.arrow_back,
+          size: 24,
+          color: context.colors.textPrimary,
+        ),
       ),
     );
   }
@@ -2808,10 +3098,13 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
         filled: true,
         fillColor: context.colors.surface,
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -2827,29 +3120,40 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
               margin: EdgeInsets.only(right: grid != _gridOptions.last ? 8 : 0),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color:
-                    isSelected ? context.colors.accent : context.colors.surface,
+                color: isSelected
+                    ? context.colors.accent
+                    : context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: isSelected
-                        ? context.colors.accent
-                        : context.colors.elevated),
+                  color: isSelected
+                      ? context.colors.accent
+                      : context.colors.elevated,
+                ),
               ),
-              child: Column(children: [
-                Text(grid['label'],
+              child: Column(
+                children: [
+                  Text(
+                    grid['label'],
                     style: AppTypography.bodyLarge(context).copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : context.colors.textPrimary)),
-                const SizedBox(height: 2),
-                Text(
+                      color: isSelected
+                          ? Colors.white
+                          : context.colors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
                     _resolveDifficulty(
-                        AppLocalizations.of(context)!, grid['difficultyKey']),
+                      AppLocalizations.of(context)!,
+                      grid['difficultyKey'],
+                    ),
                     style: AppTypography.labelSmall(context).copyWith(
-                        color: isSelected
-                            ? Colors.white.withValues(alpha: 0.8)
-                            : context.colors.textTertiary)),
-              ]),
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : context.colors.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -2869,23 +3173,32 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-          color: (isDisconnected ? Colors.red : Colors.orange)
-              .withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10)),
-      child: Row(children: [
-        SizedBox(
-          width: 14,
-          height: 14,
-          child: CircularProgressIndicator(
+        color: (isDisconnected ? Colors.red : Colors.orange).withValues(
+          alpha: 0.1,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                  isDisconnected ? Colors.red : Colors.orange)),
-        ),
-        const SizedBox(width: 10),
-        Text(isDisconnected ? l10n.connectionLost : l10n.reconnecting,
-            style: AppTypography.bodySmall(context)
-                .copyWith(color: isDisconnected ? Colors.red : Colors.orange)),
-      ]),
+                isDisconnected ? Colors.red : Colors.orange,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            isDisconnected ? l10n.connectionLost : l10n.reconnecting,
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(color: isDisconnected ? Colors.red : Colors.orange),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2894,21 +3207,28 @@ class _FindOpponentScreenState extends ConsumerState<_FindOpponentScreen> {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8)),
-      child: Row(children: [
-        const Icon(Icons.error_outline, color: Colors.red, size: 20),
-        const SizedBox(width: 8),
-        Expanded(
-            child: Text(_errorMessage!,
-                style: AppTypography.bodySmall(context)
-                    .copyWith(color: Colors.red))),
-      ]),
+        color: Colors.red.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: AppTypography.bodySmall(
+                context,
+              ).copyWith(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   String _formatCategoryName(String category) =>
-      GameUtils.formatCategoryName(category);
+      GameUtils.formatCategoryName(category, AppLocalizations.of(context)!);
 }
 
 /// Two player avatars with an animated pulsing VS badge between them.
@@ -2916,7 +3236,10 @@ class _VsPlayersWidget extends StatefulWidget {
   final String player1Name;
   final String player2Name;
 
-  const _VsPlayersWidget({required this.player1Name, required this.player2Name});
+  const _VsPlayersWidget({
+    required this.player1Name,
+    required this.player2Name,
+  });
 
   @override
   State<_VsPlayersWidget> createState() => _VsPlayersWidgetState();
@@ -2934,9 +3257,10 @@ class _VsPlayersWidgetState extends State<_VsPlayersWidget>
       vsync: this,
       duration: const Duration(milliseconds: 850),
     )..repeat(reverse: true);
-    _scaleAnim = Tween<double>(begin: 0.88, end: 1.12).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 0.88,
+      end: 1.12,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -3005,8 +3329,9 @@ class _VsPlayersWidgetState extends State<_VsPlayersWidget>
           width: 80,
           child: Text(
             name,
-            style: AppTypography.bodySmall(context)
-                .copyWith(fontWeight: FontWeight.w600),
+            style: AppTypography.bodySmall(
+              context,
+            ).copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

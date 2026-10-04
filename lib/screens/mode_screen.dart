@@ -16,6 +16,7 @@ import 'game/daily_challenge_preload_screen.dart';
 import 'game/daily_challenge_win_screen.dart';
 import 'game/online_mode_screen.dart';
 import 'paywall_screen.dart';
+import '../utils/game_utils.dart';
 
 class ModeScreen extends ConsumerStatefulWidget {
   const ModeScreen({super.key});
@@ -36,14 +37,16 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
 
   void _onDailyChallengePlay(DailyChallenge challenge) {
     final isPremium = DevConfig.resolvePremium(
-      ref.read(subscriptionProvider).when(
+      ref
+          .read(subscriptionProvider)
+          .when(
             data: (sub) => sub.canAccessPremiumFeatures,
             loading: () => false,
             error: (_, __) => false,
           ),
     );
-    final counts = ref.read(dailyGameCountsProvider).valueOrNull ??
-        DailyGameCounts.zero();
+    final counts =
+        ref.read(dailyGameCountsProvider).valueOrNull ?? DailyGameCounts.zero();
 
     if (!isPremium && !counts.canPlaySinglePlayer) {
       Navigator.push(
@@ -66,7 +69,10 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
     );
   }
 
-  void _onDailyChallengeViewLeaderboard(DailyChallenge challenge, DailyChallengeScore score) {
+  void _onDailyChallengeViewLeaderboard(
+    DailyChallenge challenge,
+    DailyChallengeScore score,
+  ) {
     ref.invalidate(dailyChallengeLeaderboardProvider);
     Navigator.push(
       context,
@@ -75,7 +81,9 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
           score: score.score,
           moves: score.moves,
           timeSeconds: score.timeSeconds,
-          totalPairs: DailyChallengeService.pairsForGridSize(challenge.gridSize),
+          totalPairs: DailyChallengeService.pairsForGridSize(
+            challenge.gridSize,
+          ),
           date: challenge.date,
           categoryId: challenge.categoryId,
           gridSize: challenge.gridSize,
@@ -84,7 +92,11 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
     );
   }
 
-  void _showPaywall(BuildContext context, {bool isPremiumFeature = false, bool isTrialExpired = false}) {
+  void _showPaywall(
+    BuildContext context, {
+    bool isPremiumFeature = false,
+    bool isTrialExpired = false,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -109,7 +121,8 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
       ),
     );
 
-    final isTrialExpired = !DevConfig.premiumOverrideActive &&
+    final isTrialExpired =
+        !DevConfig.premiumOverrideActive &&
         subscriptionAsync.when(
           data: (sub) => sub.isTrial && sub.isExpired,
           loading: () => false,
@@ -132,125 +145,141 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _BackButton(onPressed: () => Navigator.pop(context)),
-                  const Spacer(),
-                  if (kDebugMode) _DebugPaywallToggle(
-                    isPremium: isPremium,
-                    onToggle: () => setState(() => DevConfig.togglePaywall()),
+                  // Back button
+                  Row(
+                    children: [
+                      _BackButton(onPressed: () => Navigator.pop(context)),
+                      const Spacer(),
+                      if (kDebugMode)
+                        _DebugPaywallToggle(
+                          isPremium: isPremium,
+                          onToggle: () =>
+                              setState(() => DevConfig.togglePaywall()),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // Title
+                  Text(
+                    l10n.selectGameMode,
+                    style: AppTypography.headline3(context),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // Description
+                  Text(
+                    l10n.chooseHowToPlay,
+                    style: AppTypography.body(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
+                  ),
+
+                  const SizedBox(height: 2.1 * AppSpacing.xl),
+
+                  // Daily Challenge
+                  _buildDailyChallengeCard(l10n, isPremium, counts),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Online Multiplayer
+                  _ModeButton(
+                    icon: Icons.public,
+                    title: l10n.onlineMultiplayer,
+                    subtitle: isPremium
+                        ? l10n.onlineMultiplayerDescription
+                        : l10n.premiumOnly,
+                    iconBackgroundColor: const Color(0x2614B8A6),
+                    badge: isPremium ? null : _PremiumBadge(),
+                    onTap: () {
+                      if (!isPremium) {
+                        _showPaywall(
+                          context,
+                          isPremiumFeature: true,
+                          isTrialExpired: isTrialExpired,
+                        );
+                        return;
+                      }
+                      ref.read(selectedGameModeProvider.notifier).state =
+                          GameMode.onlineMultiplayer;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OnlineModeScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Single Player
+                  _ModeButton(
+                    icon: Icons.person,
+                    title: l10n.singlePlayer,
+                    subtitle: isPremium
+                        ? l10n.singlePlayerDescription
+                        : l10n.freeGamesLeftToday(
+                            counts.singlePlayerRemaining,
+                            DailyGameCounts.singlePlayerLimit,
+                          ),
+                    onTap: () {
+                      if (!isPremium && !counts.canPlaySinglePlayer) {
+                        _showPaywall(context, isTrialExpired: isTrialExpired);
+                        return;
+                      }
+                      ref.read(selectedGameModeProvider.notifier).state =
+                          GameMode.singlePlayer;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const GrandCategoryScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Local Multiplayer
+                  _ModeButton(
+                    icon: Icons.people,
+                    title: l10n.localMultiplayer,
+                    subtitle: isPremium
+                        ? l10n.localMultiplayerDescription
+                        : l10n.freeGamesLeftToday(
+                            counts.localMultiplayerRemaining,
+                            DailyGameCounts.localMultiplayerLimit,
+                          ),
+                    iconBackgroundColor: const Color(0x268B5CF6),
+                    onTap: () {
+                      if (!isPremium && !counts.canPlayLocalMultiplayer) {
+                        _showPaywall(context, isTrialExpired: isTrialExpired);
+                        return;
+                      }
+                      ref.read(selectedGameModeProvider.notifier).state =
+                          GameMode.localMultiplayer;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const GrandCategoryScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.xl),
-
-              // Title
-              Text(
-                l10n.selectGameMode,
-                style: AppTypography.headline3(context),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-
-              // Description
-              Text(
-                l10n.chooseHowToPlay,
-                style: AppTypography.body(context).copyWith(
-                  color: context.colors.textSecondary,
-                ),
-              ),
-
-              const SizedBox(height: 2.1* AppSpacing.xl),
-
-              // Daily Challenge
-              _buildDailyChallengeCard(l10n, isPremium, counts),
-              const SizedBox(height: AppSpacing.md),
-
-              // Online Multiplayer
-              _ModeButton(
-                icon: Icons.public,
-                title: l10n.onlineMultiplayer,
-                subtitle: isPremium
-                    ? l10n.onlineMultiplayerDescription
-                    : l10n.premiumOnly,
-                iconBackgroundColor: const Color(0x2614B8A6),
-                badge: isPremium ? null : _PremiumBadge(),
-                onTap: () {
-                  if (!isPremium) {
-                    _showPaywall(context, isPremiumFeature: true, isTrialExpired: isTrialExpired);
-                    return;
-                  }
-                  ref.read(selectedGameModeProvider.notifier).state =
-                      GameMode.onlineMultiplayer;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OnlineModeScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // Single Player
-              _ModeButton(
-                icon: Icons.person,
-                title: l10n.singlePlayer,
-                subtitle: isPremium
-                    ? l10n.singlePlayerDescription
-                    : l10n.freeGamesLeftToday(counts.singlePlayerRemaining, DailyGameCounts.singlePlayerLimit),
-                onTap: () {
-                  if (!isPremium && !counts.canPlaySinglePlayer) {
-                    _showPaywall(context, isTrialExpired: isTrialExpired);
-                    return;
-                  }
-                  ref.read(selectedGameModeProvider.notifier).state =
-                      GameMode.singlePlayer;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GrandCategoryScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // Local Multiplayer
-              _ModeButton(
-                icon: Icons.people,
-                title: l10n.localMultiplayer,
-                subtitle: isPremium
-                    ? l10n.localMultiplayerDescription
-                    : l10n.freeGamesLeftToday(counts.localMultiplayerRemaining, DailyGameCounts.localMultiplayerLimit),
-                iconBackgroundColor: const Color(0x268B5CF6),
-                onTap: () {
-                  if (!isPremium && !counts.canPlayLocalMultiplayer) {
-                    _showPaywall(context, isTrialExpired: isTrialExpired);
-                    return;
-                  }
-                  ref.read(selectedGameModeProvider.notifier).state =
-                      GameMode.localMultiplayer;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GrandCategoryScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDailyChallengeCard(AppLocalizations l10n, bool isPremium, DailyGameCounts counts) {
+  Widget _buildDailyChallengeCard(
+    AppLocalizations l10n,
+    bool isPremium,
+    DailyGameCounts counts,
+  ) {
     final challengeAsync = ref.watch(dailyChallengeProvider);
     final scoreAsync = ref.watch(dailyChallengeScoreProvider);
     final canPlay = isPremium || counts.canPlaySinglePlayer;
@@ -277,10 +306,7 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
             decoration: BoxDecoration(
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: context.colors.elevated,
-                width: 1,
-              ),
+              border: Border.all(color: context.colors.elevated, width: 1),
             ),
             child: Row(
               children: [
@@ -313,16 +339,20 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
                       Text(
                         score != null
                             ? '${l10n.score}: ${score.score} · ${l10n.viewLeaderboard}'
-                            : '${_formatCategoryName(challenge.categoryName)} · ${challenge.gridSize.replaceAll('x', '×')}',
-                        style: AppTypography.labelSmall(context).copyWith(
-                          color: context.colors.textSecondary,
-                        ),
+                            : '${GameUtils.formatCategoryName(challenge.categoryName, l10n)} · ${challenge.gridSize.replaceAll('x', '×')}',
+                        style: AppTypography.labelSmall(
+                          context,
+                        ).copyWith(color: context.colors.textSecondary),
                       ),
                     ],
                   ),
                 ),
                 if (!canPlay && score == null)
-                  Icon(Icons.lock, size: 18, color: context.colors.textTertiary),
+                  Icon(
+                    Icons.lock,
+                    size: 18,
+                    color: context.colors.textTertiary,
+                  ),
               ],
             ),
           ),
@@ -339,13 +369,6 @@ class _ModeScreenState extends ConsumerState<ModeScreen> {
       ),
       error: (_, __) => const SizedBox.shrink(),
     );
-  }
-
-  String _formatCategoryName(String name) {
-    return name
-        .split('_')
-        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
-        .join(' ');
   }
 }
 
@@ -379,7 +402,6 @@ class _ModeButton extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final bool isPrimary;
   final Color? iconBackgroundColor;
   final Widget? badge;
   final VoidCallback onTap;
@@ -388,7 +410,6 @@ class _ModeButton extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    this.isPrimary = false,
     this.iconBackgroundColor,
     this.badge,
     required this.onTap,
@@ -396,27 +417,18 @@ class _ModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isPrimary ? context.colors.accent : context.colors.surface;
-    final textColor = isPrimary ? AppColors.white : context.colors.textPrimary;
-    final subtitleColor =
-        isPrimary ? AppColors.white.withValues(alpha: 0.8) : context.colors.textSecondary;
-    final iconBgColor = isPrimary
-        ? AppColors.white.withValues(alpha: 0.2)
-        : (iconBackgroundColor ?? const Color(0x268B5CF6));
+    final textColor = context.colors.textPrimary;
+    final subtitleColor = context.colors.textSecondary;
+    final iconBgColor = iconBackgroundColor ?? const Color(0x268B5CF6);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(20),
-          border: isPrimary
-              ? null
-              : Border.all(
-                  color: context.colors.elevated,
-                  width: 1,
-                ),
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: context.colors.elevated, width: 1),
         ),
         child: Row(
           children: [
@@ -431,7 +443,7 @@ class _ModeButton extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 22,
-                color: isPrimary ? AppColors.white : context.colors.accent,
+                color: context.colors.accent,
               ),
             ),
             const SizedBox(width: 14),
@@ -444,24 +456,23 @@ class _ModeButton extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.body(context).copyWith(
-                      color: textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTypography.body(
+                      context,
+                    ).copyWith(color: textColor, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppTypography.labelSmall(context).copyWith(
-                      color: subtitleColor,
-                    ),
+                    style: AppTypography.labelSmall(
+                      context,
+                    ).copyWith(color: subtitleColor),
                   ),
                 ],
               ),
             ),
 
             // Badge (if present)
-            if (badge != null) badge!
+            if (badge != null) badge!,
           ],
         ),
       ),
@@ -481,10 +492,9 @@ class _PremiumBadge extends StatelessWidget {
       ),
       child: Text(
         l10n.premium,
-        style: AppTypography.labelSmall(context).copyWith(
-          color: const Color(0xFFFBBF24),
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppTypography.labelSmall(
+          context,
+        ).copyWith(color: const Color(0xFFFBBF24), fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -494,10 +504,7 @@ class _DebugPaywallToggle extends StatelessWidget {
   final bool isPremium;
   final VoidCallback onToggle;
 
-  const _DebugPaywallToggle({
-    required this.isPremium,
-    required this.onToggle,
-  });
+  const _DebugPaywallToggle({required this.isPremium, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -514,18 +521,13 @@ class _DebugPaywallToggle extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.bug_report,
-              size: 14,
-              color: AppColors.white,
-            ),
+            Icon(Icons.bug_report, size: 14, color: AppColors.white),
             const SizedBox(width: 4),
             Text(
               isPremium ? l10n.premiumOn : l10n.premiumOff,
-              style: AppTypography.labelSmall(context).copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTypography.labelSmall(
+                context,
+              ).copyWith(color: AppColors.white, fontWeight: FontWeight.w600),
             ),
           ],
         ),

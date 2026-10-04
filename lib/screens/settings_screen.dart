@@ -38,7 +38,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
     final accentColor = ref.watch(accentColorProvider);
     final profileAsync = ref.watch(userProfileNotifierProvider);
     final timings = ref.watch(cardTimingsProvider);
@@ -50,213 +49,211 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: ResponsiveBody(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back button
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: context.colors.surface,
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: Icon(
-                      Icons.arrow_back,
-                      size: 24,
-                      color: context.colors.textPrimary,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: ResponsiveBody(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back button
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: context.colors.surface,
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 24,
+                        color: context.colors.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.xl),
 
-                Text(l10n.settings, style: AppTypography.headline3(context)),
-                const SizedBox(height: AppSpacing.xl),
+                  Text(l10n.settings, style: AppTypography.headline3(context)),
+                  const SizedBox(height: AppSpacing.xl),
 
-                // ── Appearance ────────────────────────────────────────────────
-                _Section(
-                  title: l10n.appearance,
-                  children: [
-                    _AccentColorSelector(current: accentColor),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // ── Gameplay ──────────────────────────────────────────────────
-                _Section(
-                  title: l10n.gameplay,
-                  trailing: GestureDetector(
-                    onTap: () => _showGameplayInfo(context),
-                    child: Icon(
-                      Icons.info_outline,
-                      size: 15,
-                      color: context.colors.textTertiary,
-                    ),
+                  // ── Appearance ────────────────────────────────────────────────
+                  _Section(
+                    title: l10n.appearance,
+                    children: [_AccentColorSelector(current: accentColor)],
                   ),
-                  children: [
-                    _Row(
-                      icon: Icons.vibration,
-                      label: l10n.hapticFeedback,
-                      trailing: Switch.adaptive(
-                        value: hapticEnabled,
-                        activeTrackColor: context.colors.accent,
-                        onChanged: (v) {
-                          ref
-                              .read(hapticFeedbackProvider.notifier)
-                              .setEnabled(v);
-                          if (v) HapticService.buttonTap();
-                        },
-                      ),
-                    ),
-                    _SectionDivider(),
-                    _SubsectionHeader(label: l10n.singlePlayer),
-                    _SliderRow(
-                      icon: Icons.touch_app,
-                      label: l10n.delayAfterFirstCard,
-                      value: timings.spListenMs.toDouble(),
-                      min: 300,
-                      max: 2000,
-                      divisions: 17,
-                      onChanged: (v) => ref
-                          .read(cardTimingsProvider.notifier)
-                          .setSpListenMs(v.round()),
-                    ),
-                    _SectionDivider(),
-                    _SliderRow(
-                      icon: Icons.flip,
-                      label: l10n.delayAfterMismatch,
-                      value: timings.spNoMatchMs.toDouble(),
-                      min: 400,
-                      max: 2000,
-                      divisions: 16,
-                      onChanged: (v) => ref
-                          .read(cardTimingsProvider.notifier)
-                          .setSpNoMatchMs(v.round()),
-                    ),
-                    _SectionDivider(),
-                    _SubsectionHeader(label: l10n.localMultiplayer),
-                    _SliderRow(
-                      icon: Icons.touch_app,
-                      label: l10n.delayAfterFirstCard,
-                      value: timings.lmpListenMs.toDouble(),
-                      min: 300,
-                      max: 2000,
-                      divisions: 17,
-                      onChanged: (v) => ref
-                          .read(cardTimingsProvider.notifier)
-                          .setLmpListenMs(v.round()),
-                    ),
-                    _SectionDivider(),
-                    _SliderRow(
-                      icon: Icons.flip,
-                      label: l10n.delayAfterMismatch,
-                      value: timings.lmpNoMatchMs.toDouble(),
-                      min: 400,
-                      max: 2000,
-                      divisions: 16,
-                      onChanged: (v) => ref
-                          .read(cardTimingsProvider.notifier)
-                          .setLmpNoMatchMs(v.round()),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.xl),
 
-                // ── Account ───────────────────────────────────────────────────
-                _Section(
-                  title: l10n.account,
-                  children: [
-                    profileAsync.when(
-                      data: (profile) => _Row(
-                        icon: Icons.person_outline,
-                        label: l10n.displayName,
-                        value: profile?.displayName ?? '—',
-                        showChevron: true,
-                        onTap: () => _editDisplayName(profile?.displayName),
-                      ),
-                      loading: () => const _RowSkeleton(),
-                      error: (_, _) => _Row(
-                        icon: Icons.person_outline,
-                        label: l10n.displayName,
-                        showChevron: true,
-                        onTap: () => _editDisplayName(null),
+                  // ── Gameplay ──────────────────────────────────────────────────
+                  _Section(
+                    title: l10n.gameplay,
+                    trailing: GestureDetector(
+                      onTap: () => _showGameplayInfo(context),
+                      child: Icon(
+                        Icons.info_outline,
+                        size: 15,
+                        color: context.colors.textTertiary,
                       ),
                     ),
-                    _SectionDivider(),
-                    _Row(
-                      icon: Icons.logout,
-                      iconColor: const Color(0xFFEF4444),
-                      label: l10n.signOut,
-                      isDestructive: true,
-                      onTap: _confirmSignOut,
-                    ),
-                    _SectionDivider(),
-                    _Row(
-                      icon: Icons.delete_forever,
-                      iconColor: const Color(0xFFEF4444),
-                      label: l10n.deleteAccount,
-                      isDestructive: true,
-                      onTap: _confirmDeleteAccount,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // ── Subscription ──────────────────────────────────────────────
-                _Section(
-                  title: l10n.subscription,
-                  children: [
-                    _Row(
-                      icon: Icons.workspace_premium,
-                      iconColor: AppColors.gold,
-                      label: l10n.manageSubscription,
-                      showChevron: true,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SubscriptionScreen(),
+                    children: [
+                      _Row(
+                        icon: Icons.vibration,
+                        label: l10n.hapticFeedback,
+                        trailing: Switch.adaptive(
+                          value: hapticEnabled,
+                          activeTrackColor: context.colors.accent,
+                          onChanged: (v) {
+                            ref
+                                .read(hapticFeedbackProvider.notifier)
+                                .setEnabled(v);
+                            if (v) HapticService.buttonTap();
+                          },
                         ),
                       ),
-                    ),
-                    _SectionDivider(),
-                    _Row(
-                      icon: Icons.restore,
-                      label: l10n.restorePurchase,
-                      onTap: _restorePurchase,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
+                      _SectionDivider(),
+                      _SubsectionHeader(label: l10n.singlePlayer),
+                      _SliderRow(
+                        icon: Icons.touch_app,
+                        label: l10n.delayAfterFirstCard,
+                        value: timings.spListenMs.toDouble(),
+                        min: 300,
+                        max: 2000,
+                        divisions: 17,
+                        onChanged: (v) => ref
+                            .read(cardTimingsProvider.notifier)
+                            .setSpListenMs(v.round()),
+                      ),
+                      _SectionDivider(),
+                      _SliderRow(
+                        icon: Icons.flip,
+                        label: l10n.delayAfterMismatch,
+                        value: timings.spNoMatchMs.toDouble(),
+                        min: 400,
+                        max: 2000,
+                        divisions: 16,
+                        onChanged: (v) => ref
+                            .read(cardTimingsProvider.notifier)
+                            .setSpNoMatchMs(v.round()),
+                      ),
+                      _SectionDivider(),
+                      _SubsectionHeader(label: l10n.localMultiplayer),
+                      _SliderRow(
+                        icon: Icons.touch_app,
+                        label: l10n.delayAfterFirstCard,
+                        value: timings.lmpListenMs.toDouble(),
+                        min: 300,
+                        max: 2000,
+                        divisions: 17,
+                        onChanged: (v) => ref
+                            .read(cardTimingsProvider.notifier)
+                            .setLmpListenMs(v.round()),
+                      ),
+                      _SectionDivider(),
+                      _SliderRow(
+                        icon: Icons.flip,
+                        label: l10n.delayAfterMismatch,
+                        value: timings.lmpNoMatchMs.toDouble(),
+                        min: 400,
+                        max: 2000,
+                        divisions: 16,
+                        onChanged: (v) => ref
+                            .read(cardTimingsProvider.notifier)
+                            .setLmpNoMatchMs(v.round()),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
 
-                // ── Language ──────────────────────────────────────────────────
-                _Section(
-                  title: l10n.language,
-                  children: [_LanguageSelector()],
-                ),
-                const SizedBox(height: AppSpacing.xl),
+                  // ── Account ───────────────────────────────────────────────────
+                  _Section(
+                    title: l10n.account,
+                    children: [
+                      profileAsync.when(
+                        data: (profile) => _Row(
+                          icon: Icons.person_outline,
+                          label: l10n.displayName,
+                          value: profile?.displayName ?? '—',
+                          showChevron: true,
+                          onTap: () => _editDisplayName(profile?.displayName),
+                        ),
+                        loading: () => const _RowSkeleton(),
+                        error: (_, _) => _Row(
+                          icon: Icons.person_outline,
+                          label: l10n.displayName,
+                          showChevron: true,
+                          onTap: () => _editDisplayName(null),
+                        ),
+                      ),
+                      _SectionDivider(),
+                      _Row(
+                        icon: Icons.logout,
+                        iconColor: const Color(0xFFEF4444),
+                        label: l10n.signOut,
+                        isDestructive: true,
+                        onTap: _confirmSignOut,
+                      ),
+                      _SectionDivider(),
+                      _Row(
+                        icon: Icons.delete_forever,
+                        iconColor: const Color(0xFFEF4444),
+                        label: l10n.deleteAccount,
+                        isDestructive: true,
+                        onTap: _confirmDeleteAccount,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
 
-                // ── About ─────────────────────────────────────────────────────
-                _Section(
-                  title: l10n.about,
-                  children: [
-                    _Row(
-                      icon: Icons.info_outline,
-                      label: l10n.version,
-                      value: _version.isEmpty ? '—' : _version,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-              ],
+                  // ── Subscription ──────────────────────────────────────────────
+                  _Section(
+                    title: l10n.subscription,
+                    children: [
+                      _Row(
+                        icon: Icons.workspace_premium,
+                        iconColor: AppColors.gold,
+                        label: l10n.manageSubscription,
+                        showChevron: true,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SubscriptionScreen(),
+                          ),
+                        ),
+                      ),
+                      _SectionDivider(),
+                      _Row(
+                        icon: Icons.restore,
+                        label: l10n.restorePurchase,
+                        onTap: _restorePurchase,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // ── Language ──────────────────────────────────────────────────
+                  _Section(
+                    title: l10n.language,
+                    children: [_LanguageSelector()],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // ── About ─────────────────────────────────────────────────────
+                  _Section(
+                    title: l10n.about,
+                    children: [
+                      _Row(
+                        icon: Icons.info_outline,
+                        label: l10n.version,
+                        value: _version.isEmpty ? '—' : _version,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -357,10 +354,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       color: context.colors.accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.tune, size: 16, color: context.colors.accent),
+                    child: Icon(
+                      Icons.tune,
+                      size: 16,
+                      color: context.colors.accent,
+                    ),
                   ),
                   const SizedBox(width: 10),
-                  Text(l10n.cardTiming, style: AppTypography.bodyLarge(context)),
+                  Text(
+                    l10n.cardTiming,
+                    style: AppTypography.bodyLarge(context),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -446,10 +450,7 @@ class _Section extends StatelessWidget {
                 title.toUpperCase(),
                 style: AppTypography.labelSmall(context),
               ),
-              if (trailing != null) ...[
-                const SizedBox(width: 6),
-                trailing!,
-              ],
+              if (trailing != null) ...[const SizedBox(width: 6), trailing!],
             ],
           ),
         ),
@@ -479,7 +480,6 @@ class _Row extends StatelessWidget {
   final String? value;
   final bool showChevron;
   final bool isDestructive;
-  final bool isDisabled;
   final VoidCallback? onTap;
   final Widget? trailing;
 
@@ -490,7 +490,6 @@ class _Row extends StatelessWidget {
     this.value,
     this.showChevron = false,
     this.isDestructive = false,
-    this.isDisabled = false,
     this.onTap,
     this.trailing,
   });
@@ -502,12 +501,10 @@ class _Row extends StatelessWidget {
         : (iconColor ?? context.colors.accent);
     final labelColor = isDestructive
         ? const Color(0xFFEF4444)
-        : (isDisabled
-            ? context.colors.textTertiary
-            : context.colors.textPrimary);
+        : context.colors.textPrimary;
 
     return GestureDetector(
-      onTap: isDisabled ? null : onTap,
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -533,10 +530,7 @@ class _Row extends StatelessWidget {
               const SizedBox(width: 8),
               Text(value!, style: AppTypography.bodySmall(context)),
             ],
-            if (trailing != null) ...[
-              const SizedBox(width: 8),
-              trailing!,
-            ],
+            if (trailing != null) ...[const SizedBox(width: 8), trailing!],
             if (showChevron)
               Icon(
                 Icons.chevron_right,
@@ -544,106 +538,6 @@ class _Row extends StatelessWidget {
                 color: context.colors.textTertiary,
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Theme selector ───────────────────────────────────────────────────────────
-
-class _ThemeSelector extends ConsumerWidget {
-  final ThemeMode current;
-
-  const _ThemeSelector({required this.current});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          _ThemeOption(
-            icon: Icons.brightness_auto,
-            label: l10n.system,
-            isSelected: current == ThemeMode.system,
-            onTap: () => ref
-                .read(themeModeProvider.notifier)
-                .setThemeMode(ThemeMode.system),
-          ),
-          const SizedBox(width: 8),
-          _ThemeOption(
-            icon: Icons.light_mode,
-            label: l10n.light,
-            isSelected: current == ThemeMode.light,
-            onTap: () => ref
-                .read(themeModeProvider.notifier)
-                .setThemeMode(ThemeMode.light),
-          ),
-          const SizedBox(width: 8),
-          _ThemeOption(
-            icon: Icons.dark_mode,
-            label: l10n.dark,
-            isSelected: current == ThemeMode.dark,
-            onTap: () => ref
-                .read(themeModeProvider.notifier)
-                .setThemeMode(ThemeMode.dark),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ThemeOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ThemeOption({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? context.colors.accent : context.colors.elevated,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isSelected
-                    ? AppColors.white
-                    : context.colors.textSecondary,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: AppTypography.labelSmall(context).copyWith(
-                  color: isSelected
-                      ? AppColors.white
-                      : context.colors.textSecondary,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -666,10 +560,19 @@ class _AccentColorSelector extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            padding: const EdgeInsets.only(left: 4, bottom: 4),
             child: Text(
               l10n.accentColor,
               style: AppTypography.labelSmall(context),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 10),
+            child: Text(
+              l10n.accentColorDescription,
+              style: AppTypography.bodySmall(
+                context,
+              ).copyWith(color: context.colors.textTertiary, fontSize: 12),
             ),
           ),
           Row(
@@ -754,8 +657,7 @@ class _AccentOption extends StatelessWidget {
                   color: isSelected
                       ? AppColors.white
                       : context.colors.textSecondary,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ],
@@ -791,10 +693,9 @@ class _SubsectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Text(
         label.toUpperCase(),
-        style: AppTypography.labelSmall(context).copyWith(
-          color: context.colors.accent,
-          fontWeight: FontWeight.w700,
-        ),
+        style: AppTypography.labelSmall(
+          context,
+        ).copyWith(color: context.colors.accent, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -842,9 +743,7 @@ class _SliderRow extends StatelessWidget {
                 child: Icon(icon, size: 16, color: context.colors.accent),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: Text(label, style: AppTypography.label(context)),
-              ),
+              Expanded(child: Text(label, style: AppTypography.label(context))),
               Text(
                 _fmt(value),
                 style: AppTypography.label(context).copyWith(
@@ -896,26 +795,23 @@ class _LanguageSelector extends ConsumerWidget {
             icon: Icons.brightness_auto,
             label: l10n.languageSystem,
             isSelected: current == null,
-            onTap: () =>
-                ref.read(localeProvider.notifier).setLocale(null),
+            onTap: () => ref.read(localeProvider.notifier).setLocale(null),
           ),
           const SizedBox(width: 8),
           _LanguageOption(
             icon: Icons.language,
             label: l10n.english,
             isSelected: current?.languageCode == 'en',
-            onTap: () => ref
-                .read(localeProvider.notifier)
-                .setLocale(const Locale('en')),
+            onTap: () =>
+                ref.read(localeProvider.notifier).setLocale(const Locale('en')),
           ),
           const SizedBox(width: 8),
           _LanguageOption(
             icon: Icons.language,
             label: l10n.turkce,
             isSelected: current?.languageCode == 'tr',
-            onTap: () => ref
-                .read(localeProvider.notifier)
-                .setLocale(const Locale('tr')),
+            onTap: () =>
+                ref.read(localeProvider.notifier).setLocale(const Locale('tr')),
           ),
         ],
       ),
@@ -965,8 +861,7 @@ class _LanguageOption extends StatelessWidget {
                   color: isSelected
                       ? AppColors.white
                       : context.colors.textSecondary,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ],
@@ -1040,9 +935,9 @@ class _EditNameDialog extends StatelessWidget {
               maxLength: 20,
               decoration: InputDecoration(
                 hintText: l10n.yourNameHint,
-                hintStyle: AppTypography.body(context).copyWith(
-                  color: context.colors.textTertiary,
-                ),
+                hintStyle: AppTypography.body(
+                  context,
+                ).copyWith(color: context.colors.textTertiary),
                 counterStyle: AppTypography.labelSmall(context),
                 filled: true,
                 fillColor: context.colors.surface,
@@ -1052,8 +947,10 @@ class _EditNameDialog extends StatelessWidget {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppRadius.button),
-                  borderSide:
-                      BorderSide(color: context.colors.accent, width: 2),
+                  borderSide: BorderSide(
+                    color: context.colors.accent,
+                    width: 2,
+                  ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
@@ -1072,10 +969,8 @@ class _EditNameDialog extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: context.colors.surface,
-                        borderRadius:
-                            BorderRadius.circular(AppRadius.button),
-                        border:
-                            Border.all(color: context.colors.elevated),
+                        borderRadius: BorderRadius.circular(AppRadius.button),
+                        border: Border.all(color: context.colors.elevated),
                       ),
                       child: Center(
                         child: Text(
@@ -1089,23 +984,21 @@ class _EditNameDialog extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () =>
-                        Navigator.pop(context, controller.text),
+                    onTap: () => Navigator.pop(context, controller.text),
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
                         color: context.colors.accent,
-                        borderRadius:
-                            BorderRadius.circular(AppRadius.button),
+                        borderRadius: BorderRadius.circular(AppRadius.button),
                       ),
                       child: Center(
                         child: Text(
                           l10n.save,
-                          style:
-                              AppTypography.buttonSecondary(context).copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: AppTypography.buttonSecondary(context)
+                              .copyWith(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                       ),
                     ),
@@ -1152,13 +1045,19 @@ class _InfoItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: AppTypography.label(context)
-                      .copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                title,
+                style: AppTypography.label(
+                  context,
+                ).copyWith(fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 2),
-              Text(description,
-                  style: AppTypography.bodySmall(context)
-                      .copyWith(color: context.colors.textSecondary)),
+              Text(
+                description,
+                style: AppTypography.bodySmall(
+                  context,
+                ).copyWith(color: context.colors.textSecondary),
+              ),
             ],
           ),
         ),
