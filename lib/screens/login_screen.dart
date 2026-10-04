@@ -26,6 +26,12 @@ const _kPrivacyUrl = 'https://musicmemo.app/privacy';
 /// 44 is also Apple's minimum tap target.
 const double _kSocialButtonHeight = 44;
 
+/// Segmented track geometry. The inner radius keeps the selected tab's corners
+/// concentric with the track's, which is what makes the pill look deliberate.
+const double _kTabBarRadius = 12;
+const double _kTabBarInset = 4;
+const double _kTabBarInnerRadius = _kTabBarRadius - _kTabBarInset;
+
 Future<void> _openLegalPage(String url) async {
   final uri = Uri.parse(url);
   if (await canLaunchUrl(uri)) {
@@ -52,6 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isFirstLaunch = true;
   bool _showEmailForm = false;
   String? _errorMessage;
+
+  /// Focused when the email form opens so the user can start typing straight
+  /// away instead of having to tap the first field.
+  final FocusNode _firstFieldFocus = FocusNode();
 
   Future<void> _signInWithGoogle() async {
     setState(() {
@@ -106,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
+    _firstFieldFocus.dispose();
     super.dispose();
   }
 
@@ -405,12 +416,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     setState(() {
                       _showEmailForm = true;
                       _errorMessage = null;
+                      _focusFirstField();
                     });
                   },
           ),
         ),
       ],
     );
+  }
+
+  void _focusFirstField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _firstFieldFocus.requestFocus();
+    });
   }
 
   Widget _buildEmailForm() {
@@ -421,9 +439,10 @@ class _LoginScreenState extends State<LoginScreen> {
         Container(
           decoration: BoxDecoration(
             color: context.colors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.button),
+            borderRadius: BorderRadius.circular(_kTabBarRadius),
+            border: Border.all(color: context.colors.elevated),
           ),
-          padding: const EdgeInsets.all(4),
+          padding: const EdgeInsets.all(_kTabBarInset),
           child: Row(
             children: [
               _buildTab(l10n.signIn, !_isSignUp, isSignUp: false),
@@ -443,16 +462,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (_isSignUp) ...[
                   _buildTextField(
                     controller: _nameController,
-                    hint: l10n.displayNameOptional,
+                    label: l10n.displayNameOptional,
                     icon: Icons.person_outline,
                     textInputAction: TextInputAction.next,
                     textCapitalization: TextCapitalization.words,
+                    focusNode: _firstFieldFocus,
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.md),
                 ],
                 _buildTextField(
                   controller: _emailController,
-                  hint: l10n.email,
+                  label: l10n.email,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
@@ -468,11 +488,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
                 _buildTextField(
                   controller: _passwordController,
-                  hint: l10n.password,
+                  label: l10n.password,
                   icon: Icons.lock_outline,
+                  // State the rule up front instead of only rejecting it after
+                  // the first submit.
+                  helperText: _isSignUp ? l10n.passwordMinLength : null,
                   obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
                   textCapitalization: TextCapitalization.none,
@@ -593,11 +616,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     _errorMessage = null;
                   });
                 },
-          child: Text(
-            '← ${l10n.otherSignInOptions}',
-            style: AppTypography.bodySmall(
-              context,
-            ).copyWith(color: context.colors.textTertiary),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.arrow_back,
+                size: 14,
+                color: context.colors.textTertiary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.otherSignInOptions,
+                style: AppTypography.bodySmall(
+                  context,
+                ).copyWith(color: context.colors.textTertiary),
+              ),
+            ],
           ),
         ),
       ],
@@ -607,6 +641,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildTab(String label, bool active, {required bool isSignUp}) {
     return Expanded(
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: _isLoading
             ? null
             : () {
@@ -616,25 +651,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 });
               },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 11),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: active ? AppColors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.button - 4),
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                : null,
+            // A soft accent tint instead of a solid white pill. White was the
+            // brightest thing on a #1C1C1E screen and read as a highlight
+            // rather than a selection.
+            color: active ? context.colors.accentSoft : Colors.transparent,
+            // Concentric with the track: outer radius minus the inset. Written
+            // this way rather than as `AppRadius.button - 4` so it cannot drift
+            // when the radius token changes.
+            borderRadius: BorderRadius.circular(_kTabBarInnerRadius),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: AppTypography.label(context).copyWith(
+            style: AppTypography.buttonSecondary(context).copyWith(
+              fontSize: 16,
               color: active
                   ? context.colors.accent
                   : context.colors.textTertiary,
@@ -646,10 +681,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// A labelled form field.
+  ///
+  /// The label sits above the input rather than being used as a placeholder.
+  /// Placeholder-as-label is the amateur pattern: it disappears the moment the
+  /// user types, leaving no way to tell which of three stacked boxes holds the
+  /// email and which holds the password. [helperText] carries standing
+  /// guidance, e.g. the password rule, shown before the user ever submits.
   Widget _buildTextField({
     required TextEditingController controller,
-    required String hint,
+    required String label,
     required IconData icon,
+    String? helperText,
     TextInputType? keyboardType,
     bool obscureText = false,
     Widget? suffixIcon,
@@ -660,8 +703,10 @@ class _LoginScreenState extends State<LoginScreen> {
     ValueChanged<String>? onFieldSubmitted,
     bool autocorrect = true,
     bool enableSuggestions = true,
+    FocusNode? focusNode,
   }) {
-    return TextFormField(
+    final field = TextFormField(
+      focusNode: focusNode,
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
@@ -676,10 +721,6 @@ class _LoginScreenState extends State<LoginScreen> {
       scrollPadding: const EdgeInsets.symmetric(vertical: 96),
       style: AppTypography.body(context),
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: AppTypography.body(
-          context,
-        ).copyWith(color: context.colors.textTertiary),
         prefixIcon: Icon(icon, color: context.colors.textTertiary),
         suffixIcon: suffixIcon,
         filled: true,
@@ -709,6 +750,27 @@ class _LoginScreenState extends State<LoginScreen> {
           vertical: AppSpacing.lg,
         ),
       ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 2, bottom: 6),
+          child: Text(label, style: AppTypography.labelSmall(context)),
+        ),
+        field,
+        if (helperText != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 2, top: 6),
+            child: Text(
+              helperText,
+              style: AppTypography.labelSmall(
+                context,
+              ).copyWith(color: context.colors.textTertiary),
+            ),
+          ),
+      ],
     );
   }
 }
