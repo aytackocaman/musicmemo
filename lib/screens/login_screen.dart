@@ -196,6 +196,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // Read the real keyboard height above the Scaffold. Once the body is laid
+    // out, Scaffold has already consumed the bottom view inset for its own
+    // resize, so reading MediaQuery inside the body would always yield 0.
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     return Scaffold(
       backgroundColor: context.colors.background,
       body: GestureDetector(
@@ -204,10 +208,18 @@ class _LoginScreenState extends State<LoginScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                physics: _showEmailForm
-                    ? const NeverScrollableScrollPhysics()
-                    : null,
-                padding: const EdgeInsets.all(AppSpacing.xl),
+                // Must stay scrollable while the email form is open. On short
+                // devices (iPhone 13 mini) the software keyboard covers the
+                // password field and the submit button, and without scrolling
+                // there is no way to reach them.
+                padding: EdgeInsets.only(
+                  left: AppSpacing.xl,
+                  right: AppSpacing.xl,
+                  top: AppSpacing.xl,
+                  // Headroom so the last field, the submit button and the
+                  // forgot-password link can be scrolled clear of the keyboard.
+                  bottom: AppSpacing.xl + keyboardInset,
+                ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight - 2 * AppSpacing.xl,
@@ -378,6 +390,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _nameController,
                     hint: l10n.displayNameOptional,
                     icon: Icons.person_outline,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                 ],
@@ -386,6 +400,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   hint: l10n.email,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  textCapitalization: TextCapitalization.none,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   autofillHints: const [AutofillHints.email],
                   validator: (value) {
                     if (value == null || value.isEmpty) return l10n.pleaseEnterEmail;
@@ -399,6 +417,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   hint: l10n.password,
                   icon: Icons.lock_outline,
                   obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  textCapitalization: TextCapitalization.none,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  onFieldSubmitted: (_) {
+                    // The keyboard's Done key signs in, same as the button.
+                    FocusScope.of(context).unfocus();
+                    if (!_isLoading) _submit();
+                  },
                   autofillHints: _isSignUp
                       ? const [AutofillHints.newPassword]
                       : const [AutofillHints.password],
@@ -547,6 +574,11 @@ class _LoginScreenState extends State<LoginScreen> {
     Widget? suffixIcon,
     List<String>? autofillHints,
     String? Function(String?)? validator,
+    TextInputAction? textInputAction,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    ValueChanged<String>? onFieldSubmitted,
+    bool autocorrect = true,
+    bool enableSuggestions = true,
   }) {
     return TextFormField(
       controller: controller,
@@ -554,6 +586,13 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: obscureText,
       autofillHints: autofillHints,
       validator: validator,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      onFieldSubmitted: onFieldSubmitted,
+      autocorrect: autocorrect,
+      enableSuggestions: enableSuggestions,
+      // Let the scroll view lift the focused field clear of the keyboard.
+      scrollPadding: const EdgeInsets.symmetric(vertical: 96),
       style: AppTypography.body(context),
       decoration: InputDecoration(
         hintText: hint,
