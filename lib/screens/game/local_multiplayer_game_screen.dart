@@ -925,12 +925,13 @@ class _MultiplayerWinScreen extends ConsumerWidget {
   });
 
   bool _isPremium(WidgetRef ref) {
-    if (DevConfig.bypassPaywall) return true;
-    return ref.read(subscriptionProvider).when(
-          data: (sub) => sub.canAccessPremiumFeatures,
-          loading: () => false,
-          error: (_, _) => false,
-        );
+    return DevConfig.resolvePremium(
+      ref.read(subscriptionProvider).when(
+        data: (sub) => sub.canAccessPremiumFeatures,
+        loading: () => false,
+        error: (_, _) => false,
+      ),
+    );
   }
 
   @override

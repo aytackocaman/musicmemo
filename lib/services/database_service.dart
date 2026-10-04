@@ -377,12 +377,22 @@ class SoundModel {
 class DatabaseService {
   static SupabaseClient get _client => SupabaseService.client;
 
-  /// The "game day" runs from 3 AM to 3 AM local time.
-  /// If the current time is before 3 AM, the game day is still "yesterday."
+  /// The "game day" is the UTC calendar date.
+  ///
+  /// Counting is done server-side by `increment_game_count()`, which keys rows
+  /// on `(now() at time zone 'UTC')::date`. The client has to derive exactly the
+  /// same value, otherwise it reads a row that does not exist yet and the user
+  /// silently gets a fresh quota.
+  ///
+  /// UTC is used rather than the previous local-time 3 AM boundary so that both
+  /// sides always agree regardless of device timezone. For the owner's own
+  /// timezone (Europe/Istanbul, UTC+3) this keeps the intended ~3 AM reset.
   static String getGameDay() {
-    final now = DateTime.now();
-    final gameDay = now.hour < 3 ? now.subtract(const Duration(days: 1)) : now;
-    return gameDay.toIso8601String().split('T')[0];
+    final now = DateTime.now().toUtc();
+    final y = now.year.toString().padLeft(4, '0');
+    final m = now.month.toString().padLeft(2, '0');
+    final d = now.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
   }
 
   /// Get current user's profile
@@ -446,31 +456,6 @@ class DatabaseService {
     }
   }
 
-  /// Upsert subscription state synced from RevenueCat.
-  /// Keeps the `subscriptions` table a usable cache of the real
-  /// subscription (RevenueCat stays the source of truth).
-  static Future<bool> upsertSubscription({
-    required String plan,
-    DateTime? expiresAt,
-  }) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return false;
-
-    try {
-      await _client.from('subscriptions').upsert({
-        'user_id': user.id,
-        'plan': plan,
-        'status': 'active',
-        'expires_at': expiresAt?.toUtc().toIso8601String(),
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }, onConflict: 'user_id');
-      return true;
-    } catch (e) {
-      print('Error syncing subscription: $e');
-      return false;
-    }
-  }
-
   /// Get today's game counts for free tier tracking
   static Future<DailyGameCounts> getDailyGameCounts() async {
     final user = _client.auth.currentUser;
@@ -493,22 +478,20 @@ class DatabaseService {
     }
   }
 
-  /// Check if user can play a specific game mode
-  /// Returns true if allowed, false if limit reached (and not premium)
+  /// Check if user can play a specific game mode.
+  ///
+  /// Returns true if allowed, false if the daily limit is reached.
+  ///
+  /// This NEVER treats the `subscriptions` cache as an entitlement: the client
+  /// has no write access to that table, and premium must be decided by
+  /// RevenueCat only (see zz_notes_credentials/security-audit.md, fix #1).
+  /// Callers that need premium awareness should use `subscriptionProvider`.
   static Future<bool> canPlayGameMode(String gameMode) async {
-    final subscription = await getSubscription();
-
-    // Premium users have unlimited access
-    if (subscription.canAccessPremiumFeatures) {
-      return true;
-    }
-
-    // Online multiplayer always requires premium
+    // Online multiplayer is a premium-only mode.
     if (gameMode == 'online_multiplayer') {
       return false;
     }
 
-    // Check daily limits for free users
     final counts = await getDailyGameCounts();
 
     switch (gameMode) {
@@ -521,39 +504,18 @@ class DatabaseService {
     }
   }
 
-  /// Increment game count after starting a game.
-  /// Uses a direct select-then-upsert with [getGameDay] so the date aligns
-  /// with the 3 AM reset boundary instead of the server's UTC midnight.
+  /// Increment the free-tier counter for [gameMode].
+  ///
+  /// Counting is performed server-side by `increment_game_count()`, which takes
+  /// the user id from the caller's JWT. The client has no write access to
+  /// `daily_game_counts`, so the quota can no longer be reset by writing
+  /// `single_player_count = 0`.
+  /// See zz_notes_credentials/security-audit.md, fix #2.
   static Future<void> incrementGameCount(String gameMode) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return;
-
     try {
-      final today = getGameDay();
-
-      // Fetch existing row for this game day
-      final existing = await _client
-          .from('daily_game_counts')
-          .select()
-          .eq('user_id', user.id)
-          .eq('date', today)
-          .maybeSingle();
-
-      final currentSp =
-          (existing?['single_player_count'] as int?) ?? 0;
-      final currentLm =
-          (existing?['local_multiplayer_count'] as int?) ?? 0;
-
-      await _client.from('daily_game_counts').upsert(
-        {
-          'user_id': user.id,
-          'date': today,
-          'single_player_count':
-              gameMode == 'single_player' ? currentSp + 1 : currentSp,
-          'local_multiplayer_count':
-              gameMode == 'local_multiplayer' ? currentLm + 1 : currentLm,
-        },
-        onConflict: 'user_id,date',
+      await _client.rpc(
+        'increment_game_count',
+        params: {'p_game_mode': gameMode},
       );
     } catch (e) {
       print('Error incrementing game count: $e');

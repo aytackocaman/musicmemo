@@ -66,12 +66,13 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   }
 
   bool get _isPremium {
-    if (DevConfig.bypassPaywall) return true;
-    return ref.read(subscriptionProvider).when(
-          data: (sub) => sub.canAccessPremiumFeatures,
-          loading: () => false,
-          error: (_, _) => false,
-        );
+    return DevConfig.resolvePremium(
+      ref.read(subscriptionProvider).when(
+        data: (sub) => sub.canAccessPremiumFeatures,
+        loading: () => false,
+        error: (_, _) => false,
+      ),
+    );
   }
 
   /// Groups categories by sub_group, preserving sort order.

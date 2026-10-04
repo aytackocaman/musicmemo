@@ -10,9 +10,17 @@ class DevConfig {
 
   /// Toggle this at runtime via the debug banner on the mode screen.
   /// Defaults to true in debug mode, always false in release.
-  static bool _bypassPaywall = false;
+  static bool _bypassPaywall =
+      const bool.fromEnvironment('BYPASS_PAYWALL', defaultValue: false);
 
   static bool get bypassPaywall => kDebugMode && _bypassPaywall;
+
+  /// In debug builds the toggle is a complete premium override, so turning it
+  /// off forces the free state even when a real subscription is cached.
+  static bool resolvePremium(bool actualPremium) =>
+      kDebugMode ? _bypassPaywall : actualPremium;
+
+  static bool get premiumOverrideActive => kDebugMode;
 
   static void togglePaywall() {
     if (kDebugMode) {

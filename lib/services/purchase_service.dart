@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
-import 'database_service.dart';
 
 /// Entitlement identifier configured in RevenueCat dashboard.
 const _entitlementId = 'premium';
@@ -27,10 +26,13 @@ class PremiumStatus {
   static const free = PremiumStatus(isPremium: false, plan: 'free');
 }
 
-/// Singleton wrapper around RevenueCat SDK (v9).
+/// Singleton wrapper around RevenueCat SDK (v10).
 ///
-/// Source of truth for subscription status once configured.
-/// Falls back gracefully when no API key is set.
+/// RevenueCat is the single source of truth for premium state. Nothing is
+/// mirrored into Supabase: the client no longer has write access to the
+/// `subscriptions` cache, and a cached row must never be able to grant
+/// premium (see zz_notes_credentials/security-audit.md, fix #1). Once the
+/// RevenueCat webhook lands, service_role writes the cache server-side.
 class PurchaseService {
   PurchaseService._();
 
@@ -69,8 +71,7 @@ class PurchaseService {
   static Future<void> login(String userId) async {
     if (!_initialized) return;
     try {
-      final result = await Purchases.logIn(userId);
-      await _syncToSupabase(_statusFromCustomerInfo(result.customerInfo));
+      await Purchases.logIn(userId);
     } catch (e) {
       debugPrint('RevenueCat login error: $e');
     }
@@ -107,9 +108,7 @@ class PurchaseService {
     if (!_initialized) return null;
     try {
       final info = await Purchases.getCustomerInfo();
-      final status = _statusFromCustomerInfo(info);
-      await _syncToSupabase(status);
-      return status;
+      return _statusFromCustomerInfo(info);
     } catch (e) {
       debugPrint('RevenueCat getPremiumStatus error: $e');
       return null;
@@ -139,20 +138,6 @@ class PurchaseService {
     }
 
     return PremiumStatus(isPremium: true, plan: plan, expiresAt: expiresAt);
-  }
-
-  /// Persist premium state to the Supabase `subscriptions` table so it
-  /// stays a usable cache when RevenueCat is unreachable.
-  ///
-  /// Only premium states are written. Downgrades need no write: the
-  /// stored `expires_at` is real, so the cached subscription flips to
-  /// expired on its own at the right time.
-  static Future<void> _syncToSupabase(PremiumStatus status) async {
-    if (!status.isPremium) return;
-    await DatabaseService.upsertSubscription(
-      plan: status.plan,
-      expiresAt: status.expiresAt,
-    );
   }
 
   /// Get full customer info for detailed subscription status.
@@ -194,9 +179,7 @@ class PurchaseService {
     if (!_initialized) return false;
     try {
       final result = await Purchases.purchase(PurchaseParams.package(package));
-      final status = _statusFromCustomerInfo(result.customerInfo);
-      await _syncToSupabase(status);
-      return status.isPremium;
+      return _statusFromCustomerInfo(result.customerInfo).isPremium;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
@@ -217,9 +200,7 @@ class PurchaseService {
     if (!_initialized) return false;
     try {
       final info = await Purchases.restorePurchases();
-      final status = _statusFromCustomerInfo(info);
-      await _syncToSupabase(status);
-      return status.isPremium;
+      return _statusFromCustomerInfo(info).isPremium;
     } catch (e) {
       debugPrint('RevenueCat restore error: $e');
       return false;

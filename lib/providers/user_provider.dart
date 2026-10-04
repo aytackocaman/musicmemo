@@ -16,7 +16,11 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
 });
 
 /// Provider for user subscription.
-/// Checks RevenueCat first (if configured), falls back to Supabase.
+///
+/// RevenueCat is the ONLY source that can grant premium. The Supabase
+/// `subscriptions` row is a server-written cache and must never be able to
+/// grant access — trusting it would let a user self-grant premium by writing
+/// their own row (see zz_notes_credentials/security-audit.md, fix #1).
 final subscriptionProvider = FutureProvider<UserSubscription>((ref) async {
   final authState = ref.watch(authProvider);
 
@@ -25,7 +29,7 @@ final subscriptionProvider = FutureProvider<UserSubscription>((ref) async {
     return UserSubscription.free();
   }
 
-  // RevenueCat is the source of truth when configured
+  // RevenueCat is the source of truth.
   if (PurchaseService.isConfigured) {
     final premiumStatus = await PurchaseService.getPremiumStatus();
     if (premiumStatus != null && premiumStatus.isPremium) {
@@ -36,12 +40,11 @@ final subscriptionProvider = FutureProvider<UserSubscription>((ref) async {
         expiresAt: premiumStatus.expiresAt,
       );
     }
-    // Not premium (or RevenueCat unreachable): fall through to the
-    // Supabase cache, which holds the last synced plan + real expiry.
   }
 
-  // Fallback to Supabase (works offline / without RevenueCat key)
-  return DatabaseService.getSubscription();
+  // Fail closed. If RevenueCat is unreachable or reports non-premium we treat
+  // the user as free rather than trusting a cached database row.
+  return UserSubscription.free();
 });
 
 /// Convenience provider for checking premium status
