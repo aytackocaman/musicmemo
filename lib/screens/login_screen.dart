@@ -19,6 +19,13 @@ const _kHasLoggedInBefore = 'has_logged_in_before';
 const _kTermsUrl = 'https://musicmemo.app/terms';
 const _kPrivacyUrl = 'https://musicmemo.app/privacy';
 
+/// Height shared by the three "Sign in with ..." buttons.
+///
+/// Apple's official badge sizes its own label as height * 0.43, so all three
+/// must share a height for their text to match: 44 renders the badge at ~19px.
+/// 44 is also Apple's minimum tap target.
+const double _kSocialButtonHeight = 44;
+
 Future<void> _openLegalPage(String url) async {
   final uri = Uri.parse(url);
   if (await canLaunchUrl(uri)) {
@@ -236,10 +243,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 350),
                               curve: Curves.easeInOut,
-                              width: _showEmailForm ? 120 : 200,
-                              height: _showEmailForm ? 120 : 200,
+                              // 200px pushed the actual controls below the
+                              // fold on a 13 mini. Trimmed for breathing room.
+                              width: _showEmailForm ? 96 : 140,
+                              height: _showEmailForm ? 96 : 140,
                               child: AnimatedAppIcon(
-                                size: _showEmailForm ? 120 : 200,
+                                size: _showEmailForm ? 96 : 140,
                               ),
                             ),
                             AnimatedContainer(
@@ -384,7 +393,9 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: _isLoading ? () {} : _signInWithGoogle,
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
+        const _SignInDivider(),
+        const SizedBox(height: AppSpacing.lg),
         SizedBox(
           width: double.infinity,
           child: _EmailSignInButton(
@@ -450,8 +461,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   enableSuggestions: false,
                   autofillHints: const [AutofillHints.email],
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return l10n.pleaseEnterEmail;
+                    }
                     if (!value.contains('@')) return l10n.pleaseEnterValidEmail;
                     return null;
                   },
@@ -485,10 +497,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return l10n.pleaseEnterPassword;
-                    if (_isSignUp && value.length < 6)
+                    }
+                    if (_isSignUp && value.length < 6) {
                       return l10n.passwordMinLength;
+                    }
                     return null;
                   },
                 ),
@@ -503,19 +517,26 @@ class _LoginScreenState extends State<LoginScreen> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
+              // Tinted dark surface rather than a near-white block: the old
+              // Colors.red.shade50 painted a glaring pink rectangle over the
+              // #1C1C1E background on every mistyped password.
+              color: AppColors.danger.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(
+                color: AppColors.danger.withValues(alpha: 0.32),
+              ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                Icon(Icons.error_outline, color: AppColors.danger, size: 18),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
                     _errorMessage!,
                     style: AppTypography.bodySmall(
                       context,
-                    ).copyWith(color: Colors.red.shade700),
+                    ).copyWith(color: AppColors.danger),
                   ),
                 ),
               ],
@@ -701,12 +722,14 @@ class _GoogleSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return SizedBox(
-      height: 56,
+      height: _kSocialButtonHeight,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
-          side: BorderSide(color: Colors.grey.shade300),
+          // Google's branding spec calls for a #DADCE0 outline on the white
+          // button, not Material's grey.shade300.
+          side: const BorderSide(color: Color(0xFFDADCE0)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
           ),
@@ -718,7 +741,7 @@ class _GoogleSignInButton extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               l10n.signInWithGoogle,
-              style: AppTypography.body(context).copyWith(
+              style: AppTypography.button(context).copyWith(
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF3C4043),
               ),
@@ -749,6 +772,30 @@ class _GoogleG extends StatelessWidget {
 /// other providers, and the logo must be drawn by the platform rather than
 /// substituted with the U+F8FF private-use glyph — that glyph only exists in
 /// Apple's system font and rendered as an empty box on web and Android.
+/// Thin rule with a centered "OR", separating the one-tap providers from the
+/// email option so the three buttons do not read as one undifferentiated stack.
+class _SignInDivider extends StatelessWidget {
+  const _SignInDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final rule = Expanded(
+      child: Container(height: 1, color: context.colors.elevated),
+    );
+    return Row(
+      children: [
+        rule,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Text(l10n.or, style: AppTypography.labelSmall(context)),
+        ),
+        rule,
+      ],
+    );
+  }
+}
+
 class _AppleSignInButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
@@ -759,13 +806,18 @@ class _AppleSignInButton extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Apple's badge derives its own font size from its height
+    // (fontSize = height * 0.43) and exposes no text-size override, so height
+    // is the only lever. At 56 it rendered 24px - larger than the primary CTA
+    // and visually louder than it should be. 44 is Apple's own minimum tap
+    // target and renders ~19px, matching the other two buttons at 18px.
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: _kSocialButtonHeight,
       child: SignInWithAppleButton(
         onPressed: onPressed,
         text: l10n.signInWithApple,
-        height: 56,
+        height: _kSocialButtonHeight,
         // Match the rest of the app's button treatment rather than Apple's
         // default 8px radius.
         borderRadius: BorderRadius.circular(AppRadius.button),
@@ -787,7 +839,7 @@ class _EmailSignInButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return SizedBox(
-      height: 56,
+      height: _kSocialButtonHeight,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
@@ -808,7 +860,7 @@ class _EmailSignInButton extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               l10n.signInWithEmail,
-              style: AppTypography.body(context).copyWith(
+              style: AppTypography.button(context).copyWith(
                 fontWeight: FontWeight.w600,
                 color: context.colors.textPrimary,
               ),

@@ -231,6 +231,11 @@ class AppColors {
   // Badge / accent
   static const green = Color(0xFF10B981); // emerald-500
   static const gold = Color(0xFFFBBF24); // amber-400
+
+  /// Error and destructive. Deliberately light enough to read as text on the
+  /// dark surface (#1C1C1E). Material's red.shade700 (#D32F2F) was unreadable
+  /// there, and red.shade50 painted a near-white block on a near-black screen.
+  static const danger = Color(0xFFFF6B6B);
 }
 
 /// App typography using Google Fonts.
